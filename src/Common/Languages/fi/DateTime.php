@@ -1,0 +1,14 @@
+<?php
+$lang['01_Short']='Tam';
+$lang['02_Short']='Hel';
+$lang['03_Short']='Maa';
+$lang['04_Short']='Huh';
+$lang['05_Short']='Tou';
+$lang['06_Short']='Kes';
+$lang['07_Short']='Hei';
+$lang['08_Short']='Elo';
+$lang['09_Short']='Syy';
+$lang['10_Short']='Lok';
+$lang['11_Short']='Mar';
+$lang['12_Short']='Jou';
+?>

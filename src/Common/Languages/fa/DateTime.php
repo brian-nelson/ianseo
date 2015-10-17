@@ -1,0 +1,14 @@
+<?php
+$lang['01_Short']='ژانویه';
+$lang['02_Short']='فوریه';
+$lang['03_Short']='مارس';
+$lang['04_Short']='آوریل';
+$lang['05_Short']='می';
+$lang['06_Short']='جون';
+$lang['07_Short']='جولای';
+$lang['08_Short']='آگوست';
+$lang['09_Short']='سپتامبر';
+$lang['10_Short']='اکتبر';
+$lang['11_Short']='نوامبر';
+$lang['12_Short']='دسامبر';
+?>

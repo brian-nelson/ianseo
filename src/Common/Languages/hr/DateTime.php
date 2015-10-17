@@ -1,0 +1,14 @@
+<?php
+$lang['01_Short']='Sij';
+$lang['02_Short']='Velj';
+$lang['03_Short']='Ožu';
+$lang['04_Short']='Tra';
+$lang['05_Short']='Svi';
+$lang['06_Short']='Lip';
+$lang['07_Short']='Srp';
+$lang['08_Short']='Kol';
+$lang['09_Short']='Ruj';
+$lang['10_Short']='Lis';
+$lang['11_Short']='Stu';
+$lang['12_Short']='Pro';
+?>
