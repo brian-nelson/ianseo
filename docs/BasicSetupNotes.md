@@ -1,0 +1,1 @@
+Basic Setup Notes for simple tournament
