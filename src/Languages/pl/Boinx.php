@@ -1,0 +1,30 @@
+<?php
+$lang['Activate']='Aktywuj';
+$lang['Archery3SetsScores.qtz']='Ta warstwa tworzy podgląd na wyniki trwającego pojedynku na dole strony. Ręczne bądź zaprogramowane odświeżanie danych z Ianseo live event. Pokazuje punkty w secie oraz poprzednie punkty setowe.';
+$lang['Archery5SetsScores.qtz']='Ta warstwa tworzy na dole ekranu podgląd wyników trwającego pojedynku. Ręczne lub zaprogramowane odświeżanie danych. Pokazuje punkty w secie i wszystkie poprzednie punkty setowe.';
+$lang['ArcheryEventHeader.qtz']='Ta warstwa tworzy podgląd na tytuł pojedynku na górze strony. Dane pochodzą z Ianseo live, ale wymagają ręcznego odświeżania.';
+$lang['ArcheryTeamScores.qtz']='Tak jak Archery5SetsScores.qtz, ale dla drużyn.';
+$lang['ArcheryTopScoring.qtz']='Pokazuje wyniki trwającego pojedynku w górnym lewym rogu ekranu lub na cały ekran. Można połączyć ze zdjęciem oraz flagą Zawodnika. System setowy lub kumulatywny.';
+$lang['BoinxLayer']='Warstwa Boinx';
+$lang['BoinxSchedule']='Harmonogramowanie warstw Boinx';
+$lang['DirNotWriteable']='Katalog nie jest zapisywalny!';
+$lang['Download']='Pobierz';
+$lang['HowToUse']='Jak zintegrować Ianseo i Boinx';
+$lang['Ianseo30.qtz']='Mała animacja, aby świętować wspaniałą serię. <br/>Taka sama animacja (z innymi strzałami) dla Persect 20, 30, 40, 60. <br/> Inna animacja dla 29, 39, 59.';
+$lang['IanseoCrono.qtz']='Mierzenie czasu dla naprzemiennego strzelania. Ta warstwa wymaga bardzo szybkiego komputera. Zatrzymanie jednego czasu spowoduje start drugiego. W pełni ręczna kontrola. W przyszłości pobierze dane ze stanowiska DoS.';
+$lang['IanseoGrid.qtz']='Ta warstwa pokazuje tabelę pojedynków. Zawsze zaczyna się od 1/4 finału.';
+$lang['IanseoMeteo.qtz']='Ta warstwa pokazuje stronę z różnymi danymi meteorologicznymi, np. kierunek wiatru, temperatura, wilgotność/ <br/>Ustawienia pozycji i wymiarów. Dane pochodzą z pliku boinxmeteo.xml i są generowane przez odpowiednie urządzenie.';
+$lang['IanseoStanding.qtz']='Warstwa do ceremonii wręczenia medali. Medale i nazwiska (wkrótce) będą pochodziły z ianseo.';
+$lang['IanseoTurn.qtz']='Mała strzałka pokazuje aktualnie strzelającego Zawodnika. Zależne od  Archery5SetScores.qtz. W tej chwili manualna kontrola.';
+$lang['IanseoWind.qtz']='Ta warstwa pokazuje małą różę wiatrów.';
+$lang['IanseoXToWin.qtz']='Ta warstwa przyciemnia zewnętrzne pierścienie tarczy, eksponując te pierścienie, w które powinien trafić Zawodnik, aby wygrać set/ pojedynek.';
+$lang['SavePath']='Własny folder dla XML';
+$lang['ScheduleAwards']='Ceremonia wręczenia nagród';
+$lang['ScheduleFeed']='RSS';
+$lang['ScheduleGrids']='Kratka (siatka)';
+$lang['StepImportLayers']='Krok $a: Importuj warstwy Boinx';
+$lang['StepImportLayersText']='Z poniższej tabeli ściągnij i zainstaluj Boinx (w menu "File/ Import Layer Composition") w warstwah, które chcesz użyć.';
+$lang['StepImportXML']='Krok $a: Ściągnij plik konfiguracji Boinx';
+$lang['StepImportXMLText']='Zanim ściągniesz plik konfiguracyjne, upewnij się, że wyświetlasz tą stronę z komputera z uruchomionym programem Boinx!<br/> Z poniższej tabeli ściągnij plik konfiguracyjny Zawodów, które chcesz połączyć i zapisz w swoim folderze root. Nazwa <b>musi być</b> "$a".';
+$lang['XMLConfiguration']='Plik konfiguracji';
+?>

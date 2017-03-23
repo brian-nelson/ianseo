@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="18.9125"
+   height="9.6613693"
+   id="svg18998"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="van-B.svg">
+  <defs
+     id="defs19000" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="64.073447"
+     inkscape:cx="6.4909031"
+     inkscape:cy="4.8306845"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata19003">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Livello 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-365.54375,-527.5315)">
+    <path
+       inkscape:connector-curvature="0"
+       id="path1770"
+       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       d="M 369.60875,530.99412 L 369.60875,528.16162 L 368.98,528.16162 C 367.385,528.16162 366.01375,529.35162 366.01375,530.70162 L 366.01375,530.99412 L 369.60875,530.99412 z M 371.2025,535.80162 C 371.2025,536.56537 370.57625,537.19287 369.8125,537.19287 C 369.04875,537.19287 368.41875,536.56537 368.41875,535.80162 C 368.41875,535.03662 369.04875,534.40662 369.8125,534.40662 C 370.57625,534.40662 371.2025,535.03662 371.2025,535.80162 M 374.0775,528.16162 L 370.2375,528.16162 L 370.2375,530.99412 L 374.0775,530.99412 L 374.0775,528.16162 z M 378.52875,528.16162 L 374.70875,528.16162 L 374.70875,530.99412 L 378.52875,530.99412 L 378.52875,528.16162 z M 381.8075,535.80162 C 381.8075,536.56537 381.17875,537.19287 380.415,537.19287 C 379.65,537.19287 379.0225,536.56537 379.0225,535.80162 C 379.0225,535.03662 379.65,534.40662 380.415,534.40662 C 381.17875,534.40662 381.8075,535.03662 381.8075,535.80162 M 379.15625,530.99412 L 382.955,530.99412 C 382.75125,530.74537 381.38,528.16162 380.46125,528.16162 L 379.15625,528.16162 L 379.15625,530.99412 z M 382.615,535.19287 C 382.12125,534.07037 381.38,533.53037 380.39125,533.53037 C 379.33625,533.53037 378.61625,534.09412 378.21125,535.19287 L 372.08,535.19287 C 371.565,534.07037 370.8675,533.53037 369.87875,533.53037 C 368.8675,533.53037 368.17,534.07037 367.745,535.19287 L 365.54375,535.19287 L 365.54375,530.61287 C 365.54375,528.29662 367.655,527.53162 368.5975,527.53162 L 380.70625,527.53162 C 381.94125,527.51037 383.31125,530.34287 383.78375,530.76662 C 384.34375,531.26037 384.45625,531.73412 384.45625,531.98287 L 384.45625,535.19287 L 382.615,535.19287 z" />
+  </g>
+</svg>

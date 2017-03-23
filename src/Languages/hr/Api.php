@@ -1,0 +1,33 @@
+<?php
+$lang['API-ConfirmDeleteRow']='Jeste li sigurni da želite izbrisati ovaj redak?';
+$lang['API-Group']='grupa';
+$lang['API-TargetGrouping']='Grupiranje meta';
+$lang['API-Targets']='Mete';
+$lang['AutoImport']='Automatski uvoz';
+$lang['CmdDelete']='Ukloni';
+$lang['CmdImport']='Uvoz';
+$lang['ISK-CheckAlive']='Provjera uređaja';
+$lang['ISK-DeviceAlive']='Online';
+$lang['ISK-DeviceBattery']='Baterija';
+$lang['ISK-DeviceCode']='Kod uređaja';
+$lang['ISK-DeviceId']='ID uređaja';
+$lang['ISK-DeviceIpAddress']='IP adresa';
+$lang['ISK-DeviceLastSeen']='Zadnje viđeno';
+$lang['ISK-DeviceStatus']='Status uređaja';
+$lang['ISK-EnableScore']='Omogući Ianseo ScoreKeeper';
+$lang['ISK-Lite-Name']='Ianseo ScoreKeeper Lite';
+$lang['ISK-Lite-NoCompCode']='Nedostaje kod natjecatelja';
+$lang['ISK-Lite-QRCode']='Printaj QR kod za Ianseo ScoreKeeper Lite';
+$lang['ISK-Lite-ServerUrl']='Server URL (uključujući protokol i port, ako nije 80)';
+$lang['ISK-Name']='Ianseo ScoreKeeper';
+$lang['ISK-NoCompCode']='Nedostaje kod natjecanja';
+$lang['ISK-QRCode']='Ispis QR koda za Ianseo ScoreKeeper';
+$lang['ISK-ServerUrl']='URL poslužitelja (uključujući protokol i port, ako nije 80)';
+$lang['IskDeviceAssigned']='Uređaj(i)';
+$lang['RasIpAddress']='IP adresa';
+$lang['RasLastSeen']='zadnja konekcija';
+$lang['RaspControl']='Raspberry kontrola';
+$lang['RaspDevice']='Uređaj';
+$lang['WAToolbox-MissingParams']='Nedostaje parametar';
+$lang['WAToolbox-NoCompCode']='Nedostaje kod natjecanja';
+?>

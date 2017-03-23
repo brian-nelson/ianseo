@@ -1,0 +1,14 @@
+<?php
+$lang['01_Short']='Sty';
+$lang['02_Short']='Lut';
+$lang['03_Short']='Mar';
+$lang['04_Short']='Kwi';
+$lang['05_Short']='Maj';
+$lang['06_Short']='Cze';
+$lang['07_Short']='Lip';
+$lang['08_Short']='Sie';
+$lang['09_Short']='Wrz';
+$lang['10_Short']='Paź';
+$lang['11_Short']='Lis';
+$lang['12_Short']='Gru';
+?>

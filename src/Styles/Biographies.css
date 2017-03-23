@@ -1,0 +1,23 @@
+@CHARSET "UTF-8";
+
+body { font-size: 0.9em; }
+
+#BioContent { margin: auto; width: 50em; }
+
+.BioName { font-weight: bold; font-size: 1.5em; text-align: center; }
+
+table { margin: 1em 0; width: 100%; border:1px solid blue;}
+
+td, th { text-align: left; }
+
+tr.odd {background-color:#FCFEFF; border:1px solid blue;}
+
+.Title { text-align: left;  font-size:110%; }
+.NoWrap, .NoWrap td, .NoWrap th { white-space: nowrap; }
+.Number { text-align: right; }
+.Rank { text-align: center; }
+
+.Variation { position: relative;}
+.Variation div { position: absolute; top:0; left:0; width:28px; height:28px; text-align:center; font-weight:bold; padding-top:3px}
+
+#BioMedals td, #BioMedals th {padding-bottom:2px;}

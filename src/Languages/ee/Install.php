@@ -1,0 +1,33 @@
+<?php
+$lang['Create']='Loo kasutaja ja andmebaas';
+$lang['Credits-HHT']='HHT Integratsioon';
+$lang['Credits-IanseoTeam']='Ianseo & Ianseo Meeskond';
+$lang['Database name']='Andmebaasi nimi';
+$lang['Done']='valmis!';
+$lang['Failed']='EBAÕNNESTUS!';
+$lang['FreeOnlineResults']='<b>Tasuta online-tulemused:</b> kasutades koos kõige lihtsama internetiühendusega on võimalik kogu maailmale näidata mis võistluse jooksul toimub. See on tasuta - seega miks enam oodata? Kui võistlus on juba loodud ja seadistatud, siis küsi koodi läbi menüüjaotuse «{$a}».';
+$lang['Install-0']='KRIITILINE VIGA';
+$lang['Install-1 Title']='PHP kontroll';
+$lang['installed']='installeeritud';
+$lang['Loaded modules']='Laetud moodulid';
+$lang['missing']='puuduv';
+$lang['Missing modules']='üks või enam PHP moodulitest on puudu.';
+$lang['Module']='Moodul';
+$lang['ModuleSearch']='Mooduli Otsing';
+$lang['Optimal value']='Optimaalne väärtus';
+$lang['Parameter']='Parameeter';
+$lang['Password']='Salasõna';
+$lang['PHP settings']='PHP seaded';
+$lang['PHP too old']='Teie PHP versioon on liiga vana. Minimaalne versioon IANSEO kasutamiseks on 5.0';
+$lang['SetSE_WaDist']='WA Distantsid';
+$lang['Status']='Staatus';
+$lang['stdValue']='Väärtus';
+$lang['User']='Kasutajanimi';
+$lang['Value']='Väärtus';
+$lang['WhatIanseoDoes01']='<b>World Archery reeglitele vastav:</b> Ianseo on alati kooskõlas World Archery kõige värskemate reeglitega. Arendajad on valmis programmi ka vastavalt riiklikutele või mõne konkreetse võistlusformaadi reeglitele kohandama!';
+$lang['WhatIanseoDoes02']='<b>Tugi ja abi:</b> kui sa vajad millegi juures abi, siis saada e-kiri $a: ja sa saad vastuse otse Ianseo loojatelt/arendajatelt!';
+$lang['WhatIanseoDoes03']='<b>Koolitused ja kursused:</b> Ianseo on valmis korraldama koha peal ka koolitusi. 2 erinevat taset: ilma ja koos elektrooniliste seadmeteta. Esimene neist on õppimaks kõiki aspekte alates võistluste ettevalmistusest ja ajakavast kuni tulemuste online avalikustamiseni. Teine on suunatud, et olla valmis tegema võistlus, kus sisestatakse iga noole tulemused eraldi.';
+$lang['WhatIanseoDoes04']='<b>Anneta!</b> Ianseo on vaba ja tasuta.. kui see meeldib sulle, siis palun aita meil tarkvara ja server ajakohane hoida: vajuta "Anneta/Donate" nuppu $a kodulehel!';
+$lang['WhatIanseoDoes05']='<b>Sotsiaalmeedia:</b> Ianseo on ka $a!';
+$lang['WhatIanseoDoesTitle']='Kuidas saab Ianseo sinu võistluse juures kasulik olla';
+?>

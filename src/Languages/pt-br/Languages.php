@@ -1,0 +1,34 @@
+<?php
+$lang['Aggiorna']='Atualizar';
+$lang['CA-Cl-CM']='Cadete Masculino';
+$lang['CA-Cl-CW']='Cadete Feminino';
+$lang['CA-Cl-JM']='Juvenil Masculino';
+$lang['CA-Cl-JW']='Juvenil Feminino';
+$lang['CA-Cl-M']='Masculino';
+$lang['CA-Cl-MM']='Masculino Master';
+$lang['CA-Cl-MW']='Feminino Master';
+$lang['CA-Cl-W']='Feminino';
+$lang['CA-O']='Abrir';
+$lang['CmdSearch']='Procurar Módulos';
+$lang['Create']='Criar';
+$lang['CreateDescr']='Você deve criar o arquivo traduzido';
+$lang['Edit']='Editar';
+$lang['EditDescr']='Você pode editar o arquivo para traduzir os ítens';
+$lang['FindLanguage']='Procurar seu idioma';
+$lang['FunctionL']='Sintaxe da função - estendido (copiar-colar)';
+$lang['FunctionS']='Sintaxe da função - padrão (copiar-colar)';
+$lang['InstallNewLanguage']='Instalar novo idioma';
+$lang['Lang']='Gerenciamento de idioma: Idioma «$a[0]» - módulo «$a[1]»';
+$lang['Languages']='Idiomas disponíveis';
+$lang['Module']='Módulo';
+$lang['ModulesFound']='Encontrados os seguintes resultados para: $a';
+$lang['NoNewLanguage']='Não há outro idioma disponível...<br/>Se a tradução em seu idioma não existe e <b>VOCÊ</b> quer ser voluntário como tradutor oficial em seu idioma, <br/>por favor envie um e-mail para o Ianseo Team no endereço <a href="mailto:info@ianseo.net">info@ianseo.net</a>.<br/>Você vai receber as instruções para fazer parte do nosso time de tradutores (veja em <a href="../credits.php">Credits</a>).';
+$lang['OK']='OK';
+$lang['OKDescr']='Este arquivo tem todos os termos traduzidos';
+$lang['Original']='Original';
+$lang['Search']='Procurar por sentença:';
+$lang['Separatore']='Separador';
+$lang['Text']='Significado';
+$lang['Translation']='Tradução';
+$lang['Variable']='Variável';
+?>
