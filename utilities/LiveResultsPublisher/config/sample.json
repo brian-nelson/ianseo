@@ -1,0 +1,9 @@
+{
+	ConnectionString : "Server=YOUR_IANSEO_MACHINE_IP_ADDRESS;Database=ianseo;Uid=MYSQL_USER;Pwd=MYSQL_PASSWORD;",
+	CompetitionCode : "YOUR_COMPETITION_CODE",
+	AwsKey : "YOUR_AWS_SUPPLIED_KEY",
+	AwsSecret : "YOUR_AWS_SUPPLIED_SECRET",
+	AwsRegion : "YOUR_AWS_REGION",
+	AwsBucket : "YOUR_AWS_BUCKET",
+	AwsFolder : "YOUR_DESIRED_SUBFOLDER"
+}
