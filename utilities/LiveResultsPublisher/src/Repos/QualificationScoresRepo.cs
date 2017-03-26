@@ -23,6 +23,7 @@ namespace LiveResultsPublisher.Repos
 	                e.EnFirstName 		AS FirstName,
 	                c.ClDescription 	AS Class,
                     c.ClId              AS ClassCode,
+                    c.ClSex             AS ClassSex,
                     d.DivDescription	AS Division,
                     d.DivId             AS DivisionCode,
                     q.QuSession			AS SessionNumber,
@@ -65,6 +66,7 @@ namespace LiveResultsPublisher.Repos
                 string classCode = row.GetString("ClassCode").ToLower();
                 string divisionName = row.GetString("Division");
                 string divisionCode = row.GetString("DivisionCode").ToLower();
+                byte classSex = row.GetTinyInt("ClassSex");
 
                 ParticipantDivision pDivision;
                 ParticipantClass pClass;
@@ -91,7 +93,8 @@ namespace LiveResultsPublisher.Repos
                     pClass = new ParticipantClass
                     {
                         ClassName = className,
-                        ClassCode = classCode
+                        ClassCode = classCode,
+                        ClassSex = (classSex == 0) ? "m" : "f"
                     };
 
                     cDict.Add(tempName, pClass);

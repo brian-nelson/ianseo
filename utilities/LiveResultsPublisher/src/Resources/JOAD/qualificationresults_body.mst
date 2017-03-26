@@ -1,0 +1,37 @@
+{{#Divisions}}
+
+{{#ParticipantClasses}}
+
+<div class="row">
+	<div class="col-md-12 col-sm-12 col-xs-12"><h3 class="text-center">{{DivisionName}} - {{ClassName}}</h3></div>
+</div>
+	
+<div class="row bg-primary">
+	<div class="col-md-1 col-sm-2 col-xs-2">Position</div>
+	<div class="col-md-3 col-sm-5 col-xs-7">Athlete</div>
+	<div class="col-md-3 col-sm-4 hidden-xs ">Team</div>
+	<div class="col-md-1 hidden-xs hidden-sm">Round 1</div>
+	<div class="col-md-1 hidden-xs hidden-sm">Round 2</div>
+	<div class="col-md-1 col-sm-1 col-xs-3 ">Total</div>
+	<div class="col-md-1 hidden-xs hidden-sm">10s</div>
+	<div class="col-md-1 hidden-xs hidden-sm">9s</div>
+</div>
+
+{{#Participants}}
+<div class="row">
+	<div class="col-md-1 col-sm-2 col-xs-2">{{TotalRank}}</div>
+	<div class="col-md-3 col-sm-5 col-xs-7">{{FirstName}}, {{LastName}} <small>{{Session}}-{{BaleNumber}}{{TargetPosition}}</small></div>
+	<div class="col-md-3 col-sm-4 hidden-xs ">{{Team}}</div>
+	<div class="col-md-1 hidden-sm hidden-xs ">{{Round1Score}} / {{Round1Rank}}</div>
+	<div class="col-md-1 hidden-sm hidden-xs ">{{Round2Score}} / {{Round2Rank}}</div>
+	<div class="col-md-1 col-sm-1 col-xs-3">{{TotalScore}}</div> 
+	<div class="col-md-1 hidden-sm hidden-xs ">{{TotalTens}}</div> 
+	<div class="col-md-1 hidden-sm hidden-xs">{{TotalNines}}</div> 
+</div>
+{{/Participants}}
+
+<br/>
+
+{{/ParticipantClasses}}
+{{/Divisions}}
+

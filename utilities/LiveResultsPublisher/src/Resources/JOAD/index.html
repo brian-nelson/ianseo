@@ -1,0 +1,562 @@
+<html>
+	<head>		
+		<script src="../js/jquery.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/bootstrap.css" />
+		<script src="../js/mustache.min.js"></script>
+		<script src="../js/bootstrap.js"></script>	
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	</head>
+	<body>
+		<script>		
+			var rawData;
+			var filteredData;
+			var headerTemplate;
+			var bodyTemplate;
+			var interval;
+			var lastUpdatedDate;
+			
+			function LoadData() {
+				$.getJSON('qualificationresults.json', function(data) {
+					rawData = data;
+					lastUpdatedDate = Date.parse(rawData.LastUpdated);
+					
+					CheckAutoRefresh();
+					
+					ApplyFiltersToData();
+							
+					RefreshHeader();
+					RefreshBody();
+				});
+			}
+			
+			function CheckAutoRefresh()
+			{
+				var nowMS = Date.now();				        
+		        var diff = nowMS - lastUpdatedDate;
+		        
+		        if (diff < 1800000)
+		        {
+			        $('#auto_refresh').prop('disabled', false);
+			    } else {
+			        $('#auto_refresh').prop('disabled', true);
+			        $('#auto_refresh').prop('checked', false);
+		        }
+			}
+			
+			function LoadTemplatesAndData(){
+				$.getJSON('qualificationresults.json', function(data) {
+					rawData = data;
+					lastUpdatedDate = Date.parse(rawData.LastUpdated);
+					
+					CheckAutoRefresh();
+					
+					ApplyFiltersToData();
+					
+					//Load the Header Template
+					$.get('qualificationresults_header.mst', function(template) {	
+						headerTemplate = template;
+						RefreshHeader();
+					});
+					
+					//Load the body template
+					$.get('qualificationresults_body.mst', function(template) {							  
+					    bodyTemplate = template;
+					    RefreshBody();
+					});
+				});
+			}
+			
+			function RefreshHeader()
+			{
+				//Header loads using the raw data				  
+			    var headerHtml = Mustache.to_html(headerTemplate, rawData);
+			    $('#header').html(headerHtml);
+			}
+			
+			function RefreshBody()
+			{
+				//Load the body from the filtered data
+			    var contentsHtml = Mustache.to_html(bodyTemplate, filteredData);
+			    $('#contents').html(contentsHtml);
+			}
+			
+			function ApplyFiltersToData()
+			{
+				filteredData = {
+					"Title" : rawData.Title,
+					"Subtitle" : rawData.Subtitle,
+					"DateRange" : rawData.DateRange,
+					"LastUpdated" : rawData.LastUpdated,
+					"Divisions" : []
+				};
+				
+				for(var i=0; i < rawData.Divisions.length; i++)
+				{
+					var division = rawData.Divisions[i];
+					
+					var filteredDivision = {
+						"DivisionName" : division.DivisionName,
+						"DivisionCode" : division.DivisionCode,
+						"ParticipantClasses" : []
+					}
+					
+					for(var j=0; j < division.ParticipantClasses.length; j++)
+					{
+						var participantClass = division.ParticipantClasses[j];
+						
+						var control = "#" + division.DivisionCode 
+							+ "_" + participantClass.ClassCode.substring(0,1) 
+							+ "_" + participantClass.ClassSex;
+						
+						if($(control).is(':checked'))
+						{
+							var filteredClass = JSON.parse(JSON.stringify(participantClass));
+							
+							filteredDivision.ParticipantClasses.push(filteredClass);
+						}
+					}
+					
+					if (filteredDivision.ParticipantClasses.length>0)
+					{
+						filteredData.Divisions.push(filteredDivision);
+					}
+				}
+				
+			}
+			
+			function CheckAll()
+			{
+				//Recurve Men
+				$('#r_j_m').prop('checked', true);
+				$('#r_c_m').prop('checked', true);
+				$('#r_u_m').prop('checked', true);
+				$('#r_b_m').prop('checked', true);
+				$('#r_y_m').prop('checked', true);
+				
+				//Recurve Women
+				$('#r_j_f').prop('checked', true);
+				$('#r_c_f').prop('checked', true);
+				$('#r_u_f').prop('checked', true);
+				$('#r_b_f').prop('checked', true);
+				$('#r_y_f').prop('checked', true);
+								
+				//Compound Men
+				$('#c_j_m').prop('checked', true);
+				$('#c_c_m').prop('checked', true);
+				$('#c_u_m').prop('checked', true);
+				$('#c_b_m').prop('checked', true);
+				$('#c_y_m').prop('checked', true);
+
+				//Compound Women
+				$('#c_j_f').prop('checked', true);
+				$('#c_c_f').prop('checked', true);
+				$('#c_u_f').prop('checked', true);
+				$('#c_b_f').prop('checked', true);
+				$('#c_y_f').prop('checked', true);
+								
+				//Barebow Men
+				$('#b_j_m').prop('checked', true);
+				$('#b_c_m').prop('checked', true);
+				$('#b_u_m').prop('checked', true);
+				$('#b_b_m').prop('checked', true);
+				$('#b_y_m').prop('checked', true);
+				
+				//Barebow Women
+				$('#b_j_f').prop('checked', true);
+				$('#b_c_f').prop('checked', true);
+				$('#b_u_f').prop('checked', true);
+				$('#b_b_f').prop('checked', true);
+				$('#b_y_f').prop('checked', true);
+			}
+			
+			function UncheckAll()
+			{
+				//Recurve Men
+				$('#r_j_m').prop('checked', false);
+				$('#r_c_m').prop('checked', false);
+				$('#r_u_m').prop('checked', false);
+				$('#r_b_m').prop('checked', false);
+				$('#r_y_m').prop('checked', false);
+				
+				//Recurve Women
+				$('#r_j_f').prop('checked', false);
+				$('#r_c_f').prop('checked', false);
+				$('#r_u_f').prop('checked', false);
+				$('#r_b_f').prop('checked', false);
+				$('#r_y_f').prop('checked', false);
+								
+				//Compound Men
+				$('#c_j_m').prop('checked', false);
+				$('#c_c_m').prop('checked', false);
+				$('#c_u_m').prop('checked', false);
+				$('#c_b_m').prop('checked', false);
+				$('#c_y_m').prop('checked', false);
+
+				//Compound Women
+				$('#c_j_f').prop('checked', false);
+				$('#c_c_f').prop('checked', false);
+				$('#c_u_f').prop('checked', false);
+				$('#c_b_f').prop('checked', false);
+				$('#c_y_f').prop('checked', false);
+								
+				//Barebow Men
+				$('#b_j_m').prop('checked', false);
+				$('#b_c_m').prop('checked', false);
+				$('#b_u_m').prop('checked', false);
+				$('#b_b_m').prop('checked', false);
+				$('#b_y_m').prop('checked', false);
+				
+				//Barebow Women
+				$('#b_j_f').prop('checked', false);
+				$('#b_c_f').prop('checked', false);
+				$('#b_u_f').prop('checked', false);
+				$('#b_b_f').prop('checked', false);
+				$('#b_y_f').prop('checked', false);
+			}
+			
+			$(document).ready(function(){
+				$.ajaxSetup({ cache: false });
+				
+				LoadTemplatesAndData();
+				
+				$('#filters').on('hide.bs.collapse', function () {
+			    	LoadData();
+				});
+				
+				$("#auto_refresh").change(function() {
+				    if($("#auto_refresh").is(':checked')) {
+				        interval = setInterval(function(){
+					        var nowMS = Date.now();				        
+					        var diff = nowMS - lastUpdatedDate;
+					        
+					        if (diff < 1800000)
+					        {
+						        LoadData();
+					        } else {
+						        clearInterval(interval);
+						        
+						        $('#auto_refresh').prop('disabled', true);
+						        $('#auto_refresh').prop('checked', false);
+					        }
+					        
+				        }, 60000);
+				    } else {
+					    clearInterval(interval);
+				    }
+				});
+			});
+		</script>
+		
+		<div class="row">
+			<div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1 col-sm-10, col-sm-offset-1 col-xs-10 col-xs-offset-1">
+				<div class="row">
+					<div id="header"></div>
+				</div>
+				<div class="row">
+					<div id="showFilters" class="col-lg-1 col-md-1 col-sm-1 col-xs-3">
+						<button data-toggle="collapse" data-target="#filters" class="btn btn-default">Filter</button>
+					</div>
+					<div id="Notes" class="col-lg-8 col-md-8 col-sm-8 col-xs-3">
+						<p class="text-center">Electronic scores are not official</p>
+					</div>
+					<div class="col-lg-2 col-md-2 col-sm-2 col-xs-3">
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" id="auto_refresh">Auto Refresh
+							</label>				
+						</div>
+					</div>
+					<div class="col-lg-1 col-md-1 col-sm-1 col-xs-3">
+						<button onclick="LoadData()" class="btn btn-default">Refresh</button>
+					</div>
+				</div>
+				<div id="filters" class="row collapse">
+					<br/>
+					<div class="col-lg-12 col-md-12 col-sm-12, col-xs-12">
+						<div class="row">
+							<div class="col-lg-2 col-md-2 col-sm-3 col-xs-5">
+								<button onclick="UncheckAll()" class="btn btn-default">Uncheck All</button>
+							</div>
+							<div class="col-lg-2 col-md-2 col-sm-3 col-xs-5">
+								<button onclick="CheckAll()" class="btn btn-default">Check All</button>
+							</div>							
+						</div>
+						<div class="row">
+							<div class="col-md-3 col-sm-3">
+								<div class="row">
+									<div class="col-md-12 col-sm-12"><strong>Recurve Men</strong></div>
+								</div>
+							</div>
+							<div class="col-md-9">
+								<div class="row">
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="r_j_m" checked>Junior
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">								
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="r_c_m" checked>Cadet
+											</label>				
+										</div></div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="r_u_m" checked>Cub
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="r_b_m" checked>Bowman
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2" col-sm-2>
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="r_y_m" checked>Yeoman
+											</label>				
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-3 col-sm-3">
+								<div class="row">
+									<div class="col-md-12 col-sm-12"><strong>Recurve Women</strong></div>
+								</div>
+							</div>
+							<div class="col-md-9">
+								<div class="row">
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="r_j_f" checked>Junior
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">								
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="r_c_f" checked>Cadet
+											</label>				
+										</div></div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="r_u_f" checked>Cub
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="r_b_f" checked>Bowman
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2" col-sm-2>
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="r_y_f" checked>Yeoman
+											</label>				
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-3 col-sm-3">
+								<div class="row">
+									<div class="col-md-12 col-sm-12"><strong>Compound Men</strong></div>
+								</div>
+							</div>
+							<div class="col-md-9">
+								<div class="row">
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="c_j_m" checked>Junior
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">								
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="c_c_m" checked>Cadet
+											</label>				
+										</div></div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="c_u_m" checked>Cub
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="c_b_m" checked>Bowman
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="c_y_m" checked>Yeoman
+											</label>				
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-3 col-sm-3">
+								<div class="row">
+									<div class="col-md-12 col-sm-12"><strong>Compound Women</strong></div>
+								</div>
+							</div>
+							<div class="col-md-9">
+								<div class="row">
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="c_j_f" checked>Junior
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">								
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="c_c_f" checked>Cadet
+											</label>				
+										</div></div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="c_u_f" checked>Cub
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="c_b_f" checked>Bowman
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="c_y_f" checked>Yeoman
+											</label>				
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-3 col-sm-3">
+								<div class="row">
+									<div class="col-md-12 col-sm-12"><strong>Barebow Men</strong></div>
+								</div>
+							</div>
+							<div class="col-md-9">
+								<div class="row">
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="b_j_m" checked>Junior
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">								
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="b_c_m" checked>Cadet
+											</label>				
+										</div></div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="b_u_m" checked>Cub
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="b_b_m" checked>Bowman
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="b_y_m" checked>Yeoman
+											</label>				
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-3 col-sm-3">
+								<div class="row">
+									<div class="col-md-12 col-sm-12"><strong>Barebow Women</strong></div>
+								</div>
+							</div>
+							<div class="col-md-9">
+								<div class="row">
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="b_j_f" checked>Junior
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">								
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="b_c_f" checked>Cadet
+											</label>				
+										</div></div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="b_u_f" checked>Cub
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="b_b_f" checked>Bowman
+											</label>				
+										</div>
+									</div>
+									<div class="col-md-2 col-sm-2">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" id="b_y_f" checked>Yeoman
+											</label>				
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>						
+					</div>
+				</div>
+				<div class="row">
+					<div id="contents"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -11,6 +11,8 @@ namespace LiveResultsPublisher.ReportObjects.QualificationScores
 
         public string ClassName { get; set; }
 
+        public string ClassSex { get; set; }
+
         public string ClassCode { get; set; }
 
         public List<ParticipantResult> Participants { get; set; }

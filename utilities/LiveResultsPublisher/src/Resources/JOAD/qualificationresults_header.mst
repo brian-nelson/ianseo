@@ -1,0 +1,17 @@
+<div class="row">
+	<p class="h3">{{Title}}</p>
+</div>
+{{#Subtitle}}
+	<div class="row">
+		<p class="h4">{{Subtitle}}</p>
+	</div>
+{{/Subtitle}}
+<div class="row">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+		{{#DateRange}}<strong>{{DateRange}}</strong>{{/DateRange}}
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+		<p class="text-right"><small>Data as of {{LastUpdated}}</small></p>
+	</div>
+</div>
+<br/>

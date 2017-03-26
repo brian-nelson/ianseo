@@ -29,6 +29,16 @@ namespace LiveResultsPublisher.Helpers
             return (byte) row[columnName];
         }
 
+        public static byte GetTinyInt(this DataRow row, string columnName)
+        {
+            return Convert.ToByte(row[columnName]);
+        }
+
+        public static bool GetBoolean(this DataRow row, string columnName)
+        {
+            return (bool) row[columnName];
+        }
+
         public static short GetShort(this DataRow row, string columnName)
         {
             return (short) row[columnName];
