@@ -62,6 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factories\WriterFactory.cs" />
     <Compile Include="Forms\Publisher.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -69,6 +70,7 @@
       <DependentUpon>Publisher.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\RowHelper.cs" />
+    <Compile Include="Interfaces\IWriter.cs" />
     <Compile Include="Objects\Config.cs" />
     <Compile Include="Objects\Database.cs" />
     <Compile Include="Objects\DatabaseParameter.cs" />
@@ -81,6 +83,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repos\QualificationScoresRepo.cs" />
     <Compile Include="Repos\TournamentRepo.cs" />
+    <Compile Include="Services\FileWriterService.cs" />
     <Compile Include="Services\QualificationScoresReportService.cs" />
     <Compile Include="Services\S3WriterService.cs" />
     <EmbeddedResource Include="Forms\Publisher.resx">

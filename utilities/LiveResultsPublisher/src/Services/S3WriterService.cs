@@ -8,11 +8,12 @@ using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
+using LiveResultsPublisher.Interfaces;
 using LiveResultsPublisher.Objects;
 
 namespace LiveResultsPublisher.Services
 {
-    public class S3WriterService
+    public class S3WriterService : IWriterService
     {
         private Config m_config;
 

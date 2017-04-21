@@ -12,6 +12,10 @@ namespace LiveResultsPublisher.Objects
     {
         public string ConnectionString { get; set; }
 
+        public string PublishType { get; set; }
+
+        public string Folder { get; set; }
+
         public string AwsKey { get; set; }
 
         public string AwsSecret { get; set; }
@@ -46,29 +50,43 @@ namespace LiveResultsPublisher.Objects
                 sb.AppendLine("Competition Code is missing");
             }
 
-            if (AwsBucket == null)
+            if (PublishType == null)
             {
-                sb.AppendLine("AWS Bucket is Missing");
+                sb.AppendLine("PublishType is missing");
             }
-
-            if (AwsFolder == null)
+            else if (PublishType.Equals("aws", StringComparison.InvariantCultureIgnoreCase))
             {
-                sb.AppendLine("AWS Folder is missing");
+                if (AwsBucket == null)
+                {
+                    sb.AppendLine("AWS Bucket is Missing");
+                }
+
+                if (AwsFolder == null)
+                {
+                    sb.AppendLine("AWS Folder is missing");
+                }
+
+                if (AwsKey == null)
+                {
+                    sb.AppendLine("AWS Key is missing");
+                }
+
+                if (AwsRegion == null)
+                {
+                    sb.AppendLine("AWS Region is missing");
+                }
+
+                if (AwsSecret == null)
+                {
+                    sb.AppendLine("AWS Secret is missing");
+                }
             }
-
-            if (AwsKey == null)
+            else if (PublishType.Equals("file", StringComparison.InvariantCultureIgnoreCase))
             {
-                sb.AppendLine("AWS Key is missing");
-            }
-
-            if (AwsRegion == null)
-            {
-                sb.AppendLine("AWS Region is missing");
-            }
-
-            if (AwsSecret == null)
-            {
-                sb.AppendLine("AWS Secret is missing");
+                if (Folder == null)
+                {
+                    sb.AppendLine("Folder is missing");
+                }
             }
             
             if (sb.Length > 0)

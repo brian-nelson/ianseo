@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using LiveResultsPublisher.Factories;
+using LiveResultsPublisher.Interfaces;
 using LiveResultsPublisher.Objects;
 using LiveResultsPublisher.Repos;
 using LiveResultsPublisher.Services;
@@ -21,7 +23,7 @@ namespace LiveResultsPublisher.Forms
         private Database m_db;
         private QualificationScoresRepo m_scoresRepo;
         private TournamentRepo m_tournamentRepo;
-        private S3WriterService m_S3;
+        private IWriterService m_Writer;
 
         private bool m_done;
         private DateTime m_nextPublishTime;
@@ -64,7 +66,7 @@ namespace LiveResultsPublisher.Forms
                     m_db = new Database(m_currentConfig);
                     m_scoresRepo = new QualificationScoresRepo(m_db);
                     m_tournamentRepo = new TournamentRepo(m_db);
-                    m_S3 = new S3WriterService(m_currentConfig);
+                    m_Writer = WriterFactory.GetWriter(m_currentConfig);
 
                     GenerateNow.Enabled = true;
                     startPublishing.Enabled = true;
@@ -94,7 +96,7 @@ namespace LiveResultsPublisher.Forms
             var results = reportService.GetReportData(m_currentConfig.CompetitionCode);
 
             string json = JsonConvert.SerializeObject(results);
-            m_S3.PublishFile("qualificationresults.json", json);
+            m_Writer.PublishFile("qualificationresults.json", json);
 
             if (InvokeRequired)
             {
