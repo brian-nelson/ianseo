@@ -20,3 +20,7 @@ The setup of the IANSEO tournament is assumed to be in compliance with the [setu
 * Designed to be responsive for large and small screens
 * Users can filter the results by division to limit results to shooters that they desire.  This is done locally on the json results.
 * Auto-refresh automatically is disabled after 30 minutes from the last publication of results.  This is an attempt to not impact users when there is a break in publication, but to also stop web browsers from continuously pulling the file after the tournament has stopped publishing (is over). 
+
+
+## Testing
+On 04/22/2017 we ran a test of the publisher with a local tournament.  It worked very well.  One problem appeared in filters, but the problem ended up being that the class didn't have the correct gender assigned.  The publishing is very specific to the JOAD setup that we utilize.
