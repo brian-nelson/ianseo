@@ -1,0 +1,81 @@
+@CHARSET "UTF-8";
+
+.TargetContainer {float:left; margin:1em; border:1px solid gray; border-radius: 3px; border-collapse: collapse; min-width:100px; height:110px; box-shadow: 1px 1px 1px #888888;}
+.TargetTitle {font-weight:bold; text-align:center; border-bottom:1px solid gray; border-top-left-radius: 3px; border-top-right-radius: 3px; background-color:#dddddd; padding:0.2em}
+.TargetDevices {margin-top: 0.25em; margin-left: 0.25em;}
+.TargetLetters {text-align:center;}
+.TargetLetters span {display:inline-block; padding:0.25em; font-weight:bold; border:1px solid gray; margin:0.5em; }
+.TargetMessage {min-height:2.5em;}
+.TargetInfoImg { content:url("../../Common/Images/isk-info.svg"); height: 1.2em; width: 1.2em; float: right}
+.Let-B {background-color:#3333ff; color: #ffffff; } /* scored (Blue) */
+.Let-C {background-color:#33ffff; color: #000000; } /* missing (Cyan) */
+.Let-Y {background-color:#dddd00; color: #000000; } /* scoring (Yellow) */
+.Let-O {background-color:#ffaa33; color: #000000; } /* scoring different end (Orange) */
+.Let-G {background-color:#000000; color: #000000; } /* dimmed (Gray) */
+.Let-R {background-color:#dd0000; color: #000000; } /* scoring different distance/session (Red) */
+.Let-Z {background-color:#00A000; color: #ffffff; } /* scoring in progress (green) */
+.Let-F {background-color:#cccccc; color: #ffffff; } /* Match Over (darker Gray) */
+
+.Spurious span {padding:0 3px; background-color:#d0d0d0; }
+
+.TargetLetters span.Anomaly {border: 3px solid red;}
+
+.TargetAssigned{font-weight:bold; text-align:center; background-color:#33ffff;}
+.TargetRequested, .BarcodeRequested {font-weight:bold; text-align:center; background-color:#dddddd;}
+.ToBeEnabled {font-weight:bold; text-align:center; background-color:#ffaa33;}
+.hidden {display: none;}
+.Legend {clear: both; padding: 10px;}
+.TgtImport {display: none;}
+
+.PopUp {
+    display:none;
+    position:fixed;
+    min-width:260px;
+    min-height:250px;
+    max-width:500px;
+    max-height:30%;
+    margin:auto;
+    top:0;bottom:0;left:0;right:0;
+    background-color:white;
+    border:1px solid gray;
+    font-size: 120%;
+    border-radius: 3px;
+    box-shadow: 2px 2px 1px #888888;
+}
+
+.PopUp .Let-G {background-color: #ffff00; color:#000000; }
+
+select {
+    max-width:20em;
+}
+
+.PopUpEvent {text-align:center;padding:0.1em;margin-bottom:0.5em;}
+
+.PopUpSpot {padding:0.2em; clear: both; line-height: 2.5em; display:flex; flex-direction:row; box-sizing:border-box; justify-content: space-between;}
+
+.PopUpSpot .Let-Z,
+.PopUpSpot .Let-B,
+.PopUpSpot .Let-S,
+.PopUpSpot .Let-O,
+.PopUpSpot .Let-G {flex:1 1 5%; box-sizing:border-box; text-align:center; font-size:1.2rem; font-weight:bold; border:1px solid gray; line-height:1.5rem; margin-left:0.5rem; padding:0.25rem 0;}
+.PopUpSpot .Let-G {flex: 0 0 6%;margin-left:0;}
+.PopUpSpot .Let-S {border:none;}
+.PopUpSpot .Let-B {font-size:80%}
+.PopUpSpot .SpanName {flex:2 0 15%; box-sizing:border-box; overflow:hidden; white-space:nowrap; line-height:2.2rem;  margin-left:0.5rem; }
+.PopUpSpot .Let-Z + .Let-B,
+.PopUpSpot .Let-Z + .Let-O,
+.PopUpSpot .Let-Z + .Let-S,
+.PopUpSpot .Let-S + .Let-B {margin-left:0;}
+.PopUpCloseImg { content:url("../../Common/Images/isk-close.svg"); height: 1.2em; width: 1.2em; float: right}
+
+.DisableSelection { -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; outline: 0; }
+
+.ClickableDiv { cursor: pointer; -webkit-user-select: none;/* Chrome/Safari */  -moz-user-select: none;/* Firefox */  -ms-user-select: none;/* IE10+ */ /* Not implemented yet */ -o-user-select: none; user-select: none;}
+.ContextMenuDiv { cursor: context-menu; -webkit-user-select: none;/* Chrome/Safari */  -moz-user-select: none;/* Firefox */  -ms-user-select: none;/* IE10+ */ /* Not implemented yet */ -o-user-select: none; user-select: none;}
+
+#PopUpCmd {bottom:0;width:100%; position:absolute; text-align:center; padding-bottom: 3px;}
+#PopUpContent { padding: 5px; }
+
+th[id$=Order][ordertype=ordasc]:after {content: url('../../Common/Images/isk-arrow-up.png');margin-left:0.7em;}
+th[id$=Order][ordertype=orddesc]:after {content: url('../../Common/Images/isk-arrow-down.png');margin-left:0.7em;}
+th[id$=Order] {text-decoration: underline;cursor: pointer;}

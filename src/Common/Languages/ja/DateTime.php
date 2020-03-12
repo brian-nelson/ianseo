@@ -1,0 +1,14 @@
+<?php
+$lang['01_Short']='January';
+$lang['02_Short']='February';
+$lang['03_Short']='March';
+$lang['04_Short']='April';
+$lang['05_Short']='May';
+$lang['06_Short']='June';
+$lang['07_Short']='July';
+$lang['08_Short']='August';
+$lang['09_Short']='September';
+$lang['10_Short']='October';
+$lang['11_Short']='November';
+$lang['12_Short']='December';
+?>

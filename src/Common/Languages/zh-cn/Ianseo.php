@@ -1,0 +1,10 @@
+<?php
+$lang['Category']='类别';
+$lang['Cert-Instructor']='指示';
+$lang['Cert-Level1']='指示课程';
+$lang['Cert-Level2']='基础课程';
+$lang['Cert-Level3']='进阶课程';
+$lang['Cert-Level4']='专家课程';
+$lang['Cert-Level5']='Ianseo成员';
+$lang['CertificateManagement']='证书管理';
+?>

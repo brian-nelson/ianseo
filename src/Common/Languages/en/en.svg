@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg id="svg2" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="800" viewBox="0 0 60 40" width="1200" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<metadata id="metadata21">
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<dc:title/>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+<path id="rect4173" d="m0 0h60v40h-60z" fill-rule="evenodd" fill="#fff"/>
+<path id="rect2877" d="m0 16.977v6.007h26.998v17.016h5.983v-17.016h27.019v-6.007h-27.019v-16.977h-5.983v16.977h-26.998z" fill-rule="evenodd" fill="#cf142b"/>
+<path id="path3930" d="m15.817 14.972l-15.817-10.531v10.531h15.817z" fill-rule="evenodd" fill="#00247d"/>
+<path id="path3970" d="m24.966 12.233v-12.233h-18.374l18.374 12.233z" fill-rule="evenodd" fill="#00247d"/>
+<path id="rect2877-4-6-2" d="m0 0v2.9656l17.981 12.006h4.477l-22.458-14.972z" fill-rule="evenodd" fill="#cf142b"/>
+<path id="path3930-0" d="m44.183 14.972l15.817-10.531v10.531h-15.817z" fill-rule="evenodd" fill="#00247d"/>
+<path id="path3970-1" d="m35.034 12.233v-12.233h18.296l-18.296 12.233z" fill-rule="evenodd" fill="#00247d"/>
+<path id="rect2877-4-6-0-2-7" d="m60 0l-22.458 14.972h-2.508v-1.329l20.432-13.643h4.534z" fill-rule="evenodd" fill="#cf142b"/>
+<path id="path3930-4" d="m15.817 25.028l-15.817 10.531v-10.531h15.817z" fill-rule="evenodd" fill="#00247d"/>
+<path id="path3970-8" d="m24.966 27.767v12.233h-18.374l18.374-12.233z" fill-rule="evenodd" fill="#00247d"/>
+<path id="rect2877-4-6-0-2-4" d="m0 40l22.458-14.972h2.508v1.33l-20.432 13.642h-4.534z" fill-rule="evenodd" fill="#cf142b"/>
+<path id="path3930-42" d="m44.183 25.028l15.817 10.531v-10.531h-15.817z" fill-rule="evenodd" fill="#00247d"/>
+<path id="path3970-0" d="m34.956 27.767v12.233h18.374l-18.374-12.233z" fill-rule="evenodd" fill="#00247d"/>
+<path id="rect2877-4-6-2-6" d="m60 40v-2.966l-17.981-12.006h-4.477l22.458 14.972z" fill-rule="evenodd" fill="#cf142b"/>
+</svg>

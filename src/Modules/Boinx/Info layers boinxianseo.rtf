@@ -1,0 +1,154 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf320
+{\fonttbl\f0\fswiss\fcharset0 ArialMT;\f1\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red166\green23\blue0;\red51\green122\blue135;\red128\green18\blue178;
+\red0\green0\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww12260\viewh14620\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 Come utilizzare i layers IanseoBoinx:\
+\
+1) importare i layers in Boinx con comando File/Import Layer Composition\'85\
+\
+2) A questo punto in manuale funziona tutto. se si vuole importare i dati da inasto\
+copiare il file boinxianseo.xml nella root utente (indirizzo ~/boinxianseo.xml)\
+Questo file \'e8 una directory degli xml esportati da ianseo\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\tx7280\tx7840\tx8400\tx8960\tx9520\tx10080\tx10640\tx11200\tx11760\tx12320\tx12880\tx13440\tx14000\tx14560\tx15120\tx15680\tx16240\tx16800\tx17360\tx17920\tx18480\tx19040\tx19600\tx20160\tx20720\tx21280\tx21840\tx22400\tx22960\tx23520\tx24080\tx24640\tx25200\tx25760\tx26320\tx26880\tx27440\tx28000\tx28560\tx29120\tx29680\tx30240\tx30800\tx31360\tx31920\tx32480\tx33040\tx33600\tx34160\tx34720\tx35280\tx35840\tx36400\tx36960\tx37520\tx38080\tx38640\tx39200\tx39760\tx40320\tx40880\tx41440\tx42000\tx42560\tx43120\tx43680\tx44240\tx44800\tx45360\tx45920\tx46480\tx47040\tx47600\tx48160\tx48720\tx49280\tx49840\tx50400\tx50960\tx51520\tx52080\tx52640\tx53200\tx53760\tx54320\tx54880\tx55440\tx56000\ql\qnatural\pardirnatural
+\cf2 \CocoaLigature0 <?xml\cf0  \cf3 version\cf0 =\cf4 "1.0"\cf0 ?\cf2 >\cf0 \
+\cf2 <\cf0 archeryscores\cf2 >\cf0 \
+\cf2 <\cf0 address\cf2 >\cf0 file:///Users/markcar/IanseoScores.xml \cf2 </\cf0 address\cf2 >\cf0 \
+\cf2 </\cf0 archeryscores\cf2 >\cf0 \
+\
+sostituire la riga \
+\cf2 <\cf0 address\cf2 >\cf0 file:///Users/markcar/IanseoScores.xml \cf2 </\cf0 address\cf2 >\cf0 \
+\cf2  \
+\cf0 con l'indirizzo dove trovare il file .xml di esportazione\
+\
+l'indirizzo pu\'f2 essere nella forma:\
+~/folder/filename.xml (per cartella user corrente)\
+file:///pathFile (per indirizzo su disco locale)\
+http://192.168.1.69/export/filename.xml\
+ftp://servername/folder/filename.xml\
+\
+3) esempio del file .xml di esportazione da generare da ianseo: IanseoScores.xml\
+\
+\cf2 <?xml\cf0  \cf3 version\cf0 =\cf4 "1.0"\cf0 ?\cf2 >\cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\tx7280\tx7840\tx8400\tx8960\tx9520\tx10080\tx10640\tx11200\tx11760\tx12320\tx12880\tx13440\tx14000\tx14560\tx15120\tx15680\tx16240\tx16800\tx17360\tx17920\tx18480\tx19040\tx19600\tx20160\tx20720\tx21280\tx21840\tx22400\tx22960\tx23520\tx24080\tx24640\tx25200\tx25760\tx26320\tx26880\tx27440\tx28000\tx28560\tx29120\tx29680\tx30240\tx30800\tx31360\tx31920\tx32480\tx33040\tx33600\tx34160\tx34720\tx35280\tx35840\tx36400\tx36960\tx37520\tx38080\tx38640\tx39200\tx39760\tx40320\tx40880\tx41440\tx42000\tx42560\tx43120\tx43680\tx44240\tx44800\tx45360\tx45920\tx46480\tx47040\tx47600\tx48160\tx48720\tx49280\tx49840\tx50400\tx50960\tx51520\tx52080\tx52640\tx53200\tx53760\tx54320\tx54880\tx55440\tx56000\ql\qnatural\pardirnatural
+
+\f1\fs22 \cf2 <\cf0 archeryscores\cf2 >\cf0 \
+    \cf2 <\cf0 header\cf2 >\cf5 1\cf0 /\cf5 4\cf0 ' finale\cf2 </\cf0 header\cf2 >\cf0 \
+    \cf2 <\cf0 games\cf2 >\cf0 \
+        \cf2 <\cf0 game\cf2 >\cf0 \
+            \cf2 <\cf0 opponent1\cf2 >\cf0 \
+                \cf2 <\cf0 targetno\cf2 >\cf5 1\cf2 </\cf0 targetno\cf2 >\cf0 \
+                \cf2 <\cf0 name\cf2 >\cf0 Topolinia\cf2 </\cf0 name\cf2 >\cf0 \
+                \cf2 <\cf0 shortname\cf2 >\cf0 TOP\cf2 </\cf0 shortname\cf2 >\cf0 \
+                \cf2 <\cf0 component1\cf2 >\cf0 Pippo\cf2 </\cf0 component1\cf2 >\cf0 \
+                \cf2 <\cf0 component2\cf2 >\cf0 Pluto\cf2 </\cf0 component2\cf2 >\cf0 \
+                \cf2 <\cf0 component3\cf2 >\cf0 Paperino\cf2 </\cf0 component3\cf2 >\cf0 \
+                \cf2 <\cf0 set1\cf2 >\cf5 24\cf2 </\cf0 set1\cf2 >\cf0 \
+                \cf2 <\cf0 set2\cf2 >\cf5 26\cf2 </\cf0 set2\cf2 >\cf0 \
+                \cf2 <\cf0 set3\cf2 >\cf5 25\cf2 </\cf0 set3\cf2 >\cf0 \
+                \cf2 <\cf0 set4\cf2 >\cf5 31\cf2 </\cf0 set4\cf2 >\cf0 \
+                \cf2 <\cf0 set5\cf2 >\cf5 32\cf2 </\cf0 set5\cf2 >\cf0 \
+                \cf2 <\cf0 tie\cf2 >\cf5 10\cf0 +\cf2 </\cf0 tie\cf2 >\cf0 \
+                \cf2 <\cf0 setpoints\cf2 >\cf5 9\cf2 </\cf0 setpoints\cf2 >\cf0 \
+                \cf2 <\cf0 arrow1\cf2 >\cf5 9\cf2 </\cf0 arrow1\cf2 >\cf0 \
+                \cf2 <\cf0 arrow2\cf2 >\cf5 9\cf2 </\cf0 arrow2\cf2 >\cf0 \
+                \cf2 <\cf0 arrow3\cf2 >\cf5 10\cf2 </\cf0 arrow3\cf2 >\cf0 \
+                \cf2 <\cf0 arrow4\cf2 >\cf5 9\cf2 </\cf0 arrow4\cf2 >\cf0 \
+                \cf2 <\cf0 arrow5\cf2 >\cf5 9\cf2 </\cf0 arrow5\cf2 >\cf0 \
+                \cf2 <\cf0 arrow6\cf2 >\cf5 9\cf2 </\cf0 arrow6\cf2 >\cf0 \
+                \cf2 <\cf0 total\cf2 >\cf5 153\cf2 </\cf0 total\cf2 >\cf0 \
+                \cf2 <\cf0 setscore\cf2 >\cf5 5\cf2 </\cf0 setscore\cf2 >\cf0 \
+                \cf2 <\cf0 flag\cf2 >\cf0 file:///Users/markcar/desktop/disney.jpg\cf2 </\cf0 flag\cf2 >\cf0 \
+                \cf2 <\cf0 photo1\cf2 >\cf0 file:///Users/markcar/desktop/photo1-1.jpg\cf2 </\cf0 photo1\cf2 >\cf0 \
+                \cf2 <\cf0 photo2\cf2 >\cf0 file:///Users/markcar/desktop/photo1-2.jpg\cf2 </\cf0 photo2\cf2 >\cf0 \
+                \cf2 <\cf0 photo3\cf2 >\cf0 file:///Users/markcar/desktop/photo1-3.jpg\cf2 </\cf0 photo3\cf2 >\cf0 \
+            \cf2 </\cf0 opponent1\cf2 >\cf0 \
+            \cf2 <\cf0 opponent2\cf2 >\cf0 \
+                \cf2 <\cf0 targetno\cf2 >\cf5 2\cf2 </\cf0 targetno\cf2 >\cf0 \
+                \cf2 <\cf0 name\cf2 >\cf0 Paperopoli\cf2 </\cf0 name\cf2 >\cf0 \
+                \cf2 <\cf0 shortname\cf2 >\cf0 PAP\cf2 </\cf0 shortname\cf2 >\cf0 \
+                \cf2 <\cf0 component1\cf2 >\cf0 Minni\cf2 </\cf0 component1\cf2 >\cf0 \
+                \cf2 <\cf0 component2\cf2 >\cf0 Clarabella\cf2 </\cf0 component2\cf2 >\cf0 \
+                \cf2 <\cf0 component3\cf2 >\cf0 Orazio\cf2 </\cf0 component3\cf2 >\cf0 \
+                \cf2 <\cf0 set1\cf2 >\cf5 27\cf2 </\cf0 set1\cf2 >\cf0 \
+                \cf2 <\cf0 set2\cf2 >\cf5 27\cf2 </\cf0 set2\cf2 >\cf0 \
+                \cf2 <\cf0 set3\cf2 >\cf5 25\cf2 </\cf0 set3\cf2 >\cf0 \
+                \cf2 <\cf0 set4\cf2 >\cf5 24\cf2 </\cf0 set4\cf2 >\cf0 \
+                \cf2 <\cf0 set5\cf2 >\cf5 25\cf2 </\cf0 set5\cf2 >\cf0 \
+                \cf2 <\cf0 tie\cf2 >\cf5 9\cf0 -\cf2 </\cf0 tie\cf2 >\cf0 \
+                \cf2 <\cf0 setpoints\cf2 >\cf5 9\cf2 </\cf0 setpoints\cf2 >\cf0 \
+                \cf2 <\cf0 arrow1\cf2 >\cf5 27\cf2 </\cf0 arrow1\cf2 >\cf0 \
+                \cf2 <\cf0 arrow2\cf2 >\cf5 27\cf2 </\cf0 arrow2\cf2 >\cf0 \
+                \cf2 <\cf0 arrow3\cf2 >\cf5 25\cf2 </\cf0 arrow3\cf2 >\cf0 \
+                \cf2 <\cf0 arrow4\cf2 >\cf5 24\cf2 </\cf0 arrow4\cf2 >\cf0 \
+                \cf2 <\cf0 arrow5\cf2 >\cf5 25\cf2 </\cf0 arrow5\cf2 >\cf0 \
+                \cf2 <\cf0 arrow6\cf2 >\cf5 9\cf2 </\cf0 arrow6\cf2 >\cf0 \
+                \cf2 <\cf0 total\cf2 >\cf5 133\cf2 </\cf0 total\cf2 >\cf0 \
+                \cf2 <\cf0 setscore\cf2 >\cf5 3\cf2 </\cf0 setscore\cf2 >\cf0 \
+                \cf2 <\cf0 flag\cf2 >\cf0 file:///Users/markcar/desktop/mat.jpg\cf2 </\cf0 flag\cf2 >\cf0 \
+                \cf2 <\cf0 photo1\cf2 >\cf0 file:///Users/markcar/desktop/photo2-1.jpg\cf2 </\cf0 photo1\cf2 >\cf0 \
+                \cf2 <\cf0 photo2\cf2 >\cf0 file:///Users/markcar/desktop/photo2-2.jpg\cf2 </\cf0 photo2\cf2 >\cf0 \
+                \cf2 <\cf0 photo3\cf2 >\cf0 file:///Users/markcar/desktop/photo2-3.jpg\cf2 </\cf0 photo3\cf2 >\cf0 \
+            \cf2 </\cf0 opponent2\cf2 >\cf0 \
+        \cf2 </\cf0 game\cf2 >\cf0 \
+	\cf2 </\cf0 games\cf2 >\cf0 \
+\cf2 </\cf0 archeryscores\cf2 >\cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\tx7280\tx7840\tx8400\tx8960\tx9520\tx10080\tx10640\tx11200\tx11760\tx12320\tx12880\tx13440\tx14000\tx14560\tx15120\tx15680\tx16240\tx16800\tx17360\tx17920\tx18480\tx19040\tx19600\tx20160\tx20720\tx21280\tx21840\tx22400\tx22960\tx23520\tx24080\tx24640\tx25200\tx25760\tx26320\tx26880\tx27440\tx28000\tx28560\tx29120\tx29680\tx30240\tx30800\tx31360\tx31920\tx32480\tx33040\tx33600\tx34160\tx34720\tx35280\tx35840\tx36400\tx36960\tx37520\tx38080\tx38640\tx39200\tx39760\tx40320\tx40880\tx41440\tx42000\tx42560\tx43120\tx43680\tx44240\tx44800\tx45360\tx45920\tx46480\tx47040\tx47600\tx48160\tx48720\tx49280\tx49840\tx50400\tx50960\tx51520\tx52080\tx52640\tx53200\tx53760\tx54320\tx54880\tx55440\tx56000\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf2 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\tx7280\tx7840\tx8400\tx8960\tx9520\tx10080\tx10640\tx11200\tx11760\tx12320\tx12880\tx13440\tx14000\tx14560\tx15120\tx15680\tx16240\tx16800\tx17360\tx17920\tx18480\tx19040\tx19600\tx20160\tx20720\tx21280\tx21840\tx22400\tx22960\tx23520\tx24080\tx24640\tx25200\tx25760\tx26320\tx26880\tx27440\tx28000\tx28560\tx29120\tx29680\tx30240\tx30800\tx31360\tx31920\tx32480\tx33040\tx33600\tx34160\tx34720\tx35280\tx35840\tx36400\tx36960\tx37520\tx38080\tx38640\tx39200\tx39760\tx40320\tx40880\tx41440\tx42000\tx42560\tx43120\tx43680\tx44240\tx44800\tx45360\tx45920\tx46480\tx47040\tx47600\tx48160\tx48720\tx49280\tx49840\tx50400\tx50960\tx51520\tx52080\tx52640\tx53200\tx53760\tx54320\tx54880\tx55440\tx56000\ql\qnatural\pardirnatural
+
+\f1\fs22 \cf0 Il Layer 3 set Match utilizza:\
+	flag\
+	targetno\
+	name\
+	setscore\
+	set1\
+	set2\
+	set3\
+	tie\
+\
+Il Layer 5 set Match utilizza:\
+	flag\
+	targetno\
+	name\
+	setscore\
+	set1\
+	set2\
+	set3\
+	set4\
+	set5\
+	tie\
+\
+Il Layer Team Match utilizza:\
+	targetno\
+	name\
+	Total\
+	set1\
+	set2\
+	set3\
+	set4\
+	tie\
+\
+Il Layer Archery Top Scoring utilizza:\
+	flag\
+	name (o shortname in vista top)\
+	setscore (se abilitato)\
+	total o setpoints a scelta (setpoints \'e8 il punteggio del set/volee corrente)\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\tx7280\tx7840\tx8400\tx8960\tx9520\tx10080\tx10640\tx11200\tx11760\tx12320\tx12880\tx13440\tx14000\tx14560\tx15120\tx15680\tx16240\tx16800\tx17360\tx17920\tx18480\tx19040\tx19600\tx20160\tx20720\tx21280\tx21840\tx22400\tx22960\tx23520\tx24080\tx24640\tx25200\tx25760\tx26320\tx26880\tx27440\tx28000\tx28560\tx29120\tx29680\tx30240\tx30800\tx31360\tx31920\tx32480\tx33040\tx33600\tx34160\tx34720\tx35280\tx35840\tx36400\tx36960\tx37520\tx38080\tx38640\tx39200\tx39760\tx40320\tx40880\tx41440\tx42000\tx42560\tx43120\tx43680\tx44240\tx44800\tx45360\tx45920\tx46480\tx47040\tx47600\tx48160\tx48720\tx49280\tx49840\tx50400\tx50960\tx51520\tx52080\tx52640\tx53200\tx53760\tx54320\tx54880\tx55440\tx56000\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf2 	\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\tx7280\tx7840\tx8400\tx8960\tx9520\tx10080\tx10640\tx11200\tx11760\tx12320\tx12880\tx13440\tx14000\tx14560\tx15120\tx15680\tx16240\tx16800\tx17360\tx17920\tx18480\tx19040\tx19600\tx20160\tx20720\tx21280\tx21840\tx22400\tx22960\tx23520\tx24080\tx24640\tx25200\tx25760\tx26320\tx26880\tx27440\tx28000\tx28560\tx29120\tx29680\tx30240\tx30800\tx31360\tx31920\tx32480\tx33040\tx33600\tx34160\tx34720\tx35280\tx35840\tx36400\tx36960\tx37520\tx38080\tx38640\tx39200\tx39760\tx40320\tx40880\tx41440\tx42000\tx42560\tx43120\tx43680\tx44240\tx44800\tx45360\tx45920\tx46480\tx47040\tx47600\tx48160\tx48720\tx49280\tx49840\tx50400\tx50960\tx51520\tx52080\tx52640\tx53200\tx53760\tx54320\tx54880\tx55440\tx56000\ql\qnatural\pardirnatural
+
+\f1\fs22 \cf0 Il Layer Archery Heading utilizza:\
+	header\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\tx7280\tx7840\tx8400\tx8960\tx9520\tx10080\tx10640\tx11200\tx11760\tx12320\tx12880\tx13440\tx14000\tx14560\tx15120\tx15680\tx16240\tx16800\tx17360\tx17920\tx18480\tx19040\tx19600\tx20160\tx20720\tx21280\tx21840\tx22400\tx22960\tx23520\tx24080\tx24640\tx25200\tx25760\tx26320\tx26880\tx27440\tx28000\tx28560\tx29120\tx29680\tx30240\tx30800\tx31360\tx31920\tx32480\tx33040\tx33600\tx34160\tx34720\tx35280\tx35840\tx36400\tx36960\tx37520\tx38080\tx38640\tx39200\tx39760\tx40320\tx40880\tx41440\tx42000\tx42560\tx43120\tx43680\tx44240\tx44800\tx45360\tx45920\tx46480\tx47040\tx47600\tx48160\tx48720\tx49280\tx49840\tx50400\tx50960\tx51520\tx52080\tx52640\tx53200\tx53760\tx54320\tx54880\tx55440\tx56000\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf2 \
+buon lavoro!!!\
+\cf0 \
+}

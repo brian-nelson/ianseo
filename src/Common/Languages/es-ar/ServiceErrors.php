@@ -1,0 +1,29 @@
+<?php
+$lang['ErrArcherCodeExists']='ID Arquero ya Existe';
+$lang['ErrArcherCodeTooLong']='ID Arquero es Demasiado Largo';
+$lang['ErrArcherDobWrong']='Formato incorrecto Fecha de Nacimiento del Arquero';
+$lang['ErrArcherGivenLong']='Nombre Arquero Demasiado Largo';
+$lang['ErrArcherNoDob']='Falta fecha de nacimiento del arquero';
+$lang['ErrArcherNoGiven']='Falta Nombre del Arquero';
+$lang['ErrArcherRegDateWrong']='Formato Incorrecto de la Fecha de Registro del Arquero';
+$lang['ErrClassNotFound']='Clase No Encontrada';
+$lang['ErrClubCodeExists']='Código Club Ya Existe';
+$lang['ErrClubFullNameTooLong']='Nombre del Club Demasiado Largo';
+$lang['ErrClubId']='Club Inválido';
+$lang['ErrClubShortNameTooLong']='Nombre Corto del Club es Demasiado Largo';
+$lang['ErrDate']='Fecha inválida';
+$lang['ErrDivision']='División Incorrecta';
+$lang['ErrDivisionNotFound']='División No Encontrada';
+$lang['ErrDoB']='Fecha de Nacimiento Incorrecta';
+$lang['ErrEmailNotCanonical']='Correo electrónico incorrecto';
+$lang['ErrFamilyName']='Falta Apellido, demasiado largo o posee caracteres incorrectos';
+$lang['ErrGender']='Sexo Inválido';
+$lang['ErrGivenName']='Falta nombre arquero, demasiado largo o caracteres inválidos';
+$lang['ErrInvalidChar']='Caracteres Inválidos';
+$lang['ErrInvalidWAid']='ID WA Incorrecto';
+$lang['ErrPassDoNotMatch']='La contraseña no coincide';
+$lang['ErrPassToSet']='Ingrese nueva contraseña';
+$lang['ErrSubClass']='Sub Clase inválida';
+$lang['ErrSubClassNotFound']='Subclase No Encontrada';
+$lang['WrongType']='Tipo Incorrecto';
+?>

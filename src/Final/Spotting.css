@@ -1,0 +1,58 @@
+.OpponentL {background-color:#00e0e0;}
+.OpponentR {background-color:#ffff40;}
+
+.Opponents {text-align: center; width:50%;}
+.OppTitle {font-weight: bold; font-size: 3vmin;}
+.Hidden {display:none;}
+
+.Scorecard, .CmdRow {font-size:2vmin;width:100%;}
+.Scorecard input, .CmdRow input {font-size:2vmin;}
+.Scorecard input[onfocus] {width:4ch;}
+
+.Target {text-align: center; border:1vmin solid white;cursor: crosshair;}
+.TargetL {border-color:#00e0e0;}
+.TargetR {border-color:#ffff40;}
+
+.Live {background-color: #ffff88;}
+.Alternate {display:none;}
+.AlternateTitle {font-size:80%;width:6em;}
+
+.Winner {border:5px solid #00C000;}
+.Winner.OppTitle {border-bottom: none;}
+.Winner.Scores {border-top: none;}
+.Confirmed {
+    border-width:1vmin;
+}
+.Confirmed th {background-color: #00C000!important;}
+
+[id^="SvgEndL_"] circle {
+    fill: url(#gradLeft);
+}
+
+[id^="SvgEndR_"] circle {
+    fill: url(#gradRight);
+}
+
+.ActiveArrow {background-color: #ff7870;}
+.ActiveArrow input {background-color: #FFA0A0;}
+
+.SO div {display:inline-block; padding: 2px 1em;}
+
+table.Spotting {border-collapse: collapse;}
+
+g[id^="SvgEndL_"] {display:none;}
+g[id^="SvgEndR_"] {display:none;}
+g[id^="SvgEndL_SO_"] {display:none;}
+g[id^="SvgEndR_SO_"] {display:none;}
+
+.SpotBackButton {display:inline-block; background-color: red; color:white;padding:0.25em 2em; margin-top:1em;}
+
+.newSoNeeded input {
+    background-color: black;
+    color: white;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+.Legenda {padding: 5px; }
+.value {min-width: 5vh; display: inline-block; font-weight: bold; text-align: right}

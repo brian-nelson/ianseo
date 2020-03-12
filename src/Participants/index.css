@@ -1,0 +1,71 @@
+
+.GenFlex {display:flex; justify-content:center;margin:0.5rem;}
+.GenFlex div {margin:0 0.5em;}
+
+
+td.Title[onclick] {cursor: pointer;}
+.sortActive[status='asc']:after {content: ' v'; font-weight: normal;}
+.sortActive[status='desc']:after {content: ' ^'; font-weight: normal;}
+
+.updated {background-color:lightgreen;}
+
+.short,
+#Status,
+[name=status],
+#Target,
+[name=targetno],
+#Session,
+[name=session],
+#Sex,
+[name=sex],
+#CoCode,
+[name=country_code],
+#CoCode2,
+[name=country_code2],
+#CoCode3,
+[name=country_code3],
+#Disable,
+[name=wc],
+#Class,
+[name=class],
+#SubClass,
+[name=subclass],
+#AgeClass,
+[name=ageclass],
+#Div,
+[name=division]
+    {width:3em;box-sizing: border-box;}
+
+.medium,
+#Bib,
+[name=code],
+#DOB,
+[name=dob],
+#CoName,
+[name=country_name],
+#CoName2,
+[name=country_name2],
+#CoName3,
+[name=country_name3],
+#LocalBib,
+[name=locCode],
+#Email,
+[name=email]
+    {width:5em;box-sizing: border-box;}
+
+.long,
+#FamName,
+[name=firstname],
+#GivName,
+[name=name],
+#Caption,
+[name=caption]
+    {width:8em;box-sizing: border-box;}
+
+[field=picture] {text-align: center;}
+
+#PhotoFrame {position: absolute; z-index: 9003; display: none; left: 50%; top: 20%; width: 20em; margin-left:-10em; padding:0.5em;background: lightskyblue;border-radius: 1em;}
+#PhotoFrameTitle {font-size:1.2em; font-weight: bold; margin-bottom:0.5em;}
+#photo-manager {text-align:center;}
+#photo-manager div {margin-top:1em;}
+#photo-manager input[type=file] {width:15em;}

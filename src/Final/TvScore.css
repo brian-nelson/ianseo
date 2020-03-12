@@ -1,0 +1,12 @@
+@CHARSET "UTF-8";
+
+body, table, #PopupContent {margin:0;padding:0;width:100%;height:100%;}
+td {text-align:center; /* border:1px solid black; */}
+#Tabella {width:100%; height:100%;}
+#Score1, #Score2, #MiniScore1, #MiniScore2, #name1, #name2,  .ScoreArrows1, .ScoreArrows2, #error {font-weight:bold; width:50%; text-align:center;}
+#Score2, #MiniScore2, #name2, .ScoreArrows2 {}
+.ScoreArrows1, .ScoreArrows2 {}
+#MiniScore1 {text-align:right;}
+#MiniScore2 {text-align:left}
+#error {width:100%; height:100%;font-size: 100px; }
+div.SingleScore {display: inline-block; margin:0 0.25em;}

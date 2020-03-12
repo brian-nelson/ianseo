@@ -1,0 +1,25 @@
+@CHARSET "UTF-8";
+
+#TrueScheduler {vertical-align: top;}
+
+.SchedDay {padding-top:1em;}
+.SchedDay div {font-size:150%; font-weight:bold; background-color:lightgray; }
+.SchedTime {padding-left:5em;}
+.SchedFreetext {font-size:120%; font-weight:bold; font-style: italic; }
+.SchedTitle {font-size:120%; font-weight:bold;}
+.Scheduler input[type=text] {width:100%}
+
+#TrueScheduler table {border:0; border-spacing: 0px; border-collapse: collapse;}
+#TrueScheduler th.SchDay {padding:3px; font-size:125%; font-weight:bold; background-color:#ddd; margin-top:1em; text-align: left;}
+.SchDay:FIRST-CHILD {margin-top:0;}
+
+.SchText {margin-left:0;font-weight:bold; font-style:italic;}
+#TrueScheduler tr td:FIRST-CHILD {padding-right:0.5em;white-space:nowrap; font-weight:normal; font-style:normal;}
+#TrueScheduler td {vertical-align:top;}
+
+.SchTitle {font-weight:bold; margin-top:0.25em;}
+.SchSubTitle {font-weight:bold; font-style: italic;}
+.SchItem {padding-left:7.5em; }
+.SchWarmup {font-style: italic;}
+
+.active td {background-color:#bbffbb; border-top:1px solid green; border-bottom:1px solid green;}

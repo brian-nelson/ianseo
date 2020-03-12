@@ -1,0 +1,184 @@
+@CHARSET "UTF-8";
+
+#grid-partecipants
+{
+	width: 95%;
+	margin: 0 auto auto auto;
+}
+
+#photo-manager
+{
+	background-color: #ffffff;
+	width: 200px;
+	height: 300px;
+	padding: 2px 2px 2px 2px;
+	text-align: center;
+	font-size: 12px;
+	width:99%;
+}
+
+#events-access
+{
+	background-color: #ffffff;
+	width: 200px;
+	height: 160px;
+	padding: 2px 2px 2px 2px;
+}
+
+#error-msg
+{
+	color: #ff0000;
+	font-weight: bold;
+}
+
+/* Override standard grid styles (add colour to vertical grid lines) */
+.x-grid3-col {
+    border-left:  1px solid #EEEEEE;
+    border-right: 1px solid #D2D2D2;
+}
+ 
+/* Also remove padding from table data (to compensate for added grid lines) */
+.x-grid3-row td, .x-grid3-summary-row td {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.x-grid3-invalid-cell 
+{
+	background: transparent url("../../Common/Styles/ext-2.2/images/default/grid/invalid_line.gif") repeat-x bottom;
+}
+
+
+
+.control-btn
+{
+	cursor: pointer;
+}
+
+.events-access-icon
+{
+	text-align: center;
+}
+
+
+.status
+{
+	text-align: center;
+}
+
+.has-photo
+{
+	text-align: center;
+}
+
+.context-menu-couldshoot
+{
+	background-image: url(/Common/Images/status-couldshoot.gif) no-repeat 0 0;
+}
+
+.context-menu-canshoot
+{
+	background-image: url(/Common/Images/status-canshoot.gif) no-repeat 0 0;
+}
+
+/* Ext.ux.IconCombo mandatory styles */
+.x-icon-combo-icon {
+    background-repeat: no-repeat;
+    background-position: 0 50%;
+    width: 18px;
+    height: 14px;
+}
+.x-icon-combo-input {
+    padding-left: 25px;
+}
+.x-form-field-wrap .x-icon-combo-icon {
+    top: 3px;
+    left: 5px;
+}
+.x-icon-combo-item {
+    background-repeat: no-repeat !important;
+    background-position: 3px 50% !important;
+    padding-left: 24px;
+}
+
+/* application specific styles */
+.x-icon-couldshoot {
+    background-image:url(/Common/Images/status-couldshoot.gif) !important;
+}
+.x-icon-canshoot {
+    background-image:url(/Common/Images/status-canshoot.gif) !important;
+}
+.x-icon-unknownshoot {
+    background-image:url(/Common/Images/status-unknown.gif) !important;
+}
+.x-icon-noshoot {
+    background-image:url(/Common/Images/status-noshoot.gif) !important;
+}
+.x-icon-ok {
+    background-image:url(/Common/Images/status-ok.gif) !important;
+}
+
+.x-icon-gohome {
+    background-image:url(/Common/Images/status-gohome.gif) !important;
+}
+.x-icon-notaccredited {
+    background-image:url(/Common/Images/status-notaccredited.gif) !important;
+}
+
+.x-icon-photo-yes {
+    background-image:url(/Common/Images/photo-yes.gif) !important;
+}
+.x-icon-photo-no {
+    background-image:url(/Common/Images/photo-no.gif) !important;
+}
+
+
+.btn-tbar
+{
+	border-color: #000000;
+	border: dotted 1px;
+	margin-left: 2px;
+	margin-right: 2px;
+}
+
+/* 
+	Gruppi di colonne da colorare.
+	Ci sono pure gli id dei bottoni corrispondenti
+*/
+
+/* gruppo 0*/
+.x-grid3-hd-colCtrlCode,
+.x-grid3-hd-colGender,
+#btnHideColsGroup_0
+{
+	background-color: #00ff00;
+}   
+
+/* gruppo 1 */
+.x-grid3-hd-colSubTeam,
+.x-grid3-hd-colCountryCode2,
+.x-grid3-hd-colCountryName2,
+#btnHideColsGroup_1
+{
+	background-color: #ff0000;
+}
+
+/* gruppo 2 */
+.x-grid3-hd-colDiv,
+.x-grid3-hd-colAgeClass,
+.x-grid3-hd-colClass,
+.x-grid3-hd-colSubClass,
+#btnHideColsGroup_2
+{
+	background-color: #00ccff;
+}
+
+
+/* gruppo 3 */
+.x-grid3-hd-colCountryCode3,
+	.x-grid3-hd-colCountryName3,
+#btnHideColsGroup_3
+{
+	background-color: #f0ff08;
+}   
+

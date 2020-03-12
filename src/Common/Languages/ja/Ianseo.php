@@ -1,0 +1,10 @@
+<?php
+$lang['Category']='カテゴリ';
+$lang['Cert-Instructor']='講師';
+$lang['Cert-Level1']='入門編';
+$lang['Cert-Level2']='初級編';
+$lang['Cert-Level3']='応用編';
+$lang['Cert-Level4']='マスター編';
+$lang['Cert-Level5']='Ianseoチーム';
+$lang['CertificateManagement']='修了証編集';
+?>

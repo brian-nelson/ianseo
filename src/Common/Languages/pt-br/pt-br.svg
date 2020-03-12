@@ -1,0 +1,655 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg id="svg2" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" viewBox="-2100 -1470 4386.6667 2940" width="752" version="1.1" xmlns:cc="http://creativecommons.org/ns#" height="504" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<metadata id="metadata474">
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+<rect id="field" height="2940" width="4386.7" y="-1470" x="-2100" fill="#00923f"/>
+<path id="rhombus" fill="#f8c300" d="m-1649.7 0l1743 1113 1743-1113-1743-1113z"/>
+<circle id="circle" d="M 735,0 C 735,405.92929 405.92929,735 0,735 C -405.92929,735 -735,405.92929 -735,0 C -735,-405.92929 -405.92929,-735 0,-735 C 405.92929,-735 735,-405.92929 735,0 z" transform="translate(93.333)" cy="0" cx="0" r="735" fill="#28166f"/>
+<path id="path4215" fill="#fff" d="m818.26 108.01a1785 1785 0 0 0 -96.06 -77.657 1785 1785 0 0 0 -149.48 -97.708 1785 1785 0 0 0 -158.23 -82.215 1785 1785 0 0 0 -165.71 -65.99 1785 1785 0 0 0 -171.53 -49.22 1785 1785 0 0 0 -175.55 -31.72 1785 1785 0 0 0 -177.91 -14.21 1785 1785 0 0 0 -178.47 3.82 1785 1785 0 0 0 -126.51 15.32c-15.87 36.11-28.51 73.77-38.46 112.65a1680 1680 0 0 1 74.92 -13.49 1680 1680 0 0 1 167.34 -13.3 1680 1680 0 0 1 167.89 3.46 1680 1680 0 0 1 166.62 20.23 1680 1680 0 0 1 163.88 36.83 1680 1680 0 0 1 159.32 52.861 1680 1680 0 0 1 153.31 68.724 1680 1680 0 0 1 145.65 83.489 1680 1680 0 0 1 136.72 97.706 1680 1680 0 0 1 76.56 67.27c11.88-37.66 19.99-76.84 25.7-116.85z"/>
+<g id="g55" fill="#00923f" transform="translate(-326.67 1470)">
+<g id="ORDEM" transform="rotate(-7)">
+<path id="use58" fill-rule="evenodd" d="m0-1697.5a31.5 35 0 0 0 0 -70 31.5 35 0 1 0 0 70m0-13a18.5 22 0 0 0 0 -44 18.5 22 0 1 0 0 44"/>
+<g id="use60" transform="matrix(.99863 .052336 -.052336 .99863 88.84 -1695.2)">
+<path id="use3931" fill-rule="evenodd" d="m-31.5 0h13v-26h28a22 22 0 0 0 0 -44h-40zm13-39h27a9 9 0 0 0 0 -18h-27z"/>
+<path id="path3933" d="m28 0c0-10 0-32-15-32h-19c22 0 22 22 22 32"/>
+</g>
+<path id="use62" fill-rule="evenodd" d="m146.11-1691.5l32.82 3.5a30 30 0 0 0 32.97 -26.7l1.05-10a30 30 0 0 0 -26.7 -33l-32.82-3.4zm14.29-11.6l18.89 2a19 19 0 0 0 20.89 -16.9l0.62-6a19 19 0 0 0 -16.91 -20.8l-18.89-2z"/>
+<path id="use64" d="m234.44-1681.5l62.22 9.8 2.03-12.8-50.37-8 2.82-17.8 39.5 6.3 1.88-11.9-39.51-6.2 2.19-13.8 47.41 7.5 2.04-12.9-59.26-9.4z"/>
+<path id="use66" d="m322.12-1667l11.74 2.5 9.98-46.9 3.71 49.9 10.76 2.2 23.67-44-9.98 46.9 11.74 2.5 14.56-68.4-17.12-3.7-23.68 44.1-3.71-49.9-17.12-3.6z"/>
+</g>
+<path id="use68" d="m261.6-1677.4l51.74 8.9 2.03-11.9-39.91-6.8 2.71-15.8 32.52 5.6 2.03-11.8-32.52-5.6 1.86-10.9 38.69 6.7 2.03-11.8-50.51-8.7z"/>
+<g id="PROGRESSO" transform="rotate(14.5)">
+<path id="use71" fill-rule="evenodd" d="m-31.5-1697.5h13v-26h28a22 22 0 0 0 0 -44h-40zm13-39h27a9 9 0 0 0 0 -18h-27z"/>
+<g id="use73" transform="matrix(.99863 .052336 -.052336 .99863 88.84 -1695.2)">
+<path id="use3971" fill-rule="evenodd" d="m-31.5 0h13v-26h28a22 22 0 0 0 0 -44h-40zm13-39h27a9 9 0 0 0 0 -18h-27z"/>
+<path id="path3973" d="m28 0c0-10 0-32-15-32h-19c22 0 22 22 22 32"/>
+</g>
+<path id="use75" fill-rule="evenodd" d="m177.44-1688.2a31.5 35 6 1 0 7.31 -69.6 31.5 35 6 0 0 -7.31 69.6m1.36-12.9a18.5 22 6 1 0 4.6 -43.8 18.5 22 6 0 0 -4.6 43.8"/>
+<g id="use77" transform="matrix(.98769 .15643 -.15643 .98769 265.55 -1676.6)">
+<path id="use3961" fill-rule="evenodd" d="m0 0a31.5 35 0 0 0 0 -70 31.5 35 0 1 0 0 70m0-13a18.5 22 0 0 0 0 -44 18.5 22 0 1 0 0 44"/>
+<rect id="rect3963" y="-35" width="26.5" x="5" height="10"/>
+<rect id="rect3965" y="-35" width="10" x="21.5" height="35"/>
+</g>
+<g id="use79" transform="matrix(.97815 .20791 -.20791 .97815 352.93 -1660.4)">
+<path id="use3951" fill-rule="evenodd" d="m-31.5 0h13v-26h28a22 22 0 0 0 0 -44h-40zm13-39h27a9 9 0 0 0 0 -18h-27z"/>
+<path id="path3953" d="m28 0c0-10 0-32-15-32h-19c22 0 22 22 22 32"/>
+</g>
+<path id="use81" d="m408.92-1647.8l60.85 16.3 3.37-12.6-49.27-13.2 4.66-17.3 38.64 10.3 3.11-11.6-38.64-10.3 3.62-13.6 46.37 12.5 3.36-12.6-57.95-15.5z"/>
+<path id="use83" d="m516.38-1640.2c-2.17 6.6 3.17 12.1 12.68 15.2 9.51 3 15.02 1.4 16.42-2.9 4.41-13.5-42.84-19.4-34.87-43.1 6.88-20.4 29.87-11.8 38.43-9.1 8.56 2.8 23.49 11.9 17.92 28.2l-14.5-4.7c2.32-7.1-3.49-11.9-11.1-14.4-7.37-2.4-12.99-2.9-15.23 4-3.87 11.1 42.75 18.1 35.11 41.6-5.64 17.4-23.84 15.2-36.68 11-10.94-3.6-28.62-14-23.16-30.7z"/>
+<path id="use85" d="m601.51-1610.9c-2.51 6.5 2.54 12.2 11.87 15.8 9.34 3.6 14.93 2.2 16.55-2 5.11-13.3-41.76-21.6-32.57-44.9 7.94-20 30.45-10.3 38.86-7 8.4 3.2 22.84 13 16.42 29l-14.24-5.4c2.69-7-2.86-12.1-10.33-15-7.23-2.7-12.81-3.6-15.41 3.2-4.45 10.9 41.74 20.3 32.87 43.4-6.54 17.1-24.6 13.9-37.2 9-10.74-4.1-27.84-15.5-21.52-31.8z"/>
+<path id="use87" fill-rule="evenodd" d="m690.44-1550.7a31.5 35 24 0 0 28.47 -64 31.5 35 24 1 0 -28.47 64m5.28-11.9a18.5 22 24 0 0 17.9 -40.2 18.5 22 24 1 0 -17.9 40.2"/>
+</g>
+</g>
+<g id="stars" fill="#fff" transform="translate(93.333)">
+<g id="Alpha_Canis_Minoris" transform="matrix(31.5,0,0,31.5,-600,-132)">
+<g id="g2934">
+<polygon id="polygon2936" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use2938" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2940" transform="rotate(72.001)">
+<polygon id="polygon5015" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5017" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2942" transform="rotate(-72.001)">
+<polygon id="polygon5033" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5035" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2944" transform="rotate(144)">
+<polygon id="polygon5027" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5029" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2946" transform="rotate(216)">
+<polygon id="polygon5021" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5023" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Canis_Majoris">
+<g id="Alpha_Canis_Majoris" transform="matrix(31.5,0,0,31.5,-535,177)">
+<g id="g5113">
+<polygon id="polygon5115" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5117" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5119" transform="rotate(72.001)">
+<polygon id="polygon5283" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5285" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5121" transform="rotate(-72.001)">
+<polygon id="polygon5277" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5279" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5123" transform="rotate(144)">
+<polygon id="polygon5271" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5273" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5125" transform="rotate(216)">
+<polygon id="polygon5265" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5267" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Beta_Canis_Majoris" transform="matrix(21,0,0,21,-625,243)">
+<g id="g5097">
+<polygon id="polygon5099" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5101" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5103" transform="rotate(72.001)">
+<polygon id="polygon5249" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5251" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5105" transform="rotate(-72.001)">
+<polygon id="polygon5243" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5245" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5107" transform="rotate(144)">
+<polygon id="polygon5237" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5239" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5109" transform="rotate(216)">
+<polygon id="polygon5231" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5233" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Gamma_Canis_Majoris" transform="matrix(15,0,0,15,-463,132)">
+<g id="g5081">
+<polygon id="polygon5083" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5085" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5087" transform="rotate(72.001)">
+<polygon id="polygon5197" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5199" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5089" transform="rotate(-72.001)">
+<polygon id="polygon5203" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5205" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5091" transform="rotate(144)">
+<polygon id="polygon5209" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5211" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5093" transform="rotate(216)">
+<polygon id="polygon5215" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5217" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Delta_Canis_Majoris" transform="matrix(26.25,0,0,26.25,-382,250)">
+<g id="g5065">
+<polygon id="polygon5067" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5069" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5071" transform="rotate(72.001)">
+<polygon id="polygon5181" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5183" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5073" transform="rotate(-72.001)">
+<polygon id="polygon5175" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5177" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5075" transform="rotate(144)">
+<polygon id="polygon5169" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5171" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5077" transform="rotate(216)">
+<polygon id="polygon5163" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5165" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Epsilon_Canis_Majoris" transform="matrix(26.25,0,0,26.25,-404,323)">
+<g id="g5049">
+<polygon id="polygon5051" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5053" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5055" transform="rotate(72.001)">
+<polygon id="polygon5141" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5143" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5057" transform="rotate(-72.001)">
+<polygon id="polygon5147" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5149" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5059" transform="rotate(144)">
+<polygon id="polygon5135" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5137" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5061" transform="rotate(216)">
+<polygon id="polygon5129" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5131" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+</g>
+<g id="Alpha_Virginis" transform="matrix(31.5,0,0,31.5,228,-228)">
+<g id="g2950">
+<polygon id="polygon2952" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use2954" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2956" transform="rotate(72.001)">
+<polygon id="polygon5317" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5319" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2958" transform="rotate(-72.001)">
+<polygon id="polygon5311" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5313" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2960" transform="rotate(144)">
+<polygon id="polygon5305" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5307" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2962" transform="rotate(216)">
+<polygon id="polygon5299" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5301" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Scorpio">
+<g id="Alpha_Scorpii" transform="matrix(31.5,0,0,31.5,515,258)">
+<g id="g5333">
+<polygon id="polygon5335" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5337" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5339" transform="rotate(72.001)">
+<polygon id="polygon5723" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5725" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5341" transform="rotate(-72.001)">
+<polygon id="polygon5715" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5717" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5343" transform="rotate(144)">
+<polygon id="polygon5707" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5709" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5345" transform="rotate(216)">
+<polygon id="polygon5699" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5701" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Beta_Scorpii" transform="matrix(21,0,0,21,617,265)">
+<g id="g5349">
+<polygon id="polygon5351" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5353" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5355" transform="rotate(72.001)">
+<polygon id="polygon5689" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5691" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5357" transform="rotate(-72.001)">
+<polygon id="polygon5681" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5683" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5359" transform="rotate(144)">
+<polygon id="polygon5673" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5675" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5361" transform="rotate(216)">
+<polygon id="polygon5665" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5667" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Epsilon_Scorpii" transform="matrix(26.25,0,0,26.25,545,323)">
+<g id="g5365">
+<polygon id="polygon5367" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5369" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5371" transform="rotate(72.001)">
+<polygon id="polygon5655" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5657" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5373" transform="rotate(-72.001)">
+<polygon id="polygon5647" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5649" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5375" transform="rotate(144)">
+<polygon id="polygon5639" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5641" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5377" transform="rotate(216)">
+<polygon id="polygon5631" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5633" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Theta_Scorpii" transform="matrix(26.25,0,0,26.25,368,477)">
+<g id="g5381">
+<polygon id="polygon5383" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5385" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5387" transform="rotate(72.001)">
+<polygon id="polygon5621" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5623" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5389" transform="rotate(-72.001)">
+<polygon id="polygon5613" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5615" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5391" transform="rotate(144)">
+<polygon id="polygon5605" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5607" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5393" transform="rotate(216)">
+<polygon id="polygon5597" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5599" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Iota_Scorpii" transform="matrix(21,0,0,21,367,551)">
+<g id="g5397">
+<polygon id="polygon5399" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5401" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5403" transform="rotate(72.001)">
+<polygon id="polygon5587" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5589" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5405" transform="rotate(-72.001)">
+<polygon id="polygon5579" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5581" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5407" transform="rotate(144)">
+<polygon id="polygon5571" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5573" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5409" transform="rotate(216)">
+<polygon id="polygon5563" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5565" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Kappa_Scorpii" transform="matrix(21,0,0,21,441,419)">
+<g id="g5413">
+<polygon id="polygon5415" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5417" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5419" transform="rotate(72.001)">
+<polygon id="polygon5553" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5555" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5421" transform="rotate(-72.001)">
+<polygon id="polygon5545" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5547" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5423" transform="rotate(144)">
+<polygon id="polygon5537" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5539" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5425" transform="rotate(216)">
+<polygon id="polygon5529" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5531" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Lambda_Scorpii" transform="matrix(26.25,0,0,26.25,500,382)">
+<g id="g5429">
+<polygon id="polygon5431" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5433" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5435" transform="rotate(72.001)">
+<polygon id="polygon5519" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5521" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5437" transform="rotate(-72.001)">
+<polygon id="polygon5511" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5513" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5439" transform="rotate(144)">
+<polygon id="polygon5503" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5505" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5441" transform="rotate(216)">
+<polygon id="polygon5495" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5497" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Mu_Scorpii" transform="matrix(21,0,0,21,365,405)">
+<g id="g5445">
+<polygon id="polygon5447" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5449" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5451" transform="rotate(72.001)">
+<polygon id="polygon5473" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5475" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5453" transform="rotate(-72.001)">
+<polygon id="polygon5479" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5481" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5455" transform="rotate(144)">
+<polygon id="polygon5467" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5469" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5457" transform="rotate(216)">
+<polygon id="polygon5461" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5463" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+</g>
+<g id="Hydra">
+<g id="Alpha_Hydrae" transform="matrix(26.25,0,0,26.25,-280,30)">
+<g id="g5749">
+<polygon id="polygon5751" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5753" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5755" transform="rotate(72.001)">
+<polygon id="polygon5817" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5819" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5757" transform="rotate(-72.001)">
+<polygon id="polygon5811" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5813" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5759" transform="rotate(144)">
+<polygon id="polygon5805" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5807" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5761" transform="rotate(216)">
+<polygon id="polygon5799" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5801" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Gamma_Hydrae" transform="matrix(21,0,0,21,200,-37)">
+<g id="g5733">
+<polygon id="polygon5735" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5737" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5739" transform="rotate(72.001)">
+<polygon id="polygon5783" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5785" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5741" transform="rotate(-72.001)">
+<polygon id="polygon5777" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5779" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5743" transform="rotate(144)">
+<polygon id="polygon5771" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5773" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use5745" transform="rotate(216)">
+<polygon id="polygon5765" points="0 1 0.5 1 0 0" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use5767" points="0 1 0.5 1 0 0" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+</g>
+<g id="Crux">
+<g id="Alpha_Crucis" transform="matrix(31.5,0,0,31.5,0,330)">
+<g id="g3158">
+<polygon id="polygon3160" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3162" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3164" transform="rotate(72.001)">
+<polygon id="polygon3450" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3452" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3166" transform="rotate(-72.001)">
+<polygon id="polygon3438" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3440" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3168" transform="rotate(144)">
+<polygon id="polygon3444" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3446" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3170" transform="rotate(216)">
+<polygon id="polygon3432" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3434" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Beta_Crucis" transform="matrix(26.25,0,0,26.25,85,184)">
+<g id="g3142">
+<polygon id="polygon3144" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3146" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3148" transform="rotate(72.001)">
+<polygon id="polygon3410" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3412" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3150" transform="rotate(-72.001)">
+<polygon id="polygon3416" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3418" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3152" transform="rotate(144)">
+<polygon id="polygon3404" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3406" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3154" transform="rotate(216)">
+<polygon id="polygon3398" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3400" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Gamma_Crucis" transform="matrix(26.25,0,0,26.25,0,118)">
+<g id="g3126">
+<polygon id="polygon3128" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3130" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3132" transform="rotate(72.001)">
+<polygon id="polygon3382" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3384" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3134" transform="rotate(-72.001)">
+<polygon id="polygon3376" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3378" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3136" transform="rotate(144)">
+<polygon id="polygon3370" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3372" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3138" transform="rotate(216)">
+<polygon id="polygon3364" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3366" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Delta_Crucis" transform="matrix(21,0,0,21,-74,184)">
+<g id="g3110">
+<polygon id="polygon3112" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3114" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3116" transform="rotate(72.001)">
+<polygon id="polygon3348" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3350" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3118" transform="rotate(-72.001)">
+<polygon id="polygon3342" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3344" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3120" transform="rotate(144)">
+<polygon id="polygon3336" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3338" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3122" transform="rotate(216)">
+<polygon id="polygon3330" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3332" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Epsilon_Crucis" transform="matrix(15,0,0,15,-37,235)">
+<g id="g3094">
+<polygon id="polygon3096" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3098" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3100" transform="rotate(72.001)">
+<polygon id="polygon3314" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3316" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3102" transform="rotate(-72.001)">
+<polygon id="polygon3308" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3310" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3104" transform="rotate(144)">
+<polygon id="polygon3302" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3304" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3106" transform="rotate(216)">
+<polygon id="polygon3296" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3298" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+</g>
+<g id="Triangulum_Australe">
+<g id="Alpha_Trianguli_Australe" transform="matrix(26.25,0,0,26.25,220,495)">
+<g id="g3078">
+<polygon id="polygon3080" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3082" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3084" transform="rotate(72.001)">
+<polygon id="polygon3286" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3288" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3086" transform="rotate(-72.001)">
+<polygon id="polygon3278" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3280" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3088" transform="rotate(144)">
+<polygon id="polygon3270" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3272" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3090" transform="rotate(216)">
+<polygon id="polygon3262" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3264" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Beta_Trianguli_Australe" transform="matrix(21,0,0,21,283,430)">
+<g id="g3062">
+<polygon id="polygon3064" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3066" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3068" transform="rotate(72.001)">
+<polygon id="polygon3252" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3254" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3070" transform="rotate(-72.001)">
+<polygon id="polygon3244" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3246" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3072" transform="rotate(144)">
+<polygon id="polygon3236" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3238" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3074" transform="rotate(216)">
+<polygon id="polygon3228" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3230" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Gamma_Trianguli_Australe" transform="matrix(21,0,0,21,162,412)">
+<g id="g3046">
+<polygon id="polygon3048" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3050" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3052" transform="rotate(72.001)">
+<polygon id="polygon3214" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3216" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3054" transform="rotate(-72.001)">
+<polygon id="polygon3208" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3210" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3056" transform="rotate(144)">
+<polygon id="polygon3202" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3204" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use3058" transform="rotate(216)">
+<polygon id="polygon3194" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3196" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+</g>
+<g id="Alpha_Carinae" transform="matrix(31.5,0,0,31.5,-295,390)">
+<g id="g2982">
+<polygon id="polygon2984" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use2986" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2988" transform="rotate(72.001)">
+<polygon id="polygon3040" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3042" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2990" transform="rotate(-72.001)">
+<polygon id="polygon3034" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3036" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2992" transform="rotate(144)">
+<polygon id="polygon3028" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3030" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2994" transform="rotate(216)">
+<polygon id="polygon3022" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3024" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+<g id="Sigma_Octantis" transform="matrix(10.5,0,0,10.5,0,575)">
+<g id="g2966">
+<polygon id="polygon2968" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use2970" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2972" transform="rotate(72.001)">
+<polygon id="polygon3016" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3018" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2974" transform="rotate(-72.001)">
+<polygon id="polygon3010" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3012" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2976" transform="rotate(144)">
+<polygon id="polygon3004" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3006" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+<g id="use2978" transform="rotate(216)">
+<polygon id="polygon2998" points="0.5 1 0 0 0 1" transform="matrix(.95106 .30902 -.30902 .95106 0 -1)"/>
+<polygon id="use3000" points="0.5 1 0 0 0 1" transform="matrix(-.95106 .30902 .30902 .95106 0 -1)"/>
+</g>
+</g>
+</g>
+</svg>

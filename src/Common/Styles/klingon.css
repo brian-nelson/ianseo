@@ -1,0 +1,10 @@
+@font-face {
+    font-family: 'klingon';
+    src: url('../tcpdf/fonts/klingonpiqadhasta.ttf');
+}
+
+body, body * {
+    font-family:klingon!important;
+    font-size:1.5vmin!important;
+}
+

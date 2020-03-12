@@ -1,0 +1,11 @@
+<?php
+$lang['Arrows']='箭';
+$lang['CmdImport']='输入';
+$lang['Country']='国家';
+$lang['Distance']='距离';
+$lang['Name']='名称';
+$lang['Target']='靶位';
+$lang['Terminal']='HTT';
+$lang['TotaleScore']='总计';
+$lang['Volee']='组';
+?>

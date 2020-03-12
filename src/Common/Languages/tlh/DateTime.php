@@ -1,0 +1,14 @@
+<?php
+$lang['01_Short']='';
+$lang['02_Short']='';
+$lang['03_Short']='';
+$lang['04_Short']='';
+$lang['05_Short']='';
+$lang['06_Short']='';
+$lang['07_Short']='';
+$lang['08_Short']='';
+$lang['09_Short']='';
+$lang['10_Short']='';
+$lang['11_Short']='';
+$lang['12_Short']='';
+?>
