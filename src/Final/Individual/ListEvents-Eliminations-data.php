@@ -22,8 +22,9 @@ if(empty($_REQUEST['ev']) or empty($_REQUEST['act'])) {
 }
 
 $EventSQL="SELECT * FROM Events 
-  WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' and EvCode=".StrSafe_DB($_REQUEST['ev'])."
-  ORDER BY EvProgr ASC,EvCode ASC, EvTeamEvent ASC ";
+	inner join Tournament on ToId=EvTournament
+	WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' and EvCode=".StrSafe_DB($_REQUEST['ev'])."
+	ORDER BY EvProgr ASC,EvCode ASC, EvTeamEvent ASC ";
 $q=safe_r_sql($EventSQL);
 
 $EVENT=safe_fetch($q);
@@ -41,12 +42,13 @@ switch($_REQUEST['act']) {
 
         switch($Type) {
             case 4:
+            	$ArNum=($EVENT->ToElabTeam==2 ? 1 : 3);
             	if($EVENT->EvElimType!=$Type) {
 	                safe_w_sql("update Events set 
 						EvElim1=0, EvE1Arrows=0, EvE1Ends=0, EvE1SO=0, 
 						EvElim2=22, EvE2Arrows=0, EvE2Ends=0, EvE2SO=0, 
 						EvFinalAthTarget=255, EvMatchArrowsNo=248,
-						EvElimEnds=6, EvElimArrows=3, EvElimSO=1,
+						EvElimEnds=6, EvElimArrows=$ArNum, EvElimSO=1,
 						EvElimType=$Type where EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' and EvCode=".StrSafe_DB($_REQUEST['ev']));
 		            $q=safe_r_sql($EventSQL);
 		            $EVENT=safe_fetch($q);
@@ -59,12 +61,13 @@ switch($_REQUEST['act']) {
                 $JSON['html'].='<tr><th>'.get_text('ShotOff', 'Tournament').'</th><td><input type="number" id="EvElimSO" value="'.$EVENT->EvElimSO.'" readonly></td></tr>';
                 break;
             case 3:
+            	$ArNum=($EVENT->ToElabTeam==2 ? 1 : 3);
             	if($EVENT->EvElimType!=$Type) {
 	                safe_w_sql("update Events set 
 						EvElim1=0, EvE1Arrows=0, EvE1Ends=0, EvE1SO=0, 
 						EvElim2=12, EvE2Arrows=0, EvE2Ends=0, EvE2SO=0, 
 						EvFinalAthTarget=255, EvMatchArrowsNo=248,
-						EvElimEnds=6, EvElimArrows=3, EvElimSO=1,
+						EvElimEnds=6, EvElimArrows=$ArNum, EvElimSO=1,
 						EvElimType=$Type where EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' and EvCode=".StrSafe_DB($_REQUEST['ev']));
 		            $q=safe_r_sql($EventSQL);
 		            $EVENT=safe_fetch($q);
@@ -77,13 +80,14 @@ switch($_REQUEST['act']) {
                 $JSON['html'].='<tr><th>'.get_text('ShotOff', 'Tournament').'</th><td><input type="number" id="EvElimSO" value="'.$EVENT->EvElimSO.'" readonly></td></tr>';
                 break;
             case 2:
+            	$ArNum=($EVENT->ToElabTeam==2 ? 1 : 3);
                 // Two "standard" elimination rounds
             	if($EVENT->EvElimType!=$Type) {
 	                safe_w_sql("update Events set 
 						EvElim1=16, EvE1Arrows=3, EvE1Ends=12, EvE1SO=1, 
 						EvElim2=8, EvE2Arrows=3, EvE2Ends=8, EvE2SO=3, 
 						EvFinalAthTarget=255, EvMatchArrowsNo=248,
-						EvElimEnds=5, EvElimArrows=3, EvElimSO=1,
+						EvElimEnds=5, EvElimArrows=$ArNum, EvElimSO=1,
 						EvElimType=2 where EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' and EvCode=".StrSafe_DB($_REQUEST['ev']));
 		            $q=safe_r_sql($EventSQL);
 		            $EVENT=safe_fetch($q);
@@ -94,12 +98,13 @@ switch($_REQUEST['act']) {
                 $JSON['html'].='<tr><th>'.get_text('Arrows', 'Tournament').'</th><td><input type="number" id="EvE1Arrows" value="'.$EVENT->EvE1Arrows.'" onchange="SetField(this)"></td></tr>';
                 $JSON['html'].='<tr><th>'.get_text('ShotOff', 'Tournament').'</th><td><input type="number" id="EvE1SO" value="'.$EVENT->EvE1SO.'" onchange="SetField(this)"></td></tr>';
             case 1:
+            	$ArNum=($EVENT->ToElabTeam==2 ? 1 : 3);
             	if($EVENT->EvElimType!=$Type) {
 	                safe_w_sql("update Events set 
 						EvElim1=0, EvE1Arrows=0, EvE1Ends=0, EvE1SO=0, 
 						EvElim2=8, EvE2Arrows=3, EvE2Ends=8, EvE2SO=1, 
 						EvFinalAthTarget=255, EvMatchArrowsNo=248,
-						EvElimEnds=5, EvElimArrows=3, EvElimSO=1,
+						EvElimEnds=5, EvElimArrows=$ArNum, EvElimSO=1,
 						EvElimType=1 where EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' and EvCode=".StrSafe_DB($_REQUEST['ev']));
 		            $q=safe_r_sql($EventSQL);
 		            $EVENT=safe_fetch($q);

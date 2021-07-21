@@ -193,7 +193,7 @@ function DeleteArrowPosition($MatchNo, $EvCode, $TeamEvent, $ArrowIndex, $ToId=0
 	return $retValue;
 }
 
-function UpdateArrowString($MatchNo, $EvCode, $TeamEvent, $ArrowString, $ArrowStart, $ArrowEnd, $ToId=0) {
+function UpdateArrowString($MatchNo, $EvCode, $TeamEvent, $ArrowString, $ArrowStart, $ArrowEnd, $ToId=0, $Closest=0) {
 	$CompId = $ToId;
 	if(empty($CompId) && !empty($_SESSION['TourId']))
 		$CompId = $_SESSION['TourId'];
@@ -202,24 +202,22 @@ function UpdateArrowString($MatchNo, $EvCode, $TeamEvent, $ArrowString, $ArrowSt
 	$Select ='';
 
 	$TablePrefix = "Fin";
-	$Select
-		= "SELECT "
-		. "FinEvent as EvCode, FinMatchNo as MatchNo, FinArrowString as ArString, FinTieBreak as TbString, FinConfirmed as Confirmed, "
-		. "EvMatchMode, EvMatchArrowsNo, GrPhase, FinLive as LiveMatch "
-		. "FROM Finals "
-		. "INNER JOIN Grids ON FinMatchNo=GrMatchNo "
-		. "INNER JOIN Events ON FinEvent=EvCode AND FinTournament=EvTournament AND EvTeamEvent=0 "
-		. "WHERE FinTournament={$CompId} AND FinMatchNo=" . StrSafe_DB($MatchNo) . " AND FinEvent=" . StrSafe_DB($EvCode);
+	$Select = "SELECT
+			FinEvent as EvCode, FinMatchNo as MatchNo, FinArrowString as ArString, FinTieBreak as TbString, FinConfirmed as Confirmed,
+			EvMatchMode, EvMatchArrowsNo, GrPhase, FinLive as LiveMatch, FinTbClosest as Closest
+		FROM Finals
+		INNER JOIN Grids ON FinMatchNo=GrMatchNo
+		INNER JOIN Events ON FinEvent=EvCode AND FinTournament=EvTournament AND EvTeamEvent=0
+		WHERE FinTournament={$CompId} AND FinMatchNo=" . StrSafe_DB($MatchNo) . " AND FinEvent=" . StrSafe_DB($EvCode);
 	if($TeamEvent) {
 		$TablePrefix = "Tf";
-		$Select
-			= "SELECT "
-			. "TfEvent as EvCode, TfMatchNo as MatchNo, TfArrowString as ArString, TfTieBreak as TbString, TfConfirmed as Confirmed, "
-			. "EvMatchMode, EvMatchArrowsNo, GrPhase, TfLive as LiveMatch "
-			. "FROM TeamFinals "
-			. "INNER JOIN Grids ON TfMatchNo=GrMatchNo "
-			. "INNER JOIN Events ON TfEvent=EvCode AND TfTournament=EvTournament AND EvTeamEvent=1 "
-			. "WHERE TfTournament={$CompId} AND TfMatchNo=" . StrSafe_DB($MatchNo) . " AND TfEvent=" . StrSafe_DB($EvCode);
+		$Select = "SELECT
+				TfEvent as EvCode, TfMatchNo as MatchNo, TfArrowString as ArString, TfTieBreak as TbString, TfConfirmed as Confirmed,
+				EvMatchMode, EvMatchArrowsNo, GrPhase, TfLive as LiveMatch, TfTbClosest as Closest
+			FROM TeamFinals
+			INNER JOIN Grids ON TfMatchNo=GrMatchNo
+			INNER JOIN Events ON TfEvent=EvCode AND TfTournament=EvTournament AND EvTeamEvent=1
+			WHERE TfTournament={$CompId} AND TfMatchNo=" . StrSafe_DB($MatchNo) . " AND TfEvent=" . StrSafe_DB($EvCode);
 	}
 
 	$Rs=safe_r_sql($Select);
@@ -241,14 +239,39 @@ function UpdateArrowString($MatchNo, $EvCode, $TeamEvent, $ArrowString, $ArrowSt
 
 		if($Offset==0) {
             $tmpArrowString = substr($tmpArrowString, 0, $maxArrows);
-        }
+        } elseif($Closest) {
+            // must first remove the closest and tie from the other match
+            $OppMatchno=($MatchNo%2 ? $MatchNo-1 : $MatchNo+1);
+            safe_w_sql("update ". ($TeamEvent==0 ? "Finals" : "TeamFinals") . " SET {$TablePrefix}TbClosest=0, {$TablePrefix}Tie=0, {$TablePrefix}TbDecoded=replace({$TablePrefix}TbDecoded, '+','') 
+                WHERE 
+                {$TablePrefix}Tie!=2 
+                AND {$TablePrefix}Event=". StrSafe_DB($MyRow->EvCode) . "
+                AND {$TablePrefix}MatchNo=$OppMatchno
+                AND {$TablePrefix}Tournament=$CompId");
+		}
+
+		$TbDecoded='';
+		if($Offset) {
+			// check the decoded arrows of the tiebreak!
+			$decoded=array();
+			foreach(str_split(rtrim($tmpArrowString), $obj->so) as $k) {
+				if($obj->so==1) {
+					$decoded[]=DecodeFromLetter($k);
+				} else {
+					$decoded[]=ValutaArrowString($k);
+				}
+			}
+			$TbDecoded=", {$TablePrefix}TbDecoded=".StrSafe_DB(implode(',', $decoded).($Closest?'+':''));
+		}
 
 		$query="UPDATE "
 			. ($TeamEvent==0 ? "Finals" : "TeamFinals") . " "
 			. "SET "
 			. $TablePrefix . ($Offset==0 ? "ArrowString" : "Tiebreak") . "=" . StrSafe_DB($tmpArrowString) . ", "
+			. ($Offset==0 ? '' : $TablePrefix.'TbClosest='.intval($Closest).', ')
 			. "{$TablePrefix}DateTime={$TablePrefix}DateTime "
-			. "WHERE "
+			. ($TbDecoded ? $TbDecoded : '')
+			. " WHERE "
 			. "{$TablePrefix}Tie!=2 "
 			. "AND {$TablePrefix}Event=". StrSafe_DB($MyRow->EvCode) . " "
 			. "AND {$TablePrefix}MatchNo=". StrSafe_DB($MyRow->MatchNo) . " "
@@ -296,35 +319,33 @@ function MatchTotal($MatchNo, $EvCode, $TeamEvent=0, $ToId=0) {
 
 	$MatchFinished=false; // serve per vedere se il match è finito
 	$TablePrefix = "Fin";
-	$Select
-		= "SELECT "
-		. "f.FinEvent as EvCode, f.FinMatchNo as MatchNo, f2.FinMatchNo as OppMatchNo, EvMatchMode, EvMatchArrowsNo, "
-		. "IF(f.FinDateTime>=f2.FinDateTime, f.FinDateTime, f2.FinDateTime) AS DateTime,"
-		. "f.FinScore AS Score, f.FinSetScore AS SetScore, f.FinTie as Tie, IFNULL(f.FinArrowString,'') as ArString, IFNULL(f.FinTieBreak,'') as TbString, "
-		. "f2.FinScore AS OppScore, f2.FinSetScore AS OppSetScore, f2.FinTie as OppTie, IFNULL(f2.FinArrowString,'') as OppArString, IFNULL(f2.FinTieBreak,'') as OppTbString, "
-		. "GrPhase "
-		. "FROM Finals AS f "
-		. "INNER JOIN Finals AS f2 ON f.FinEvent=f2.FinEvent AND f.FinMatchNo=IF((f.FinMatchNo % 2)=0,f2.FinMatchNo-1,f2.FinMatchNo+1) AND f.FinTournament=f2.FinTournament "
-		. "INNER JOIN Events ON f.FinEvent=EvCode AND f.FinTournament=EvTournament AND EvTeamEvent=0 "
-		. "INNER JOIN Grids ON f.FinMatchNo=GrMatchNo "
-		. "WHERE f.FinTournament=" . StrSafe_DB($CompId) . " AND (f.FinMatchNo % 2)=0 AND GrMatchNo=" . StrSafe_DB(($MatchNo % 2 == 0 ? $MatchNo:$MatchNo-1)) . " AND f.FinEvent=" . StrSafe_DB($EvCode) . " "
-		. "ORDER BY f.FinEvent, f.FinMatchNo ";
+	$Select = "SELECT
+			f.FinEvent as EvCode, f.FinMatchNo as MatchNo, f2.FinMatchNo as OppMatchNo, EvMatchMode, EvMatchArrowsNo,
+			IF(f.FinDateTime>=f2.FinDateTime, f.FinDateTime, f2.FinDateTime) AS DateTime,
+			f.FinScore AS Score, f.FinSetScore AS SetScore, f.FinTie as Tie, IFNULL(f.FinArrowString,'') as ArString, IFNULL(f.FinTieBreak,'') as TbString, IFNULL(f.FinTbClosest,'') as TbClosest,
+			f2.FinScore AS OppScore, f2.FinSetScore AS OppSetScore, f2.FinTie as OppTie, IFNULL(f2.FinArrowString,'') as OppArString, IFNULL(f2.FinTieBreak,'') as OppTbString, IFNULL(f2.FinTbClosest,'') as OppTbClosest,
+			GrPhase
+		FROM Finals AS f
+		INNER JOIN Finals AS f2 ON f.FinEvent=f2.FinEvent AND f.FinMatchNo=IF((f.FinMatchNo % 2)=0,f2.FinMatchNo-1,f2.FinMatchNo+1) AND f.FinTournament=f2.FinTournament
+		INNER JOIN Events ON f.FinEvent=EvCode AND f.FinTournament=EvTournament AND EvTeamEvent=0
+		INNER JOIN Grids ON f.FinMatchNo=GrMatchNo
+		WHERE f.FinTournament=" . StrSafe_DB($CompId) . " AND (f.FinMatchNo % 2)=0 AND GrMatchNo=" . StrSafe_DB(($MatchNo % 2 == 0 ? $MatchNo:$MatchNo-1)) . " AND f.FinEvent=" . StrSafe_DB($EvCode) . "
+		ORDER BY f.FinEvent, f.FinMatchNo ";
 
 	if($TeamEvent) {
 		$TablePrefix = "Tf";
-		$Select
-			= "SELECT "
-			. "f.TfEvent as EvCode, f.TfMatchNo as MatchNo, f2.TfMatchNo as OppMatchNo, EvMatchMode, EvMatchArrowsNo, "
-			. "IF(f.TfDateTime>=f2.TfDateTime, f.TfDateTime, f2.TfDateTime) AS DateTime,"
-			. "f.TfScore AS Score, f.TfSetScore AS SetScore, f.TfTie as Tie, IFNULL(f.TfArrowString,'') as ArString, IFNULL(f.TfTieBreak,'') as TbString, "
-			. "f2.TfScore AS OppScore, f2.TfSetScore AS OppSetScore, f2.TfTie as OppTie, IFNULL(f2.TfArrowString,'') as OppArString, IFNULL(f2.TfTieBreak,'') as OppTbString, "
-			. "GrPhase "
-			. "FROM TeamFinals AS f "
-			. "INNER JOIN TeamFinals AS f2 ON f.TfEvent=f2.TfEvent AND f.TfMatchNo=IF((f.TfMatchNo % 2)=0,f2.TfMatchNo-1,f2.TfMatchNo+1) AND f.TfTournament=f2.TfTournament "
-			. "INNER JOIN Events ON f.TfEvent=EvCode AND f.TfTournament=EvTournament AND EvTeamEvent=1 "
-			. "INNER JOIN Grids ON f.TfMatchNo=GrMatchNo "
-			. "WHERE f.TfTournament=" . StrSafe_DB($CompId) . " AND (f.TfMatchNo % 2)=0 AND GrMatchNo=" . StrSafe_DB(($MatchNo % 2 == 0 ? $MatchNo:$MatchNo-1)) . " AND f.TfEvent=" . StrSafe_DB($EvCode) . " "
-			. "ORDER BY f.TfEvent, f.TfMatchNo ";
+		$Select = "SELECT
+				f.TfEvent as EvCode, f.TfMatchNo as MatchNo, f2.TfMatchNo as OppMatchNo, EvMatchMode, EvMatchArrowsNo,
+				IF(f.TfDateTime>=f2.TfDateTime, f.TfDateTime, f2.TfDateTime) AS DateTime,
+				f.TfScore AS Score, f.TfSetScore AS SetScore, f.TfTie as Tie, IFNULL(f.TfArrowString,'') as ArString, IFNULL(f.TfTieBreak,'') as TbString, IFNULL(f.TfTbClosest,'') as TbClosest,
+				f2.TfScore AS OppScore, f2.TfSetScore AS OppSetScore, f2.TfTie as OppTie, IFNULL(f2.TfArrowString,'') as OppArString, IFNULL(f2.TfTieBreak,'') as OppTbString, IFNULL(f2.TfTbClosest,'') as OppTbClosest,
+				GrPhase
+			FROM TeamFinals AS f
+			INNER JOIN TeamFinals AS f2 ON f.TfEvent=f2.TfEvent AND f.TfMatchNo=IF((f.TfMatchNo % 2)=0,f2.TfMatchNo-1,f2.TfMatchNo+1) AND f.TfTournament=f2.TfTournament
+			INNER JOIN Events ON f.TfEvent=EvCode AND f.TfTournament=EvTournament AND EvTeamEvent=1
+			INNER JOIN Grids ON f.TfMatchNo=GrMatchNo
+			WHERE f.TfTournament=" . StrSafe_DB($CompId) . " AND (f.TfMatchNo % 2)=0 AND GrMatchNo=" . StrSafe_DB(($MatchNo % 2 == 0 ? $MatchNo:$MatchNo-1)) . " AND f.TfEvent=" . StrSafe_DB($EvCode) . "
+			ORDER BY f.TfEvent, f.TfMatchNo ";
 	}
 
 	//print $Select . "<br>";exit;
@@ -401,11 +422,11 @@ function MatchTotal($MatchNo, $EvCode, $TeamEvent=0, $ToId=0) {
 
 								$MatchFinished=true;
 
-								if($AthStars > $OppStars) {
-									// Athlete 1 has at least one arrow set as closest to center
+								if($MyRow->TbClosest) {
+									// Athlete 1 has at a closest to center
 									$Winner = $MyRow->MatchNo;
 									$WinnerId = $MyRow->MatchNo;
-								} elseif($AthStars < $OppStars) {
+								} elseif($MyRow->OppTbClosest) {
 									// Athlete 2 has one arrow closer to center
 									$Winner = $MyRow->OppMatchNo;
 									$WinnerId = $MyRow->OppMatchNo;
@@ -543,7 +564,10 @@ function MatchTotal($MatchNo, $EvCode, $TeamEvent=0, $ToId=0) {
 							$OppSpBe[]=1;
 						}
 					}
-				}
+				} else if(strlen($AthEndString)!= 0 OR strlen($OppEndString) != 0) {
+                    $AthSpBe[]=0;
+                    $OppSpBe[]=0;
+                }
 			}
 
 			if($SetAth > $obj->ends+2 or $SetOpp > $obj->ends+2) {
@@ -561,12 +585,12 @@ function MatchTotal($MatchNo, $EvCode, $TeamEvent=0, $ToId=0) {
 				list($OppTbValue, $OppWeight, $OppStars, $OppNumX, $OppArrows) = ValutaArrowStringSO($MyRow->OppTbString);
 
 
-				if($AthStars > $OppStars) {
+				if($MyRow->TbClosest) {
 					// Athlete 1 has at least one arrow set as closest to center
 					$Winner = $MyRow->MatchNo;
 					$WinnerId = $MyRow->MatchNo;
 					$SetAth++;
-				} elseif($AthStars < $OppStars) {
+				} elseif($MyRow->OppTbClosest) {
 					// Athlete 2 has one arrow closer to center
 					$Winner = $MyRow->OppMatchNo;
 					$WinnerId = $MyRow->OppMatchNo;

@@ -8,7 +8,7 @@ $json_array = Array();
 $tmp=explode('|', $QuTarget);
 if(count($tmp)==3) {
 	// ELIMINATION
-	$SQL="select 'E' as Type, ElArrowString DiArrowstring, '' DiDistance, if(ElElimPhase=0, EvE1Ends, EvE2Ends) DiEnds, if(ElElimPhase=0, EvE1Arrows, EvE2Arrows) DiArrows, '' DiName, ToGoldsChars, ToXNineChars, ToGolds, ToXNine
+	$SQL="select 'E' as Type, ElTargetNo+0 as Target, ToElabTeam, ElArrowString DiArrowstring, '0' DiDistance, if(ElElimPhase=0, EvE1Ends, EvE2Ends) DiEnds, if(ElElimPhase=0, EvE1Arrows, EvE2Arrows) DiArrows, '' DiName, ToGoldsChars, ToXNineChars, ToGolds, ToXNine
 		FROM Eliminations
 		INNER JOIN Entries on EnId = ElId and EnTournament=$CompId
 		INNER JOIN Tournament ON ToId=$CompId
@@ -18,7 +18,7 @@ if(count($tmp)==3) {
 	// QUALIFICATION
 	$Sql=array();
 	for($n=1;$n<=8;$n++) {
-		$Sql[]="SELECT 'Q' as Type, QuD{$n}ArrowString DiArrowstring, DiDistance, DiEnds, DiArrows, Td{$n} DiName, ToGoldsChars, ToXNineChars, ToGolds, ToXNine
+		$Sql[]="SELECT 'Q' as Type, QuTarget as Target, ToElabTeam, QuD{$n}ArrowString DiArrowstring, DiDistance, DiEnds, DiArrows, Td{$n} DiName, ToGoldsChars, ToXNineChars, ToGolds, ToXNine
 		FROM Qualifications
 		INNER JOIN Entries on EnId = Quid and EnTournament=$CompId
 		INNER JOIN Tournament ON ToId=$CompId
@@ -30,74 +30,79 @@ if(count($tmp)==3) {
 	$SQL='('.implode(') UNION (', $Sql).') order by DiDistance';
 }
 
-	// Retrieve the score info
-	$Rs=safe_r_sql($SQL);
+// Retrieve the score info
+$Rs=safe_r_sql($SQL);
 
-	while($r=safe_fetch($Rs)) {
-		$Arrows=$r->DiArrows;
-		$Ends=$r->DiEnds;
-		$ArrowString=str_pad(rtrim($r->DiArrowstring), $Arrows*$Ends);
+while($r=safe_fetch($Rs)) {
+	$Arrows=$r->DiArrows;
+	$Ends=$r->DiEnds;
+	$ArrowString=str_pad(rtrim($r->DiArrowstring), $Arrows*$Ends);
 
-		$SQL = "SELECT IskDtEndNo, IskDtArrowstring
-			FROM IskData
-			WHERE IskDtTournament={$CompId} AND IskDtMatchNo=0 AND IskDtEvent='' AND IskDtTeamInd=0 AND IskDtType='{$r->Type}' AND IskDtTargetNo='{$QuTarget}' AND IskDtDistance={$r->DiDistance}
-			ORDER BY IskDtEndNo";
-		$q = safe_r_SQL($SQL);
-		while($r2 = safe_fetch($q)){
-			for($i=0; $i<$Arrows; $i++){
-				if($r2->IskDtArrowstring[$i]!=' '){
-					$ArrowString[($r2->IskDtEndNo-1)*$Arrows+$i]=$r2->IskDtArrowstring[$i];
-				}
+	$SQL = "SELECT IskDtEndNo, IskDtArrowstring
+		FROM IskData
+		WHERE IskDtTournament={$CompId} AND IskDtMatchNo=0 AND IskDtEvent='' AND IskDtTeamInd=0 AND IskDtType='{$r->Type}' AND IskDtTargetNo='{$QuTarget}' AND IskDtDistance={$r->DiDistance}
+		ORDER BY IskDtEndNo";
+	$q = safe_r_SQL($SQL);
+	while($r2 = safe_fetch($q)){
+		for($i=0; $i<$Arrows; $i++){
+			if($r2->IskDtArrowstring[$i]!=' '){
+				$ArrowString[($r2->IskDtEndNo-1)*$Arrows+$i]=$r2->IskDtArrowstring[$i];
 			}
 		}
-
-		$RealEnds=array();
-		while(strlen($ArrowString)) {
-			$RealEnds[]=substr($ArrowString, 0, $Arrows);
-			$ArrowString=substr($ArrowString, $Arrows);
-		}
-
-		if($Arrows>3 and $Arrows%3) {
-			// arrows per end are more than 6 and not multiple of 3
-			// so ends will be reduced to max 6 arrows
-			$tmp=ceil($Arrows/6);
-			$Arrows=ceil($Arrows/$tmp);
-		} else {
-			$tmp=ceil($Arrows/3);
-			$Arrows=ceil($Arrows/$tmp);
-		}
-		$Distance=array(
-			'distancename' => $r->DiName,
-			'goldschar' => $r->ToGolds,
-			'xninechar' => $r->ToXNine,
-			'endarrows' => $Arrows,
-			'endscores' => array()
-		);
-		$EndNum=1;
-		$GrandTotal=0;
-		foreach($RealEnds as $RealEnd) {
-			$RealEnd=str_pad($RealEnd, $Arrows);
-			while(strlen($RealEnd)) {
-				$End=substr($RealEnd, 0, $Arrows);
-				$EndArray=array(
-					'endnum' => $EndNum,
-					'arrowscores' => array(),
-					'endtotal' => 0,
-					'endgolds' => 0,
-					'endxnine' => 0);
-				foreach(range(0, $Arrows-1) as $Arrow) {
-					$EndArray['arrowscores'][]=DecodeFromLetter(substr($End, $Arrow, 1));
-				}
-				list($EndArray['endtotal'],$EndArray['endgolds'],$EndArray['endxnine']) = ValutaArrowStringGX($End, $r->ToGoldsChars, $r->ToXNineChars);
-				$GrandTotal+=$EndArray['endtotal'];
-				$EndArray['runtotal']=$GrandTotal;
-				$EndNum++;
-				$Distance['endscores'][]=$EndArray;
-				$RealEnd=substr($RealEnd, $Arrows);
-			}
-		}
-		$json_array[]=$Distance;
 	}
+
+	$RealEnds=array();
+	while(strlen($ArrowString)) {
+		$RealEnds[]=substr($ArrowString, 0, $Arrows);
+		$ArrowString=substr($ArrowString, $Arrows);
+	}
+
+	if($Arrows>3 and $Arrows%3) {
+		// arrows per end are more than 6 and not multiple of 3
+		// so ends will be reduced to max 6 arrows
+		$tmp=ceil($Arrows/6);
+		$Arrows=ceil($Arrows/$tmp);
+	} else {
+		$tmp=ceil($Arrows/3);
+		$Arrows=ceil($Arrows/$tmp);
+	}
+	$Distance=array(
+		'distancename' => $r->DiName,
+		'goldschar' => $r->ToGolds,
+		'xninechar' => $r->ToXNine,
+		'endarrows' => $Arrows,
+		'endscores' => array()
+	);
+	$EndNum=1;
+	$GrandTotal=0;
+	foreach($RealEnds as $RealEnd) {
+		$RealEnd=str_pad($RealEnd, $Arrows);
+		while(strlen($RealEnd)) {
+			$End=substr($RealEnd, 0, $Arrows);
+			$EndArray=array(
+				'endnum' => $EndNum,
+				'arrowscores' => array(),
+				'endtotal' => 0,
+				'endgolds' => 0,
+				'endxnine' => 0);
+			foreach(range(0, $Arrows-1) as $Arrow) {
+				$EndArray['arrowscores'][]=DecodeFromLetter(substr($End, $Arrow, 1));
+			}
+			list($EndArray['endtotal'],$EndArray['endgolds'],$EndArray['endxnine']) = ValutaArrowStringGX($End, $r->ToGoldsChars, $r->ToXNineChars);
+			$GrandTotal+=$EndArray['endtotal'];
+			$EndArray['runtotal']=$GrandTotal;
+			$EndNum++;
+			$Distance['endscores'][]=$EndArray;
+			$RealEnd=substr($RealEnd, $Arrows);
+		}
+	}
+	// if it is a field/3d needs to detach
+	if($r->ToElabTeam) {
+		$Target=($r->Target%$r->DiEnds)-1;
+		$Distance['endscores']=array_merge(array_slice($Distance['endscores'], $Target), array_slice($Distance['endscores'], 0, $Target));
+	}
+	$json_array[]=$Distance;
+}
 
 
 

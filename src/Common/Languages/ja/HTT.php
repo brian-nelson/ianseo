@@ -5,7 +5,7 @@ $lang['CmdTruncateHTTData']='一時テーブルを消去';
 $lang['CmdTruncateMyHTTData']='マイセッションテーブルを消去';
 $lang['Country']='国名４';
 $lang['DateTime']='日付／時間';
-$lang['Distance']='距離1';
+$lang['Distance']='距離';
 $lang['Download']='データを取得';
 $lang['EndReport']='報告書';
 $lang['FinInd']='個人決勝';
@@ -23,6 +23,6 @@ $lang['SetupTerminals']='HTT設定';
 $lang['Target']='的番号４';
 $lang['TargetNotFound']='的が存在しません';
 $lang['Terminal']='HTT';
-$lang['TotaleScore']='合計点';
+$lang['TotaleScore']='合計１';
 $lang['Volee']='エンド';
 ?>

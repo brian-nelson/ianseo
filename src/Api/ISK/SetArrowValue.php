@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/config.php');
+require_once('Common/Lib/Fun_Modules.php');
 
 $TargetNo=!empty($_GET['qutarget']) ? $_GET['qutarget'] : 0;
 list($Event,$EventTypeLetter,$MatchNo) = explode("|",(!empty($_GET['matchid']) ? $_GET['matchid'] : "0|I|0"));
@@ -43,7 +44,7 @@ if($iskModePro) {
 			// device associated... check if the type is correct (ignore other types)
 			if($TargetNo) {
 				// Qualification and perhaps Eliminations (need to revise the code...)
-				if(!in_array($QrCode['st'], array('Q', 'E'))) {
+				if(!in_array($QrCode['st'], array('Q', 'E1', 'E2'))) {
 					SendResetIsk($DEVICE->IskDvCode, $DEVICE->IskDvVersion, $DEVICE->IskDvAppVersion);
 				}
 			} else {
@@ -80,6 +81,8 @@ if($iskModePro) {
 	}
 }
 
+$LockedSessions=getModuleParameter('ISK', 'LockedSessions', array(), $CompId);
+
 if($TargetNo) {
 	$tmp=explode('|', $TargetNo);
 	if(count($tmp)==3) {
@@ -102,6 +105,7 @@ if($TargetNo) {
 		require_once('Elimination/Fun_Eliminations.local.inc.php');
 
 		$JsonResult = SetElimArrowValue($tmp[0], $tmp[1], $tmp[2], $_REQUEST['arrowindex'], $_REQUEST['arrowsymbol'], 'JSON', $CompId);
+		$Error=$JsonResult['error'];
 	} else {
 		//Qualification
 		$dist = $_REQUEST['distnum'];
@@ -109,7 +113,7 @@ if($TargetNo) {
 		$arrValue = $_REQUEST['arrowsymbol'];
 		$tgt = $_REQUEST['qutarget'];
 
-		$SQL="SELECT QuId, QuSession, QuTargetNo, DIDistance, DIEnds, DIArrows, ToGoldsChars, ToXNineChars, QuConfirm & ".pow(2, $dist)."=1 as StopImport 
+		$SQL="SELECT QuId, QuSession, QuTargetNo, QuTarget, DIDistance, DIEnds, DIArrows, ToGoldsChars, ToXNineChars, QuConfirm & ".pow(2, $dist)."=1 as StopImport, ToElabTeam, ToNumEnds 
 			from Qualifications
 			INNER JOIN Entries ON QuId=EnId
 			INNER JOIN Tournament ON ToId=EnTournament
@@ -168,34 +172,57 @@ if($TargetNo) {
 		}
 
 		if($Error!=2) {
-			$arrString = str_repeat(" ",$ArrowSearch->DIArrows);
+			$arrString = str_repeat(' ',$ArrowSearch->DIArrows);
+			$SQL = "SELECT QuD{$ArrowSearch->DIDistance}Arrowstring as Arrowstring 
+                FROM Qualifications INNER JOIN Entries ON QuId=EnId
+                WHERE EnTournament={$CompId} AND QuTargetNo='{$ArrowSearch->QuTargetNo}' ";
+            $q=safe_r_SQL($SQL);
+            if($r=safe_fetch($q)) {
+                $arrString=str_pad(substr($r->Arrowstring,($endNum-1)*$ArrowSearch->DIArrows,$ArrowSearch->DIArrows),$ArrowSearch->DIArrows, ' ', STR_PAD_RIGHT);
+            }
 			$SQL = "SELECT IskDtArrowstring
 				FROM IskData
 				WHERE IskDtTournament={$CompId} AND IskDtMatchNo=0 AND IskDtEvent='' AND IskDtTeamInd=0 AND IskDtType='Q'
 				AND IskDtTargetNo='{$ArrowSearch->QuTargetNo}' AND IskDtDistance={$ArrowSearch->DIDistance} AND IskDtEndNo={$endNum}";
 			$q=safe_r_SQL($SQL);
 			if($r=safe_fetch($q)) {
-				$arrString=$r->IskDtArrowstring;
+                for($i=0; $i<$ArrowSearch->DIArrows; $i++){
+                    if($r->IskDtArrowstring[$i]!=' '){
+                        $arrString[$i]=$r->IskDtArrowstring[$i];
+                    }
+                }
 			}
-			$arrString[$arrNum] = GetLetterFromPrint($arrValue,$ArrowSearch->QuId,$ArrowSearch->DIDistance);
-			$SQL = "INSERT INTO IskData (IskDtTournament, IskDtMatchNo, IskDtEvent, IskDtTeamInd, IskDtType, IskDtTargetNo, IskDtDistance, IskDtEndNo, IskDtArrowstring, IskDtUpdate, IskDtDevice)
-					VALUES ({$CompId}, 0, '', 0, 'Q', '{$ArrowSearch->QuTargetNo}', {$ArrowSearch->DIDistance}, {$endNum}, '{$arrString}', '".date('Y-m-d H:i:s')."', '{$DeviceId}')
-					ON DUPLICATE KEY UPDATE IskDtArrowstring='{$arrString}', IskDtUpdate='".date('Y-m-d H:i:s')."', IskDtDevice= '{$DeviceId}'";
-			safe_w_SQL($SQL);
-			$Error=0;
+			// check if the "key" of the session is allowed to score
+			$LockKey='Q|'.$ArrowSearch->QuTargetNo[0].'|'.intval($ArrowSearch->DIDistance);
+			if(in_array($LockKey, $LockedSessions)) {
+				$StopAutoImport = true;
+				$Error=2;
+			} else {
+				$arrString[$arrNum] = GetLetterFromPrint($arrValue,$ArrowSearch->QuId,$ArrowSearch->DIDistance);
+				$SQL = "INSERT INTO IskData (IskDtTournament, IskDtMatchNo, IskDtEvent, IskDtTeamInd, IskDtType, IskDtTargetNo, IskDtDistance, IskDtEndNo, IskDtArrowstring, IskDtUpdate, IskDtDevice)
+						VALUES ({$CompId}, 0, '', 0, 'Q', '{$ArrowSearch->QuTargetNo}', {$ArrowSearch->DIDistance}, {$endNum}, '{$arrString}', '".date('Y-m-d H:i:s')."', '{$DeviceId}')
+						ON DUPLICATE KEY UPDATE IskDtArrowstring='{$arrString}', IskDtUpdate='".date('Y-m-d H:i:s')."', IskDtDevice= '{$DeviceId}'";
+				safe_w_SQL($SQL);
+
+				// check if the import needs to be done after all arrows of the end are in
+				if(defined('IMPORT_TYPE') and IMPORT_TYPE) {
+					$iskStopAutoImport=(IMPORT_TYPE==2 or strlen(trim($arrString))!=$ArrowSearch->DIArrows);
+				}
+				$Error=0;
+			}
 		}
 
 		if(!$iskStopAutoImport and !$StopAutoImport) {
 			importQualifications($ArrowSearch->QuId, $ArrowSearch->DIDistance, $endNum) ;
 		}
 
-		$tmp = getQualificationTotals($ArrowSearch->QuId, $ArrowSearch->DIDistance, $endNum, $ArrowSearch->DIArrows, $ArrowSearch->DIEnds, $ArrowSearch->ToGoldsChars, $ArrowSearch->ToXNineChars);
+		$tmp = getQualificationTotals($ArrowSearch->QuId, $ArrowSearch->DIDistance, $endNum, $ArrowSearch->DIArrows, $ArrowSearch->DIEnds, $ArrowSearch->ToGoldsChars, $ArrowSearch->ToXNineChars, $ArrowSearch->ToElabTeam ? $ArrowSearch->QuTarget : null);
 
 		$JsonResult=array();
 		$JsonResult['qutarget']      = $ArrowSearch->QuTargetNo;
 		$JsonResult['distnum']       = (string) $ArrowSearch->DIDistance;
 		$JsonResult['arrowindex']    = (string) $arrIndex;
-		$JsonResult['arrowsymbol']   = $arrValue;
+		$JsonResult['arrowsymbol']   = DecodeFromLetter($tmp['curendarrstr'][$arrNum]);
 		$JsonResult['curendscore']   = $tmp['curendscore'];
 		$JsonResult['curscore']      = $tmp['curscore'];
 		$JsonResult['curscoreatend'] = $tmp['curscoreatend'];
@@ -205,6 +232,8 @@ if($TargetNo) {
 		$JsonResult['scoreatend']    = $tmp['scoreatend'];
 		$JsonResult['gold']          = $tmp['gold'];
 		$JsonResult['xnine']         = $tmp['xnine'];
+		//$JsonResult['arrowstring']   = $tmp['arrowstring'];
+		$JsonResult['arrowstrings']  = $tmp['arrowstrings'];
 
 	}
 } else {
@@ -305,17 +334,29 @@ if($TargetNo) {
 			if($r=safe_fetch($q)) {
 				$arrString=$r->IskDtArrowstring;
 			}
-			$arrString[$arrNum] = $tmpArrowString;
-			$SQL = "INSERT INTO IskData (IskDtTournament, IskDtMatchNo, IskDtEvent, IskDtTeamInd, IskDtType, IskDtTargetNo, IskDtDistance, IskDtEndNo, IskDtArrowstring, IskDtUpdate, IskDtDevice)
-					VALUES ({$CompId}, {$MatchNo}, '{$Event}', {$EventType}, '{$EventTypeLetter}', '', 0, {$endNum}, '{$arrString}', '".date('Y-m-d H:i:s')."', '{$DeviceId}')
-			ON DUPLICATE KEY UPDATE IskDtArrowstring='{$arrString}', IskDtUpdate='".date('Y-m-d H:i:s')."', IskDtDevice= '{$DeviceId}'";
-			safe_w_SQL($SQL);
+			// check if the "key" of the session is allowed to score
+			$LockKey=($EventType==0 ? 'I':'T').'|'.getPhase($MatchNo).'|'.$Event;
+			if(in_array($LockKey, $LockedSessions)) {
+				$StopAutoImport = true;
+				$Error=2;
+			} else {
+				$arrString[$arrNum] = $tmpArrowString;
+				$SQL = "INSERT INTO IskData (IskDtTournament, IskDtMatchNo, IskDtEvent, IskDtTeamInd, IskDtType, IskDtTargetNo, IskDtDistance, IskDtEndNo, IskDtArrowstring, IskDtUpdate, IskDtDevice)
+						VALUES ({$CompId}, {$MatchNo}, '{$Event}', {$EventType}, '{$EventTypeLetter}', '', 0, {$endNum}, '{$arrString}', '".date('Y-m-d H:i:s')."', '{$DeviceId}')
+				ON DUPLICATE KEY UPDATE IskDtArrowstring='{$arrString}', IskDtUpdate='".date('Y-m-d H:i:s')."', IskDtDevice= '{$DeviceId}'";
+				safe_w_SQL($SQL);
+				$Error=0;
+
+				// check if the import needs to be done after all arrows of the end are in
+				if(defined('IMPORT_TYPE') and IMPORT_TYPE) {
+					$iskStopAutoImport=(IMPORT_TYPE==2 or strlen(trim($arrString))!=($isSo ? $obj->so : $obj->arrows));
+				}
+			}
 
 			if(!$iskStopAutoImport and !$StopAutoImport) {
 				importMatches($Event, $MatchNo, $EventType, $endNum, $obj->arrows, $obj->ends, $obj->so, $arrNum);
 			}
 
-			$Error=0;
 		}
 
 		$tmp = getMatchTotals($Event, $MatchNo, $EventType, $endNum, $obj->arrows, $obj->ends, $obj->so);
@@ -323,7 +364,7 @@ if($TargetNo) {
 		$JsonResult['matchid']       = $Event."|".($EventType==0 ? 'I':'T')."|".$MatchNo;
 		$JsonResult['distnum']       = "1";
 		$JsonResult['arrowindex']    = (string) $arrIndex;
-		$JsonResult['arrowsymbol']   = $arrValue;
+		$JsonResult['arrowsymbol']   = DecodeFromLetter($isSo ? $tmp['arrowstring'][$arrNum] : $tmp['arrowstring'][$arrIndex]);
 		$JsonResult['curendscore']   = $tmp['curendscore'];
 		$JsonResult['curscore']      = $tmp['curscore'];
 		$JsonResult['curscoreatend'] = $tmp['curscoreatend'];
@@ -333,6 +374,7 @@ if($TargetNo) {
 		$JsonResult['scoreatend']    = $tmp['scoreatend'];
 		$JsonResult['gold']          = $tmp['gold'];
 		$JsonResult['xnine']         = $tmp['xnine'];
+		$JsonResult['arrowstrings']  = array($tmp['arrowstring']);
 	}
 }
 $JsonResult['error'] = $Error;

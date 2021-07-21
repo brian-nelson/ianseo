@@ -81,7 +81,7 @@ if(!empty($_REQUEST['FindLanguage'])) {
     }
 }
 
-$JS_SCRIPT[] = '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>';
+$JS_SCRIPT[] = '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>';
 $JS_SCRIPT[] = '<script type="text/javascript" src="./lang.js"></script>';
 $JS_SCRIPT[] = '<style>.updated {background-color:#e0ffe0}</style>';
 

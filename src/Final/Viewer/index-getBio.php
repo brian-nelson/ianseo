@@ -1,11 +1,12 @@
 <?php
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once('Common/Lib/ArrTargets.inc.php');
+require_once('Common/Lib/CommonLib.php');
 
 $JSON=array('error' => 1);
 
 
-if(!CheckTourSession()) {
+if(!CheckTourSession() OR GetTournamentIocCode()!='FITA') {
     JsonOut($JSON);
 }
 
@@ -20,72 +21,115 @@ $Event = (isset($_REQUEST['Event']) ? $_REQUEST['Event'] : false);
 
 
 $H2HMatches = null;
+$CatInformation = null;
 if($Team) {
     if($Id1 !== false AND $Id2 !== false AND $Event !== false) {
         $rawData = file_get_contents($CFG->WaWrapper . "?v=3&RBP=All&content=COUNTRYMATCHES&CatCode={$Event}&Noc={$Id1}&Noc2={$Id2}");
         $H2HMatches = json_decode($rawData);
     }
     if($Id1 !== false AND $Event !== false) {
-        $rawData = file_get_contents($CFG->WaWrapper . "?v=3&content=BIOTEAM&ID=" . $Id1 ."&CAT=" . $Event);
+        $rawData = file_get_contents($CFG->WaWrapper . "?v=3&content=TEAMBIOGRAPHY&Noc={$Id1}&CatCode={$Event}&Detailed=1");
         if(($BioData=json_decode($rawData))!=null) {
             $JSON['error']=0;
-            $JSON["BioL"] = bioTeam($BioData->items[0],$H2HMatches,'L');
+            $JSON["BioL"] = bioTeam($BioData->items[0],$H2HMatches,'L',$Event);
         }
     }
     if($Id2 !== false AND $Event !== false) {
-        $rawData = file_get_contents($CFG->WaWrapper . "?v=3&content=BIOTEAM&ID=" . $Id2 ."&CAT=" . $Event);
+        $rawData = file_get_contents($CFG->WaWrapper . "?v=3&content=TEAMBIOGRAPHY&Noc={$Id2}&CatCode={$Event}&Detailed=1");
         if(($BioData=json_decode($rawData))!=null) {
             $JSON['error']=0;
-            $JSON["BioR"] = bioTeam($BioData->items[0],$H2HMatches,'R');
+            $JSON["BioR"] = bioTeam($BioData->items[0],$H2HMatches,'R',$Event);
         }
     }
 
 } else {
+    $rawData = file_get_contents($CFG->WaWrapper . "?v=3&RBP=All&content=CATEGORIES&CatCode={$Event}");
+    $CatInformation =  json_decode($rawData);
+    if(count($CatInformation->items) != 0) {
+        $CatInformation = $CatInformation->items[0];
+    } else {
+        $CatInformation = null;
+    }
     if($Id1 !== false AND $Id2 !== false) {
         $rawData = file_get_contents($CFG->WaWrapper . "?v=3&RBP=All&content=ATHLETEMATCHES&Id={$Id1}&Id2={$Id2}");
         $H2HMatches = json_decode($rawData);
     }
     if ($Id1 !== false) {
-        $rawData = file_get_contents($CFG->WaWrapper . "?v=3&content=BIODET&ID=" . $Id1);
+        $rawData = file_get_contents($CFG->WaWrapper . "?v=3&content=ATHLETEBIOGRAPHY&Id={$Id1}&Detailed=1");
         if (($BioData = json_decode($rawData)) != null) {
-            $JSON['error'] = 0;
-            $JSON["BioL"] = bioInd($BioData->items[0],$H2HMatches,'L');
+            if(count($BioData->items) != 0) {
+                $JSON['error'] = 0;
+                $JSON["BioL"] = bioInd($BioData->items[0], $H2HMatches, 'L', $CatInformation);
+            }
         }
     }
     if ($Id2 !== false) {
-        $rawData = file_get_contents($CFG->WaWrapper . "?v=3&content=BIODET&ID=" . $Id2);
+        $rawData = file_get_contents($CFG->WaWrapper . "?v=3&content=ATHLETEBIOGRAPHY&Id={$Id2}&Detailed=1");
         if (($BioData = json_decode($rawData)) != null) {
-            $JSON['error'] = 0;
-            $JSON["BioR"] = bioInd($BioData->items[0],$H2HMatches,'R');
+            if(count($BioData->items) != 0) {
+                $JSON['error'] = 0;
+                $JSON["BioR"] = bioInd($BioData->items[0], $H2HMatches, 'R', $CatInformation);
+            }
         }
     }
 }
-
 JsonOut($JSON);
 
 
-function bioInd($data,$H2HMatches,$Side) {
+function bioInd($data,$H2HMatches,$Side, $CatInformation) {
     $avg=0;
     $q=safe_r_SQL("select QuScore, QuHits, group_concat(trim(FinArrowstring) separator '') as FinArrowstring
 		from Qualifications
 		inner join Finals on FinAthlete=QuId
 		inner join Entries on EnId=QuId
 		where EnCode={$data->Id} AND EnTournament=" . $_SESSION['TourId']);
-    if($r=safe_fetch($q)) {
+    if($r=safe_fetch($q) AND (($r->QuHits+strlen($r->FinArrowstring)!=0))) {
         $avg=round(($r->QuScore+ValutaArrowString($r->FinArrowstring))/($r->QuHits+strlen($r->FinArrowstring)), 3);
     }
 
     $tmp = '<div class="bioBox">';
     $tmp .= '<div class="btn-group btn-group-sm" role="group" id="names'.$Side.'"></div>';
     $tmp .= '<table class="table table-sm"><tbody>';
-    $tmp .= '<tr>'.
-            '<td>Age: <b>'.$data->Age.'</b><br>World Rank:</b> '.$data->Rnk.' '.$data->Cat.'&nbsp;<i class="fa '. ($data->Rnk<$data->RnkOld ? 'fa-level-up' : ($data->Rnk>$data->RnkOld ? 'fa-level-down' : 'fa-exchange')) . '"></i> '.($data->Rnk!=$data->RnkOld ? '(' . ($data->RnkOld-$data->Rnk) . ')': '').'</td>'.
-            '<td>Match won: <b>'.$data->MatchWin.'/'.$data->MatchTot.'</b> ('.$data->MatchWinPercentage.'%)<br>Ties won: <b>'.$data->TBWin.'/'.$data->TBTot.'</b> ('.$data->TBWinPercentage.'%)</td>'.
-        '</tr>'.
-        '<tr>'.
-        '<td>Overall Avg: <b>'.$data->AverageArr.'</b><br>Competition Avg.: <b>'.$avg.'</td>'.
-        '<td>Personal Best: <b>'.$data->QCareer.'</b><br>Season\'s Best: <b>'.$data->QSeason.'</td>'.
-        '</tr>';
+    //Age
+    $tmp .= '<tr><td>Age: <b>'.$data->Age.'</b>';
+    //World Ranking
+    foreach ($data->WorldRankings->Current as $key => $WRank) {
+        if(empty($CatInformation) OR ($WRank->CatCode==$CatInformation->Code)){
+            $tmp .= '<br>World Rank:</b> ' . $WRank->Rnk . ' '  . $WRank->CatCode . '&nbsp;<i class="fa ' . ($WRank->Rnk < $WRank->RnkOld ? 'fa-level-up' : ($WRank->Rnk > $WRank->RnkOld ? 'fa-level-down' : 'fa-exchange')) . '"></i> ' . ($WRank->Rnk != $WRank->RnkOld ? '(' . ($WRank->RnkOld - $WRank->Rnk) . ')' : '');
+        }
+    }
+    //Match/Tie stats
+    $overallAvg=0;
+    $overallBest=0;
+    $tmp .= '<td>';
+    if(!empty($data->Stats->Career)) {
+        foreach ($data->Stats->Career as $key => $Stat) {
+            if(empty($CatInformation) OR in_array($Stat->DivCode,$CatInformation->DivId)){
+                $tmp .= 'Match won: <b>' . $Stat->MatchWin . '/' . $Stat->MatchTot . '</b> (' . $Stat->MatchWinPercentage . '%)<br>Ties won: <b>' . $Stat->TBWin . '/' . $Stat->TBTot . '</b> (' . $Stat->TBWinPercentage . '%)';
+
+                if (!empty($Stat->AverageArr)) {
+                    $overallAvg = max($overallAvg, $Stat->AverageArr);
+                }
+                if (!empty($Stat->QBest)) {
+                    $overallBest = max($overallBest, $Stat->QBest);
+                }
+            }
+        }
+    }
+    //Average and Best Score
+    $seasonBest=0;
+    if(!empty($data->Stats->Season) AND !empty($data->Stats->{$data->Stats->Season})) {
+        foreach ($data->Stats->{$data->Stats->Season} as $key => $Stat) {
+        	if(!empty($Stat->QBest)) {
+                $seasonBest = max($seasonBest,$Stat->QBest);
+	        }
+        }
+    }
+    $tmp .= '</td></tr>';
+    $tmp .= '<tr>';
+    $tmp .= '<td>Overall Avg: <b>'.$overallAvg.'</b><br>Competition Avg.: <b>'.$avg.'</td>';
+    $tmp .= '<td>Personal Best: <b>'.$overallBest.'</b><br>Season\'s Best: <b>'.$seasonBest.'</td>';
+    $tmp .= '</tr>';
 
     // fetches the previous matches between the 2 opponents
     if ($H2HMatches != null) {
@@ -136,8 +180,10 @@ function bioInd($data,$H2HMatches,$Side) {
     $tmp .= '<tr>'.
         '<td colspan="2">'.
         '<span class="small"><input type="checkbox" class="mx-3" onclick="UpdateRows(this)" value="IsInd'.$data->Id .'" checked="checked">Individual<input type="checkbox" class="mx-3" onclick="UpdateRows(this)" value="IsTeam'.$data->Id.'" checked="checked">Team</span><br/>';
-    foreach($data->caps as $Id => $Item) {
-        $tmp .=  '<span class="text-nowrap mr-2 small"><input type="checkbox" onclick="UpdateRows(this)" value="Lev'.$Id.$data->Id.'" checked="checked">'.$Item[0].' x '.$Item[1].'</span> ';
+    foreach($data->Caps as $CatCode => $CatCaps) {
+        foreach ($CatCaps as $Id => $Item) {
+            $tmp .= '<span class="text-nowrap mr-2 small"><input type="checkbox" onclick="UpdateRows(this)" value="Lev' . $Id . $data->Id . '" checked="checked">' . $Item->Count . ' x ' . $Item->LevelName . '</span> ';
+        }
     }
     $tmp .= '</td></tr>';
 
@@ -151,7 +197,7 @@ function bioInd($data,$H2HMatches,$Side) {
         if($Level!=$medal->ComLevel) {
             $COMPS = str_replace(array('^^^','$$$','+++','°°°'), array($IndWins, $IndPodiums, $TeamWins, $TeamPodiums), $COMPS);
             $Level=$medal->ComLevel;
-            $COMPS.= '<tr class="table-dark Lev'.$Level.$data->Id.'"><th colspan="4">'.$data->CompetitionLevels->{$Level}.' - Ind. Wins ^^^ / Podiums $$$ - Team Wins +++ / Podiums °°°</th></tr>';
+            $COMPS.= '<tr class="table-dark Lev'.$Level.$data->Id.'"><th colspan="4">'.$medal->ComLevelDescr.' - Ind. Wins ^^^ / Podiums $$$ - Team Wins +++ / Podiums °°°</th></tr>';
 		    $IndWins=0;
 		    $IndPodiums=0;
 		    $TeamWins=0;
@@ -179,34 +225,63 @@ function bioInd($data,$H2HMatches,$Side) {
 
     $COMPS = str_replace(array('^^^','$$$','+++','°°°'), array($IndWins, $IndPodiums, $TeamWins, $TeamPodiums), $COMPS);
     $tmp .= '<tr><td colspan="2" class="bioBox"><table class="table table-sm table-striped small">'.$COMPS.'</table></td></tr>';
+
     $tmp .= '</tbody></table></div>';
 
     return $tmp;
 }
 
-function bioTeam($data,$H2HMatches,$Side) {
+function bioTeam($data,$H2HMatches,$Side,$Event) {
     $avg=0;
     $q=safe_r_SQL("select TeScore, TeHits, group_concat(trim(TfArrowstring) separator '') as TfArrowstring
 		from Teams 
 		inner join Countries on TeCoId=CoId and TeFinEvent=1
 		inner join TeamFinals on TfEvent=TeEvent and TfTournament=TeTournament and TfTeam=TeCoId and TfSubTeam=TeSubTeam
-		where CoCode='{$data->Id}' AND TeEvent='{$data->Cat}' AND TeTournament={$_SESSION['TourId']} 
+		where CoCode='{$data->Id}' AND TeEvent='{$Event}' AND TeTournament={$_SESSION['TourId']} 
 		group by TeCoId, TeSubTeam, TeEvent");
-    if($r=safe_fetch($q)) {
+    if($r=safe_fetch($q) AND ($r->TeHits+strlen($r->TfArrowstring)!=0)) {
         $avg=round(($r->TeScore+ValutaArrowString($r->TfArrowstring))/($r->TeHits+strlen($r->TfArrowstring)), 3);
     }
 
     $tmp = '<div class="bioBox">';
     $tmp .= '<div class="btn-group btn-group-sm" role="group" id="names'.$Side.'"></div>';
     $tmp .= '<table class="table table-sm"><tbody>';
-    $tmp .= '<tr>'.
-        '<td>Joined WA: <b>'.(empty($data->Joined) ?  $data->Founded : $data->Joined).'</b><br>World Rank:</b> '.$data->Rnk.' '.$data->Cat.'&nbsp;<i class="fa '. ($data->Rnk<$data->RnkOld ? 'fa-level-up' : ($data->Rnk>$data->RnkOld ? 'fa-level-down' : 'fa-exchange')) . '"></i> '.($data->Rnk!=$data->RnkOld ? '(' . ($data->RnkOld-$data->Rnk) . ')': '').'</td>'.
-        '<td>Match won: <b>'.$data->MatchWin.'/'.$data->MatchTot.'</b> ('.$data->MatchWinPercentage.'%)<br>Ties won: <b>'.$data->TBWin.'/'.$data->TBTot.'</b> ('.$data->TBWinPercentage.'%)</td>'.
-        '</tr>'.
-        '<tr>'.
-        '<td>Overall Avg: <b>'.$data->AverageArr.'</b><br>Competition Avg.: <b>'.$avg.'</td>'.
-        '<td>Personal Best: <b>'.$data->QCareer.'</b><br>Season\'s Best: <b>'.$data->QSeason.'</td>'.
-        '</tr>';
+    //Age
+    $tmp .= '<tr><td>ContinentalAssociation: <b>'.$data->ContinentalAssoc.'</b>';
+    //World Ranking
+    foreach ($data->WorldRankings->Current as $key => $WRank) {
+        $tmp .= '<br>World Rank:</b> ' . $WRank->Rnk . ' '  . $WRank->CatCode . '&nbsp;<i class="fa ' . ($WRank->Rnk < $WRank->RnkOld ? 'fa-level-up' : ($WRank->Rnk > $WRank->RnkOld ? 'fa-level-down' : 'fa-exchange')) . '"></i> ' . ($WRank->Rnk != $WRank->RnkOld ? '(' . ($WRank->RnkOld - $WRank->Rnk) . ')' : '');
+    }
+    //Match/Tie stats
+    $overallAvg=0;
+    $overallBest=0;
+    $tmp .= '<td>';
+    if(!empty($data->Stats->Career)) {
+        foreach ($data->Stats->Career as $key => $Stat) {
+            if(empty($CatInformation) OR in_array($Stat->DivCode,$CatInformation->DivId)){
+                $tmp .= 'Match won: <b>' . $Stat->MatchWin . '/' . $Stat->MatchTot . '</b> (' . $Stat->MatchWinPercentage . '%)<br>Ties won: <b>' . $Stat->TBWin . '/' . $Stat->TBTot . '</b> (' . $Stat->TBWinPercentage . '%)';
+
+                if (!empty($Stat->AverageArr)) {
+                    $overallAvg = max($overallAvg, $Stat->AverageArr);
+                }
+                if (!empty($Stat->QBest)) {
+                    $overallBest = max($overallBest, $Stat->QBest);
+                }
+            }
+        }
+    }
+    //Average and Best Score
+    $seasonBest=0;
+    if(!empty($data->Stats->Season) AND !empty($data->Stats->{$data->Stats->Season})) {
+        foreach ($data->Stats->{$data->Stats->Season} as $key => $Stat) {
+            $seasonBest = max($seasonBest,$Stat->QBest);
+        }
+    }
+    $tmp .= '</td></tr>';
+    $tmp .= '<tr>';
+    $tmp .= '<td>Overall Avg: <b>'.$overallAvg.'</b><br>Competition Avg.: <b>'.$avg.'</td>';
+    $tmp .= '<td>Personal Best: <b>'.$overallBest.'</b><br>Season\'s Best: <b>'.$seasonBest.'</td>';
+    $tmp .= '</tr>';
 
     // fetches the previous matches between the 2 opponents
     if ($H2HMatches != null) {
@@ -216,24 +291,24 @@ function bioTeam($data,$H2HMatches,$Side) {
         $TB = 0;
         $WinsTB = 0;
         foreach ($H2HMatches->items as $Match) {
-            if ($Match->Competitor1->Athlete->NOC == $data->Id and $Match->Competitor1->WinLose) $Wins++;
-            if ($Match->Competitor2->Athlete->NOC == $data->Id and $Match->Competitor2->WinLose) $Wins++;
+            if ($Match->Competitor1->Athlete->NOC == $data->NOC and $Match->Competitor1->WinLose) $Wins++;
+            if ($Match->Competitor2->Athlete->NOC == $data->NOC and $Match->Competitor2->WinLose) $Wins++;
             if ($Match->Competitor1->TB !== '') {
                 $TB++;
-                if ($Match->Competitor1->Athlete->NOC == $data->Id and $Match->Competitor1->WinLose) $WinsTB++;
-                if ($Match->Competitor2->Athlete->NOC == $data->Id and $Match->Competitor2->WinLose) $WinsTB++;
+                if ($Match->Competitor1->Athlete->NOC == $data->NOC and $Match->Competitor1->WinLose) $WinsTB++;
+                if ($Match->Competitor2->Athlete->NOC == $data->NOC and $Match->Competitor2->WinLose) $WinsTB++;
             }
-            $matchesList .= '<tr class="'.((($Match->Competitor1->Athlete->NOC == $data->Id and $Match->Competitor1->WinLose) OR ($Match->Competitor2->Athlete->NOC == $data->Id and $Match->Competitor2->WinLose)) ? 'font-weight-bold' : '').'">'.
+            $matchesList .= '<tr class="'.((($Match->Competitor1->Athlete->Id == $data->Id and $Match->Competitor1->WinLose) OR ($Match->Competitor2->Athlete->Id == $data->Id and $Match->Competitor2->WinLose)) ? 'font-weight-bold' : '').'">'.
                 '<td class="text-left text-nowrap">'.$Match->PhaseName.'</td><td class="text-left">'.$Match->CompName.'</td>'.
                 '<td class="text-center text-nowrap">'.
-                ($Match->Competitor1->Athlete->NOC == $data->Id ? $Match->Competitor1->Score : $Match->Competitor2->Score).
-                ($Match->Competitor1->TB ? ' <span class="small">T.'.($Match->Competitor1->Athlete->NOC == $data->Id? $Match->Competitor1->TB : $Match->Competitor2->TB).'</span>':'').
+                ($Match->Competitor1->Athlete->NOC == $data->NOC ? $Match->Competitor1->Score : $Match->Competitor2->Score).
+                ($Match->Competitor1->TB ? ' <span class="small">T.'.($Match->Competitor1->Athlete->NOC == $data->NOC ? $Match->Competitor1->TB : $Match->Competitor2->TB).'</span>':'').
                 ' - '.
-                ($Match->Competitor1->TB ? '<span class="small">T.'.($Match->Competitor1->Athlete->NOC == $data->Id? $Match->Competitor2->TB : $Match->Competitor1->TB).'</span> ':'').
-                ($Match->Competitor1->Athlete->NOC == $data->Id ? $Match->Competitor2->Score : $Match->Competitor1->Score).
+                ($Match->Competitor1->TB ? '<span class="small">T.'.($Match->Competitor1->Athlete->NOC == $data->NOC ? $Match->Competitor2->TB : $Match->Competitor1->TB).'</span> ':'').
+                ($Match->Competitor1->Athlete->NOC == $data->NOC ? $Match->Competitor2->Score : $Match->Competitor1->Score).
                 '</td>'.
                 '<td class="text-right text-nowrap">'.date('j M Y', strtotime($Match->CompDtTo)).'</td>'.
-                '<td class="text-right">#'.($Match->Competitor1->Athlete->NOC == $data->Id ? $Match->Competitor1->FinalRank : $Match->Competitor2->FinalRank).'</td></tr>';
+                '<td class="text-right">#'.($Match->Competitor1->Athlete->NOC == $data->NOC ? $Match->Competitor1->FinalRank : $Match->Competitor2->FinalRank).'</td></tr>';
 
         }
 
@@ -253,11 +328,12 @@ function bioTeam($data,$H2HMatches,$Side) {
         }
     }
 
-        //Results
-    $tmp .= '<tr>'.
-        '<td colspan="2">';
-    foreach($data->caps as $Id => $Item) {
-        $tmp .=  '<span class="text-nowrap mr-2 small"><input type="checkbox" onclick="UpdateRows(this)" value="Lev'.$Id.$data->Id.'" checked="checked">'.$Item[0].' x '.$Item[1].'</span> ';
+      //Results
+    $tmp .= '<tr><td colspan="2">';
+    foreach($data->Caps as $CatCode => $CatCaps) {
+        foreach ($CatCaps as $Id => $Item) {
+            $tmp .= '<span class="text-nowrap mr-2 small"><input type="checkbox" onclick="UpdateRows(this)" value="Lev' . $Id . $data->Id . '" checked="checked">' . $Item->Count . ' x ' . $Item->LevelName . '</span> ';
+        }
     }
     $tmp .= '</td></tr>';
 
@@ -266,7 +342,7 @@ function bioTeam($data,$H2HMatches,$Side) {
     foreach($data->Medals as $medal) {
         if($Level!=$medal->ComLevel) {
             $Level=$medal->ComLevel;
-            $COMPS .= '<tr class="table-dark Lev'.$Level.$data->Id.'"><th colspan="4" class="Title">'.$data->CompetitionLevels->{$Level}.'</th></tr>';
+            $COMPS .= '<tr class="table-dark Lev'.$Level.$data->Id.'"><th colspan="4" class="Title">'.$medal->ComLevelDescr.'</th></tr>';
         }
         $COMPS .= '<tr class="Lev'.$Level.$data->Id.'">
 			<td class="text-left">'.$medal->Rnk.'</td>
@@ -276,6 +352,7 @@ function bioTeam($data,$H2HMatches,$Side) {
 			</tr>';
     }
     $tmp .= '<tr><td colspan="2" class="bioBox"><table class="table table-sm table-striped small">'.$COMPS.'</table></td></tr>';
+
     $tmp .= '</tbody></table></div>';
 
     return $tmp;

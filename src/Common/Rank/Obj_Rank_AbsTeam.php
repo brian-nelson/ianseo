@@ -194,26 +194,29 @@ require_once('Common/Lib/ArrTargets.inc.php');
 
 			$q="
 				SELECT
-					TeTournament,CoId,TeSubTeam,CoCode,CoName, TeEvent,EvEventName,ToNumEnds,ToNumDist,ToMaxDistScore,FlContAssoc,
-					EvMaxTeamPerson, EvProgr, EvFinalFirstPhase,EvOdfCode, QuConfirm,
+					TeTournament,CoId,TeSubTeam,CoCode,CoName, CoCaCode, CoMaCode, TeEvent,EvEventName,ToNumEnds,ToNumDist,ToMaxDistScore,FlContAssoc,
+					EvMaxTeamPerson, EvProgr, EvFinalFirstPhase,EvOdfCode, QuConfirm, EvMixedTeam, 
 					ClDescription, DivDescription,
 					EnId,EnCode,ifnull(EdExtra,EnCode) as LocalBib, EnSex,EnNameOrder,EnFirstName,upper(EnFirstName) EnFirstNameUpper,EnName,EnClass,EnDivision,EnAgeClass,EnSubClass,EnCoCode,EnDob,
-					EvNumQualified AS QualifiedNo,	EvQualPrintHead,
+					EvNumQualified AS QualifiedNo, EvFirstQualified, EvQualPrintHead,
 					SUBSTRING(QuTargetNo,1,1) AS Session, SUBSTRING(QuTargetNo,2) AS TargetNo,
 					TeHits AS Arrows_Shot, QuScore, QuGold, QuXnine, TeScore,TeRank, TeGold, TeXnine, ToGolds, ToXNine,TeHits,
 				    concat(rtrim(QuD1Arrowstring),rtrim(QuD2Arrowstring),rtrim(QuD3Arrowstring),rtrim(QuD4Arrowstring),rtrim(QuD5Arrowstring),rtrim(QuD6Arrowstring),rtrim(QuD7Arrowstring),rtrim(QuD8Arrowstring)) as DetailedArrows,
 					TeRank, EvRunning, IF(EvRunning=1,IFNULL(ROUND(TeScore/TeHits,3),0),0) as RunningScore,
 					ABS(TeSO) AS RankBeforeSO,
 					tie.Quanti,
-					TeTieBreak,(TeSO>0) AS isSO,IFNULL(sqY.Quanti,1) AS `NumCT`,
+					TeTieBreak, TeTbClosest, TeTbDecoded, (TeSO>0) AS isSO,IFNULL(sqY.Quanti,1) AS `NumCT`,
 					IFNULL(Td1,'.1.') as Td1, IFNULL(Td2,'.2.') as Td2, IFNULL(Td3,'.3.') as Td3, IFNULL(Td4,'.4.') as Td4, IFNULL(Td5,'.5.') as Td5, IFNULL(Td6,'.6.') as Td6, IFNULL(Td7,'.7.') as Td7, IFNULL(Td8,'.8.') as Td8,
 					TeTimeStamp, DiEnds, DiArrows,
 					ifnull(concat(DV2.DvMajVersion, '.', DV2.DvMinVersion) ,concat(DV1.DvMajVersion, '.', DV1.DvMinVersion)) as DocVersion,
 					date_format(ifnull(DV2.DvPrintDateTime, DV1.DvPrintDateTime), '%e %b %Y %H:%i UTC') as DocVersionDate,
-					ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes, TeNotes, (EvShootOff OR EvE1ShootOff OR EvE2ShootOff) as ShootOffSolved
+					ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes, TeNotes, (EvShootOff OR EvE1ShootOff OR EvE2ShootOff) as ShootOffSolved,
+				    TeIrmType, IrmType, IrmShowRank, QuIrmType,
+					TeRecordBitmap as RecBitLevel, EvIsPara, CoMaCode, CoCaCode
 				FROM
 					Tournament
 					INNER JOIN Teams ON ToId=TeTournament AND TeFinEvent=1
+				    inner join IrmTypes on IrmId=TeIrmType
 					INNER JOIN Countries ON TeCoId=CoId AND TeTournament=CoTournament
 					INNER JOIN Events ON TeEvent=EvCode AND ToId=EvTournament AND EvTeamEvent=1
 					INNER JOIN (
@@ -229,16 +232,12 @@ require_once('Common/Lib/ArrTargets.inc.php');
 					INNER JOIN Classes ON EnClass=ClId AND EnTournament=ClTournament
 				    left join ExtraData on EdId=EnId and EdType='Z'
 				/* Contatori per CT (gialli)*/
-					LEFT JOIN
-						(
-							SELECT
-								TeEvent as sqyEvent,Count(*) as Quanti, TeSO as sqyRank, TeTournament as sqyTournament
-							FROM
-								Teams
-							WHERE
-								TeTournament = {$this->tournament} AND TeFinEvent=1 AND TeSO!=0 {$filter}
-							GROUP BY
-								TeTournament, TeFinEvent, TeEvent, TeSO
+					LEFT JOIN (
+						SELECT TeEvent as sqyEvent,Count(*) as Quanti, TeSO as sqyRank, TeTournament as sqyTournament
+						FROM Teams
+						inner join IrmTypes on IrmId=TeIrmType and IrmShowRank=1
+						WHERE TeTournament = {$this->tournament} AND TeFinEvent=1 AND TeSO!=0 {$filter}
+						GROUP BY TeTournament, TeFinEvent, TeEvent, TeSO
 						) AS sqY
 					ON sqY.sqyRank=TeSO AND sqY.sqyEvent=Teams.TeEvent AND Teams.TeFinEvent=1 AND sqY.sqyTournament=Teams.TeTournament
 					LEFT JOIN
@@ -246,7 +245,7 @@ require_once('Common/Lib/ArrTargets.inc.php');
 					ON ToType=TdType AND TdTournament=ToId AND TeEvent like TdClasses
 					LEFT JOIN
 						Flags
-						ON FlIocCode='FITA' and FlCode=CoCode and FlTournament=-1
+						ON FlIocCode='FITA' and FlCode=CoCode and FlTournament=ToId
 					left join DistanceInformation on EnTournament=DiTournament and DiSession=1 and DiDistance=1 and DiType='Q'
 					LEFT JOIN DocumentVersions DV1 on EvTournament=DV1.DvTournament AND DV1.DvFile = 'QUAL-TEAM' and DV1.DvEvent=''
 					LEFT JOIN DocumentVersions DV2 on EvTournament=DV2.DvTournament AND DV2.DvFile = 'QUAL-TEAM' and DV2.DvEvent=EvCode
@@ -257,7 +256,7 @@ require_once('Common/Lib/ArrTargets.inc.php');
 					{$filter}
 					{$TeamFilter}
 				ORDER BY
-					EvProgr,TeEvent, RunningScore DESC, TeRank ASC, TeGold DESC, TeXnine DESC, CoCode, TeSubTeam, EnSex desc, EnFirstName, tc.TcOrder
+					EvProgr,TeEvent, RunningScore DESC, if(IrmShowRank=1, 0, TeIrmType), TeRank ASC, TeGold DESC, TeXnine DESC, CoCode, TeSubTeam, EnSex desc, EnFirstName, tc.TcOrder
 			";
 
 			$r=safe_r_sql($q);
@@ -344,6 +343,7 @@ require_once('Common/Lib/ArrTargets.inc.php');
 								'firstPhase' => $row->EvFinalFirstPhase,
 								'descr' => get_text($row->EvEventName,'','',true),
 								'qualifiedNo'=>$row->QualifiedNo,
+                                'firstQualified' => $row->EvFirstQualified,
 								'printHeader'=>$row->EvQualPrintHead,
 								'order' => $row->EvProgr,
 								'numDist' => $distValid,
@@ -374,7 +374,7 @@ require_once('Common/Lib/ArrTargets.inc.php');
 						$tmpArr=array();
 						if(trim($row->TeTieBreak)) {
 							for($countArr=0; $countArr<strlen(trim($row->TeTieBreak)); $countArr = $countArr+$row->EvMaxTeamPerson) {
-								$tmpArr[]= ValutaArrowString(substr(trim($row->TeTieBreak),$countArr,$row->EvMaxTeamPerson)) ;
+								$tmpArr[] = ValutaArrowString(substr(trim($row->TeTieBreak),$countArr,$row->EvMaxTeamPerson)) ;
 							}
 							$section['meta']['hasShootOff']=max($section['meta']['hasShootOff'], ceil($countArr/$row->EvMaxTeamPerson));
 						}
@@ -390,13 +390,14 @@ require_once('Common/Lib/ArrTargets.inc.php');
 						$item=array(
 							'id' 			=> $row->CoId,
 							'countryCode' 	=> $row->CoCode,
-							'contAssoc' 	=> $row->FlContAssoc,
+							'contAssoc'     => $row->CoCaCode,
+							'memberAssoc'   => $row->CoMaCode,
 							'countryName' 	=> $row->CoName,
 							'subteam' 		=> $row->TeSubTeam,
 							'athletes'		=> array(),
-							'rank'			=> $tmpRank,
+							'rank'			=> $row->IrmShowRank ? $tmpRank : '',
 							'rankBeforeSO'	=> $row->RankBeforeSO,
-							'score' 		=> ($row->EvRunning==1 ? $row->RunningScore : $row->TeScore),
+							'score' 		=> $row->IrmShowRank ? ($row->EvRunning==1 ? $row->RunningScore : $row->TeScore) : $row->IrmType,
 							'completeScore' => $row->TeScore,
 							'gold' 			=> $row->TeGold,
 							'xnine' 		=> $row->TeXnine,
@@ -404,13 +405,17 @@ require_once('Common/Lib/ArrTargets.inc.php');
 							'notes'			=> $row->TeNotes,
 							'recordGap'		=> ($row->Arrows_Shot*10)-$row->TeScore,
 							'tiebreak'		=> trim($row->TeTieBreak),
-							'tiebreakDecoded'=> $tmpArr ? 'T.'.implode(',', $tmpArr): '',
+                            'tiebreakClosest'=> $row->TeTbClosest,
+							'tiebreakDecoded'=> $row->TeTbDecoded,
  		                    'ct'			=> $row->NumCT,
 							'tie'			=> ($row->Quanti>1),
         	                'so'			=> $row->isSO,
         	                'detailedArrows'=> '',
         	                'scoreToConfirm'=> $row->EvMaxTeamPerson,
         	                'scoreConfirmed'=> 0,
+							'record'        => $this->ManageBitRecord($row->RecBitLevel, $row->CoCaCode, $row->CoMaCode, $row->EvIsPara),
+        	                'irm'           => $row->TeIrmType,
+        	                'irmText'       => $row->IrmType,
 						);
 
 						//Gestisco il numero di frecce tirate per sessione
@@ -451,9 +456,9 @@ require_once('Common/Lib/ArrTargets.inc.php');
 							'class' => $row->EnClass,
 							'ageclass' => $row->EnAgeClass,
 							'subclass' => $row->EnSubClass,
-							'quscore' => $row->QuScore,
-							'qugolds' => $row->QuGold,
-							'quxnine' => $row->QuXnine,
+							'quscore' => $row->QuIrmType ? $row->IrmType : $row->QuScore,
+							'qugolds' => $row->QuIrmType ? '' : $row->QuGold,
+							'quxnine' => $row->QuIrmType ? '' : $row->QuXnine,
 							'scoreConfirmed' => $row->QuConfirm==$ConfirmStatus
 						);
 						$section['items'][count($section['items'])-1]['athletes'][]=$athlete;

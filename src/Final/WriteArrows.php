@@ -13,7 +13,7 @@ require_once('Common/Fun_Sessions.inc.php');
 // require_once('Common/Fun_Various.inc.php');
 
 $JS_SCRIPT=array(
-	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Final/WriteArrows.js"></script>',
 	phpVars2js(array(
 		'CmdPostUpdate'=>get_text('CmdPostUpdate'),
@@ -51,16 +51,6 @@ if(!empty($Phases[1])) {
 }
 
 include('Common/Templates/head.php');
-
-// data list for the Notes field
-echo '<datalist id="NoteList">';
-echo '<option value="DNS">' . get_text('DNS', 'Tournament') . '</option>' . "\n";
-echo '<option value="DNF">' . get_text('DNF', 'Tournament') . '</option>' . "\n";
-echo '<option value="DSQ">' . get_text('DSQ', 'Tournament') . '</option>' . "\n";
-echo '<option value="WR">' . get_text('WR-Record', 'Tournament') . '</option>' . "\n";
-echo '<option value="OR">' . get_text('OR-Record', 'Tournament') . '</option>' . "\n";
-echo '</datalist>';
-
 
 ?>
 

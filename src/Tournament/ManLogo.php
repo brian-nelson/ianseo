@@ -16,7 +16,7 @@
 		{
 			require_once('Common/CheckPictures.php');
 //Immagine di Sinistra
-			if(isset($_FILES) && array_key_exists('UploadedFileL',$_FILES) &&  $_FILES['UploadedFileL']['error']==UPLOAD_ERR_OK && $_FILES['UploadedFileL']['size']>0 && $_FILES['UploadedFileL']['size']<=65535)
+			if(isset($_FILES) && array_key_exists('UploadedFileL',$_FILES) &&  $_FILES['UploadedFileL']['error']==UPLOAD_ERR_OK && $_FILES['UploadedFileL']['size']>0 && $_FILES['UploadedFileL']['size']<=262143)
 			{
 			    $TmpData = file_get_contents($_FILES['UploadedFileL']['tmp_name']);
 			    $TmpData = StrSafe_DB($TmpData);

@@ -85,6 +85,7 @@ class Obj_Rank_FinalTeam_3_SetFRChampsD1DNAP extends Obj_Rank
 		$filter = $this->safeFilterR();
 
 		$this->data['meta']['title'] = get_text('TeamFinEvent', 'Tournament');
+		$this->data['meta']['Year'] = $this->touryear;
 		$this->data['meta']['lastUpdate'] = '0000-00-00 00:00:00';
 		$this->data['meta']['target'] = get_text('Target');
 		$this->data['meta']['score'] = get_text('Score', 'Tournament');
@@ -172,6 +173,8 @@ class Obj_Rank_FinalTeam_3_SetFRChampsD1DNAP extends Obj_Rank
 				'score2'=>$r->Winner2*2,
 				'winner1'=>$r->Winner1,
 				'winner2'=>$r->Winner2,
+				'matchpoints1'=>0,
+				'matchpoints2'=>0,
 				'details'=>array(
 					'E' => array(
 						'Name1' => $r->TeamName1,
@@ -222,6 +225,18 @@ class Obj_Rank_FinalTeam_3_SetFRChampsD1DNAP extends Obj_Rank
 			$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score1']+=$r->Winner1;
 			$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score2']+=$r->Winner2;
 
+			// sets the matchpoints
+			if($MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score1'] + $MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score2']>=5) {
+				if($MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score1']>$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score2']) {
+					$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['matchpoints1']=3;
+				} elseif($MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score1']<$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score2']) {
+					$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['matchpoints2']=3;
+				} else {
+					$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['matchpoints1']=1;
+					$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['matchpoints2']=1;
+				}
+			}
+
 			$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['details'][$r->MatchType]=array(
 				'Name1' => $r->TeamName1,
 				'Name2' => $r->TeamName2,
@@ -238,7 +253,7 @@ class Obj_Rank_FinalTeam_3_SetFRChampsD1DNAP extends Obj_Rank
 		//At this point gets all the points each team has...
 		$GeneralRank = array();
 		$SQL = "select D1.*, Events.*,
-       			CoId, CoName, CoNameComplete, CoCode,
+       			CoId, CoName, if(CoNameComplete!='', CoNameComplete, CoName) as CoNameComplete, CoCode,
 				ifnull(concat(DV2.DvMajVersion, '.', DV2.DvMinVersion) ,concat(DV1.DvMajVersion, '.', DV1.DvMinVersion)) as DocVersion,
 				date_format(ifnull(DV2.DvPrintDateTime, DV1.DvPrintDateTime), '%e %b %Y %H:%i UTC') as DocVersionDate,
 				ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes

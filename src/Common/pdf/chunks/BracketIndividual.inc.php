@@ -1,6 +1,6 @@
 <?php
 
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 $rankData=$PdfData->rankData;
 
 $ShowTargetNo = (isset($PdfData->ShowTargetNo) ? $PdfData->ShowTargetNo : true);
@@ -335,11 +335,13 @@ foreach($rankData['sections'] as $Event => $section) {
 			$tieText = "";
 			if($Match['tiebreakDecoded']) {
 				$pdf->SetFont($pdf->FontStd,'',6);
-				$tieText = $Match['tiebreakDecoded'];
+				$tieText = 'T.'.$Match['tiebreakDecoded'];
 			} elseif($Match['tie']==1) {
-				$tieText="*";
+				$tieText="+";
 			}
-			if($Match['notes']) {
+			if($Match['irmText']) {
+				$tieText .= $Match['irmText'];
+			} elseif($Match['notes']) {
 				$pdf->SetFont($pdf->FontStd,'B',6);
 				$tieText .= $Match['notes'];
 			}
@@ -348,11 +350,13 @@ foreach($rankData['sections'] as $Event => $section) {
 			$pdf->setXY($MyX, $OrgY+$Cella);
 			if($Match['oppTiebreakDecoded']) {
 				$pdf->SetFont($pdf->FontStd,'',6);
-				$tieText = $Match['oppTiebreakDecoded'];
+				$tieText = 'T.'.$Match['oppTiebreakDecoded'];
 			} elseif($Match['oppTie']==1) {
-				$tieText = "*";
+				$tieText = "+";
 			}
-			if($Match['oppNotes']) {
+			if($Match['oppIrmText']) {
+				$tieText .= $Match['oppIrmText'];
+			} elseif($Match['oppNotes']) {
 				$pdf->SetFont($pdf->FontStd,'B',6);
 				$tieText .= $Match['oppNotes'];
 			}

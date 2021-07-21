@@ -106,13 +106,11 @@
 				SELECT
 					TeTournament,TeCoId,TeSubTeam,TeEvent,
 					IFNULL(IF(EvRunning=1, TeScore/TeHits,TeScore),0) as TeScore, TeGold, TeXnine,
-					IF(EvFinalFirstPhase=0,9999,(EvFinalFirstPhase*2)) AS QualifiedNo, EvFinalFirstPhase, 
+					IF(EvFinalFirstPhase=0,99999,(EvFinalFirstPhase*2)) AS QualifiedNo, EvFinalFirstPhase, 
 					TeRank AS ActualRank
-				 FROM
-				 	Teams
-				 	INNER JOIN
-				 		Events
-				 	ON TeEvent=EvCode AND TeTournament=EvTournament AND EvTeamEvent=1
+				 FROM Teams
+			    INNER JOIN Events ON TeEvent=EvCode AND TeTournament=EvTournament AND EvTeamEvent=1
+			    inner join IrmTypes on IrmId=TeIrmType and IrmShowRank=1
 				 WHERE
 				 	TeTournament={$this->tournament} AND TeFinEvent=1 AND TeScore<>'0'
 				 	{$filter}
@@ -208,7 +206,7 @@
 						}
 					}
 
-					if($myRank>$myRow->QualifiedNo) {
+					if($myRow->EvFinalFirstPhase==0 OR $myRank>$myRow->QualifiedNo) {
                         $so = 0;
                     }
 
@@ -235,7 +233,9 @@
 								'so'		=> ($so * $myRank),
 								'rank'		=> $myRank,
                                 'finalrank' => ($myRow->EvFinalFirstPhase ? -1 : $myRank),
-								'tiebreak'	=> ''
+								'tiebreak'	=> '',
+								'decoded'	=> '',
+                                'closest'   => 0
 							)
 						));
 					}
@@ -326,6 +326,16 @@
 					$canUp=true;
 					$q.=",TeTiebreak='{$item['tiebreak']}'";
 				}
+
+				if (array_key_exists('decoded',$item)) {
+					$canUp=true;
+					$q.=",TeTbDecoded='{$item['decoded']}'";
+				}
+
+				if (array_key_exists('closest',$item)) {
+                    $canUp=true;
+                    $q.=",TeTbClosest='{$item['closest']}'";
+                }
 
 				if (array_key_exists('so',$item)) {
 					$canUp=true;

@@ -25,7 +25,7 @@
 	<tr><td colspan="8" class="Bold"><input type="checkbox" name="chk_BlockAutoSave" id="chk_BlockAutoSave" value="1"><?php echo get_text('CmdBlocAutoSave') ?></td></tr>
 	<tr class="Divider"><td colspan="8"></td></tr>
 <?php
-	$Select = "SELECT EnCode, EnFirstName, EnName, EnSex, EnCtrlCode, EnNameOrder, CoCode, CoName, LueFamilyName, LueName, LueSex, LueCtrlCode, LueCountry, LueCoShort, LueNameOrder
+	$Select = "SELECT EnCode, EnFirstName, EnName, EnSex, EnDob as EnCtrlCode, EnNameOrder, EnStatus, CoCode, CoName, LueFamilyName, LueName, LueSex, LueCtrlCode, LueCountry, LueCoShort, LueNameOrder, LueStatus
 		FROM Entries
 		LEFT JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament
 		left join LookUpEntries on EnCode=LueCode and EnIocCode=LueIocCode and LueDefault=1
@@ -36,12 +36,14 @@
 				or EnSex!=LueSex
 				or EnCtrlCode!=LueCtrlCode
 				or CoCode!=LueCountry
+				or EnStatus!=LueStatus
 				)
 		ORDER BY EnFirstName ASC,EnName ASC ";
 	$Rs=safe_r_sql($Select);
 	if (safe_num_rows($Rs)>0) {
 		print '<tr>';
 		print '<td class="Title">' . get_text('Code','Tournament') . '</td>'
+			. '<td class="Title">' . get_text('Status','Tournament') . '</td>'
 			. '<td class="Title">' . get_text('FamilyName','Tournament') . '</td>'
 			. '<td class="Title">' . get_text('Name','Tournament') . '</td>'
 			. '<td class="Title">' . get_text('Name','Tournament') . '</td>'
@@ -54,6 +56,11 @@
 		while ($MyRow=safe_fetch($Rs)) {
 			echo '<tr>';
 			echo '<td>'.$MyRow->EnCode.'</td>';
+			if($MyRow->EnStatus==$MyRow->LueStatus) {
+				echo '<td class="OK">'.get_text('Status_'.$MyRow->EnStatus).'</td>';
+			} else {
+				echo '<td class="NoShoot">'.get_text('Status_'.$MyRow->EnStatus).' / '.get_text('Status_'.$MyRow->LueStatus).'</td>';
+			}
 			if($MyRow->EnFirstName==$MyRow->LueFamilyName) {
 				echo '<td class="OK">'.$MyRow->EnFirstName.'</td>';
 			} else {

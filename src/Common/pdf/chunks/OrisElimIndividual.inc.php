@@ -22,13 +22,12 @@ if(!empty($PdfData->HeaderPool)) {
 				$arrTitles[] = "Score#";
 			$arrSizes[] = 20;
 
-			if($section['meta']['running'])
-			{
+			if($section['meta']['running']) {
 				$arrTitles[] = "Arrow\nAverage#";
 				$arrSizes[] = 15;
 			}
-			$arrTitles[] = " ";
-			$arrSizes[] = ($section['meta']['running'] ? 5 : 20);
+			$arrTitles[] = "";
+			$arrSizes[] = ($section['meta']['running'] ? 5 : 10);
 
 			$pdf->SetDataHeader($arrTitles, $arrSizes);
 
@@ -49,8 +48,8 @@ if(!empty($PdfData->HeaderPool)) {
 	//			if (!is_null($MyRow->EvQualPrintHead) && $MyRow->EvQualPrintHead!='')
 	//				$pdf->setComment($MyRow->EvQualPrintHead);
 
-			$pdf->setOrisCode('C73A', ($section['meta']['running']  ? 'Running ' : '') . 'Results');
 			$pdf->AddPage();
+			$pdf->setOrisCode('C73A', ($section['meta']['running']  ? 'Running ' : '') . 'Results');
 			if($First and (empty($pdf->CompleteBookTitle) or $pdf->CompleteBookTitle!=$PdfData->IndexName)) {
 				$pdf->Bookmark($PdfData->IndexName, 0);
 				$pdf->CompleteBookTitle=$PdfData->IndexName;
@@ -65,7 +64,7 @@ if(!empty($PdfData->HeaderPool)) {
 					$EndQualified = true;
 				}
 				$dataRow = array(
-					$item['rank'],
+					$item['showRank']? $item['rank'] : $item['irmText'],
 					$item['target'] . " #",
 					$item['athlete'],
 					$item['countryCode'],
@@ -85,13 +84,9 @@ if(!empty($PdfData->HeaderPool)) {
 				} else {
 					if($item['so']>0) { //Spareggio
 						$dataRow[] = $pdf->ShotOffShort;
-						if(strlen(trim($item['tiebreak']))) {
-							$tmpArr=" T.";
-							for($countArr=0; $countArr<strlen(trim($item['tiebreak'])); $countArr++) {
-								$tmpArr .= DecodeFromLetter(substr(trim($item['tiebreak']),$countArr,1)) . ",";
-							}
-							$dataRow[] = substr($tmpArr,0,-1);
-						}
+                        if(strlen(trim($item['tiebreak']))) {
+                            $dataRow[] = 'T.'.$item['tiebreakDecoded'];
+                        }
 					}
 					elseif($item['ct']>1) {
 						$dataRow[] = $pdf->CoinTossShort;

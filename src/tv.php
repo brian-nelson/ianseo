@@ -50,7 +50,7 @@ if($r=safe_fetch($q)) {
 $NOSTYLE=true;
 
 $JS_SCRIPT=array(
-	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'TV/Channel.js"></script>',
 	phpVars2js(array('Page' => $Page, 'Channel' => $Channel)),
 		'<style>

@@ -8,34 +8,27 @@
 
 	CheckTourSession(true);
 
-	if (isset($_REQUEST['command']))
-	{
-		if ($_REQUEST['command']=='SAVE')
-		{
-		// maneggio i simboli degli ori e delle x
-			$golds=explode(',',$_REQUEST['d_ToGoldsChars']);
-			$_REQUEST['d_ToGoldsChars']='';
-			foreach ($golds as $g)
-			{
-				$_REQUEST['d_ToGoldsChars'].=GetLetterFromPrint(trim($g));
-			}
-
-			$xnine=explode(',',$_REQUEST['d_ToXNineChars']);
-			$_REQUEST['d_ToXNineChars']='';
-			foreach ($xnine as $x)
-			{
-				$_REQUEST['d_ToXNineChars'].=GetLetterFromPrint(trim($x));
-			}
-
+	if (isset($_REQUEST['command'])) {
+		if ($_REQUEST['command']=='SAVE') {
+            $_REQUEST['d_ToGoldsChars']=getLettersFromPrintList($_REQUEST['d_ToGoldsChars']);
+            $_REQUEST['d_ToXNineChars']=getLettersFromPrintList($_REQUEST['d_ToXNineChars']);
 			$up=array();
-			foreach ($_REQUEST as $k=>$v)
-			{
-				if (substr($k,0,2)=='d_')
-				{
-					$v=StrSafe_DB($v);
-
+			foreach ($_REQUEST as $k=>$v) {
+				if (substr($k,0,2)=='d_') {
 					list(,$field)=explode('_',$k);
-					$up[]="{$field}={$v} ";
+					$up[]="{$field}=".StrSafe_DB($v);
+					if($field=='ToNumDist' and intval($v)>0) {
+					    $v=intval($v);
+					    // removes the distanceinformation records and clean the names of the distances!
+                        safe_w_sql("delete from DistanceInformation where DiTournament={$_SESSION['TourId']} and DiDistance>$v");
+                        if($v<8) {
+                            $sql=array();
+                            for($n=$v+1;$n<=8;$n++) {
+                                $sql[]="Td{$n}=''";
+                            }
+                            safe_w_sql("update TournamentDistances set ".implode(',',$sql)." where TdTournament={$_SESSION['TourId']}");
+                        }
+                    }
 				}
 			}
 
@@ -50,61 +43,6 @@
 			";
 					//print $q;Exit;
 			$r=safe_r_sql($q);
-
-			// Get the "extra" options
-			Set_Tournament_Option('OlympicFont', $font=preg_replace('/[^a-z0-9_ -]+/sim','',$_REQUEST['OlympicFont']));
-			Set_Tournament_Option('OlympicFont-use', !empty($_REQUEST['OlympicFont-use']) and $font);
-
-			// Set the records in which this tournament is going to work
-			// Start deleting the records type attributions!
-
-			safe_w_sql("delete from TourRecords where TrTournament={$_SESSION['TourId']}");
-			if(!empty($_REQUEST['Records'])) {
-				// recreates the tabl
-				foreach($_REQUEST['Records'] as $Val) {
-				    list($ReCode, $ReType)=explode('|', $Val);
-					$Flags=array();
-					if(!empty($_REQUEST['RecBar'][$Val])) $Flags[]='bar';
-					if(!empty($_REQUEST['RecGap'][$Val])) $Flags[]='gap';
-					safe_w_sql("insert into TourRecords
-						select distinct '{$_SESSION['TourId']}'
-							, RtRecType
-							, RtRecCode
-							, RtRecTeam
-							, RtRecPara
-							, '".substr($_REQUEST['RecColor'][$Val], 1)."'
-							, '".implode(',', $Flags)."'
-						from RecTournament where RtRecType='$ReType' and RtRecCode='$ReCode' and RtRecPara=".($_SESSION['TourLocRule']=='PAR'?'1':'0') );
-				}
-			}
-
-// 			// removes the records on the tour that are non to follow anymore
-// 			safe_w_sql("delete from RecTournament where RtTournament={$_SESSION['TourId']} and RtRecType not in (select TrRecType from TourRecords where TrTournament={$_SESSION['TourId']})");
-// 			// inserts/updates into the RecTournament the situation of records updated BEFORE the Tour Ends
-// 			safe_w_sql("insert into RecTournament (
-// 					select '{$_SESSION['TourId']}',
-// 						ReType,
-// 						ReCode,
-// 						ReTeam,
-// 						RePara,
-// 						ReCategory,
-// 						ReDistance,
-// 						ReTotal,
-// 						ReXNine,
-// 						ReDate,
-// 						ReExtra,
-// 						ReLastUpdated
-// 					from Records where ReDate<='{$_SESSION['TourRealWhenFrom']}'
-// 						and ReTourType='{$_SESSION['TourType']}'
-// 						and RePara=".($_SESSION['TourLocRule']=='PAR'?'1':'0')."
-// 						and ReType in (select TrRecType from TourRecords where TrTournament={$_SESSION['TourId']}) )
-// 				on duplicate key update
-// 					RtRecTotal = ReTotal,
-// 					RtRecXNine = ReXNine,
-// 					RtRecDate  = ReDate ,
-// 					RtRecExtra = ReExtra,
-// 					RtRecLastUpdated=ReLastUpdated
-// 				");
 		}
 	}
 
@@ -142,18 +80,16 @@
 		exit;
 
 	$goldsChars=array();
-	for($i=0;$i<strlen($tour->ToGoldsChars);++$i)
-	{
+	for($i=0;$i<strlen($tour->ToGoldsChars);++$i) {
 		$goldsChars[]=DecodeFromLetter($tour->ToGoldsChars[$i]);
 	}
-	$goldsChars=implode(',',$goldsChars);
+	$goldsChars=implode(',',array_unique($goldsChars));
 
 	$xNineChars=array();
-	for($i=0;$i<strlen($tour->ToXNineChars);++$i)
-	{
+	for($i=0;$i<strlen($tour->ToXNineChars);++$i) {
 		$xNineChars[]=DecodeFromLetter($tour->ToXNineChars[$i]);
 	}
-	$xNineChars=implode(',',$xNineChars);
+	$xNineChars=implode(',',array_unique($xNineChars));
 
 	$categories=getTournamentCategories();
 
@@ -282,49 +218,7 @@
 					<th class="TitleLeft"><?php print get_text('TourDouble','Tournament');?></th>
 					<td><?php print $comboDouble;?></td>
 				</tr>
-				<tr>
-					<th colspan="2" class="Title"><?php echo get_text('TourRecordSetup','Tournament'); ?></th>
-				</tr>
 
-				<tr>
-					<th class="TitleLeft"><?php print get_text('OlympicFont','InfoSystem');?></th>
-					<td><input type="text" name="OlympicFont" value="<?php echo (empty($_SESSION['OlympicFont']) ? '' : $_SESSION['OlympicFont']); ?>"></td>
-				</tr>
-				<tr>
-					<th class="TitleLeft"><?php print get_text('OlympicFont-use','InfoSystem');?></th>
-					<td><input type="checkbox" name="OlympicFont-use"<?php echo (empty($_SESSION['OlympicFont-use']) ? '' : ' checked="checked"') ?>></td>
-				</tr>
-
-				<?php
-
-// get the records type in the DB
-$q=safe_r_sql("select distinct
-		RtRecType ReType,
-		RtRecCode ReCode,
-		TrColor,
-		TrTournament is not null as ReInserted ,
-		find_in_set('bar', TrFlags) TrBars,
-		find_in_set('gap', TrFlags) TrGaps
-	from RecTournament
-	left join TourRecords
-		on RtRecType=TrRecType
-		and RtRecCode=TrRecCode
-		and RtRecTeam=TrRecTeam
-		and RtRecPara=TrRecPara
-		and TrTournament=RtTournament
-	WHERE RtTournament={$_SESSION['TourId']} and RtRecPara=".($_SESSION['TourLocRule']=='PAR'?'1':'0')."
-	order by RtRecCode, RtRecType");
-while($r=safe_fetch($q)) {
-	echo '<tr>
-		<th class="TitleLeft">'. get_text($r->ReType.'-Record','Tournament').'</th>
-		<td><input type="checkbox" name="Records[]" value="'.$r->ReCode.'|'.$r->ReType.'"'.($r->ReInserted ? ' checked="checked"' : '').'>
-		<input type="text" name="RecColor['.$r->ReCode.'|'.$r->ReType.']" id="BnTnoColor_'.$r->ReCode.'_'.$r->ReType.'" size="6" maxlength="7" value="#' . $r->TrColor . '">&nbsp;<input type="text" id="Ex_BnTnoColor_'.$r->ReCode.'_'.$r->ReType.'" size="1" style="background-color:#' . $r->TrColor . '" readonly>&nbsp;<img src="../Common/Images/sel.gif" onclick="javascript:pickerPopup302(\'BnTnoColor_'.$r->ReCode.'_'.$r->ReType.'\',\'Ex_BnTnoColor_'.$r->ReCode.'_'.$r->ReType.'\');">
-		-&nbsp;'.get_text('BarRecord', 'InfoSystem').'<input type="checkbox" name="RecBar['.$r->ReCode.'|'.$r->ReType.']"'.($r->TrBars ? ' checked="checked"' : '').'>
-		-&nbsp;'.get_text('GapRecord', 'InfoSystem').'<input type="checkbox" name="RecGap['.$r->ReCode.'|'.$r->ReType.']"'.($r->TrGaps ? ' checked="checked"' : '').'>
-		</td>
-		</tr>';
-}
-				?>
 				<tr>
 					<td class="Center" colspan="2">
 						<input type="hidden" name="command" value="SAVE"/>

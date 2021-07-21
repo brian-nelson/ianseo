@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 01/04/17
- * Time: 15.02
- */
 
 $wiky=new wiky;
 

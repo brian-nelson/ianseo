@@ -1,7 +1,7 @@
 /*
 													- Fun_AJAX_ListEvents.js -
 	Contiene le funzioni ajax usate da ListEvents.php
-*/ 	
+*/
 
 
 /*
@@ -9,7 +9,7 @@
 	per aggiornare il campo Field
 */
 function UpdateField(Field) {
-    $.getJSON("UpdateFieldEventList.php?"+encodeURIComponent(Field)+"="+encodeURIComponent($('#'+Field).val()), function(data) {
+    $.getJSON("UpdateFieldEventList.php?field="+encodeURIComponent(Field)+"&value="+encodeURIComponent($('#'+Field).val()), function(data) {
 
         if (data.error==1) {
             $('#'+Field).toggleClass('error', true);
@@ -77,6 +77,7 @@ function AddEvent(ErrMsg) {
 
         var New_EvCode = encodeURIComponent($('#New_EvCode').val());
         var New_EvEventName = encodeURIComponent($('#New_EvEventName').val());
+        var New_EvIsPara = ($('#New_EvIsPara:checked').length==1 ? 1 : 0);
         var New_EvProgr = encodeURIComponent($('#New_EvProgr').val());
         var New_EvMatchMode = encodeURIComponent($('#New_EvMatchMode').val());
         var New_EvFinalFirstPhase = encodeURIComponent($('#New_EvFinalFirstPhase').val());
@@ -87,6 +88,7 @@ function AddEvent(ErrMsg) {
         var QueryString
             = 'New_EvCode=' + New_EvCode + '&'
             + 'New_EvEventName=' + New_EvEventName + '&'
+            + 'New_EvIsPara=' + New_EvIsPara + '&'
             + 'New_EvProgr=' + New_EvProgr + '&'
             + 'New_EvMatchMode=' + New_EvMatchMode + '&'
             + 'New_EvFinalFirstPhase=' + New_EvFinalFirstPhase + '&'

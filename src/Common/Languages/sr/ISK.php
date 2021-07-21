@@ -94,7 +94,6 @@ $lang['NoArrowScored']='Prvo morate uneti pogodak pre nego što obeležite najbl
 $lang['NoAthletes']='Takmičari nisu pronađeni';
 $lang['NoDist']='Distance nisu pronađene';
 $lang['NoLangInfo']='Nije moguće preuzeti informacije o jeziku. __TEXT__';
-$lang['NoLanguages']='Engleski je trenutno jedini dostupan jezik. Izaberite funkciju Ažuriranje Jezika iz menija da bi dodali druge jezike a onda pokušajte ponovo.';
 $lang['NoServerUrl']='Morate prvo da skenirate QR kod ili ručno unesete Ianseo URL da bi ažurirali jezike.';
 $lang['NoTargetTypes']='Nije pronađena vrsta lica';
 $lang['Number']='Broj';

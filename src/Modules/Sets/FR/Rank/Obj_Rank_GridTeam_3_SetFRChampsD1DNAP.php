@@ -56,7 +56,7 @@ class Obj_Rank_GridTeam_3_SetFRChampsD1DNAP extends Obj_Rank_GridTeam{
 			. " EvCodeParent,"
 			. " 63 Phase,"
 			. " truncate((FsMatchNo-128)/16,0)+1 as GameNumber,"
-			. " pow(2, ceil(log2(GrPhase))+1) & EvMatchArrowsNo!=0 as FinElimChooser,"
+			. " if(GrPhase=0, 1, pow(2, ceil(log2(GrPhase))+1)) & EvMatchArrowsNo!=0 as FinElimChooser,"
 			. " GrPosition Position,"
 			. " GrPosition2 Position2,"
 			. " TfTournament Tournament,"
@@ -93,7 +93,7 @@ class Obj_Rank_GridTeam_3_SetFRChampsD1DNAP extends Obj_Rank_GridTeam{
 			. " INNER JOIN Targets ON EvFinalTargetType=TarId "
 			. " LEFT JOIN Teams ON TfTeam=TeCoId AND TfSubTeam=TeSubTeam AND TfEvent=TeEvent AND TfTournament=TeTournament AND TeFinEvent=1 and TeTournament=$this->tournament "
 			. " LEFT JOIN Countries ON TfTeam=CoId AND TfTournament=CoTournament and CoTournament=$this->tournament "
-			. " LEFT JOIN FinSchedule ON TfEvent=FSEvent AND TfMatchNo=FSMatchNo AND TfTournament=FSTournament AND FSTeamEvent='1' and FSTournament=$this->tournament "
+			. " LEFT JOIN FinSchedule fs1 ON TfEvent=FSEvent AND TfMatchNo=FSMatchNo AND TfTournament=FSTournament AND FSTeamEvent='1' and FSTournament=$this->tournament "
 			. " WHERE TfMatchNo%2=0 AND TfTournament = " . $this->tournament . " " . $filter
 			. ") f1 inner join ("
 			. "select"
@@ -129,7 +129,7 @@ class Obj_Rank_GridTeam_3_SetFRChampsD1DNAP extends Obj_Rank_GridTeam{
 			. " INNER JOIN Grids ON TfMatchNo=GrMatchNo "
 			. " LEFT JOIN Teams ON TfTeam=TeCoId AND TfSubTeam=TeSubTeam AND TfEvent=TeEvent AND TfTournament=TeTournament AND TeFinEvent=1 and TeTournament=$this->tournament "
 			. " LEFT JOIN Countries ON TfTeam=CoId AND TfTournament=CoTournament and CoTournament=$this->tournament "
-			. " LEFT JOIN FinSchedule ON TfEvent=FSEvent AND TfMatchNo=FSMatchNo AND TfTournament=FSTournament AND FSTeamEvent='1' and FSTournament=$this->tournament "
+			. " LEFT JOIN FinSchedule fs1 ON TfEvent=FSEvent AND TfMatchNo=FSMatchNo AND TfTournament=FSTournament AND FSTeamEvent='1' and FSTournament=$this->tournament "
 			. " WHERE TfMatchNo%2=1 AND TfTournament = " . $this->tournament . " " . $filter
 			. ") f2 on Tournament=OppTournament and Event=OppEvent and MatchNo=OppMatchNo-1
 				LEFT JOIN DocumentVersions DV1 on Tournament=DV1.DvTournament AND DV1.DvFile = 'B-TEAM' and DV1.DvEvent=''

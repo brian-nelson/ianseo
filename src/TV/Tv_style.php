@@ -44,7 +44,6 @@
 <!--
 body {
 	font-size: <?php print $TV_Carattere;?>px;
-	font-family: <?php if(!empty($_SESSION['OlympicFont-use'])) echo '"'.$_SESSION['OlympicFont'].'", '; ?>  Verdana, Helvetica, Arial, sans-serif;
 	color: #000000;
 	margin: 0px;
 	padding: 3px;
@@ -127,14 +126,14 @@ table td, table th {overflow:hidden; white-space:nowrap;}
 
 <?php
 
-$sql="select distinct TrRecType, TrRecCode, TrColor from TourRecords where TrTournament=$TourId  "; // for now we only do on totals
+$sql="select distinct TrRecCode, TrColor, TrFontFile from TourRecords where TrTournament=$TourId  "; // for now we only do on totals
 $q=safe_r_sql($sql);
 while($r=safe_fetch($q)) {
-	echo '.Record_'.$r->TrRecType.'_'. $r->TrRecCode.' th,
-	 .Record_'.$r->TrRecType.'_'. $r->TrRecCode.' td {' . (!empty($_SESSION['OlympicFont-use']) && $r->TrRecType=='OR' ? 'font-family: "'.$_SESSION['OlympicFont'].'",  Verdana, Helvetica, Arial, sans-serif; ' : '') . ' background-color:#'.$r->TrColor.'; color:#ffffff; font-weight:bold;}';
-	echo '.Record_'.$r->TrRecType.'_'. $r->TrRecCode.' th {text-align:right; font-size:125%; }';
-	echo 'table td.Rec-'.$r->TrRecType.', table th.Rec-'.$r->TrRecType.' {color:#'.$r->TrColor.';font-weight:bold;}';
-	echo 'table td.Rec-Bg-'.$r->TrRecType.', table th.Rec-Bg-'.$r->TrRecType.' {background-color:#'.$r->TrColor.';}';
+	echo '.Record_'. $r->TrRecCode.' th,
+	 .Record_'.$r->TrRecCode.' td {' . ($r->TrFontFile ? 'font-family: "'.$r->TrFontFile.'",  Verdana, Helvetica, Arial, sans-serif; ' : '') . ' background-color:#'.$r->TrColor.'; color:#ffffff; font-weight:bold;}';
+	echo '.Record_'. $r->TrRecCode.' th {text-align:right; font-size:125%; }';
+	echo 'table td.Rec-'.$r->TrRecCode.', table th.Rec-'.$r->TrRecCode.' {color:#'.$r->TrColor.';font-weight:bold;}';
+	echo 'table td.Rec-Bg-'.$r->TrRecCode.', table th.Rec-Bg-'.$r->TrRecCode.' {background-color:#'.$r->TrColor.';}';
 }
 
 

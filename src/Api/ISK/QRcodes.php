@@ -25,6 +25,11 @@ $style = array(
 $Opts=array();
 $Opts['u']=getModuleParameter('ISK', 'ServerUrl').$CFG->ROOT_DIR;
 $Opts['c']=$_SESSION['TourCode'];
+$tmpPin = getModuleParameter('ISK', 'ServerUrlPin');
+if(!empty($tmpPin)) {
+	$Opts['c'] .= '|'.$tmpPin;
+}
+
 $Code=json_encode($Opts);
 
 $Y=35;

@@ -177,7 +177,7 @@
 					if(EnDivision='F', '', QuD{$i}Xnine) QuD{$i}Xnine, ";
 			}
 			$q.="{$tmp} AS Arrows_Shot, ToNumEnds,
-					if(EnDivision='F', '', {$MyRank}) AS Rank,
+					if(EnDivision='F', '', {$MyRank}) AS `Rank`,
 					if(EnDivision='F', '', Qu{$dd}Score) AS Score,
 					if(EnDivision='F', '', Qu{$dd}Gold) AS Gold,
 					if(EnDivision='F', '', Qu{$dd}Xnine) AS XNine,

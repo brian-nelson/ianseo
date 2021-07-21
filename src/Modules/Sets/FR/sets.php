@@ -20,14 +20,14 @@ $SetType['FR']['rules']["6"][1]='SetFRChampionshipSen';
 $SetType['FR']['rules']["6"][2]='SetFRChampionshipJun';
 
 // 70m round have several championship
-$SetType['FR']['rules']["3"][0]='SetAllClass'; // done
-$SetType['FR']['rules']["3"][1]='SetFRChampsTNJ'; // done
-$SetType['FR']['rules']["3"][2]='SetFRChampionshipJun'; // done
+$SetType['FR']['rules']["3"]["0"]='SetAllClass'; // done
+$SetType['FR']['rules']["3"]["1"]='SetFRChampsTNJ'; // done
+$SetType['FR']['rules']["3"]["2"]='SetFRChampionshipJun'; // done
 //$SetType['FR']['rules']["3"][3]='SetFRChampsScratchR'; // deprecated
 //$SetType['FR']['rules']["3"][4]='SetFRChampsScratchC'; // deprecated
 //$SetType['FR']['rules']["3"][5]='SetFRChampsVet'; // deprecated
-$SetType['FR']['rules']["3"][9]='SetFRTAE'; // done
-$SetType['FR']['rules']["3"][10]='SetFRCoupeFrance'; // done
-$SetType['FR']['rules']["3"][6]='SetFRChampsD1DNAP'; // done
+$SetType['FR']['rules']["3"]["9"]='SetFRTAE'; // done
+$SetType['FR']['rules']["3"]["10"]='SetFRCoupeFrance'; // done
+$SetType['FR']['rules']["3"]["6"]='SetFRChampsD1DNAP'; // done
 //$SetType['FR']['rules']["3"][7]='SetFRChampsFederal'; // deprecated
-$SetType['FR']['rules']["3"][8]='SetFRFinDRD2'; // done
+$SetType['FR']['rules']["3"]["8"]='SetFRFinDRD2'; // done

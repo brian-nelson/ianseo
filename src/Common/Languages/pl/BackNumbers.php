@@ -41,7 +41,6 @@ $lang['BgImage']='Obrazek tła';
 $lang['Bold']='Pogrubienie';
 $lang['Category']='Kategoria';
 $lang['CharColor']='Kolor czcionki';
-$lang['CharSize']='Rozmiar czcionki';
 $lang['CharType']='Rodzaj czcionki';
 $lang['CheckBarcodeSeparator']='Sprawdź separator kodu kreskowego';
 $lang['Club']='Dane państwa/ Klubu';

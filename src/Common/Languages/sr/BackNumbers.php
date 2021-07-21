@@ -30,7 +30,6 @@ $lang['Barcode']='Bar-kod';
 $lang['BgImage']='Pozadinska slika';
 $lang['Bold']='Podebljano';
 $lang['CharColor']='Boja fonta';
-$lang['CharSize']='Veličina fonta';
 $lang['CharType']='Font';
 $lang['CheckBarcodeSeparator']='Proveri Bar-kod separator';
 $lang['CountryCodeAndLong']='Kod i puno ime zemlje/kluba';

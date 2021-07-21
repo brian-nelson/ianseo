@@ -13,7 +13,6 @@ $lang['Barcode']='الباركود';
 $lang['BgImage']='صورة الخلفية';
 $lang['Bold']='سميك';
 $lang['CharColor']='لون الخط';
-$lang['CharSize']='حجم الخط';
 $lang['CharType']='نوع الخط';
 $lang['CountryCodeAndLong']='رمز واسم الدولة';
 $lang['CountryCodeOnly']='رمز الدولة فقط';

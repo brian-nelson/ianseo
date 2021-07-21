@@ -23,6 +23,10 @@
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Qualification/Fun_AJAX_index.js"></script>',
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Qualification/Fun_JS.js"></script>',
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
+		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-confirm.min.js"></script>',
+		'<script type="text/javascript" src="./index.js"></script>',
+		'<link href="'.$CFG->ROOT_DIR.'Common/css/jquery-confirm.min.css" media="screen" rel="stylesheet" type="text/css" />',
+		'<link href="./index.css" media="screen" rel="stylesheet" type="text/css" />',
 		phpVars2js(array(
 			'CmdPostUpdate'=>get_text('CmdPostUpdate'),
 			'PostUpdating'=>get_text('PostUpdating'),
@@ -33,6 +37,10 @@
 			'MsgBackFromHome' => get_text('BackFromHome', 'Tournament'),
 			'MsgSetDSQ' => get_text('Set-DSQ', 'Tournament'),
             'MsgUnsetDSQ' => get_text('Unset-DSQ', 'Tournament'),
+            'TxtIrmDns' => get_text('DNS', 'Tournament'),
+            'TxtIrmDnf' => get_text('DNF', 'Tournament'),
+            'TxtIrmUnset' => get_text('CmdUnset', 'Tournament', ''),
+            'TxtCancel' => get_text('CmdCancel'),
 		)),
 	);
 
@@ -210,19 +218,20 @@
 				. $TargetFilter . " "
 				. "ORDER BY QuTargetNo ASC ";*/
 
-			$Select
-				= "SELECT EnId,EnCode,EnName,EnFirstName,EnTournament,EnDivision,EnClass,EnCountry,CoCode, (EnStatus <=1) AS EnValid,EnStatus, "
-				. "QuTargetNo, SUBSTRING(QuTargetNo,2) AS Target,"
-				. "QuD" . $_REQUEST['x_Dist'] . "Score AS SelScore,QuD" . $_REQUEST['x_Dist'] . "Hits AS SelHits,QuD" . $_REQUEST['x_Dist'] . "Gold AS SelGold,QuD" . $_REQUEST['x_Dist'] . "Xnine AS SelXNine, "
-				. "QuScore, QuHits,	QuGold,	QuXnine, QuClRank, "
-				. "ToId,ToType,ToNumDist AS TtNumDist "
-				. "FROM Entries INNER JOIN Countries ON EnCountry=CoId "
-				. "INNER JOIN Qualifications ON EnId=QuId "
-				. "RIGHT JOIN AvailableTarget ON QuTargetNo=AtTargetNo AND AtTournament=" . StrSafe_DB($_SESSION['TourId']) . " "
-				. "INNER JOIN Tournament ON EnTournament=ToId AND ToId=" . StrSafe_DB($_SESSION['TourId']) . " "
-				. "WHERE EnAthlete=1 AND QuSession<>0 AND QuTargetNo<>'' AND QuSession=" . StrSafe_DB($_REQUEST['x_Session']) . " "
-				. $TargetFilter . " "
-				. "ORDER BY QuTargetNo ASC ";
+			$Select = "SELECT EnId,EnCode,EnName,EnFirstName,EnTournament,EnDivision,EnClass,EnCountry,CoCode, (EnStatus <=1) AS EnValid,EnStatus,
+                    QuTargetNo, SUBSTRING(QuTargetNo,2) AS Target,
+                    QuD" . $_REQUEST['x_Dist'] . "Score AS SelScore,QuD" . $_REQUEST['x_Dist'] . "Hits AS SelHits,QuD" . $_REQUEST['x_Dist'] . "Gold AS SelGold,QuD" . $_REQUEST['x_Dist'] . "Xnine AS SelXNine,
+                    QuScore, QuHits,	QuGold,	QuXnine, QuClRank, QuIrmType, IrmType,
+                    ToId,ToType,ToNumDist AS TtNumDist
+			    FROM Entries
+			    INNER JOIN Countries ON EnCountry=CoId
+			    INNER JOIN Qualifications ON EnId=QuId
+			    INNER JOIN IrmTypes ON IrmId=QuIrmType
+			    RIGHT JOIN AvailableTarget ON QuTargetNo=AtTargetNo AND AtTournament=" . StrSafe_DB($_SESSION['TourId']) . "
+			    INNER JOIN Tournament ON EnTournament=ToId AND ToId=" . StrSafe_DB($_SESSION['TourId']) . "
+			    WHERE EnAthlete=1 AND QuSession<>0 AND QuTargetNo<>'' AND QuSession=" . StrSafe_DB($_REQUEST['x_Session']) . " "
+				. $TargetFilter . "
+				ORDER BY QuTargetNo ASC ";
 
 			$Rs=safe_r_sql($Select);
 			//print $Select;
@@ -233,7 +242,7 @@
 <form name="Frm" method="POST" action="">
 <table class="Tabella">
 <tr>
-<td class="Title" width="5%" nowrap="nowrap"><?php echo get_text('Went2Home', 'Tournament') ?></td>
+<td class="Title" width="5%" nowrap="nowrap"><?php echo get_text('IrmStatus', 'Tournament') ?></td>
 <td class="Title" width="5%"><?php print get_text('Target');?></td>
 <td class="Title" width="5%"><?php print get_text('Code','Tournament');?></td>
 <td class="Title" width="20%"><?php print get_text('Archer');?></td>
@@ -249,53 +258,33 @@
 <td class="Title" width="5%"><?php print $RowTour->TtXNine; ?></td>
 </tr>
 <?php
-				$CurTarget = 'xx';
-				$TarStyle='';	// niene oppure warning se $RowStyle==''
-			// elenco persone
-				while ($MyRow=safe_fetch($Rs))
-				{
-					$RowStyle='';	// NoShoot oppure niente
-					if($MyRow->QuClRank=='9999') {
-						$RowStyle='Dsq';
-					} elseif(!$MyRow->EnValid) {
-						$RowStyle='NoShoot';
-					}
+$CurTarget = 'xx';
+$TarStyle='';	// niene oppure warning se $RowStyle==''
+// elenco persone
+while ($MyRow=safe_fetch($Rs)) {
+    $RowStyle='';	// NoShoot oppure niente
+    if(!$MyRow->EnValid) {
+        $RowStyle='NoShoot';
+    }
 
+    if ($CurTarget!='xx') {
+        if ($CurTarget!=substr($MyRow->Target,0,-1) ) {
+            if ($TarStyle=='') {
+                $TarStyle='warning';
+            } elseif($TarStyle=='warning') {
+                $TarStyle='';
+            }
+        }
+    }
 
-					//if ($RowStyle=='')
-					//{
-						if ($CurTarget!='xx')
-						{
-							if ($CurTarget!=substr($MyRow->Target,0,-1) )
-							{
-								if ($TarStyle=='')
-									$TarStyle='warning';
-								elseif($TarStyle=='warning')
-									$TarStyle='';
-							}
-						}
-					//}
-?>
-<tr id="Row_<?php print $MyRow->EnId; ?>" <?php echo 'class="' . ($RowStyle!='' ? $RowStyle : $TarStyle) . '"'; ?>>
-<td class="Center" nowrap="nowrap" id="TD_<?php print $MyRow->EnId; ?>">
-<?php
-	if ($MyRow->QuClRank!='9999') {
-		echo '<div onClick="Went2Home('.$MyRow->EnId.')" id="Went2Home_'.$MyRow->EnId.'">';
-		if ($MyRow->EnValid) {
-			echo get_text('Went2Home', 'Tournament');
-		} else {
-			echo get_text('BackFromHome', 'Tournament');
-		}
-		echo '</div>';
+    echo '<tr id="Row_'.$MyRow->EnId.'" class="'.$TarStyle.' '.$RowStyle.' Irm-'.$MyRow->QuIrmType.'">';
+    echo '<td class="Center" nowrap="nowrap" id="TD_'.$MyRow->EnId.'">';
+    if($MyRow->QuIrmType) {
+        echo '<div class="btn" onclick="IrmSet(this)" ref="'.$MyRow->QuIrmType.'">'.get_text('CmdUnset', 'Tournament', $MyRow->IrmType).'</div>';
+    } else {
+        echo '<div class="btn" onclick="IrmSet(this)" ref="'.$MyRow->QuIrmType.'">'.get_text('CmdSet', 'Tournament').'</div>';
+    }
 
-		echo '<div onClick="Disqualify('.$MyRow->EnId.')" id="Disqualify_'.$MyRow->EnId.'">';
-		print get_text('Set-DSQ', 'Tournament');
-		echo '</div>';
-	} else {
-		echo '<div onClick="Disqualify('.$MyRow->EnId.')" id="Disqualify_'.$MyRow->EnId.'">';
-		print get_text('Unset-DSQ', 'Tournament');
-		echo '</div>';
-	}
 ?>
 </td>
 <td><?php print $MyRow->Target; ?></td>

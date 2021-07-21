@@ -218,7 +218,9 @@ function check_write_DB($tipo, $W_HOST, $W_USER, $W_PASS) {
 
 				// e ritorna falso (creato ex novo)
 				return(false);
-			}
+			} else {
+			    return(true);
+            }
 		} elseif(is_array($a) and $a[1]=='NO_DATABASE') {
 			$_SESSION['INSTALL']['CFG']['ERROR']=get_text($testi.' Database not present','Install');
 			cd_redirect('?step=2');

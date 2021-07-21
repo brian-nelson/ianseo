@@ -72,7 +72,7 @@ $JS_SCRIPT=array(
         'strStatus_8' => get_text('Status_8'),
         'strStatus_9' => get_text('Status_9'),
 	)),
-	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 	'<script type="text/javascript" src="index.js"></script>',
 	'<link href="./index.css" rel="stylesheet" type="text/css">',
 );

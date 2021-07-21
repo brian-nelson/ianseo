@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 13/10/17
- * Time: 2.12
- */
 
 require_once(dirname(__FILE__).'/config.php');
 

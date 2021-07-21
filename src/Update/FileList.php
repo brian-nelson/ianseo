@@ -70,6 +70,7 @@ class FileList
 	        			&& (is_null($this->Exclusion) ||  preg_match('/'. ($this->Exclusion).'/i', $file) == 0)
 	        			&& $DistFolder!="/Images" // Pictures are "personal" so don't touch!
 	        			&& !($DistFolder=="/Common" && $file=="config.inc.php") // config.inc is "personal" so don't touch!
+	        			&& !($DistFolder=="/Common" && $file=="DebugOverrides.php") // overrides are "personal" so don't touch!
 // 	        			&& !($DistFolder=="/Common" && $file=="Languages") // Langs have their own update!
 	        			&& !($DistFolder=="/TV" && $file=="Photos") // Pictures are "personal" so don't touch!
 	        			&& !($DistFolder=="/Install" && $file=="dbdumps") // Dumps of the DB... better leave them safe!

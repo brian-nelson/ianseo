@@ -67,14 +67,15 @@ if(count($tmp)==3) {
 			'curxnine' => $r->DistXnine,
 			'score' => $r->QuScore,
 			'golds' => $r->QuGold,
-			'xnine' => $r->QuXnine
+			'xnine' => $r->QuXnine,
 		);
 	}
 } else {
 	// QUALIFICATION
 	$Filter="left(QuTargetNo,4) in ('".$TargetNo."')";
 
-	$SQL="SELECT QuId, QuSession, QuTargetNo, DIDistance, DIEnds, DIArrows, ToGoldsChars, ToXNineChars from Qualifications
+	$SQL="SELECT QuId, QuSession, QuTargetNo, QuTarget, DIDistance, DIEnds, DIArrows, ToGoldsChars, ToXNineChars, ToElabTeam 
+			from Qualifications
 			INNER JOIN Entries ON QuId=EnId
 			INNER JOIN Tournament ON ToId=EnTournament
 			INNER JOIN DistanceInformation ON DITournament=EnTournament AND DISession=QuSession AND DIDistance=".StrSafe_DB($Distance)." AND DIType='Q'
@@ -82,7 +83,7 @@ if(count($tmp)==3) {
 			ORDER BY QuTargetNo";
 	$q=safe_r_sql($SQL);
 	while($r=safe_fetch($q)) {
-		$tmp = getQualificationTotals($r->QuId, $r->DIDistance, $End, $r->DIArrows, $r->DIEnds, $r->ToGoldsChars, $r->ToXNineChars);
+		$tmp = getQualificationTotals($r->QuId, $r->DIDistance, $End, $r->DIArrows, $r->DIEnds, $r->ToGoldsChars, $r->ToXNineChars, $r->ToElabTeam ? $r->QuTarget : null);
 		$json_array[]=array(
 			'qutarget' => $r->QuTargetNo,
 			'endscore' => $tmp['curendscore'],
@@ -91,7 +92,10 @@ if(count($tmp)==3) {
 			'curxnine' => $tmp['curxnine'],
 			'score' => $tmp['score'],
 			'golds' => $tmp['gold'],
-			'xnine' => $tmp['xnine']
+			'xnine' => $tmp['xnine'],
+			'curendscore' => $tmp['curendscore'],
+			'curscoreatend' => $tmp['curscoreatend'],
+			'scoreatend' => $tmp['scoreatend'],
 		);
 	}
 }

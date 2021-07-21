@@ -252,8 +252,10 @@ switch($CardType) {
 		break;
 	case 'I':
 	case 'T':
+	case 'Y':
+	case 'Z':
 		$Events=array();
-		$q=safe_r_sql("select * from Events where EvTeamEvent=".($CardType=='I' ? 0 : 1)." and EvTournament='{$_SESSION['TourId']}' order by EvProgr");
+		$q=safe_r_sql("select * from Events where EvTeamEvent=".(($CardType=='I' or $CardType=='Y') ? 0 : 1)." and EvTournament='{$_SESSION['TourId']}' order by EvProgr");
 		while($r=safe_fetch($q)) $Events[$r->EvCode]=$r->EvCode;
 
 		$Matches=getModuleParameter('Accreditation', 'Matches-'.$CardType.'-'.$CardNumber, '');
@@ -361,9 +363,14 @@ if($CardType=='A') {
 // Category
 $Select.='<option value="Category">'.get_text('Category', 'BackNumbers').'</option>';
 // Event
-if(strstr('EIT', $CardType)) {
+if(strstr('EITYZ', $CardType)) {
 	$Select.='<option value="Event">'.get_text('Event', 'BackNumbers').'</option>';
 	$Select.='<option value="Ranking">'.get_text('Ranking', 'BackNumbers').'</option>';
+    $Select.='<option value="QRScore">'.get_text('QRScore', 'BackNumbers').'</option>';
+}
+// Diploma based on Ranking
+if(strstr('YZ', $CardType)) {
+	$Select.='<option value="FinalRanking">'.get_text('FinalRanking', 'BackNumbers').'</option>';
 }
 // Session
 $Select.='<option value="Session">'.get_text('Session', 'BackNumbers').'</option>';
@@ -496,8 +503,22 @@ function getFieldPos($r) {
 					</select>';
 				if(!$r->IceOptions) $Options['BackCat']=1;
 			}
+        case 'QRScore':
+            if(!isset($txt)) $txt=get_text('Score','Tournament');
 		case 'Ranking':
-			if(!isset($txt)) $txt=get_text('Rank');
+			if(!isset($txt)) {
+                $txt='<select onchange="UpdateRowContent(this)" id="Content['.$r->IceOrder.'][Ranking]">
+                    <option value="Cardinal"'   .($r->IceContent=='Cardinal'   ?' selected':'').'>'.get_text('RnkCardinalEN',    'BackNumbers').'</option>
+                    <option value="Ordinal"'   .($r->IceContent=='Ordinal'   ?' selected':'').'>'.get_text('RnkOrdinal',    'BackNumbers').'</option>
+                </select>';
+            }
+		case 'FinalRanking':
+			if(!isset($txt)) {
+                $txt='<select onchange="UpdateRowContent(this)" id="Content['.$r->IceOrder.'][FinalRanking]">
+                    <option value="Cardinal"'   .($r->IceContent=='Cardinal'   ?' selected':'').'>'.get_text('RnkCardinalEN',    'BackNumbers').'</option>
+                    <option value="Ordinal"'   .($r->IceContent=='Ordinal'   ?' selected':'').'>'.get_text('RnkOrdinal',    'BackNumbers').'</option>
+                </select>';
+            }
 		case 'Category':
 			if(!isset($txt)) {
 				$txt='<select onchange="UpdateRowContent(this)" id="Content['.$r->IceOrder.'][Category]">

@@ -8,9 +8,21 @@ require_once('Common/OrisFunctions.php');
 require_once('Common/pdf/PdfChunkLoader.php');
 checkACL(AclEliminations, AclReadOnly);
 
-$EventRequested=(!empty($EventRequested) ? $EventRequested : '');
+$events = array();
+$isPool = false;
+if(isset($_REQUEST["EventCode"])) {
+    if(is_array($_REQUEST["EventCode"])) {
+        $events = $_REQUEST["EventCode"];
+    } else {
+        $events[] = $_REQUEST["EventCode"];
+    }
+}
 
-$PdfData=getEliminationIndividual('', true);
+if(!empty($_REQUEST["isPool"])) {
+    $isPool = true;
+}
+
+$PdfData=getEliminationIndividual($events, true, $isPool);
 
 if(!isset($isCompleteResultBook)) {
 	$pdf = new OrisPDF($PdfData->Code, $PdfData->Description);

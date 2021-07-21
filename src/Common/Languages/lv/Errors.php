@@ -1,4 +1,5 @@
 <?php
+$lang['Anomalies']='Anomālijas';
 $lang['DirectoryNotWriteable']='Direktoriju $a nevar pāŗrakstīt no web servera. Lūdzu nomainiet atļaujas lai to rakstit varētu, jebkurš.';
 $lang['ErrCodeExists']='Kods jau eksistē!';
 $lang['ErrCommitteeError']='Nepareizs komitejas kods vai apraksts';

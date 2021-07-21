@@ -11,7 +11,7 @@ $endSession=(isset($_REQUEST['endSession']) ? $_REQUEST['endSession'] : null);
 $filter=(isset($_REQUEST['filter']) ? $_REQUEST['filter'] : null);
 $isEvent=(isset($_REQUEST['isEvent']) && $_REQUEST['isEvent']==1 ? $_REQUEST['isEvent'] : 0);
 $sourceRankFrom=(isset($_REQUEST['sourceRankFrom']) ? $_REQUEST['sourceRankFrom'] : 1);
-$sourceRankTo=(isset($_REQUEST['sourceRankTo']) ? $_REQUEST['sourceRankTo'] : 9999);
+$sourceRankTo=(isset($_REQUEST['sourceRankTo']) ? $_REQUEST['sourceRankTo'] : 99999);
 $destFrom=(isset($_REQUEST['destFrom']) ? $_REQUEST['destFrom'] : null);
 $destTo=(isset($_REQUEST['destTo']) ? $_REQUEST['destTo'] : null);
 
@@ -120,7 +120,7 @@ if (isset($_REQUEST['command'])) {
 							 * Un eventuale confronto con la classifica di classe potrebbe mostrare discrepanze
 							 * (l'elenco delle persone di questa query ha un numero di righe >= a quello della classifica di classe)
 							 */
-                            $query = "SELECT QuId, EnFirstName, EnName, EnWChair, EnDoubleSpace, CONCAT(EnDivision,EnClass) AS `Event`, QuSession, QuTargetNo, QuClRank as Rank 
+                            $query = "SELECT QuId, EnFirstName, EnName, EnWChair, EnDoubleSpace, CONCAT(EnDivision,EnClass) AS `Event`, QuSession, QuTargetNo, QuClRank as `Rank` 
                                 FROM Tournament 
                                 INNER JOIN Entries ON ToId=EnTournament 
                                 INNER JOIN Qualifications ON EnId=QuId 
@@ -128,7 +128,7 @@ if (isset($_REQUEST['command'])) {
                                 ORDER BY QuClRank ASC, EnFirstName, EnName ";
                         } else {
                             // assoluti individuali
-                            $query = "SELECT QuId, EnFirstName, EnName,EnWChair, EnDoubleSpace, CONCAT(EnDivision,EnClass) AS `Event`, QuSession, QuTargetNo, IndRank as Rank 
+                            $query = "SELECT QuId, EnFirstName, EnName,EnWChair, EnDoubleSpace, CONCAT(EnDivision,EnClass) AS `Event`, QuSession, QuTargetNo, IndRank as `Rank` 
                                 FROM Tournament 
                                 INNER JOIN Entries ON ToId=EnTournament 
                                 INNER JOIN Qualifications ON EnId=QuId 

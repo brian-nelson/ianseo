@@ -1,5 +1,4 @@
 <?php
-error_reporting(E_ALL);
 /**
  * These functions are helpers to get all the necessary data into an object
  * that will be used to generate the ORIS PDFs or to be sent online to generate
@@ -11,14 +10,13 @@ require_once('Common/Lib/CommonLib.php');
 DefineForcePrintouts($_SESSION['TourId']);
 
 require_once('Common/StartListQueries.php');
-require_once('Common/FinalQueries.php');
 require_once('Common/Lib/Obj_RankFactory.php');
 require_once('Common/XmlCreationFunctions.php');
 require_once('Common/Lib/Fun_DateTime.inc.php');
 require_once('Common/Fun_Phases.inc.php');
 require_once('Qualification/Fun_Qualification.local.inc.php');
 
-function getPdfHeader() {
+function getPdfHeader($ForOnline=true) {
 	$RET=new StdClass();
 
 	$Sql = "SELECT ToCode, ToLocRule, ToType, ToTypeSubRule, ToName, ToComDescr, ToWhere, ToTimeZone, 
@@ -118,16 +116,20 @@ function getPdfHeader() {
 	}
 	foreach($RET->StaffCategories as $cat => $members) $RET->StaffCategories[$cat] = implode(', ', $members);
 
+	// if not requested to send online we skip the following point
+	if(!$ForOnline) {
+		return $RET;
+	}
+
 	// and now the pictures of the countries
 	$RET->Flags=array();
-	$query="select distinct"
-		. " FlCode, FlJPG "
-		. "from Entries"
-		//. " inner join Countries on CoId in (EnCountry,EnCountry2)"
-		. " inner join Countries on CoId in (EnCountry,EnCountry2,EnCountry3)"
-		. " inner join Flags on CoCode=FlCode and FlTournament in (-1,EnTournament) "
-		. "where FlJPG>'' and EnTournament={$_SESSION['TourId']} "
-		. "order by FlTournament desc";
+	$query="select FlCode, FlJPG 
+		from Flags
+		inner join Countries on CoCode=FlCode and CoTournament={$_SESSION['TourId']}
+		inner join Entries on EnTournament={$_SESSION['TourId']} and CoId in (EnCountry,EnCountry2,EnCountry3) 
+		where FlTournament in (-1, {$_SESSION['TourId']}) and FlJPG>'' 
+		group by FlCode, FlTournament
+		order by FlTournament desc";
 	$q=safe_r_sql($query);
 	while($r=safe_fetch($q)) {
 		if(!empty($RET->Flags[$r->FlCode])) continue;
@@ -150,7 +152,7 @@ function getPdfHeader() {
 	return $RET;
 }
 
-function getStartList($ORIS='', $Event='', $Elim=false, $Filled=false) {
+function getStartList($ORIS='', $Event='', $Elim=false, $Filled=false, $isPool=false, $BySchedule=false) {
 	$Data=new StdClass();
 
 	$Data->Code='C51A';
@@ -235,23 +237,34 @@ function getStartList($ORIS='', $Event='', $Elim=false, $Filled=false) {
 		$Data->IsRanked = $r->IsRanked;
 	}
 
-	if(!empty($_SESSION['MenuElimPoolDo'])) {
+	if($isPool) {
 		require_once('Elimination/Fun_Eliminations.local.inc.php');
-		$Data->MatchTitles=getPoolMatches();
-		$Data->MatchTitlesWA=getPoolMatchesWA();
-		$Data->MatchSlots=getPoolMatchesWinners();
-		$Data->MatchSlotsWA=getPoolMatchesWinnersWA();
-		$Data->MatchTitleAB=get_text('PoolName', 'Tournament', 'AB');
-		$Data->MatchTitleCD=get_text('PoolName', 'Tournament', 'CD');
-		$Data->MatchTitleGroups=array(
-			1 => get_text('PoolName', 'Tournament', 'A'),
-			2 => get_text('PoolName', 'Tournament', 'B'),
-			3 => get_text('PoolName', 'Tournament', 'C'),
-			4 => get_text('PoolName', 'Tournament', 'D'),
-		);
+		if($isPool==3) {
+			$Data->Description=get_text('WG_Pool2');
+			$Data->MatchTitles=getPoolMatches();
+			$Data->MatchTitlesShort=getPoolMatchesShort();
+			$Data->MatchSlots=getPoolMatchesWinners();
+			$Data->MatchTitleGroups=array(
+				1 => get_text('PoolName', 'Tournament', 'A'),
+				2 => get_text('PoolName', 'Tournament', 'B'),
+			);
+		} elseif($isPool==4) {
+			$Data->Description=get_text('WA_Pool4');
+			$Data->MatchTitlesWA=getPoolMatchesWA();
+			$Data->MatchTitlesWAShort=getPoolMatchesShortWA();
+			$Data->MatchSlotsWA=getPoolMatchesWinnersWA();
+			$Data->MatchTitleAB=get_text('PoolName', 'Tournament', 'AB');
+			$Data->MatchTitleCD=get_text('PoolName', 'Tournament', 'CD');
+			$Data->MatchTitleGroups=array(
+				1 => get_text('PoolName', 'Tournament', 'A'),
+				2 => get_text('PoolName', 'Tournament', 'B'),
+				3 => get_text('PoolName', 'Tournament', 'C'),
+				4 => get_text('PoolName', 'Tournament', 'D'),
+			);
+		}
 	}
 
-	$MyQuery = getStartListQuery($ORIS, $Event, $Elim, $Filled);
+	$MyQuery = getStartListQuery($ORIS, $Event, $Elim, $Filled, $isPool, $BySchedule);
 
 	//echo $MyQuery;exit;
 	$Rs=safe_r_sql($MyQuery);
@@ -260,7 +273,7 @@ function getStartList($ORIS='', $Event='', $Elim=false, $Filled=false) {
 
 	$Data->Timestamp = '';
 	while ($MyRow=safe_fetch($Rs)) {
-		if($MyRow->EnTimestamp>$Data->Timestamp) {
+		if($MyRow->EnTimestamp and $MyRow->EnTimestamp>$Data->Timestamp) {
 			$Data->Timestamp=$MyRow->EnTimestamp;
 		}
 		if(empty($Data->OdfCodes[$MyRow->EventCode])) {
@@ -311,7 +324,7 @@ function getStatEntriesByEvent($ORIS='') {
 
 	if($ORIS) {
 		// Individuals
-		$Data->Header=array("Event","No. Athletes","No. Countries","No. Teams");
+		$Data->Header=array("Event","No. Athletes#","No. Countries#","No. Teams#");
 		$Data->HeaderWidth=array(60, 40, 40, 40);
 		$MyQuery = getStatEntriesByEventQuery('IF');
 		$Rs=safe_r_sql($MyQuery);
@@ -337,30 +350,33 @@ function getStatEntriesByEvent($ORIS='') {
 					AND EcTournament=" . StrSafe_DB($_SESSION['TourId']);
 			$RsEc=safe_r_sql($Sql);
 			if(safe_num_rows($RsEc)>0) {
-				$RuleCnt=0;
-				$Sql = "Select * ";
-				while($MyRowEc=safe_fetch($RsEc)) {
-					$ifc=ifSqlForCountry($MyRowEv->EvTeamCreationMode);
-					$Sql .= (++$RuleCnt == 1 ? "FROM ": "INNER JOIN ");
-					$Sql .= "(SELECT {$ifc} as C" . $RuleCnt . ", SUM(IF(EnSubTeam=0,1,0)) AS QuantiMulti
+                $RuleCnt=0;
+                $Sql = "";
+                $MultiTeams=array(999);
+                while($MyRowEc=safe_fetch($RsEc)) {
+                    $ifc=ifSqlForCountry($MyRowEv->EvTeamCreationMode);
+                    $Sql .= (++$RuleCnt == 1 ? "FROM ": "INNER JOIN ");
+                    $Sql .= "(SELECT {$ifc} as C" . $RuleCnt . ", floor(SUM(IF(EnSubTeam=0,1,0))/$MyRowEc->EcNumber) AS QuantiMulti" . $RuleCnt . "
 						FROM Entries
-						INNER JOIN EventClass ON EnClass=EcClass AND EnDivision=EcDivision AND EnTournament=EcTournament and if(EcSubClass=0, true, EcSubClass=EnSubClass) AND EcTeamEvent=" . $MyRowEc->EcTeamEvent . " AND EcCode=" . StrSafe_DB($MyRowEc->EcCode) . "
+						INNER JOIN EventClass ON EnClass=EcClass AND EnDivision=EcDivision and if(EcSubClass=0, true, EcSubClass=EnSubClass) AND EnTournament=EcTournament AND EcTeamEvent=" . $MyRowEc->EcTeamEvent . " AND EcCode=" . StrSafe_DB($MyRowEc->EcCode) . "
 						WHERE {$ifc}<>0 AND EnTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EnTeam" . ($MyRowEv->EvMixedTeam ? 'Mix' : 'F') ."Event=1
 						group by {$ifc}, EnSubTeam
 						HAVING COUNT(EnId)>=" . $MyRowEc->EcNumber . ") as sqy";
-					$Sql .= ($RuleCnt == 1 ? " ": $RuleCnt . " ON C1=C". $RuleCnt . " ");
-				}
+                    $Sql .= ($RuleCnt == 1 ? " ": $RuleCnt . " ON C1=C". $RuleCnt . " ");
+                    $MultiTeams[]='QuantiMulti'.$RuleCnt;
+                }
+                $Sql = "Select *, least(".implode(',', $MultiTeams).") as MinTeams ".$Sql;
 
-				$Rs=safe_r_sql($Sql);
-				$tmpQuanti=safe_num_rows($Rs);
-				$Countries=$tmpQuanti;
-				if($MyRowEv->EvMultiTeam!=0) {
-					$tmpQuanti = 0;
-					while($tmpRow=safe_fetch($Rs)) {
-						$Countries++;
-						$tmpQuanti += intval($tmpRow->QuantiMulti / $MyRowEv->EvMaxTeamPerson);
-					}
-				}
+                $Rs=safe_r_sql($Sql);
+                $tmpQuanti=safe_num_rows($Rs);
+                $Countries=$tmpQuanti;
+                if($MyRowEv->EvMultiTeam!=0) {
+                    $tmpQuanti = 0;
+                    while($tmpRow=safe_fetch($Rs)) {
+                        $tmpQuanti += ($MyRowEv->EvMultiTeamNo == 0 ? $tmpRow->MinTeams : min($MyRowEv->EvMultiTeamNo,$tmpRow->MinTeams));
+                    }
+                }
+
 				$tmpSaved=(valueFirstPhase($MyRowEv->FirstPhase)==$MyRowEv->FirstPhase ? 0 : 8);
 				$tmpQuantiIn = $MyRowEv->EvNumQualified;
 				$tmpQuantiOut = $tmpQuanti-$tmpQuantiIn;
@@ -483,7 +499,7 @@ function getStatEntriesByEvent($ORIS='') {
 				if($MyRowEv->EvMultiTeam!=0) {
 					$tmpQuanti = 0;
 					while($tmpRow=safe_fetch($Rs)) {
-						$tmpQuanti += $tmpRow->MinTeams;
+						$tmpQuanti += ($MyRowEv->EvMultiTeamNo == 0 ? $tmpRow->MinTeams : min($MyRowEv->EvMultiTeamNo,$tmpRow->MinTeams));
 					}
 				}
 
@@ -559,12 +575,13 @@ function getStartListByCountries($ORIS=false, $Athletes=false, $orderByName=fals
 	$Data->Header=array("NOC","Country","Name","#W. Rank    ", "Date of Birth   #", "#Back No.  ", "Event");
 	$Data->HeaderPool=array("Target","Name","NOC","Country", "Points", "#W. Rank    ", "Date of Birth");
 	$Data->IndexName='Entries by Country';
-	$Data->HeaderWidth=array(10,35,45,15,20,20,45);
+	$Data->HeaderWidth=array(10,45,45,15,20,15,45);
 	$Data->Phase='';
 	$Data->Data=array();
 
 	$Data->Data['Fields'] = array(
 		"Bib" => get_text('Code','Tournament'),
+        "Bib2" => get_text('LocalCode','Tournament'),
 		"Athlete" => get_text('Athlete'),
 		"Session" => get_text('SessionShort','Tournament'),
 		"SesName" => get_text('Session'),
@@ -687,12 +704,19 @@ function getStandingRecords($ORIS=true) {
 	$Record=array();
 	$Countries=array();
 	while ($MyRow=safe_fetch($Rs)) {
-		if($MyRow->RtRecLastUpdated<$Data->RecordAs) $Data->RecordAs=substr($MyRow->RtRecLastUpdated, 0, 10);
-		if(!empty($MyRow->EventName)) $MyRow->EventName=get_text($MyRow->EventName,'','',true);
+		if($MyRow->RtRecDate=='0000-00-00') {
+			$MyRow->RtRecDate='';
+		}
+		if($MyRow->RtRecLastUpdated<$Data->RecordAs) {
+			$Data->RecordAs=substr($MyRow->RtRecLastUpdated, 0, 10);
+		}
+		if(!empty($MyRow->EventName)) {
+			$MyRow->EventName=get_text($MyRow->EventName,'','',true);
+		}
 		$MyRow->RtRecExtra=unserialize($MyRow->RtRecExtra);
 
-		$Data->Data['Items'][$MyRow->EvTeamEvent]["$MyRow->EvRecCategory-$MyRow->RtRecCode-$MyRow->RtRecType"][]=$MyRow;
-		$Data->SubSections[$MyRow->EvTeamEvent]["$MyRow->EvRecCategory-$MyRow->RtRecCode-$MyRow->RtRecType"]=$MyRow->EventName . ' - ' . get_text("Record-{$MyRow->RtRecType}-{$MyRow->RtRecCode}", 'InfoSystem');
+		$Data->Data['Items'][$MyRow->EvTeamEvent]["$MyRow->EvRecCategory-$MyRow->RtRecCode"][]=$MyRow;
+		$Data->SubSections[$MyRow->EvTeamEvent]["$MyRow->EvRecCategory-$MyRow->RtRecCode"]=$MyRow->EventName . ' - ' . $MyRow->TrHeader;
 		if(!empty($MyRow->DocVersion)) {
 			$Data->DocVersion=$MyRow->DocVersion;
 			$Data->DocVersionDate=$MyRow->DocVersionDate;
@@ -721,7 +745,7 @@ function getBrokenRecords($ORIS=true) {
 	$Data->DocVersion='';
 	$Data->DocVersionDate='';
 	$Data->DocVersionNotes='';
-	$Data->RecordAs=$_SESSION['TourRealWhenFrom'];
+	$Data->RecordAs=$_SESSION['TourRealWhenTo'];
 	$Data->SubSections=array();
 	$Data->Data=array();
 
@@ -747,13 +771,45 @@ function getBrokenRecords($ORIS=true) {
 
 	$Rs=safe_r_sql($MyQuery);
 	$Record=array();
+	if($CheckDate=(date('Y-m-d')<$Data->RecordAs)) {
+		$Data->RecordAs=date('Y-m-d');
+	}
+	//error_reporting(E_ALL);
 	while ($MyRow=safe_fetch($Rs)) {
-		if($MyRow->RtRecLastUpdated<$Data->RecordAs) $Data->RecordAs=substr($MyRow->RtRecLastUpdated, 0, 10);
-		if(!empty($MyRow->EventName)) $MyRow->EventName=get_text($MyRow->EventName,'','',true);
+		//if($MyRow->RtRecXNine and $MyRow->RtRecTotal==$MyRow->NewRecord and $MyRow->RtRecXNine>=$MyRow->NewXNine) {
+		//	// in case full scores the X are marked so check the Xs of the new record
+		//	continue;
+		//}
+		switch($MyRow->Phase) {
+			case '1':
+				if(!$MyRow->RtRecXNine) {
+					// if no XNine marks, remove the ones of the new record
+					$MyRow->NewXNine=0;
+				}
+				break;
+			case '3':
+				// matches...
+				//$items=getEventArrowsParams($MyRow->EvRecCategory, 2, $MyRow->EvTeamEvent);
+				//if($MyRow->NewRecord!=$items->ends*$items->arrows*10) {
+				//	$MyRow->NewXNine=0;
+				//}
+				break;
+			default:
+				if(!$MyRow->RtRecXNine) {
+					// if no XNine marks, remove the ones of the new record
+					$MyRow->NewXNine=0;
+				}
+		}
+		if($CheckDate and $MyRow->RecordDateDate>$Data->RecordAs) {
+			$Data->RecordAs=$MyRow->RecordDateDate;
+		}
+		if(!empty($MyRow->EventName)) {
+			$MyRow->EventName=get_text($MyRow->EventName,'','',true);
+		}
 		$MyRow->RtRecExtra=unserialize($MyRow->RtRecExtra);
 
-		$Data->Data['Items'][$MyRow->EvTeamEvent]["$MyRow->EvRecCategory-$MyRow->RtRecCode-$MyRow->RtRecType"][]=$MyRow;
-		$Data->SubSections[$MyRow->EvTeamEvent]["$MyRow->EvRecCategory-$MyRow->RtRecCode-$MyRow->RtRecType"]=$MyRow->EventName . ' - ' . get_text("Record-{$MyRow->RtRecType}-{$MyRow->RtRecCode}", 'InfoSystem');
+		$Data->Data['Items'][$MyRow->TeamEvent]["$MyRow->RecCategory-$MyRow->RtRecCode"][]=$MyRow;
+		$Data->SubSections[$MyRow->TeamEvent]["$MyRow->RecCategory-$MyRow->RtRecCode"]=$MyRow->RecCategoryName . ' - ' . $MyRow->TrHeader;
 		if(!empty($MyRow->DocVersion)) {
 			$Data->DocVersion=$MyRow->DocVersion;
 			$Data->DocVersionDate=$MyRow->DocVersionDate;
@@ -788,7 +844,7 @@ function getCountriesList($ORIS='') {
 		$Data->Header=array("", get_text('Country'), get_text('Nation'));
 	}
 
-	$MyQuery = getCountryList($ORIS);
+	$MyQuery = getCountryList();
 
 	//echo $MyQuery;exit;
 	$Rs=safe_r_sql($MyQuery);
@@ -1157,30 +1213,31 @@ function getQualificationIndividual($EventRequested='', $ORIS=false, $ShowRecord
 function getEliminationIndividual($EventRequested='', $ORIS=false) {
 	$Data=new StdClass();
 
-
-	if(!empty($_SESSION['MenuElimPoolDo'])) {
-		if(!$EventRequested and isset($_REQUEST['Event'])) {
-			$EventRequested=$_REQUEST['Event'];
+	$options=array();
+	if($EventRequested) {
+		if(is_array($EventRequested)) {
+            foreach($EventRequested as $evRaw) {
+                if(strpos($evRaw,'@')) {
+                    if(!array_key_exists('eventR',$options)) {
+                        $options['eventsR']=array();
+                    }
+                    $options['eventsR'][] = $evRaw;
+                } else {
+                    if(!array_key_exists('events',$options)) {
+                        $options['events']=array();
+                    }
+                    $options['events']=array($evRaw);
+                }
+            }
+		} elseif(strpos($EventRequested,'@')) {
+            $options['eventR']=array($EventRequested);
+        } else {
+			$options['events']=array($EventRequested);
 		}
-		$Data=getStartList($ORIS, $EventRequested, true);
-	} else {
-		$options=array();
-		if(isset($_REQUEST["Event"]))
-			$options['eventsR'] = $_REQUEST["Event"];
-		if($EventRequested) {
-			if(is_array($EventRequested)) {
-				$options['events']=$EventRequested;
-			} else {
-				$options['events']=array($EventRequested);
-			}
-		}
-
-		$family='ElimInd';
-
-		$rank=Obj_RankFactory::create($family,$options);
-		$rank->read();
-		$Data->rankData=$rank->getData();
 	}
+	$rank=Obj_RankFactory::create('ElimInd',$options);
+	$rank->read();
+	$Data->rankData=$rank->getData();
 
 	$Data->Code='C73A';
 	$Data->Order='1';
@@ -1191,9 +1248,37 @@ function getEliminationIndividual($EventRequested='', $ORIS=false) {
 	}
 	$Data->NumberThousandsSeparator = get_text('NumberThousandsSeparator');
 	$Data->NumberDecimalSeparator = get_text('NumberDecimalSeparator');
+    $Data->ShootOffArrows=get_text('ShootOffArrows','Tournament');
 	$Data->ShotOffShort=get_text('ShotOffShort','Tournament');
 	$Data->CoinTossShort=get_text('CoinTossShort','Tournament');
 	$Data->Continue=get_text('Continue');
+    $Data->Judge=get_text('Judge','Tournament');
+    $Data->Winner=get_text('Winner');
+    $Data->TargetShort=get_text('TargetShort','Tournament');
+	$Data->IndexName=get_text('Elimination');
+
+	return $Data;
+}
+
+function getEliminationPoolIndividual($EventRequested='', $ORIS=false, $isPool=4, $BySchedule=false) {
+	$Data=getStartList($ORIS, $EventRequested, true,false, $isPool, $BySchedule);
+
+	$Data->Code='C73A';
+	$Data->Order='1';
+	if(!$ORIS) {
+		$Data->Description=get_text('Elimination');
+	} else {
+		$Data->Description='Results';
+	}
+	$Data->NumberThousandsSeparator = get_text('NumberThousandsSeparator');
+	$Data->NumberDecimalSeparator = get_text('NumberDecimalSeparator');
+    $Data->ShootOffArrows=get_text('ShootOffArrows','Tournament');
+	$Data->ShotOffShort=get_text('ShotOffShort','Tournament');
+	$Data->CoinTossShort=get_text('CoinTossShort','Tournament');
+	$Data->Continue=get_text('Continue');
+    $Data->Judge=get_text('Judge','Tournament');
+    $Data->Winner=get_text('Winner');
+    $Data->TargetShort=get_text('TargetShort','Tournament');
 	$Data->IndexName=get_text('Elimination');
 
 	return $Data;
@@ -1240,7 +1325,7 @@ function getQualificationTeam($EventRequested='', $ORIS=false, $ShowRecords=fals
 function getBracketsIndividual($EventRequested='', $ORIS=false, $ShowTargetNo=true, $ShowSchedule=true, $ShowSetArrows=true, $ShowRecords=false) {
 	$Data=new StdClass();
 
-	$Data->Code='C75B';
+	$Data->Code='C75A';
 	$Data->Description='Result Brackets';
 	$Data->Final=get_text('0_Phase');
 	$Data->Bronze=get_text('1_Phase');
@@ -1250,6 +1335,11 @@ function getBracketsIndividual($EventRequested='', $ORIS=false, $ShowTargetNo=tr
 	$Data->ShowSchedule = $ShowSchedule;
 	$Data->ShowSetArrows= $ShowSetArrows;
 	$Data->IndexName=get_text('FinalBracketsInd', 'Tournament');
+
+	$Data->ScoreCode='C73D';
+	$Data->ScoreDescription='';
+	$Data->ScorePhase=get_text('ScorecardsInd', 'Tournament');
+	$Data->ScoreIndexName=get_text('ScorecardsInd', 'Tournament');
 
 	if(!$ORIS) {
 		$Data->Description=get_text('BracketsInd');
@@ -1271,7 +1361,7 @@ function getBracketsIndividual($EventRequested='', $ORIS=false, $ShowTargetNo=tr
 function getRankingIndividual($EventRequested='', $ORIS=false, $ShowRecords=false) {
 	$Data=new StdClass();
 
-	$Data->Code='C74A';
+	$Data->Code='C76A';
 	$Data->Description='Results Summary';
 	$Data->Phase=get_text('FinalRankInd', 'Tournament');
 	$Data->Bye=get_text('Bye');
@@ -1302,7 +1392,7 @@ function getRankingIndividual($EventRequested='', $ORIS=false, $ShowRecords=fals
 function getRankingTeams($EventRequested='', $ORIS=false, $ShowRecords=false) {
 	$Data=new StdClass();
 
-	$Data->Code='C74B';
+	$Data->Code='C76B';
 	$Data->Description='Results Summary';
 	$Data->Phase=get_text('FinalRankTeams', 'Tournament');
 	$Data->NumberThousandsSeparator = get_text('NumberThousandsSeparator');
@@ -1331,7 +1421,7 @@ function getRankingTeams($EventRequested='', $ORIS=false, $ShowRecords=false) {
 function getBracketsTeams($EventRequested='', $ORIS=false, $ShowTargetNo=true, $ShowSchedule=true, $ShowSetArrows=true, $ShowRecords=false) {
 	$Data=new StdClass();
 
-	$Data->Code='C75C';
+	$Data->Code='C75B';
 	$Data->Description='Result Brackets';
 	$Data->Phase="Final Round";
 	$Data->Final=get_text('0_Phase');
@@ -1341,6 +1431,10 @@ function getBracketsTeams($EventRequested='', $ORIS=false, $ShowTargetNo=true, $
 	$Data->ShowSchedule = $ShowSchedule;
 	$Data->ShowSetArrows= $ShowSetArrows;
 	$Data->IndexName=get_text('FinalBracketsTeam', 'Tournament');
+	$Data->ScoreCode='C73E';
+	$Data->ScoreDescription='';
+	$Data->ScorePhase=get_text('ScorecardsTeams', 'Tournament');
+	$Data->ScoreIndexName=get_text('ScorecardsTeams', 'Tournament');
 
 	if(!$ORIS) {
 		$Data->Description=get_text('BracketsSq');
@@ -1532,7 +1626,8 @@ function getMedalStand($ORIS=false, $TourId=0) {
 	$rank->read();
 	$rankData=$rank->getData();
 	foreach($rankData['sections'] as $Event => $section) {
-		if(count($section['items']) < 3) continue;
+		/// changed explicitly since Fazza 2021: from full podium to at least one!
+		if(count($section['items']) == 0) continue;
 		if($section['meta']['medals']) {
 			$Data->OdfTotalEvents++;
 			foreach($section['items'] as $item) {
@@ -1806,6 +1901,83 @@ function odfTotComp($a, $b) {
 }
 
 function getScoQuals() {
-	$_REQUEST["GetScorecardAsString"]=true;
-	require_once('Qualification/PDFScore.php');
+	$pdf=CreateSessionScorecard('ONLINE');
+	return (object) array(
+		'filename' => 'QUALCARDS',
+		'name' => get_text('ScorecardsQual','Tournament'),
+		'order' => 40,
+		'update' => $pdf->LastUpdate,
+		'pdf' => $pdf->Output('', 'S'));
+}
+
+function getSchedule($Order=10, $Name='') {
+	//error_reporting(E_ERROR);
+	require_once('Common/Lib/Fun_Scheduler.php');
+	require_once('Common/Lib/Fun_Modules.php');
+
+	$Schedule = new Scheduler();
+	$Schedule->Finalists=true;
+
+	if($PageBreaks=getModuleParameter('Schedule', 'PageBreaks')) {
+		$Schedule->PageBreaks=explode(',', $PageBreaks);
+	}
+
+	$pdf = $Schedule->getSchedulePDF();
+
+	return (object) array(
+		'filename' => 'SCHEDULE.pdf',
+		'name' => $Name ? $Name : $pdf->Title.($pdf->Version ? ' - v'.$pdf->Version : ''),
+		'order' => $Order ? $Order : 10,
+		'update' =>  date('Y-m-d H:i:s',$Schedule->SchedVersionDate ? strtotime($Schedule->SchedVersionDate) : time()),
+		'pdf' => $pdf->Output('', 'S'));
+}
+
+function getFop($Order=10, $Name='') {
+	//error_reporting(E_ERROR);
+	require_once('Common/Lib/Fun_Scheduler.php');
+	require_once('Common/Lib/Fun_Modules.php');
+
+	$FopLocations=Get_Tournament_Option('FopLocations', array());
+	$DaysToPrint=array();
+	foreach(range(0,  intval(($_SESSION['ToWhenToUTS']-$_SESSION['ToWhenFromUTS'])/86400)) as $n) {
+		$DaysToPrint[]=date('Y-m-d', $_SESSION['ToWhenFromUTS'] + $n*86400);
+	}
+
+	// defines the Locations (these will be printed on a single page)
+	$LocationsToPrint=array();
+	if(!$FopLocations) {
+		// prints everything in a single location
+		$tmp=new stdClass();
+		$tmp->Loc='';
+		$tmp->Tg1=1;
+		$tmp->Tg2=99999;
+		$LocationsToPrint[]=$tmp;
+	} else {
+		$LocationsToPrint=$FopLocations;
+	}
+
+	$Scheduler=new Scheduler();
+	$Scheduler->SplitLocations=true;
+	$Scheduler->DaysToPrint=$DaysToPrint;
+	$Scheduler->LocationsToPrint=$LocationsToPrint;
+
+	$pdf=$Scheduler->FOP(false);
+
+	return (object) array(
+		'filename' => 'FOP.pdf',
+		'name' => $Name ? $Name : $pdf->Title.($pdf->Version ? ' - v'.$pdf->Version : ''),
+		'order' => $Order ? $Order : 10,
+		'update' => date('Y-m-d H:i:s',$Scheduler->FopVersionDate ? strtotime($Scheduler->FopVersionDate) : time()),
+		'pdf' => $pdf->Output('', 'S'));
+}
+
+function getGenericPdf($File, $Name, $Order=10) {
+	//error_reporting(E_ERROR);
+
+	return (object) array(
+		'filename' => $File['name'],
+		'name' => $Name,
+		'order' => $Order ? $Order : 10,
+		'update' => date('Y-m-d H:i:s'),
+		'pdf' => file_get_contents($File['tmp_name']));
 }

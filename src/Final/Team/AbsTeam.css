@@ -1,0 +1,84 @@
+.so-status {
+    font-size: 10px;
+    display:inline-block;
+    width:2em;
+    height:2em;
+    border-radius: 1.1em;
+    border:solid 1px darkred;
+    text-align:center;
+    color:#bbb;
+    background-color:darkgreen;
+    line-height: 2em;
+    font-weight: bold;
+    margin:0 0.25em;
+}
+
+.so-status.notsolved {
+    background-color:red;
+}
+
+.warningMsg {
+    font-size: 1.5em;;
+    padding: 0.5em;
+    font-weight: bold;
+}
+
+.smallContainer {
+    width: 2vw;
+    padding: 0.5em;
+}
+
+.evContainer {
+    min-width: 20vw;
+}
+
+.soctContainer {
+    min-width: 8vw;
+    white-space: nowrap;
+}
+
+.soctPdf {
+    width: 2vw;
+    text-align: center;
+}
+
+.evCodeContainer {
+    width: 5vw;
+    font-weight: bold;
+    text-align: center;
+}
+
+.btnContainer {
+    text-align: center;
+    max-width: 55vw;
+}
+
+input[type="number"] {
+    width:4em;
+    text-align: right;
+}
+input[type="text"] {
+    width:2em;
+    text-align: right;
+}
+
+.closeButton {
+    background-color:darkgreen;
+    border:1px solid darkgreen;
+    color: white;
+    border-radius:0.25em;
+    font-size: 1.5em;
+    padding: 0.5em 3em;
+    font-weight: bold;
+}
+
+.jconfirm-content{
+    font-size: 1.5em;
+}
+
+.SoCell {
+    display: flex;
+    align-items: center;
+    }
+.SoCell > div > div {padding:0.1em 0;}
+.SoRow span {margin-right:0.5em;}

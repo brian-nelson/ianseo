@@ -1,7 +1,8 @@
 <?php
 
 $AppMinVersion='0.8.5';
-$AppMaxVersion='1.9.9';
+$AppMaxVersion='2.99.99';
+$SKIP_AUTH=true;
 
 /*
  * Flags meaning for IskDvState
@@ -21,6 +22,7 @@ require_once(dirname(__FILE__).'/Lib.php');
 
 $CompId = 0;
 $CompCode = (empty($_REQUEST['compcode']) ? '' : $_REQUEST['compcode']);
+$CompPin = '';
 $DeviceId = (empty($_REQUEST['devid']) ? '' : $_REQUEST['devid']);
 $DEVICE=''; // will contain all data from IskDevices!
 
@@ -32,6 +34,10 @@ if(!defined('IN_IANSEO') and empty($_REQUEST["callback"])) die();
 if(!$CompCode) {
 	if(empty($SkipCompCode)) SendResult(array('error' => get_text('ISK-NoCompCode', 'Api')));
 } else {
+    if(($sepPosition = strpos($CompCode,'|'))!==false) {
+        $CompPin=substr($CompCode,$sepPosition+1);
+        $CompCode=substr($CompCode,0,$sepPosition);
+    }
 	$CompId=getIdFromCode($CompCode);
 	if(!$CompId) SendResult(array('error' => get_text('ISK-BadCompCode', 'Api')));
 }
@@ -41,23 +47,33 @@ $iskAppPro=false; // device type
 $iskStopAutoImport = 0;
 $iskStickyEnds = array();
 if(empty($SkipCompCode)) {
+    //Check PIN
+    $tmpPin = getModuleParameter('ISK', 'ServerUrlPin', '', $CompId);
+    if(!empty($tmpPin) AND $CompPin != $tmpPin) {
+        die();
+    }
 	//Get Isk Options
 	if($tmp=getModuleParameter('ISK', 'Mode', '', $CompId)) {
-		if($tmp=='pro') $iskModePro = true;
+		if($tmp=='pro') {
+            $iskModePro = true;
+        }
 	} else {
 		die();
 	}
 	$iskStopAutoImport=getModuleParameter('ISK', 'StopAutoImport', 0, $CompId);
 	$iskStickyEnds=getModuleParameter('ISK', 'StickyEnds', array(), $CompId);
+	define('IMPORT_TYPE', $iskModePro ? 0 : getModuleParameter('ISK', 'ImportType', 0, $CompId));
+    define('RKCALC_DivClI', $iskModePro ? 0 : getModuleParameter('ISK','CalcClDivInd',0, $CompId));
+    define('RKCALC_DivClT', $iskModePro ? 0 : getModuleParameter('ISK','CalcClDivTeam',0, $CompId));
+    define('RKCALC_FinI', $iskModePro ? 0 : getModuleParameter('ISK','CalcFinInd',0, $CompId));
+    define('RKCALC_FinT', $iskModePro ? 0 : getModuleParameter('ISK','CalcFinTeam',0, $CompId));
 }
 
 if(empty($SkipDeviceCheck) and !defined('IN_IANSEO') and !checkDeviceApp(empty($SkipCompCode))) die();
 
 function SendResult($Result) {
 	if(defined('IN_IANSEO')) return($Result);
-
 	UpdateLastSeen();
-
 	JsonOut($Result, 'callback');
 }
 
@@ -113,8 +129,9 @@ function getQrCode($States = '1,2,3') {
 		}
 
 		// gets infos from device
+        $tmpPin=getModuleParameter('ISK', 'ServerUrlPin', '', $r->IskDvTournament);
 		$Opts['u']=getModuleParameter('ISK', 'ServerUrl', '', $r->IskDvTournament).$CFG->ROOT_DIR; // .'Api/ISK-Lite/';
-		$Opts['c']=$r->ToCode;
+		$Opts['c']=$r->ToCode . (empty($tmpPin) ? '' : '|'.$tmpPin);
 
 		switch ($tmp["type"]) {
 			case 'Q':
@@ -133,15 +150,18 @@ function getQrCode($States = '1,2,3') {
 				break;
 			case 'E':
 				// check if there is a target assigned to that target...
-				$q=safe_r_sql("select ElId from Eliminations inner join Entries on QuId=EnId and EnTournament={$r->IskDvTournament} where QuSession='{$tmp["session"]}' and substr(QuTargetNo, -4,3)+0= $r->IskDvTarget");
+				$q=safe_r_sql("select ElId, ElEventCode 
+					from Eliminations 
+					where ElTournament={$r->IskDvTournament} and ElSession='{$tmp["session"]}' and ElElimPhase={$tmp['distance']} and substr(ElTargetNo, -4,3)+0= $r->IskDvTarget");
 				if(!safe_num_rows($q)) {
 					// no available targets !
 					SendResetIsk($r->IskDvCode, $r->IskDvVersion, $r->IskDvAppVersion);
 				}
-				$Opts['st'] = 'Q';
-				$Opts['s'] = (string) $tmp["session"];
-				$Opts['d'] = (string) $tmp["distance"];
-				$Opts['t'] = str_pad($r->IskDvTarget,3,"0",STR_PAD_LEFT);
+				$r2=safe_fetch($q);
+				$Opts['st'] = 'E'.($tmp['distance']+1);
+				$Opts['s'] = (string) $r2->ElEventCode;
+				$Opts['d'] = '1';
+				$Opts['t'] = 'E'.($tmp['distance']+1).'|'.$r2->ElEventCode.'|'.str_pad($r->IskDvTarget,3,"0",STR_PAD_LEFT);
 				if(intval($tmp["end"]))
 					$Opts['e'] = (string) $tmp["end"];
 				break;
@@ -180,10 +200,10 @@ function checkDeviceApp($chkCompetition) {
 		$Version=(empty($_REQUEST['version']) ? '' : preg_replace('/[^a-z0-9.-]/sim', '', $_REQUEST['version']));
 		$AppVersion=(empty($_REQUEST['t']) || $_REQUEST['t']!='p' ? 0 : 1);
 		if($AppVersion) $iskAppPro=true;
-		$iskCode="a0";
+		$iskCode="0001";
 		$q=safe_r_sql("SELECT IskDvCode FROM IskDevices ORDER BY IskDvCode DESC");
 		if($r=safe_fetch($q)) {
-			$iskCode = base_convert(base_convert($r->IskDvCode,36,10)+1,10,36);
+			$iskCode = str_pad(base_convert(base_convert($r->IskDvCode,36,10)+1,10,36),4,'0',STR_PAD_LEFT);
 		}
 		safe_w_SQL("INSERT INTO IskDevices
 			(IskDvTournament, IskDvDevice, IskDvCode, IskDvVersion, IskDvAppVersion, IskDvState, IskDvIpAddress, IskDvLastSeen) VALUES
@@ -233,13 +253,18 @@ function UpdateLastSeen() {
 		WHERE IskDvDevice='{$DeviceId}'");
 }
 
-function getQualificationTotals($EnId, $dist=1, $end=1, $arr4End, $end4Dist, $G, $X9) {
+function getQualificationTotals($EnId, $dist=1, $end=1, $arr4End, $end4Dist, $G, $X9, $StartTarget=null) {
 	global $CompId;
 	$res=array('curendscore'=>0,'curscore'=>0,'curscoreatend'=>0,'curgold'=>0,'curxnine'=>0,'score'=>0,'scoreatend'=>0,'gold'=>0,'xnine'=>0);
 	$SQL = "SELECT QuTargetNo, QuScore, QuGold, QuXnine, QuD{$dist}Score as dScore, QuD{$dist}Gold as dGold, QuD{$dist}Xnine as dXnine, QuD{$dist}Arrowstring as dArrowstring, (";
 	for($i=1;$i<$dist;$i++)
 		$SQL .= "QuD{$i}Score+";
-	$SQL .= "0) as prevScore FROM Qualifications WHERE QuId={$EnId}";
+	$SQL .= "0) as prevScore, max(DiDistance) as MaxDistance, group_concat(DiEnds*DiArrows order by DiDistance separator '|') as PadArrows,
+       		QuD1Arrowstring, QuD2Arrowstring, QuD3Arrowstring, QuD4Arrowstring, QuD5Arrowstring, QuD6Arrowstring, QuD7Arrowstring, QuD8Arrowstring
+       		FROM Qualifications 
+       		innser join DistanceInformation on DiTournament=$CompId and DiType='Q' and DiSession=QuSession
+       		WHERE QuId={$EnId}
+       		group by QuId";
 	$q=safe_r_sql($SQL);
 	if($r=safe_fetch($q)) {
 		$curArrowString=str_repeat(" ", $arr4End * $end4Dist);
@@ -256,6 +281,7 @@ function getQualificationTotals($EnId, $dist=1, $end=1, $arr4End, $end4Dist, $G,
 				$curArrowString[$i]=$r->dArrowstring[$i];
 			}
 		}
+
 		$tmp = ValutaArrowStringGX($curArrowString, $G, $X9);
 		$res['curendarrstr']  = substr($curArrowString,($end-1)*$arr4End, $arr4End);
 		$res['tilendarrstr']  = substr($curArrowString, 0, $end*$arr4End);
@@ -269,6 +295,32 @@ function getQualificationTotals($EnId, $dist=1, $end=1, $arr4End, $end4Dist, $G,
 		$res['scoreatend']    = $r->prevScore+$res['curscoreatend'];
 		$res['gold']          = $r->QuGold-$r->dGold+$res['curgold'];
 		$res['xnine']         = $r->QuXnine-$r->dXnine+$res['curxnine'];
+		$res['prevendscored'] = ($end==1 || (trim(substr($curArrowString, $arr4End*($end-2), $arr4End)) !=''));
+
+		$res['arrowstrings']  = array();
+		$PadArrows=explode('|', $r->PadArrows);
+		foreach(range(1,$r->MaxDistance) as $d) {
+			if($d==$dist) {
+				$res['arrowstrings'][]=str_pad($curArrowString, $PadArrows[$d-1], ' ', STR_PAD_RIGHT);
+			} else {
+				$res['arrowstrings'][]=str_pad($r->{'QuD'.$d.'Arrowstring'}, $PadArrows[$d-1], ' ', STR_PAD_RIGHT);
+			}
+		}
+
+		if(!is_null($StartTarget)) {
+			// Field/3d, so we need to "circle" the arrowstring and the endnum to have the correct "alignment" with target archery
+			$StartTarget=(($StartTarget-1)%$end4Dist)+1;
+			$NewArrowstring=substr($curArrowString, $arr4End*($StartTarget-1)).substr($curArrowString, 0,$arr4End*($StartTarget-1));
+			$NewEndNum=(($end+$end4Dist-$StartTarget)%$end4Dist)+1;
+
+			$PrevTotal=ValutaArrowString(substr($NewArrowstring, 0, $NewEndNum*$arr4End));
+			// Field or 3D, "circular" scorecard so need to adjust scores adding the already scored ends
+			//$res['tilendarrstr']  = substr($curArrowString, 0, $end*$arr4End).$res['tilendarrstr'];
+			$res['curscoreatend'] =$PrevTotal;
+			$res['scoreatend']    =$r->prevScore+$PrevTotal;
+			$res['prevendscored'] = ($end==1 || (trim(substr($res['tilendarrstr'],-2*$arr4End)) !=''));
+			$res['prevendscored'] = ($NewEndNum==1 || (trim(substr($NewArrowstring, $arr4End*($NewEndNum-2), $arr4End)) !=''));
+		}
 	}
 	return $res;
 }
@@ -296,7 +348,7 @@ function importQualifications($EnId, $dist=1, $end=1) {
 		$Gold=0;
 		$XNine=0;
 		list($Score,$Gold,$XNine)=ValutaArrowStringGX($arrowString,$r->ToGoldsChars,$r->ToXNineChars);
-		
+
 		// Remove spaces from arrowstring and calc the hits using the actual # of arrows
 		$trimmedArrowString = preg_replace("/[^a-zA-Z0-9]+/", "", $arrowString);
 		$hits = strlen($trimmedArrowString);
@@ -319,35 +371,38 @@ function importQualifications($EnId, $dist=1, $end=1) {
 		require_once('Qualification/Fun_Qualification.local.inc.php');
 		$oldSes = (!empty($_SESSION["TourId"]) ? $_SESSION["TourId"] : 0);
 		$_SESSION["TourId"]=$CompId;
-		if($r->EnIndClEvent!=0) {
-			Obj_RankFactory::create('DivClass',array('tournament'=>$CompId,'events'=>$r->EnDivision.$r->EnClass,'dist'=>$dist))->calculate();
-			Obj_RankFactory::create('DivClass',array('tournament'=>$CompId,'events'=>$r->EnDivision.$r->EnClass,'dist'=>0))->calculate();
-		}
-		if($r->EnTeamClEvent!=0) {
-			MakeTeams($r->TeamCode, $r->EnDivision.$r->EnClass, $CompId);
-		}
 
-		$SQL = "SELECT DISTINCT EvCode, EvTeamEvent, EvTeamCreationMode
-			FROM Events
-			INNER JOIN EventClass ON EvCode=EcCode AND EvTeamEvent=if(EcTeamEvent=0, 0, 1) AND EvTournament=EcTournament
-			WHERE EvTournament={$CompId} AND EcClass='{$r->EnClass}' AND EcDivision='{$r->EnDivision}' and if(EcSubClass='', true, EcSubClass='{$r->EnSubClass}')
-			ORDER BY EvTeamEvent, EvCode";
-		$q2=safe_r_sql($SQL);
-		while($r2=safe_fetch($q2)) {
-			if($r2->EvTeamEvent==0 && $r->EnIndFEvent!=0) {
-				Obj_RankFactory::create('Abs',array('tournament'=>$CompId,'events'=>$r2->EvCode,'dist'=>$dist))->calculate();
-				Obj_RankFactory::create('Abs',array('tournament'=>$CompId,'events'=>$r2->EvCode,'dist'=>0))->calculate();
-				ResetShootoff($r2->EvCode,0,0, $CompId);
-			} else {
-				if($r->EnTeamFEvent!=0) {
-					$calculateTeam=$r->TeamCode;
-					if($r2->EvTeamCreationMode==1)
-						$calculateTeam=$r->EnCountry;
-					elseif($r2->EvTeamCreationMode==2)
-						$calculateTeam=$r->EnCountry2;
-					elseif($r2->EvTeamCreationMode==3)
-						$calculateTeam=$r->EnCountry3;
-					MakeTeamsAbs($calculateTeam, $r->EnDivision, $r->EnClass, $CompId);
+        if(defined('RKCALC_DivClI') AND RKCALC_DivClI==0 AND $r->EnIndClEvent != 0) {
+            Obj_RankFactory::create('DivClass', array('tournament' => $CompId, 'events' => $r->EnDivision . $r->EnClass, 'dist' => $dist))->calculate();
+            Obj_RankFactory::create('DivClass', array('tournament' => $CompId, 'events' => $r->EnDivision . $r->EnClass, 'dist' => 0))->calculate();
+        }
+        if(defined('RKCALC_DivClT') AND RKCALC_DivClI==0 AND $r->EnTeamClEvent != 0) {
+            MakeTeams($r->TeamCode, $r->EnDivision.$r->EnClass, $CompId);
+        }
+
+        if((defined('RKCALC_FinI') AND RKCALC_FinI==0) OR (defined('RKCALC_FinT') AND RKCALC_FinT==0)) {
+			$SQL = "SELECT DISTINCT EvCode, EvTeamEvent, EvTeamCreationMode
+				FROM Events
+				INNER JOIN EventClass ON EvCode=EcCode AND EvTeamEvent=if(EcTeamEvent=0, 0, 1) AND EvTournament=EcTournament
+				WHERE EvTournament={$CompId} AND EcClass='{$r->EnClass}' AND EcDivision='{$r->EnDivision}' and if(EcSubClass='', true, EcSubClass='{$r->EnSubClass}')
+				ORDER BY EvTeamEvent, EvCode";
+			$q2=safe_r_sql($SQL);
+			while($r2=safe_fetch($q2)) {
+				if(defined('RKCALC_FinI') AND RKCALC_FinI==0 AND $r2->EvTeamEvent==0 AND $r->EnIndFEvent!=0) {
+					Obj_RankFactory::create('Abs',array('tournament'=>$CompId,'events'=>$r2->EvCode,'dist'=>$dist))->calculate();
+					Obj_RankFactory::create('Abs',array('tournament'=>$CompId,'events'=>$r2->EvCode,'dist'=>0))->calculate();
+					ResetShootoff($r2->EvCode,0,0, $CompId);
+				}
+                if(defined('RKCALC_FinT') AND RKCALC_FinT==0 AND $r2->EvTeamEvent==1 AND $r->EnTeamFEvent!=0) {
+                    $calculateTeam=$r->TeamCode;
+                    if($r2->EvTeamCreationMode==1) {
+                        $calculateTeam=$r->EnCountry;
+                    } elseif($r2->EvTeamCreationMode==2) {
+                        $calculateTeam=$r->EnCountry2;
+                    } elseif($r2->EvTeamCreationMode==3) {
+                        $calculateTeam=$r->EnCountry3;
+                    }
+                    MakeTeamsAbs($calculateTeam, $r->EnDivision, $r->EnClass, $CompId);
 				}
 			}
 		}
@@ -428,7 +483,9 @@ function importMatches ($Event, $MatchNo, $IndTeam, $end, $arr4End, $end4Match, 
 			}
 		}
 		$startPos = (($isSO ? ($arr4End*$end4Match) : 0) +1);
-		UpdateArrowString($MatchNo, $Event, $IndTeam, $arrowString, $startPos, ($startPos+($isSO ? $arr4So : $arr4End*$end4Match)-1), $CompId);
+		// manage the closest to center
+		$Closest= ($isSO and $arrowString!=strtoupper($arrowString));
+		UpdateArrowString($MatchNo, $Event, $IndTeam, $arrowString, $startPos, ($startPos+($isSO ? $arr4So : $arr4End*$end4Match)-1), $CompId, $Closest);
 
 		$Update = "DELETE FROM IskData
 			WHERE IskDtTournament={$CompId} AND IskDtMatchNo={$MatchNo} AND IskDtEvent='{$Event}' AND IskDtTeamInd={$IndTeam} AND IskDtType='" . ($IndTeam==0 ? 'I':'T') . "'

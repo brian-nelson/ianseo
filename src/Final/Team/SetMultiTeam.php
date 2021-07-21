@@ -14,7 +14,8 @@
 	} else {
 		$Update
 			= "UPDATE Events SET "
-			. "EvMultiTeam=" . StrSafe_DB($_REQUEST['EvMulti']) . " "
+			. "EvMultiTeam=" . StrSafe_DB($_REQUEST['EvMulti']) . ", "
+            . "EvMultiTeamNo=" . StrSafe_DB($_REQUEST['NumMulti']) . " "
 			. "WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode']) . " AND EvTeamEvent='1' AND "
 			. "EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " ";
 		$Rs=safe_w_sql($Update);

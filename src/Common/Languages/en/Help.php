@@ -1,6 +1,15 @@
 <?php
+$lang['AutoImportSettings']='<b>Only for Expert Users</b><br>Changing the default behavior should result in inaccurate results.<br>
+It is important to recalculate all the ranks that has been setup as "manually" BEFORE sending to ianseo.net or printing  results and in general before every distribution of any kind.';
+$lang['ChangeComponents']='<p>To proceed with a change first remove the athletes that is not in the team any more in order to activate the possible options.</p>
+&#9654&nbsp;Score included in the total of team qualification round<br>
+&#9655&nbsp;Score not included in the total of team qualification round';
 $lang['GetBarcodeSeparator']='After printing the barcodes reference sheet, read the «SEPARATOR» barcode in order to activate the correct reader items.';
 $lang['HomePage']='This is the page where you can select or create a tournament.';
+$lang['ISK-LockedSessionHelp']='{$a} icons show if the app can score or not in that session.';
+$lang['ISK-ServerUrlPin']='<b>DO NOT SHARE THIS NUMBER</b><br>Use a PIN of your choice (4 Numeric Digits) to be used to access your competition.<br>
+Devices can score in your competition only reading the QR-Code printed by IANSEO.<br>
+In case of manual input in Ianseo Scorekeeper LITE app, the Competition code to use is <b>{$a}</b>';
 $lang['ScoreBarCodeShortcuts']='Read the barcode printed on the scorecard.<br/>
 Inserting manually a # followed by the name of the athlete searches the database to find that athlete<br/>
 Inserting a @ followed by a target number searches for that target. Distance MUST be set. Session should be specified (first digit) and target is 0-padded to 3 digits.';

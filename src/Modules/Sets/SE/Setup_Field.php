@@ -16,37 +16,37 @@ CreateStandardClasses($TourId, $SubRule, 'FIELD'); // $SubRule force to 1 (ALL C
 switch($TourType) {
 	case 10:
 	case 12:
-		CreateDistance($TourId, $TourType, '_K_', 'Omärkt-Vit', 'Märkt-Vit');
-		CreateDistance($TourId, $TourType, 'RE_', 'Omärkt-Röd', 'Märkt-Röd');
-		CreateDistance($TourId, $TourType, 'RC_', 'Omärkt-Svt', 'Märkt-Svt');
-		CreateDistance($TourId, $TourType, 'RJ_', 'Omärkt-Röd', 'Märkt-Röd');
-		CreateDistance($TourId, $TourType, 'RS_', 'Omärkt-Blå', 'Märkt-Blå');
-		CreateDistance($TourId, $TourType, 'RM_', 'Omärkt-Blå', 'Märkt-Blå');
-		CreateDistance($TourId, $TourType, 'RV_', 'Omärkt-Blå', 'Märkt-Blå');
-		CreateDistance($TourId, $TourType, 'BE_', 'Omärkt-Blå', 'Märkt-Blå');
-		CreateDistance($TourId, $TourType, 'BC_', 'Omärkt-SvV', 'Märkt-SvV');
-		CreateDistance($TourId, $TourType, 'BJ_', 'Omärkt-Blå', 'Märkt-Blå');
-		CreateDistance($TourId, $TourType, 'BS_', 'Omärkt-Svt', 'Märkt-Svt');
-		CreateDistance($TourId, $TourType, 'BM_', 'Omärkt-Svt', 'Märkt-Svt');
-		CreateDistance($TourId, $TourType, 'BV_', 'Omärkt-Svt', 'Märkt-Svt');
-		CreateDistance($TourId, $TourType, 'CE_', 'Omärkt-Röd', 'Märkt-Röd');
-		CreateDistance($TourId, $TourType, 'CC_', 'Omärkt-Svt', 'Märkt-Svt');
-		CreateDistance($TourId, $TourType, 'CJ_', 'Omärkt-Röd', 'Märkt-Röd');
-		CreateDistance($TourId, $TourType, 'CS_', 'Omärkt-Blå', 'Märkt-Blå');
-		CreateDistance($TourId, $TourType, 'CM_', 'Omärkt-Röd', 'Märkt-Röd');
-		CreateDistance($TourId, $TourType, 'CV_', 'Omärkt-Blå', 'Märkt-Blå');
-		CreateDistance($TourId, $TourType, 'LE_', 'Omärkt-Svt', 'Märkt-Svt');
-		CreateDistance($TourId, $TourType, 'LC_', 'Omärkt-SvV', 'Märkt-SvV');
-		CreateDistance($TourId, $TourType, 'LJ_', 'Omärkt-Svt', 'Märkt-Svt');
-		CreateDistance($TourId, $TourType, 'LS_', 'Omärkt-SvV', 'Märkt-SvV');
-		CreateDistance($TourId, $TourType, 'LM_', 'Omärkt-SvV', 'Märkt-SvV');
-		CreateDistance($TourId, $TourType, 'LV_', 'Omärkt-SvV', 'Märkt-SvV');
-		CreateDistance($TourId, $TourType, 'IE_', 'Omärkt-Svt', 'Märkt-Svt');
-		CreateDistance($TourId, $TourType, 'IC_', 'Omärkt-SvV', 'Märkt-SvV');
-		CreateDistance($TourId, $TourType, 'IJ_', 'Omärkt-Svt', 'Märkt-Svt');
-		CreateDistance($TourId, $TourType, 'IS_', 'Omärkt-SvV', 'Märkt-SvV');
-		CreateDistance($TourId, $TourType, 'IM_', 'Omärkt-SvV', 'Märkt-SvV');
-		CreateDistance($TourId, $TourType, 'IV_', 'Omärkt-SvV', 'Märkt-SvV');
+		CreateDistanceNew($TourId, $TourType, '_K_', array(array('Omärkt-Vit',0), array('Märkt-Vit',0)));
+		CreateDistanceNew($TourId, $TourType, 'RE_', array(array('Omärkt-Röd',0), array('Märkt-Röd',0)));
+		CreateDistanceNew($TourId, $TourType, 'RC_', array(array('Omärkt-Svt',0), array('Märkt-Svt',0)));
+		CreateDistanceNew($TourId, $TourType, 'RJ_', array(array('Omärkt-Röd',0), array('Märkt-Röd',0)));
+		CreateDistanceNew($TourId, $TourType, 'RS_', array(array('Omärkt-Blå',0), array('Märkt-Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'RM_', array(array('Omärkt-Blå',0), array('Märkt-Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'RV_', array(array('Omärkt-Blå',0), array('Märkt-Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'BE_', array(array('Omärkt-Blå',0), array('Märkt-Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'BC_', array(array('Omärkt-SvV',0), array('Märkt-SvV',0)));
+		CreateDistanceNew($TourId, $TourType, 'BJ_', array(array('Omärkt-Blå',0), array('Märkt-Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'BS_', array(array('Omärkt-Svt',0), array('Märkt-Svt',0)));
+		CreateDistanceNew($TourId, $TourType, 'BM_', array(array('Omärkt-Svt',0), array('Märkt-Svt',0)));
+		CreateDistanceNew($TourId, $TourType, 'BV_', array(array('Omärkt-Svt',0), array('Märkt-Svt',0)));
+		CreateDistanceNew($TourId, $TourType, 'CE_', array(array('Omärkt-Röd',0), array('Märkt-Röd',0)));
+		CreateDistanceNew($TourId, $TourType, 'CC_', array(array('Omärkt-Svt',0), array('Märkt-Svt',0)));
+		CreateDistanceNew($TourId, $TourType, 'CJ_', array(array('Omärkt-Röd',0), array('Märkt-Röd',0)));
+		CreateDistanceNew($TourId, $TourType, 'CS_', array(array('Omärkt-Blå',0), array('Märkt-Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'CM_', array(array('Omärkt-Röd',0), array('Märkt-Röd',0)));
+		CreateDistanceNew($TourId, $TourType, 'CV_', array(array('Omärkt-Blå',0), array('Märkt-Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'LE_', array(array('Omärkt-Svt',0), array('Märkt-Svt',0)));
+		CreateDistanceNew($TourId, $TourType, 'LC_', array(array('Omärkt-SvV',0), array('Märkt-SvV',0)));
+		CreateDistanceNew($TourId, $TourType, 'LJ_', array(array('Omärkt-Svt',0), array('Märkt-Svt',0)));
+		CreateDistanceNew($TourId, $TourType, 'LS_', array(array('Omärkt-SvV',0), array('Märkt-SvV',0)));
+		CreateDistanceNew($TourId, $TourType, 'LM_', array(array('Omärkt-SvV',0), array('Märkt-SvV',0)));
+		CreateDistanceNew($TourId, $TourType, 'LV_', array(array('Omärkt-SvV',0), array('Märkt-SvV',0)));
+		CreateDistanceNew($TourId, $TourType, 'IE_', array(array('Omärkt-Svt',0), array('Märkt-Svt',0)));
+		CreateDistanceNew($TourId, $TourType, 'IC_', array(array('Omärkt-SvV',0), array('Märkt-SvV',0)));
+		CreateDistanceNew($TourId, $TourType, 'IJ_', array(array('Omärkt-Svt',0), array('Märkt-Svt',0)));
+		CreateDistanceNew($TourId, $TourType, 'IS_', array(array('Omärkt-SvV',0), array('Märkt-SvV',0)));
+		CreateDistanceNew($TourId, $TourType, 'IM_', array(array('Omärkt-SvV',0), array('Märkt-SvV',0)));
+		CreateDistanceNew($TourId, $TourType, 'IV_', array(array('Omärkt-SvV',0), array('Märkt-SvV',0)));
 		break;
 }
 
@@ -67,7 +67,7 @@ switch($TourType) {
 		CreateTargetFace($TourId, $i++, 'Svart/vit påle', 'REG-^[B]{1,1}[C]{0,1}[HD]{1,1}', '1',  6, 0, 6, 0);
 		CreateTargetFace($TourId, $i++, 'Vit påle', 'REG-^[RCBLI]{1,1}[K]{1,1}[HD]{1,1}', '1',  6, 0, 6, 0);
 		/*
-		
+
 		CreateTargetFace($TourId, $i++, 'Blå påle', 'REG-^[B]{1,1}[HD]{1,1}', '1',  6, 0, 6, 0);
 		CreateTargetFace($TourId, $i++, 'Svart påle', 'REG-^[L]{1,1}[HD]{1,1}', '1',  6, 0, 6, 0);
 		CreateTargetFace($TourId, $i++, 'Red Peg', 'REG-^[CB]{1,1}[V]{1,1}[HD]{1,1}', '1',  6, 0, 6, 0);
@@ -78,7 +78,7 @@ switch($TourType) {
 		CreateTargetFace($TourId, $i++, 'Blå påle', 'REG-^[L]{1,1}[V]{1,1}[HD]{1,1}', '1',  6, 0, 6, 0);
 		CreateTargetFace($TourId, $i++, 'Svart påle', 'REG-^[R]{1,1}[V]{1,1}[HD]{1,1}', '1',  6, 0, 6, 0);
 		CreateTargetFace($TourId, $i++, 'Svart påle', 'REG-^[RCBL]{1,1}[J]{1,1}[HD]{1,1}', '1',  6, 0, 6, 0);
-		
+
 		*/
 		break;
 }

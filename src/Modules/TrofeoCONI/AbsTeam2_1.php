@@ -72,7 +72,7 @@
 
 				//print $Key . '-> ' . $index . ' ' . $kk . '<br>';
 				if (!array_key_exists($kk,$Ties))
-					$Ties[$kk]=str_pad('',9,' ');
+					$Ties[$kk]=str_pad('',15,' ');
 
 				$v=GetLetterFromPrint($Value);
 
@@ -89,11 +89,24 @@
 			foreach ($Ties as $Key=>$Value)
 			{
 				list($ee,$cc,$ss)=explode('_',$Key);
+				// by default the QUalification SO arrows are the same than the ones in Elimination!
+                $obj=getEventArrowsParams($ee,64, 1);
+                $Decoded=array();
+                $idx=0;
+                while($TbString=substr($Value, $idx, $obj->so)) {
+                    if($obj->so==1) {
+	                    $Decoded[]=DecodeFromLetter($TbString);
+                    } else {
+	                    $Decoded[]=ValutaArrowString($TbString);
+                    }
+                    $idx+=$obj->so;
+                }
 				$Update
 					= "UPDATE "
 						. "Teams "
 					. "SET "
 						. "TeTieBreak=" . StrSafe_DB($Value) . " "
+						. ", TeTieDecoded=" . StrSafe_DB(implode(',', $Decoded)) . " "
 					. "WHERE "
 						. "TeCoId=" . StrSafe_DB($cc) . " AND TeSubTeam=" . StrSafe_DB($ss) . " AND TeEvent=" . StrSafe_DB($ee) . " AND TeTournament=" . StrSafe_DB($_SESSION['TourId']) . " ";
 
@@ -358,7 +371,7 @@
 					}
 
 					$Select
-						= "SELECT DISTINCT TeCoId,TeSubTeam,TeEvent,TeTournament,TeFinEvent,TeScore AS Score,TeGold AS Gold,TeXnine AS XNine,TeTie,TeTieBreak,TeRank AS Rank,TeTieBreak,	/* Teams */ "
+						= "SELECT DISTINCT TeCoId,TeSubTeam,TeEvent,TeTournament,TeFinEvent,TeScore AS Score,TeGold AS Gold,TeXnine AS XNine,TeTie,TeTieBreak,TeRank AS `Rank`,TeTieBreak,	/* Teams */ "
 						. "CoCode,CoName, /* Countries */ "
 						. "sqY.QuantiPoss as NumGialli,sqR.QuantiPoss as NumRossi "
 						. "FROM Teams INNER JOIN Countries ON TeCoId=CoId AND TeFinEvent='1' AND TeTournament=CoTournament "

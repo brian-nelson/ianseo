@@ -356,52 +356,34 @@ function SetPartialTeam_Response()
 		SetStyle('d_EvPartialTeam','');
 }
 
-function SetMultiTeam(Event)
-{
-	if (XMLHttp)
-	{
-		try
-		{
-			if (XMLHttp.readyState==XHS_COMPLETE || XMLHttp.readyState==XHS_UNINIT)
-			{
-
-				var QueryString
-					= 'EvCode=' + Event
-					+ '&EvMulti=' + document.getElementById('d_EvMultiTeam').value;
-
+function SetMultiTeam(Event) {
+	if (XMLHttp) {
+		try {
+			if (XMLHttp.readyState==XHS_COMPLETE || XMLHttp.readyState==XHS_UNINIT) {
+				var isMulti = parseInt(document.getElementById('d_EvMultiTeam').value);
+				var numMulti = parseInt(document.getElementById('d_EvMultiTeamNo').value);
+				if(isMulti==0) {
+					document.getElementById('d_EvMultiTeamNo').value = 0;
+					numMulti =0;
+				}
+				var QueryString = 'EvCode=' + Event + '&EvMulti=' + isMulti + '&NumMulti=' + numMulti;
 				XMLHttp.open("GET","SetMultiTeam.php?" + QueryString,true);
 				XMLHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
 				XMLHttp.onreadystatechange=SetMultiTeam_StateChange;
 				XMLHttp.send(null);
 			}
-		}
-		catch (e)
-		{
+		} catch (e) {
  			document.getElementById('idOutput').innerHTML='Error: ' + e.toString();
 		}
 	}
 }
 
-function SetMultiTeam_StateChange()
-{
-	// se lo stato � Complete vado avanti
-	if (XMLHttp.readyState==XHS_COMPLETE)
-	{
-	// se lo status di HTTP � ok vado avanti
-		if (XMLHttp.status==200)
-		{
-			try
-			{
+function SetMultiTeam_StateChange() {
+	if (XMLHttp.readyState==XHS_COMPLETE) {
+		if (XMLHttp.status==200) {
+			try	{
 				SetMultiTeam_Response();
-			}
-			catch(e)
-			{
-// 				document.getElementById('idOutput').innerHTML+='<br>Error: ' + e.toString();
-			}
-		}
-		else
-		{
-//  			document.getElementById('idOutput').innerHTML+='<br>Error: ' +XMLHttp.statusText;
+			} catch(e) {}
 		}
 	}
 }
@@ -577,101 +559,6 @@ function SetTeamCreationMode_Response()
 		SetStyle('d_EvTeamCreationMode','warning');
 	else
 		SetStyle('d_EvTeamCreationMode','');
-}
-
-
-
-function UpdateParamsField(Field)
-{
-	if (XMLHttp)
-	{
-		if (Field && document.getElementById(Field) != null)
-		{
-			var FieldName = encodeURIComponent(Field);
-			var FieldValue= encodeURIComponent(document.getElementById(Field).value);
-			Cache.push(FieldName + "=" + FieldValue);
-		}
-
-		try
-		{
-
-			if ((XMLHttp.readyState==XHS_COMPLETE || XMLHttp.readyState==XHS_UNINIT) && Cache.length>0)
-			{
-				//var FieldValue = encodeURIComponent(document.getElementById(Field).value);
-				var FromCache = Cache.shift();
-
-				//XMLHttp.open("GET","UpdateFieldEventList.php?" + encodeURIComponent(Field) + "=" + FieldValue,true);
-				XMLHttp.open("POST","UpdateFieldEventList.php",true);
-				//document.getElementById('idOutput').innerHTML="UpdateFieldEventList.php?" + Field + "=" + FieldValue;
-				XMLHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-				XMLHttp.onreadystatechange=UpdateParamsField_StateChange;
-				XMLHttp.send(FromCache);
-			}
-
-		}
-		catch (e)
-		{
-		//	alert('Error: ' + e.toString());
-		}
-	}
-}
-
-function UpdateParamsField_StateChange()
-{
-	// se lo stato � Complete vado avanti
-	if (XMLHttp.readyState==XHS_COMPLETE)
-	{
-	// se lo status di HTTP � ok vado avanti
-		if (XMLHttp.status==200)
-		{
-			try
-			{
-				UpdateParamsField_Response();
-			}
-			catch(e)
-			{
-				//alert('Error: ' + e.toString());
-			}
-		}
-		else
-		{
-			//alert('Error: ' +XMLHttp.statusText);
-		}
-	}
-}
-
-function UpdateParamsField_Response()
-{
-	// leggo l'xml
-	var XMLResp=XMLHttp.responseXML;
-
-// intercetto gli errori di IE e Opera
-	if (!XMLResp || !XMLResp.documentElement)
-		throw("XML non valido:\n"+XMLResp.responseText);
-
-// Intercetto gli errori di Firefox
-	var XMLRoot;
-	if ((XMLRoot = XMLResp.documentElement.nodeName)=="parsererror")
-		throw("XML non valido:\n");
-
-	XMLRoot = XMLResp.documentElement;
-
-	var Error=XMLRoot.getElementsByTagName('error').item(0).firstChild.data;
-	var Which = XMLRoot.getElementsByTagName('which').item(0).firstChild.data;
-
-	if (Error==1)
-	{
-		SetStyle(Which,'error');
-	}
-	else
-	{
-		SetStyle(Which,'');
-
-
-	}
-
-	// per scaricare la cache degli update
-	setTimeout("UpdateParamsField()",500);
 }
 
 function enableSubclass(obj) {

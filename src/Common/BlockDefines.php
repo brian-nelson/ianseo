@@ -225,7 +225,7 @@ function checkACL($feature, $level, $redirect=true, $TourId=0) {
             $Sql = "SELECT AclDtLevel FROM AclDetails WHERE AclDtTournament={$TourId} AND AclDtIP='{$ip}' && AclDtFeature IN (" . implode(',', $feature) . ") ORDER BY AclDtLevel ASC";
             $q = safe_r_SQL($Sql);
             if ($r = safe_fetch($q) and $level <= $r->AclDtLevel) {
-                return $r->AclDtLevel;
+                return intval($r->AclDtLevel);
             } else if($level==AclNoAccess) {
                 return AclNoAccess;
             } else {

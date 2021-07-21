@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 13/03/19
- * Time: 22.19
- */
 
 require_once(dirname(__FILE__) . '/config.php');
 
@@ -43,7 +37,7 @@ while($r=safe_fetch($q)) {
 		$OldRank=$r->IndRank;
 	}
 	foreach($TeamMatchnos[$r->EnCountry] as $MatchNo) {
-		safe_w_sql("update Finals set FinAthlete=$r->EnId where FinEvent=".StrSafe_DB($Event.$i)." and FinMatchNo=$MatchNo and FinTournament={$_SESSION['TourId']}");
+		safe_w_sql("update Finals set FinAthlete=$r->EnId, FinTie=0, FinWinLose=0 where FinEvent=".StrSafe_DB($Event.$i)." and FinMatchNo=$MatchNo and FinTournament={$_SESSION['TourId']}");
 	}
 	$i++;
 }
@@ -63,6 +57,18 @@ if($SOEvent) {
 	$JSON['msg']=get_text('NotAllShootoffResolved', 'Tournament', implode(', ', $SOEvent));
 } else {
 	safe_w_sql("update Events set EvShootOff=1 where EvCode like '$Event%' and EvTournament={$_SESSION['TourId']}");
+
+	// check all the byes
+	$SQL = "select f1.FinAthlete as Opp1, f2.FinAthlete as Opp2, f1.FinMatchNo, f1.FinEvent
+		from Finals f1
+		inner join Finals f2 on f2.FinEvent=f1.FinEvent and f2.FinTournament=f1.FinTournament and f2.FinMatchNo=f1.FinMatchNo+1
+		where f1.FinMatchNo % 2 = 0 and (f1.FinAthlete=0 or f2.FinAthlete=0) and (f1.FinAthlete!=0 or f2.FinAthlete!=0) and f1.FinTournament={$_SESSION['TourId']}";
+
+	$q=safe_r_sql($SQL);
+	while($r=safe_fetch($q)) {
+		safe_w_sql("update Finals set FinTie=2, FinWinLose=1 where FinEvent='$r->FinEvent' and FinMatchNo=".($r->Opp1 ? $r->FinMatchNo : ($r->Opp2 ? $r->FinMatchNo+1 : 999))." and FinTournament={$_SESSION['TourId']}");
+	}
+
 	$JSON['msg']='OK';
 }
 

@@ -45,7 +45,7 @@ if($Schedule) {
 	}
 	$SQL="Select if(FsLetter, FsLetter, FsTarget) Target, EvMatchMode,
 		{$Pre}Score as Score, {$Pre}SetScore as SetScore, {$Pre}Tie as Tie, {$Pre}Arrowstring as Arrowstring $Fields, {$Pre}TieBreak as TieBreak, FsMatchNo as MatchNo,
-		EvCode, EvEventName, EvTeamEvent, {$Pre}Notes as Notes, {$Pre}WinLose as WinLose,
+		EvCode, EvEventName, EvTeamEvent, {$Pre}Notes as Notes, {$Pre}WinLose as WinLose, {$Pre}IrmType as IrmType, {$Pre}TbClosest as TieClosest,
 		if(GrPhase & EvMatchArrowsNo, EvElimArrows, EvFinArrows) Arrows, if(GrPhase & EvMatchArrowsNo, EvElimEnds, EvFinEnds) Ends, if(GrPhase & EvMatchArrowsNo, EvElimSO, EvFinSO) SO
 		from FinSchedule
 		inner join $Tab on {$Pre}Tournament=FsTournament and {$Pre}Event=FsEvent and {$Pre}MatchNo=FsMatchNo
@@ -54,7 +54,7 @@ if($Schedule) {
 		$Join
 		where FsTeamEvent=$Team and FsScheduledDate='$Date' and FsScheduledTime='$Time' and FsTournament={$_SESSION['TourId']}
 		".(empty($Events[$Team]) ? '' : 'and FsEvent in ('.implode(',', StrSafe_DB($Events[$Team])).')')
-		. "order by GrPhase ASC, Target='', Target, EvProgr, FsMatchNo";
+		. "order by EvProgr, GrPhase ASC, Target='', Target, FsMatchNo";
 } else {
 	$tmp=array();
 	foreach($Events as $Team => $Event) {
@@ -73,7 +73,7 @@ if($Schedule) {
 		}
 		$tmp[]="Select if(FsLetter, FsLetter, FsTarget) Target, EvMatchMode,
 			{$Pre}Score as Score, {$Pre}SetScore as SetScore, {$Pre}Tie as Tie, {$Pre}Arrowstring as Arrowstring $Fields, {$Pre}TieBreak as TieBreak, {$Pre}MatchNo as MatchNo,
-			EvCode, EvEventName, EvTeamEvent, {$Pre}Notes as Notes, {$Pre}WinLose as WinLose,
+			EvCode, EvEventName, EvTeamEvent, {$Pre}Notes as Notes, {$Pre}WinLose as WinLose, {$Pre}IrmType as IrmType, {$Pre}TbClosest as TieClosest,
 			if(GrPhase & EvMatchArrowsNo, EvElimArrows, EvFinArrows) Arrows, if(GrPhase & EvMatchArrowsNo, EvElimEnds, EvFinEnds) Ends, if(GrPhase & EvMatchArrowsNo, EvElimSO, EvFinSO) SO
 			from $Tab
 			inner join Events on EvCode={$Pre}Event and EvTeamEvent=$Team and EvTournament={$Pre}Tournament
@@ -83,9 +83,18 @@ if($Schedule) {
 			where {$Pre}Tournament={$_SESSION['TourId']}
 			and {$Pre}Event in (".implode(',', StrSafe_DB($Event)).")
 			and GrPhase in (".implode(',', StrSafe_DB($Phases[$Team])).")
-			order by GrPhase ASC, Target='', Target, EvProgr, MatchNo";
+			order by EvProgr, GrPhase ASC, Target='', Target, EvProgr, MatchNo";
 	}
 	$SQL="(".implode(") union (", $tmp).")";
+}
+
+// IRM/Tie options
+$TieSelect ='<option value="0">'.get_text('NoTie', 'Tournament').'</option>';
+$TieSelect.='<option value="1">'.get_text('TieWinner', 'Tournament').'</option>';
+$TieSelect.='<option value="2">'.get_text('Bye').'</option>';
+$q=safe_r_SQL("select * from IrmTypes where IrmId>0 order by IrmId");
+while($irm=safe_fetch($q)) {
+	$TieSelect.= '<option value="'.($irm->IrmShowRank ? 'irm-'.$irm->IrmId : 'man').'">' . $irm->IrmType .' - '. get_text($irm->IrmType, 'Tournament'). '</option>';
 }
 
 $OldEvent='';
@@ -120,6 +129,7 @@ while($r=safe_fetch($q)) {
 			for($n=0; $n<3*$r->SO; $n++) {
 				$JSON['html'].='<th>SO '.($n+1).'</th>';
 			}
+			$JSON['html'].='<th>'.get_text('ClosestShort', 'Tournament').'</th>';
 		}
 		$JSON['html'].='<th colspan="3"></th>
 			</tr>';
@@ -128,7 +138,7 @@ while($r=safe_fetch($q)) {
 	$r->Arrowstring=str_pad($r->Arrowstring, $MaxArrows, ' ', STR_PAD_RIGHT);
 
 	$Class='';
-	if($r->Tie==2) {
+	if($r->Tie==2 or $r->IrmType) {
 		$Class= 'Bye';
 	}
 
@@ -155,17 +165,27 @@ while($r=safe_fetch($q)) {
         for($pSo=0; $pSo<3; $pSo++ ) {
             for ($n = 0; $n < $r->SO; $n++) {
                 $ArrI = $n+($pSo*$r->SO);
-                $JSON['html'] .= '<td><input type="text" size="2" id="tie_' . $id . '_' . $ArrI . '" value="' . (!empty($r->TieBreak[$ArrI]) ? DecodeFromLetter($r->TieBreak[$ArrI]):'') . '" onblur="SendToServer(this, this.value)" onfocus="this.select()" tabindex="' . (($Arrows * $Offset) + $TabIndex++) . '"></td>';
+                $JSON['html'] .= '<td><input type="text" size="2" id="tie_' . $id . '_' . $ArrI . '" value="' . (!empty($r->TieBreak[$ArrI]) ? DecodeFromLetter($r->TieBreak[$ArrI]):'') . '" onblur="SendToServer(this, this.value)" onfocus="this.select()" tabindex="' . ($TabIndex++) . '"></td>';
             }
         }
+        $JSON['html'] .= '<td align="center"><input type="checkbox" id="cl_' . $id . '" ' . ($r->TieClosest ? ' checked="checked"' : '') . ' onclick="SendToServer(this)" tabindex="' . ($TabIndex++) . '"></td>';
 	}
 	$JSON['html'].='<td>';
 	if($r->MatchNo%2==0 and $r->Tie!=2) {
-		$JSON['html'].='<input style="display:none" type="button" value="'.get_text('NextPhase').'" id="next_'.$id.'" onclick="move2next(this)" tabindex="'.(($Arrows+$r->SO)*$Offset+$TabIndex++).'">';
+		$JSON['html'].='<input style="display:none" type="button" value="'.get_text('NextPhase').'" id="next_'.$id.'" onclick="move2next(this)" tabindex="'.(($Arrows+$r->SO*3)*$Offset+$TabIndex++).'">';
 	}
 	$JSON['html'].='</td>';
-	$JSON['html'].='<td><input type="button" value="'.get_text('Bye').'" id="bye_'.$id.'" onclick="SendToServer(this, 2)" tabindex="'.(($Arrows+$r->SO)*$Offset+$TabIndex++).'"></td>';
-	$JSON['html'].='<td><input list="NoteList" value="'.$r->Notes.'" id="note_' . $id .'" onChange="SendToServer(this, this.value)" tabindex="'.(($Arrows+$r->SO)*$Offset+$TabIndex++).'"></td>';
+	$Val=$r->Tie;
+	if($r->IrmType) {
+		if(strstr($TieSelect, 'irm-'.$r->IrmType)) {
+			$Val='irm-'.$r->IrmType;
+		} else {
+			$Val='man';
+		}
+	}
+	$Val='value="'.$Val.'"';
+	$JSON['html'].='<td><select id="irm_' . $id .'" onChange="SendToServer(this, this.value)" tabindex="'.(($Arrows+$r->SO*3)*$Offset+$TabIndex++).'">'.str_replace($Val, $Val.' selected="selected"', $TieSelect).'</select></td>';
+	$JSON['html'].='<td><input value="'.$r->Notes.'" id="note_' . $id .'" onChange="SendToServer(this, this.value)" tabindex="'.(($Arrows+$r->SO*3)*$Offset+$TabIndex++).'"></td>';
 	$JSON['html'].='</tr>';
 	$First=false;
 }

@@ -1,7 +1,6 @@
 <?php
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once('Common/Lib/CommonLib.php');
-require_once('Final/Spot/Common/Config.inc.php');
 
 if(!empty($_SESSION['TourId']) AND $_SESSION['TourId']!=-1) {
 	$TourId=$_SESSION['TourId'];
@@ -19,8 +18,10 @@ if($Event) list($Team, $Event)=explode('-', $Event, 2);
 
 $Lock = ($Event && $MatchNo>=0 && $Team>=0) ? '1' : '0';
 
-if(!$Lock and $x=FindLive($TourId)) {
-	list($Event, $MatchNo, $Team)=$x;
+if(!$Lock and $x=getMatchLive($TourId)) {
+	$Event=$x->Event;
+	$MatchNo=$x->MatchNo;
+	$Team=$x->Team;
 }
 
 $JS_SCRIPT=array(

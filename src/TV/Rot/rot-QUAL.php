@@ -23,13 +23,17 @@ function rotQual($TVsettings, $RULE) {
 
 	$options=array('tournament' => $RULE->TVRTournament);
 	$options['dist'] = 0;
+	$options['records'] = 1;
 
-	if(isset($TVsettings->TVPEventInd) && !empty($TVsettings->TVPEventInd))
+	if(isset($TVsettings->TVPEventInd) && !empty($TVsettings->TVPEventInd)) {
 		$options['events'] = explode('|',$TVsettings->TVPEventInd);
-	if(isset($TVsettings->TVPNumRows) && $TVsettings->TVPNumRows>0)
+	}
+	if(isset($TVsettings->TVPNumRows) && $TVsettings->TVPNumRows>0) {
 		$options['cutRank'] = $TVsettings->TVPNumRows;
-	if(isset($TVsettings->TVPSession) && $TVsettings->TVPSession>0)
+	}
+	if(isset($TVsettings->TVPSession) && $TVsettings->TVPSession>0) {
 		$options['session'] = $TVsettings->TVPSession;
+	}
 
 	$Columns=(isset($TVsettings->TVPColumns) && !empty($TVsettings->TVPColumns) ? explode('|',$TVsettings->TVPColumns) : array());
 	$ViewTeams=(in_array('TEAM', $Columns) or in_array('ALL', $Columns));
@@ -60,7 +64,7 @@ function rotQual($TVsettings, $RULE) {
 	if(count($rankData['sections'])==0) return $Return;
 
 	$Return['SubBlocks']=count($rankData['sections']);
-	$Return['NextSubBlock']=$SubBlock+1;
+	$Return['NextSubBlock']=($SubBlock+1);
 
 	if($SubBlock>count($rankData['sections'])) $SubBlock=1;
 
@@ -69,6 +73,46 @@ function rotQual($TVsettings, $RULE) {
 		if(!$SubBlock) {
 			break;
 		}
+	}
+
+	// Record Management
+	$RecTot=array();
+	$RecTitle='';
+	$RecCut=999999;
+	$retToAdd='';
+	$RecordCut=array();
+	$RecXNine=0;
+	$RecCols=array();
+	if($data['records'] and $data['meta']['arrowsShot']) {
+		// Records handling
+		$RecCut=0;
+
+		$ExtraCSS='';
+		$NumRecords=0;
+		$Final=(max($data['meta']['arrowsShot'])==$data['meta']['numDist']*$data['meta']['maxArrows']);
+		foreach($data['records'] as $r) {
+			$RecTot[$r->RtRecCode]['tot']=$r->RtRecMaxScore-$r->RtRecTotal;
+			$RecTot[$r->RtRecCode]['gap']=$r->TrGaps;
+			$RecTot[$r->RtRecCode]['area']=$r->ReArBitLevel;
+			$RecTot[$r->RtRecCode]['claim']=$r->ReArMaCode;
+			if($r->TrGaps and !$Final) {
+				$RecTitle.='<div class="piccolo" style="color:#'.$r->TrColor.'">'.get_text('RecordAverage', 'Tournament', $r->TrHeaderCode).'</div>';
+			}
+			$RecCut=max($RecCut, $RecTot[$r->RtRecCode]['tot']);
+			$rec=round($r->RtRecTotal*max($data['meta']['arrowsShot'])/($data['meta']['numDist']*$data['meta']['maxArrows']),1);
+			if($r->TrBars) {
+				$NumRecords++;
+				$ExtraCSS.=".Rec_{$r->RtRecCode} {background-color:#{$r->TrColor}; color:white;".($r->TrFontFile ? 'font-family:'.$r->RtRecCode.';' : '')."}";
+				$tmp='<div class="QualRow Rec_'. $r->RtRecCode.'">
+						<div class="Record">'.($Final ? $r->TrHeader : get_text('RecordAverage', 'Records', $r->TrHeader)).'</div>
+					<div class="Score">' . number_format($rec, $Final ? 0 : 1, '.', '') . '</div>
+					'.($View10s ?  '<div class="Gold">&nbsp;</div>' : '').'
+					'.($ViewX9s ? '<div class="XNine">&nbsp;</div>' : '').'
+					</div>';
+				$RecordCut["$rec"][]=$tmp;
+			}
+		}
+		if($ExtraCSS) $Return['BlockCss'].="} $ExtraCSS {";
 	}
 
 	// TITLE
@@ -131,6 +175,14 @@ function rotQual($TVsettings, $RULE) {
 			$ret[]='<div id="content" data-direction="up">';
 			$FixedDone=true;
 		}
+
+		foreach ($RecordCut as $Record => $FormattedRows) {
+			if($archer['score'] <= $Record) {
+				$ret[]=implode('', $FormattedRows);
+				unset($RecordCut[$Record]);
+			}
+		}
+
 		$Class=($key%2 == 0 ? 'e': 'o');
 		$tmp ='<div class="QualRow Font1'.$Class.' Back1'.$Class.'">';
 
@@ -149,6 +201,18 @@ function rotQual($TVsettings, $RULE) {
 			}
 			$tmp.='<div class="RankOld '.$cl.'">' . ($archer['oldRank']&& $archer['oldRank']!=$archer['rank'] ? $archer['oldRank']:'&nbsp;'). '</div>';
 		}
+
+		foreach ($RecTot as $RecCode => $Record) {
+			if(!$Final and $Record['gap'] and $archer['recordGap'] < $Record['tot'] and
+				(!$Record['claim']
+					or $Record['claim']==$archer['contAssoc']
+					or $Record['claim']==$archer['memberAssoc'])) {
+				$tmp.='<div class="RecBar Rec_'.$RecCode.'"></div>';
+			} else {
+				$tmp.='<div class="RecBar">&nbsp;</div>';
+			}
+		}
+
 		if($ViewCode) {
 			$tmp.='<div class="CountryCode Rotate Rev1'.$Class.'">' . $archer['countryCode'] . '</div>';
 		}

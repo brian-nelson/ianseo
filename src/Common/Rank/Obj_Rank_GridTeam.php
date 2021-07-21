@@ -44,7 +44,11 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				$f=array();
 
 				foreach ($this->opts['events'] as $e) {
-					@list($event,$phase)=explode('@',$e);
+				    $event=$e;
+                    $phase=null;
+                    if(strpos($e,'@') !== false) {
+                        @list($event, $phase) = explode('@', $e);
+                    }
 					if($event and !is_null($phase)) $f[] = '(EvCode=' . StrSafe_DB($event) . ' AND GrPhase=' . $phase . ')';
 					elseif($event) $f[] = '(EvCode=' . StrSafe_DB($event) . ')';
 					elseif(!is_null($phase)) $f[] = '(GrPhase=' . $phase . ')';
@@ -53,7 +57,7 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				if($f) $ret[]= '(' . implode(' OR ', $f) . ')';
 			}
 			if(!empty($this->opts['schedule'])) {
-				$ret[]="CONCAT(fs1.FSScheduledDate,' ',fs2.FSScheduledTime)=" . StrSafe_DB($this->opts['schedule']) . "";
+				$ret[]="CONCAT(fs1.FSScheduledDate,' ',fs1.FSScheduledTime)=" . StrSafe_DB($this->opts['schedule']) . "";
 			}
 			if($ret) return ' AND '.implode(' AND ', $ret);
 			return '';
@@ -104,7 +108,7 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				$ExtraFilter = '';
 			}
 
-			$SQL = "SELECT f1.*, f2.*,
+			$SQL = "SELECT f1.*, f2.*, '' as LineJudge, '' as TargetJudge,
 					ifnull(concat(DV2.DvMajVersion, '.', DV2.DvMinVersion) ,concat(DV1.DvMajVersion, '.', DV1.DvMinVersion)) as DocVersion,
 					date_format(ifnull(DV2.DvPrintDateTime, DV1.DvPrintDateTime), '%e %b %Y %H:%i UTC') as DocVersionDate,
 					ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes from ("
@@ -124,32 +128,47 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				. " EvProgr,"
 				. " EvShootOff,"
 				. " EvCodeParent,"
+				. " EvMixedTeam,"
 				. " GrPhase Phase,"
-				. " pow(2, ceil(log2(GrPhase))+1) & EvMatchArrowsNo!=0 as FinElimChooser,"
+				. " @BitPhase:=if(GrPhase=0, 1, pow(2, ceil(log2(GrPhase))+1)),"
+				. " @BitPhase & EvMatchArrowsNo!=0 as FinElimChooser,"
 				. " GrPosition Position,"
 				. " GrPosition2 Position2,"
 				. " TfTournament Tournament,"
+				. " '' as Coach,"
 				. " TfTeam Team,"
 				. " TfSubTeam SubTeam,"
 				. " TfMatchNo MatchNo,"
 				. " TeRank QualRank,"
+				. " i2.IrmType IrmTextQual,"
+				. " i2.IrmShowRank ShowRankQual,"
 				. " TeRankFinal FinRank,"
+				. " i3.IrmType IrmTextFin,"
+				. " i3.IrmShowRank ShowRankFin,"
+				. " TfIrmType Irm,"
+				. " i1.IrmType IrmText,"
+				. " i1.IrmShowRank ShowRank,"
 				. " TeScore QualScore, "
 				. " TeNotes QualNotes, "
 				. " TfWinLose Winner, "
 				. " TfDateTime LastUpdated, "
 				. " CONCAT(CoName, IF(TfSubTeam>'1',CONCAT(' (',TfSubTeam,')'),'')) as CountryName,"
 				. " CoCode as CountryCode,"
+				. " CoMaCode as MaCode,"
+				. " CoCaCode as CaCode,"
 				. " TfScore AS Score,"
 				. " TfSetScore as SetScore,"
 				. " TfTie Tie,"
 				. " TfTieBreak TieBreak,"
+                . " TfTbClosest TieClosest,"
+                . " TfTbDecoded TieDecoded,"
 				. " TfStatus Status, "
+				. " TfRecordBitmap  as RecBitLevel, EvIsPara, "
 				. " TfConfirmed Confirmed, "
 				. " TfSetPoints SetPoints, "
 				. " TfSetPointsByEnd SetPointsByEnd, "
 				. " TfArrowstring Arrowstring, TfLive LiveFlag,"
-				. " fs1.FSTarget Target,"
+				. " if(@BitPhase & EvMatchMultipleMatches!=0 or @BitPhase & EvFinalAthTarget!=0, fs1.FsLetter, fs1.FsTarget) as Target,"
 				. " TfNotes Notes, TfShootFirst as ShootFirst, "
 				. " TarId, TarDescr, EvDistance as Distance, EvTargetSize as TargetSize, "
 				. "	EvFinEnds, EvFinArrows, EvFinSO, EvElimEnds, EvElimArrows, EvElimSO, "
@@ -161,7 +180,10 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				. " INNER JOIN Events ON TfEvent=EvCode AND TfTournament=EvTournament AND EvTeamEvent=1 AND EvFinalFirstPhase!=0 and EvTournament=$this->tournament "
 				. " INNER JOIN Grids ON TfMatchNo=GrMatchNo "
 				. " INNER JOIN Targets ON EvFinalTargetType=TarId "
+				. " INNER JOIN IrmTypes i1 ON i1.IrmId=TfIrmType "
 				. " LEFT JOIN Teams ON TfTeam=TeCoId AND TfSubTeam=TeSubTeam AND TfEvent=TeEvent AND TfTournament=TeTournament AND TeFinEvent=1 and TeTournament=$this->tournament "
+				. " left JOIN IrmTypes i2 ON i2.IrmId=TeIrmType "
+				. " left JOIN IrmTypes i3 ON i3.IrmId=TeIrmTypeFinal "
 				. " LEFT JOIN Countries ON TfTeam=CoId AND TfTournament=CoTournament and CoTournament=$this->tournament "
 				. " LEFT JOIN FinSchedule fs1 ON TfEvent=fs1.FSEvent AND fs1.FSMatchNo=TfMatchNo AND TfTournament=fs1.FSTournament AND fs1.FSTeamEvent='1' and fs1.FSTournament=$this->tournament "
 				. " LEFT JOIN FinSchedule fs2 ON TfEvent=fs2.FSEvent AND fs2.FSMatchNo=case TfMatchNo when 0 then 4 when 1 then 6 when 2 then 4 when 3 then 6 else TfMatchNo*2 end AND TfTournament=fs2.FSTournament AND fs2.FSTeamEvent='1' and fs2.FSTournament=$this->tournament "
@@ -175,33 +197,50 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				. " GrPosition OppPosition,"
 				. " GrPosition2 OppPosition2,"
 				. " TfTournament OppTournament,"
+				. " '' OppCoach,"
 				. " TfTeam OppTeam,"
 				. " TfSubTeam OppSubTeam,"
 				. " TfMatchNo OppMatchNo,"
 				. " TeRank OppQualRank,"
+				. " i2.IrmType OppIrmTextQual,"
+				. " i2.IrmShowRank OppShowRankQual,"
 				. " TeRankFinal OppFinRank,"
+				. " i3.IrmType OppIrmTextFin,"
+				. " i3.IrmShowRank OppShowRankFin,"
+				. " TfIrmType OppIrm,"
+				. " i1.IrmType OppIrmText,"
+				. " i1.IrmShowRank OppShowRank,"
 				. " TeScore OppQualScore, "
 				. " TeNotes OppQualNotes, "
 				. " TfWinLose OppWinner, "
 				. " TfDateTime OppLastUpdated, "
 				. " CONCAT(CoName, IF(TfSubTeam>'1',CONCAT(' (',TfSubTeam,')'),'')) as OppCountryName,"
 				. " CoCode as OppCountryCode,"
+				. " CoMaCode as OppMaCode,"
+				. " CoCaCode as OppCaCode,"
 				. " TfScore AS OppScore,"
 				. " TfSetScore as OppSetScore,"
 				. " TfTie OppTie,"
 				. " TfTieBreak OppTieBreak,"
+                . " TfTbClosest OppTieClosest,"
+                . " TfTbDecoded OppTieDecoded,"
 				. " TfStatus OppStatus, "
 				. " TfConfirmed OppConfirmed, "
+				. " TfRecordBitmap  as OppRecBitLevel, "
 				. " TfSetPoints OppSetPoints, "
 				. " TfSetPointsByEnd OppSetPointsByEnd, "
 				. " TfArrowstring OppArrowstring, "
-				. " fs1.FSTarget OppTarget, "
+				. " @BitPhase:=if(GrPhase=0, 1, pow(2, ceil(log2(GrPhase))+1)),"
+				. " if(@BitPhase & EvMatchMultipleMatches!=0 or @BitPhase & EvFinalAthTarget!=0, fs1.FsLetter, fs1.FsTarget) as OppTarget, "
 				. " concat(fs2.FSScheduledDate,' ',fs2.FSScheduledTime) AS OppPreviousMatchTime, "
 				. " TfNotes OppNotes, TfShootFirst as OppShootFirst, if(EvFinalFirstPhase%12=0, GrPosition2, GrPosition) as OppGridPosition  "
 				. " FROM TeamFinals "
 				. " INNER JOIN Events ON TfEvent=EvCode AND TfTournament=EvTournament AND EvTeamEvent=1 AND EvFinalFirstPhase!=0 and EvTournament=$this->tournament "
 				. " INNER JOIN Grids ON TfMatchNo=GrMatchNo "
+				. " INNER JOIN IrmTypes i1 ON i1.IrmId=TfIrmType "
 				. " LEFT JOIN Teams ON TfTeam=TeCoId AND TfSubTeam=TeSubTeam AND TfEvent=TeEvent AND TfTournament=TeTournament AND TeFinEvent=1 and TeTournament=$this->tournament "
+				. " left JOIN IrmTypes i2 ON i2.IrmId=TeIrmType "
+				. " left JOIN IrmTypes i3 ON i3.IrmId=TeIrmTypeFinal "
 				. " LEFT JOIN Countries ON TfTeam=CoId AND TfTournament=CoTournament and CoTournament=$this->tournament "
 				. " LEFT JOIN FinSchedule fs1 ON fs1.FSEvent=TfEvent AND fs1.FSMatchNo=TfMatchNo AND fs1.FSTournament=TfTournament AND fs1.FSTeamEvent='1' and fs1.FSTournament=$this->tournament "
 				. " LEFT JOIN FinSchedule fs2 ON fs2.FSEvent=TfEvent AND fs2.FSMatchNo=case TfMatchNo when 0 then 4 when 1 then 6 when 2 then 4 when 3 then 6 else TfMatchNo*2 end AND fs2.FSTournament=TfTournament AND fs2.FSTeamEvent='1' and fs2.FSTournament=$this->tournament "
@@ -216,7 +255,7 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 
 		public function read()
 		{
-			error_reporting(E_ALL);
+			//error_reporting(E_ALL);
 		/*
 		 *  prima passata per costruire la struttura del vettore.
 		 *  Tiro fuori i nomi delle squadre
@@ -267,8 +306,12 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 			$this->data['meta']['title']=get_text('BracketsSq');
             $this->data['meta']['saved']=get_text('Seeded8th');
 			$this->data['meta']['lastUpdate']='0000-00-00 00:00:00';
+			$this->data['meta']['notAwarded']=get_text('NotAwarded','ODF');
 			$this->data['meta']['fields']=array(
 				// qui ci sono le descrizioni dei campi
+				'coach' => get_text('Coach', 'Tournament'),
+				'lineJudge' => get_text('LineJudge', 'Tournament'),
+				'targetJudge' => get_text('TargetJudge', 'Tournament'),
 				'scheduledDate' => get_text('Date', 'Tournament'),
 				'scheduledTime' => get_text('Time', 'Tournament'),
 				'winner' => get_text('Winner'),
@@ -280,18 +323,21 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				'familyname' => get_text('FamilyName', 'Tournament'),
 				'givenname' => get_text('Name', 'Tournament'),
 				'gender' => get_text('Sex', 'Tournament'),
-				'countryCode' => '',
+				'countryCode' => get_text('CountryCode'),
 				'countryName' => get_text('Country'),
 				'countryIocCode'=>'',
 				'qualRank' => get_text('RankScoreShort'),
 				'finRank' => get_text('FinalRank','Tournament'),
 				'qualscore'=>get_text('TotalShort','Tournament'),
+				'scoreLong'=>get_text('TotaleScore'),
 				'score'=>get_text('TotalShort','Tournament'),
 				'setScore'=>get_text('SetTotal','Tournament'),
 			 	'setPoints'=>get_text('SetPoints','Tournament'),
 				'tie'=>'S.O.',
 				'arrowstring'=>get_text('Arrows','Tournament'),
 			 	'tiebreak'=>get_text('TieArrows'),
+                'closest'=>get_text('Close2Center', 'Tournament'),
+                'closestShort'=>get_text('ClosestShort', 'Tournament'),
 				'status'=>get_text('Status', 'Tournament'),
 				'shootFirst'=>get_text('ShootsFirst', 'Tournament'),
 
@@ -302,7 +348,7 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				'oppFamilyname' => get_text('FamilyName', 'Tournament'),
 				'oppGivenname' => get_text('Name', 'Tournament'),
 				'oppGender' => get_text('Sex', 'Tournament'),
-				'oppCountryCode' => '',
+				'oppCountryCode' => get_text('CountryCode'),
 				'oppCountryName' => get_text('Country'),
 				'oppCountryIocCode'=>'',
 				'oppQualRank' => get_text('RankScoreShort'),
@@ -314,6 +360,8 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				'oppTie'=>'S.O.',
 				'oppArrowstring'=>get_text('Arrows','Tournament'),
 			 	'oppTiebreak'=>get_text('TieArrows'),
+                'oppClosest'=>get_text('Close2Center', 'Tournament'),
+                'oppClosestShort'=>get_text('ClosestShort', 'Tournament'),
 				'oppStatus'=>get_text('Status', 'Tournament'),
 				'oppShootFirst'=>get_text('ShootsFirst', 'Tournament')
 
@@ -356,6 +404,8 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 						'minPoint' => $tmp['MinPoint'],
 						'noRealPhase' => $myRow->Phase>=$myRow->EvFinalFirstPhase ? $myRow->NoRealPhase : 0,
 						'numSaved' => ($num=SavedInPhase($myRow->EvFinalFirstPhase)) ? $num : 2*$myRow->EvFinalFirstPhase - $myRow->EvNumQualified,
+						'mixedTeam' => $myRow->EvMixedTeam,
+						'OrisCode' => 'C75C',
 						);
 					$this->data['sections'][$myRow->Event]['meta']['phaseNames']=array(
 						$myRow->EvFinalFirstPhase => get_text($myRow->EvFinalFirstPhase . "_Phase")
@@ -377,42 +427,6 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 					$this->data['sections'][$myRow->Event]['meta']['phaseNames'][namePhase($myRow->EvFinalFirstPhase, $myRow->Phase)]=$this->data['sections'][$myRow->Event]['phases'][$myRow->Phase]['meta']['phaseName'];
 				}
 
-				$tmpArr=array();
-				$oppArr=array();
-				$lastTieL=0;
-				$lastTieR=0;
-				if($myRow->TieBreak) {
-					for($countArr=0; $countArr<strlen(trim($myRow->TieBreak)); $countArr+=$myRow->EvMaxTeamPerson) {
-						$SubArrow=substr(trim($myRow->TieBreak),$countArr,$myRow->EvMaxTeamPerson);
-						$tmp=ValutaArrowString($SubArrow);
-						if(!ctype_upper($SubArrow)) {
-							$tmp .=  "*";
-						}
-						$tmpArr[] = $tmp;
-						$lastTieL++;
-					}
-				}
-
-				if($myRow->OppTieBreak) {
-					for($countArr=0; $countArr<strlen(trim($myRow->OppTieBreak)); $countArr+=$myRow->EvMaxTeamPerson) {
-						$SubArrow=substr(trim($myRow->OppTieBreak),$countArr,$myRow->EvMaxTeamPerson);
-						$tmp=ValutaArrowString($SubArrow);
-						if(!ctype_upper($SubArrow)) {
-							$tmp .=  "*";
-						}
-						$oppArr[] = $tmp;
-						$lastTieR++;
-					}
-				}
-
-				if($lastTieL and $lastTieR and $lastTieL == $lastTieR and $tmpArr[$lastTieL-1] === $oppArr[$lastTieR-1]) {
-					if($myRow->Tie==1) {
-						$tmpArr[$lastTieL-1] .= '*';
-					} elseif($myRow->OppTie==1) {
-						$oppArr[$lastTieR-1] .= '*';
-					}
-				}
-
 				if(empty($myRow->OdfMatchName)) {
 					$myRow->OdfMatchName='';
 					$myRow->OdfPreviousMatch='';
@@ -423,6 +437,8 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				}
 				$item=array(
 					// qui ci sono le descrizioni dei campi
+					'lineJudge' => $myRow->LineJudge,
+					'targetJudge' => $myRow->TargetJudge,
 					'liveFlag' => $myRow->LiveFlag,
 					'scheduledDate' => $myRow->ScheduledDate,
 					'scheduledTime' => $myRow->ScheduledTime,
@@ -433,13 +449,20 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 					'localBib' => rtrim($myRow->OdfCode,'-').$myRow->CountryCode.str_pad($myRow->SubTeam, 2, '0', STR_PAD_LEFT),
 					'odfMatchName' => $myRow->OdfMatchName ? $myRow->OdfMatchName : '',
 					'odfPath' => $myRow->OdfPreviousMatch && intval($myRow->OdfPreviousMatch)==0 ? $myRow->OdfPreviousMatch : get_text(($myRow->MatchNo==2 or $myRow->MatchNo==3) ? 'LoserMatchName' : 'WinnerMatchName', 'ODF', $myRow->OdfPreviousMatch ? $myRow->OdfPreviousMatch : $myRow->PreviousMatchTime),
-					'target' => $myRow->Target,
+					'target' => ltrim($myRow->Target,'0'),
+					'coach' => $myRow->Coach,
 					'countryCode' => $myRow->CountryCode,
 					'countryName' => $myRow->CountryName,
-					'qualRank' => $myRow->QualRank,
+					'contAssoc' => $myRow->CaCode,
+					'memberAssoc' => $myRow->MaCode,
+					'qualRank' => $myRow->ShowRankQual ? $myRow->QualRank : $myRow->IrmTextQual,
 					'qualScore'=> $myRow->QualScore,
 					'qualNotes'=> $myRow->QualNotes,
 					'finRank' => $myRow->FinRank,
+					'showRank' => $myRow->ShowRankFin,
+					'finIrmText' => $myRow->IrmTextFin,
+					'irm' => $myRow->Irm,
+					'irmText' => $myRow->IrmText,
 					'winner' => $myRow->Winner,
 					'score'=> $myRow->Score,
 					'setScore'=> $myRow->SetScore,
@@ -449,11 +472,13 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				 	'arrowstring'=> $myRow->Arrowstring,
 					'tie'=> $myRow->Tie,
 				 	'tiebreak'=> trim($myRow->TieBreak),
-				 	'tiebreakDecoded'=> implode(',', $tmpArr),
+                    'closest' => $myRow->TieClosest,
+				 	'tiebreakDecoded'=> $myRow->TieDecoded,
 					'arrowpositionAvailable'=>($myRow->ArrowPosition != ''),
 					'status'=>$myRow->Status,
 					'scoreConfirmed'=>$myRow->Confirmed,
 					'shootFirst'=>$myRow->ShootFirst,
+					'record' => $this->ManageBitRecord($myRow->RecBitLevel, $myRow->CaCode, $myRow->MaCode, $myRow->EvIsPara),
 				 	'position'=> $myRow->QualRank ? $myRow->QualRank : (useGrPostion2($myRow->EvFinalFirstPhase, $myRow->Phase) ? ($myRow->Position2 ? $myRow->Position2:'') : $myRow->Position),
                     'saved'=> ($myRow->Position>0 and $myRow->Position<=SavedInPhase($myRow->EvFinalFirstPhase)),
 				 	'teamId'=> $myRow->Team,
@@ -464,13 +489,20 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 					'oppLocalBib' => rtrim($myRow->OdfCode,'-').$myRow->OppCountryCode.str_pad($myRow->OppSubTeam, 2, '0', STR_PAD_LEFT),
 					'oppOdfMatchName' => $myRow->OppOdfMatchName,
 					'oppOdfPath' => $myRow->OppOdfPreviousMatch && intval($myRow->OppOdfPreviousMatch)==0 ? $myRow->OppOdfPreviousMatch : get_text(($myRow->MatchNo==2 or $myRow->MatchNo==3) ? 'LoserMatchName' : 'WinnerMatchName', 'ODF', $myRow->OppOdfPreviousMatch ? $myRow->OppOdfPreviousMatch : $myRow->OppPreviousMatchTime),
-					'oppTarget' => $myRow->OppTarget,
+					'oppTarget' => ltrim($myRow->OppTarget, '0'),
+					'oppCoach' => $myRow->OppCoach,
 					'oppCountryCode' => $myRow->OppCountryCode,
 					'oppCountryName' => $myRow->OppCountryName,
-					'oppQualRank' => $myRow->OppQualRank,
+					'oppContAssoc' => $myRow->OppCaCode,
+					'oppMemberAssoc' => $myRow->OppMaCode,
+					'oppQualRank' => $myRow->OppShowRankQual ? $myRow->OppQualRank : $myRow->OppIrmTextQual,
 					'oppQualScore'=> $myRow->OppQualScore,
 					'oppQualNotes'=> $myRow->OppQualNotes,
 					'oppFinRank' => $myRow->OppFinRank,
+					'oppShowRank' => $myRow->OppShowRankFin,
+					'oppFinIrmText' => $myRow->OppIrmTextFin,
+					'oppIrm' => $myRow->OppIrm,
+					'oppIrmText' => $myRow->OppIrmText,
 					'oppWinner' => $myRow->OppWinner,
 					'oppScore'=> $myRow->OppScore,
 					'oppSetScore'=> $myRow->OppSetScore,
@@ -480,11 +512,13 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				 	'oppArrowstring'=> $myRow->OppArrowstring,
 					'oppTie'=> $myRow->OppTie,
 				 	'oppTiebreak'=> trim($myRow->OppTieBreak),
-				 	'oppTiebreakDecoded'=> implode(',', $oppArr),
+                    'oppClosest' => $myRow->OppTieClosest,
+				 	'oppTiebreakDecoded'=> $myRow->OppTieDecoded,
                     'oppArrowpositionAvailable'=>($myRow->OppArrowPosition != ''),
 					'oppStatus'=>$myRow->OppStatus,
 					'oppScoreConfirmed'=>$myRow->OppConfirmed,
 					'oppShootFirst'=>$myRow->OppShootFirst,
+					'oppRecord' => $this->ManageBitRecord($myRow->OppRecBitLevel, $myRow->OppCaCode, $myRow->OppMaCode, $myRow->EvIsPara),
 				 	'oppPosition'=> $myRow->OppQualRank ? $myRow->OppQualRank : (useGrPostion2($myRow->EvFinalFirstPhase, $myRow->Phase) ? ($myRow->OppPosition2 ? $myRow->OppPosition2:'') : $myRow->OppPosition),
                     'oppSaved'=> ($myRow->OppPosition>0 and $myRow->OppPosition<=SavedInPhase($myRow->EvFinalFirstPhase)),
                     'oppTeamId'=> $myRow->OppTeam,

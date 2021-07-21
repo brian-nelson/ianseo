@@ -1,6 +1,6 @@
 <?php
 
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 $rankData=$PdfData->rankData;
 $parentList = array();
 
@@ -337,9 +337,9 @@ foreach($rankData['sections'] as $Event => $section) {
 			$tieText = "";
 			if($Match['tiebreakDecoded']) {
 				$pdf->SetFont($pdf->FontStd,'',6);
-				$tieText = $Match['tiebreakDecoded'];
+				$tieText = 'T.'.$Match['tiebreakDecoded'];
 			} elseif($Match['tie']==1) {
-				$tieText="*";
+				$tieText="+";
 			}
 			if($Match['notes']) {
 				$pdf->SetFont($pdf->FontStd,'B',6);
@@ -350,9 +350,9 @@ foreach($rankData['sections'] as $Event => $section) {
 			$pdf->setXY($MyX, $OrgY+$Cella);
 			if($Match['oppTiebreakDecoded']) {
 				$pdf->SetFont($pdf->FontStd,'',6);
-				$tieText = $Match['oppTiebreakDecoded'];
+				$tieText = 'T.'.$Match['oppTiebreakDecoded'];
 			} elseif($Match['oppTie']==1) {
-				$tieText = "*";
+				$tieText = "+";
 			}
 			if($Match['oppNotes']) {
 				$pdf->SetFont($pdf->FontStd,'B',6);

@@ -277,7 +277,7 @@ if(!empty($_REQUEST['Id']) and isset($_REQUEST['RuleId'])) {
 					= "SELECT EvCode, EvEventName, greatest(PhId, PhLevel) as EvFinalFirstPhase "
 					. "FROM Events "
 					. "INNER JOIN Phases on PhId=EvFinalFirstPhase and (PhIndTeam & pow(2,EvTeamEvent))>0 "
-					. "WHERE EvTournament={$_SESSION['TourId']} and EvTeamEvent=0 and EvFinalFirstPhase>0 and EvCode not in ('".implode("','", $_SESSION['MenuFinI'])."')"
+					. "WHERE EvTournament={$_SESSION['TourId']} and EvTeamEvent=0 and EvFinalFirstPhase>0 "
 					. "ORDER BY EvTeamEvent ASC, EvProgr ";
 
 				$Rs=safe_r_sql($Select);
@@ -287,6 +287,10 @@ if(!empty($_REQUEST['Id']) and isset($_REQUEST['RuleId'])) {
 				if (safe_num_rows($Rs)) {
 					if($IskGroup=getModuleParameter('ISK', 'Sequence')) {
 						foreach($IskGroup as $Group => $sequence) {
+							if(!is_numeric($Group)) {
+								// this is the old sequences system still used by the ISK ... so not supported
+								break;
+							}
 							$ResCols[$i]['data'][] = '<input type="checkbox" name="d_TVEventInd[]"'
 								. (in_array("##".$Group."##", $Arr_EventIndRule) ? ' checked' : '')
 								. ' value="##'.$Group.'##">Follow Group '.chr(65+$Group);
@@ -308,8 +312,14 @@ if(!empty($_REQUEST['Id']) and isset($_REQUEST['RuleId'])) {
 
 							$r->EvFinalFirstPhase=namePhase($r->EvFinalFirstPhase, ceil($r->EvFinalFirstPhase/2));
 						}
+						$tmp=str_replace('name="d_TVPhaseInd[]" value="1">', 'name="d_TVPhaseInd['.$r->EvCode.'][]" value="1" id="id_'.$r->EvCode.'_1">', $tmp);
+						if(!empty($Arr_PhaseIndRule[$r->EvCode]) && in_array(1, $Arr_PhaseIndRule[$r->EvCode])) {
+							$tmp=str_replace('name="d_TVPhaseInd['.$r->EvCode.'][]" value="1"', 'name="d_TVPhaseInd['.$r->EvCode.'][]" value="1" checked="checked"', $tmp);
+						}
 						$tmp=str_replace('name="d_TVPhaseInd[]" value="0">', 'name="d_TVPhaseInd['.$r->EvCode.'][]" value="0" id="id_'.$r->EvCode.'_0">', $tmp);
-						if(!empty($Arr_PhaseIndRule[$r->EvCode]) && in_array(0, $Arr_PhaseIndRule[$r->EvCode])) $tmp=str_replace('name="d_TVPhaseInd['.$r->EvCode.'][]" value="0"', 'name="d_TVPhaseInd['.$r->EvCode.'][]" value="0" checked="checked"', $tmp);
+						if(!empty($Arr_PhaseIndRule[$r->EvCode]) && in_array(0, $Arr_PhaseIndRule[$r->EvCode])) {
+							$tmp=str_replace('name="d_TVPhaseInd['.$r->EvCode.'][]" value="0"', 'name="d_TVPhaseInd['.$r->EvCode.'][]" value="0" checked="checked"', $tmp);
+						}
 						$ResCols[$i+1]['data'][]=$tmp;
 					}
 				}
@@ -379,16 +389,20 @@ if(!empty($_REQUEST['Id']) and isset($_REQUEST['RuleId'])) {
 				$Select
 					= "SELECT EvCode, EvEventName, EvFinalFirstPhase "
 					. "FROM Events "
-					. "WHERE EvTournament={$_SESSION['TourId']} and EvTeamEvent=1 and EvFinalFirstPhase>0 and EvCode not in ('".implode("','", $_SESSION['MenuFinT'])."')"
+					. "WHERE EvTournament={$_SESSION['TourId']} and EvTeamEvent=1 and EvFinalFirstPhase>0 "
 					. "ORDER BY EvTeamEvent ASC, EvProgr ";
 
 				$Rs=safe_r_sql($Select);
 
-//				$ResCols[$i]['header']=get_text('TVFilterEventTeam','Tournament');
-//				$ResCols[$i+1]['header']=get_text('TVFilterPhaseTeamFinal','Tournament');
+				$ResCols[$i]['header']=get_text('TVFilterEventTeam','Tournament');
+				$ResCols[$i+1]['header']=get_text('TVFilterPhaseTeamFinal','Tournament');
 				if (safe_num_rows($Rs)) {
 					if($IskGroup=getModuleParameter('ISK', 'Sequence')) {
 						foreach($IskGroup as $Group => $sequence) {
+							if(!is_numeric($Group)) {
+								// this is the old sequences system still used by the ISK ... so not supported
+								break;
+							}
 							$ResCols[$i]['data'][] = '<input type="checkbox" name="d_TVEventTeam[]"'
 								. (in_array("##".$Group."##", $Arr_EventTeamRule) ? ' checked' : '')
 								. ' value="##'.$Group.'##">Follow Group '.chr(65+$Group);
@@ -414,14 +428,19 @@ if(!empty($_REQUEST['Id']) and isset($_REQUEST['RuleId'])) {
 							$FullPhase=namePhase($r->EvFinalFirstPhase, ceil($FullPhase/2));
 						}
 						$tmp=str_replace('name="d_TVPhaseTeam[]" value="1">', 'name="d_TVPhaseTeam['.$r->EvCode.'][]" value="1" id="id_'.$r->EvCode.'_1">', $tmp);
+						if(!empty($Arr_PhaseTeamRule[$r->EvCode]) && in_array(1, $Arr_PhaseTeamRule[$r->EvCode])) {
+							$tmp=str_replace('name="d_TVPhaseTeam['.$r->EvCode.'][]" value="1"', 'name="d_TVPhaseTeam['.$r->EvCode.'][]" value="1" checked="checked"', $tmp);
+						}
 						$tmp=str_replace('name="d_TVPhaseTeam[]" value="0">', 'name="d_TVPhaseTeam['.$r->EvCode.'][]" value="0" id="id_'.$r->EvCode.'_0">', $tmp);
-						if(!empty($Arr_PhaseTeamRule[$r->EvCode]) && in_array(0, $Arr_PhaseTeamRule[$r->EvCode])) $tmp=str_replace('name="d_TVPhaseTeam['.$r->EvCode.'][]" value="0"', 'name="d_TVPhaseTeam['.$r->EvCode.'][]" value="0" checked="checked"', $tmp);
+						if(!empty($Arr_PhaseTeamRule[$r->EvCode]) && in_array(0, $Arr_PhaseTeamRule[$r->EvCode])) {
+							$tmp=str_replace('name="d_TVPhaseTeam['.$r->EvCode.'][]" value="0"', 'name="d_TVPhaseTeam['.$r->EvCode.'][]" value="0" checked="checked"', $tmp);
+						}
 						$ResCols[$i+1]['data'][]=$tmp;
 					}
 				}
 			}
-/*
 			$i++;
+/*
 
 			// select schedules
 			$TmpHht=array();
@@ -536,9 +555,11 @@ if($ResCols) {
 	$result.='</tr>';
 	$result.='<tr valign="top">';
 	foreach($ResCols as $ColId => $data) {
-//	    if(array_key_exists('data',$data)) {
+	    if(array_key_exists('data',$data)) {
             $result .= '<td nowrap="nowrap">' . implode('<br/>', $data['data']) . '</td>';
-//        }
+        } else {
+            $result .= '<td nowrap="nowrap"></td>';
+	    }
 	}
 	$result.='</tr></table>';
 }

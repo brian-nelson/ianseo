@@ -7,7 +7,6 @@ $lang['BackNoEdit']='Cambia \'sta facciaccia';
 $lang['BgImage']='Immaggine de Sfonno';
 $lang['Bold']='Cicciotto';
 $lang['CharColor']='Colore Car.';
-$lang['CharSize']='Misura Car.';
 $lang['CharType']='Tipo de carattere';
 $lang['Heigh']='Artezza';
 $lang['Italic']='Corzivo';

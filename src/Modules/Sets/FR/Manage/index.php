@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 13/03/19
- * Time: 18.01
- */
+
 require_once(dirname(__FILE__) . '/config.php');
 
 CheckTourSession(true);
@@ -152,17 +147,24 @@ for($i=1; $i<=$NumMatch; $i++) {
 		echo '</thead>';
 		echo '<tbody game="'.$i.'">';
 		echo '<tr class="separator"><th colspan="7"></th></tr>';
-		echo '<tr match="ma-1">
+		echo '<tr match="ma-0">
 				<th rowspan="5">Match '.$j.'</th>
 				<td rowspan="5" nowrap="nowrap">
 				    <div><select oldvalue="'.$Status[0][$Matchno1]->Team.'" match="te-'.$Matchno1.'" onchange="updateMatch(this)">'.str_replace('value="'.$Status[0][$Matchno1]->Team.'"', 'value="'.$Status[0][$Matchno1]->Team.'" selected="selected"', $FreshTeams).'</select></div>
 				    <div><select oldvalue="'.$Status[0][$Matchno2]->Team.'" match="te-'.$Matchno2.'" onchange="updateMatch(this)">'.str_replace('value="'.$Status[0][$Matchno2]->Team.'"', 'value="'.$Status[0][$Matchno2]->Team.'" selected="selected"', $FreshTeams).'</select></div>
 				</td>
+				<th>Equipe</th>
+				<td><input match="tg-'.$Matchno1.'" onchange="updateMatch(this, true)" type="text" value="'.$Status[0][$Matchno1]->Target.'" size="3"></td>
+				<td><input match="tg-'.$Matchno2.'" onchange="updateMatch(this)" type="text" value="'.$Status[0][$Matchno2]->Target.'" size="3"></td>
+				<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this, true)" type="text" value="'.$Status[0][$Matchno1]->FsDate.'"></td>
+				<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this, true)" type="text" value="'.$Status[0][$Matchno1]->FsTime.'"></td>
+			</tr>';
+		echo '<tr match="ma-1">
 				<th>Ind 1</th>
-				<td><input match="tg-'.$Matchno1.'" onchange="updateMatch(this, true)" type="text" value="'.$Status[1][$Matchno1]->Target.'" size="3"></td>
+				<td><input match="tg-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[1][$Matchno1]->Target.'" size="3"></td>
 				<td><input match="tg-'.$Matchno2.'" onchange="updateMatch(this)" type="text" value="'.$Status[1][$Matchno2]->Target.'" size="3"></td>
-				<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this, true)" type="text" value="'.$Status[1][$Matchno1]->FsDate.'"></td>
-				<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this, true)" type="text" value="'.$Status[1][$Matchno1]->FsTime.'"></td>
+				<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[1][$Matchno1]->FsDate.'"></td>
+				<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[1][$Matchno1]->FsTime.'"></td>
 			</tr>';
 		echo '<tr match="ma-2">
 				<th>Ind 2</th>
@@ -170,13 +172,6 @@ for($i=1; $i<=$NumMatch; $i++) {
 				<td><input match="tg-'.$Matchno2.'" onchange="updateMatch(this)" type="text" value="'.$Status[2][$Matchno2]->Target.'" size="3"></td>
 				<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[2][$Matchno1]->FsDate.'"></td>
 				<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[2][$Matchno1]->FsTime.'"></td>
-			</tr>';
-		echo '<tr match="ma-0">
-				<th>Equipe</th>
-				<td><input match="tg-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[0][$Matchno1]->Target.'" size="3"></td>
-				<td><input match="tg-'.$Matchno2.'" onchange="updateMatch(this)" type="text" value="'.$Status[0][$Matchno2]->Target.'" size="3"></td>
-				<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[0][$Matchno1]->FsDate.'"></td>
-				<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[0][$Matchno1]->FsTime.'"></td>
 			</tr>';
 		echo '<tr match="ma-3">
 				<th>Ind 3</th>

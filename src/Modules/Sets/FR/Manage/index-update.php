@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 13/03/19
- * Time: 22.19
- */
 
 require_once(dirname(__FILE__) . '/config.php');
 
@@ -89,10 +83,10 @@ switch($_REQUEST['item']) {
 					$Changes[]=array(0, '1', $i+1, $tgt1, 'B');
 					$Changes[]=array(0, '2', $i, $tgt2, 'A');
 					$Changes[]=array(0, '2', $i+1, $tgt2, 'B');
-					$Changes[]=array(0, '3', $i, $tgt1, 'A');
-					$Changes[]=array(0, '3', $i+1, $tgt1, 'B');
-					$Changes[]=array(0, '4', $i, $tgt2, 'A');
-					$Changes[]=array(0, '4', $i+1, $tgt2, 'B');
+					$Changes[]=array(0, '3', $i, $tgt1, 'C');
+					$Changes[]=array(0, '3', $i+1, $tgt1, 'D');
+					$Changes[]=array(0, '4', $i, $tgt2, 'C');
+					$Changes[]=array(0, '4', $i+1, $tgt2, 'D');
 					$Changes[]=array(1, '', $i, $tgt1, 'A');
 					$Changes[]=array(1, '', $i+1, $tgt2, 'B');
 					$tgt+=2;
@@ -100,15 +94,15 @@ switch($_REQUEST['item']) {
 			} else {
 				$Changes=array(
 					array(0, '1', $Matchno+1, $Target, 'B'),
-					array(0, '3', $Matchno, $Target, 'A'),
-					array(0, '3', $Matchno+1, $Target, 'B'),
+					array(0, '3', $Matchno, $Target, 'C'),
+					array(0, '3', $Matchno+1, $Target, 'D'),
 					array(1, '', $Matchno, $Target, 'A'),
 				);
 				$Target=str_pad(intval($_REQUEST['val'])+1, 3,'0', STR_PAD_LEFT);
 				$Changes[]=array(0, '2', $Matchno, $Target, 'A');
 				$Changes[]=array(0, '2', $Matchno+1, $Target, 'B');
-				$Changes[]=array(0, '4', $Matchno, $Target, 'A');
-				$Changes[]=array(0, '4', $Matchno+1, $Target, 'B');
+				$Changes[]=array(0, '4', $Matchno, $Target, 'C');
+				$Changes[]=array(0, '4', $Matchno+1, $Target, 'D');
 				$Changes[]=array(1, '', $Matchno+1, $Target, 'B');
 			}
 
@@ -205,34 +199,34 @@ switch($_REQUEST['item']) {
 				$Changes=array();
 				for($i=$Matchno; $i<208; $i++) {
 					if($i!=$Matchno and in_array($i, $StartMatchNo)) {
-						$time=date('H:i', strtotime("$time + ".($DurationTeam+$DurationInd*2)." minutes"));
+						$time=date('H:i', strtotime("$time + ".($DurationTeam + $DurationInd)." minutes"));
 					}
 					$time1=date('H:i', strtotime("$time"));
-					$time2=date('H:i', strtotime("$time + $DurationInd minutes"));
-					$time3=date('H:i', strtotime("$time2 + $DurationTeam minutes"));
+					$time2=date('H:i', strtotime("$time + $DurationTeam minutes"));
+					$time3=date('H:i', strtotime("$time + $DurationTeam minutes"));
 
-					$Changes[]=array(0, '1', $i, $time1, $DurationInd);
-					$Changes[]=array(0, '2', $i, $time1, $DurationInd);
+					$Changes[]=array(1, '', $i, $time1, $DurationTeam);
+					$Changes[]=array(0, '1', $i, $time2, $DurationInd);
+					$Changes[]=array(0, '2', $i, $time2, $DurationInd);
 					$Changes[]=array(0, '3', $i, $time3, $DurationInd);
 					$Changes[]=array(0, '4', $i, $time3, $DurationInd);
-					$Changes[]=array(1, '', $i, $time2, $DurationTeam);
 
 				}
 			} else {
 				$time1=date('H:i', strtotime("$time"));
-				$time2=date('H:i', strtotime("$time + $DurationInd minutes"));
-				$time3=date('H:i', strtotime("$time2 + $DurationTeam minutes"));
+				$time2=date('H:i', strtotime("$time + $DurationTeam minutes"));
+				$time3=date('H:i', strtotime("$time + $DurationTeam minutes"));
 				$Changes=array(
-					array(0, '1', $Matchno, $time1, $DurationInd),
-					array(0, '1', $Matchno+1, $time1, $DurationInd),
+					array(1, '',  $Matchno, $time1, $DurationTeam),
+					array(1, '',  $Matchno+1, $time1, $DurationTeam),
+					array(0, '1', $Matchno, $time2, $DurationInd),
+					array(0, '1', $Matchno+1, $time2, $DurationInd),
+					array(0, '2', $Matchno, $time2, $DurationInd),
+					array(0, '2', $Matchno+1, $time2, $DurationInd),
 					array(0, '3', $Matchno, $time3, $DurationInd),
 					array(0, '3', $Matchno+1, $time3, $DurationInd),
-					array(0, '2', $Matchno, $time1, $DurationInd),
-					array(0, '2', $Matchno+1, $time1, $DurationInd),
 					array(0, '4', $Matchno, $time3, $DurationInd),
 					array(0, '4', $Matchno+1, $time3, $DurationInd),
-					array(1, '',  $Matchno, $time2, $DurationTeam),
-					array(1, '',  $Matchno+1, $time2, $DurationTeam),
 				);
 			}
 			foreach($Changes as $k) {

@@ -396,62 +396,43 @@ class ResultPDF extends IanseoPdf {
 		$this->Cell(8, 4 * ($double ? 2 : 1),  $item['countryCode'], $border.'L', 0, 'L', 0);
 		$this->Cell(43 + $addSize, 4 * ($double ? 2 : 1),  $item['countryName'], $border.'R', 0, 'L', 0);
 		$this->SetFont($this->FontFix,'',$this->FontSizeHead);
-		if(!$double)
-		{
-			for($i=1; $i<=$distances;$i++)
-			{
+		if(!$double) {
+			for($i=1; $i<=$distances;$i++) {
 				list($rank,$score)=explode('|',$item['dist_' . $i]);
-				if($snapDistance==0)
-				{
+				if($snapDistance==0) {
 					$cellContent=str_pad($score,3," ",STR_PAD_LEFT);
 					if($rank) $cellContent.="/" . str_pad($rank,2," ",STR_PAD_LEFT);
 					$this->Cell($distSize, 4,  $cellContent, $border.'LR', 0, 'R', 0);
-				}
-				elseif($i<$snapDistance)
-				{
+				} else if($i<$snapDistance) {
 					$this->Cell($distSize/2, 4, str_pad($score,3," ",STR_PAD_LEFT), $border.'L', 0, 'R', 0);
 					$this->Cell($distSize/2, 4, "", $border.'R', 0, 'R', 0);
-				}
-				else if($i==$snapDistance)
-				{
+				} else if($i==$snapDistance) {
 					list($rankS,$scoreS)=explode('|',$item['dist_Snap']);
 					$this->Cell($distSize/2, 4, str_pad($scoreS,3," ",STR_PAD_LEFT), $border.'L', 0, 'R', 0);
 					$this->Cell($distSize/2, 4, ($scoreS != $score ? "(" . str_pad($score,3," ",STR_PAD_LEFT) . ")" : "     "), $border.'R', 0, 'R', 0);
-				}
-				else
-				{
+				} else {
 					$this->Cell($distSize/2, 4, str_pad("0",3," ",STR_PAD_LEFT), $border.'L', 0, 'R', 0);
 					$this->Cell($distSize/2, 4, ($score!=0 ? "(" . str_pad($score,3," ",STR_PAD_LEFT) . ")" : "     "), $border.'R', 0, 'R', 0);
 				}
 			}
-		}
-		else
-		{
+		} else {
 			$TmpX=$this->GetX();
 			$TmpY=$this->GetY();
 			$RunningTotal=0;
-			for($i=1; $i<=$distances/2;$i++)
-			{
+			for($i=1; $i<=$distances/2;$i++) {
 				list($rank,$score)=explode('|',$item['dist_' . $i]);
-				if($snapDistance==0)
-				{
+				if($snapDistance==0) {
 					$cellContent=str_pad($score,3," ",STR_PAD_LEFT);
 					if($rank) $cellContent.="/" . str_pad($rank,2," ",STR_PAD_LEFT);
 					$this->Cell($distSize, 4,  $cellContent, $border.'LR', 0, 'R', 0);
-				}
-				elseif($i<$snapDistance)
-				{
+				} else if($i<$snapDistance) {
 					$this->Cell($distSize/2, 4, str_pad($score,3," ",STR_PAD_LEFT), $border.'L', 0, 'R', 0);
 					$this->Cell($distSize/2, 4, "", $border.'R', 0, 'R', 0);
-				}
-				else if($i==$snapDistance)
-				{
+				} else if($i==$snapDistance) {
 					list($rankS,$scoreS)=explode('|',$item['dist_Snap']);
 					$this->Cell($distSize/2, 4, str_pad($scoreS,3," ",STR_PAD_LEFT), $border.'L', 0, 'R', 0);
 					$this->Cell($distSize/2, 4, ($scoreS != $score ? "(" . str_pad($score,3," ",STR_PAD_LEFT) . ")" : "     "), $border.'R', 0, 'R', 0);
-				}
-				else
-				{
+				} else {
 					$this->Cell($distSize/2, 4, str_pad("0",3," ",STR_PAD_LEFT), $border.'L', 0, 'R', 0);
 					$this->Cell($distSize/2, 4, ($score!=0 ? "(" . str_pad($score,3," ",STR_PAD_LEFT) . ")" : "     "), $border.'R', 0, 'R', 0);
 				}
@@ -460,28 +441,20 @@ class ResultPDF extends IanseoPdf {
 			$this->Cell($distSize, 4, number_format($RunningTotal,0,'',$this->NumberThousandsSeparator), 1, 0, 'R', 0);
 			$this->setXY($TmpX,$TmpY+4);
 			$RunningTotal=0;
-			for($i; $i<=$distances;$i++)
-			{
+			for($i; $i<=$distances;$i++) {
 				list($rank,$score)=explode('|',$item['dist_' . $i]);
-				if($snapDistance==0)
-				{
+				if($snapDistance==0) {
 					$cellContent=str_pad($score,3," ",STR_PAD_LEFT);
 					if($rank) $cellContent.="/" . str_pad($rank,2," ",STR_PAD_LEFT);
 					$this->Cell($distSize, 4,  $cellContent, $border.'LR', 0, 'R', 0);
-				}
-				elseif($i<$snapDistance)
-				{
+				} else if($i<$snapDistance) {
 					$this->Cell($distSize/2, 4, str_pad($score,3," ",STR_PAD_LEFT), $border.'L', 0, 'R', 0);
 					$this->Cell($distSize/2, 4, "", $border.'R', 0, 'R', 0);
-				}
-				else if($i==$snapDistance)
-				{
+				} else if($i==$snapDistance) {
 					list($rankS,$scoreS)=explode('|',$item['dist_Snap']);
 					$this->Cell($distSize/2, 4, str_pad($scoreS,3," ",STR_PAD_LEFT), $border.'L', 0, 'R', 0);
 					$this->Cell($distSize/2, 4, ($scoreS != $score ? "(" . str_pad($score,3," ",STR_PAD_LEFT) . ")" : "     "), $border.'R', 0, 'R', 0);
-				}
-				else
-				{
+				} else {
 					$this->Cell($distSize/2, 4, str_pad("0",3," ",STR_PAD_LEFT), $border.'L', 0, 'R', 0);
 					$this->Cell($distSize/2, 4, ($score!=0 ? "(" . str_pad($score,3," ",STR_PAD_LEFT) . ")" : "     "), $border.'R', 0, 'R', 0);
 				}
@@ -491,12 +464,10 @@ class ResultPDF extends IanseoPdf {
 			$this->setXY($this->GetX(),$TmpY);
 		}
 	  	$this->SetFont($this->FontFix,'B',$this->FontSizeLines);
-	  	if(!$running)
-	  	{
-	  	  	if($snapDistance==0)
-				$this->Cell(12, 4 * ($double ? 2 : 1), number_format($item['score'],0,'',$this->NumberThousandsSeparator), $border.'LR', 0, 'R', 0);
-			else
-			{
+	  	if(!$running) {
+	  	  	if($snapDistance==0) {
+                $this->Cell(12, 4 * ($double ? 2 : 1), number_format(floatval($item['score']), 0, '', $this->NumberThousandsSeparator), $border . 'LR', 0, 'R', 0);
+            } else {
 				$this->Cell(6, 4 * ($double ? 2 : 1), number_format($item['scoreSnap'],0,'',$this->NumberThousandsSeparator), $border.'L', 0, 'R', 0);
 				$this->SetFont($this->FontFix,'',$this->FontSizeHead);
 				$this->Cell(6, 4 * ($double ? 2 : 1), ($item['score']==$item['scoreSnap'] ? '' : '(' . number_format($item['score'],0,'',$this->NumberThousandsSeparator) . ')'), $border.'R', 0, 'R', 0);
@@ -520,8 +491,7 @@ class ResultPDF extends IanseoPdf {
 			$this->SetFont($this->FontFix,'',$this->FontSizeHeadSmall);
 			$this->Cell(6 * ($this->ShowTens ? 1:2), 4 * ($double ? 2 : 1), str_pad($item['xnineSnap'],2," ", STR_PAD_LEFT) . ($item['xnine']==$item['xnineSnap'] ? "": "(". str_pad($item['xnine'],2," ", STR_PAD_LEFT). ")"), $border.'LR', 0, 'R', 0);
 		}
-		if($running)
-		{
+		if($running) {
 			$this->Cell(8, 4 * ($double ? 2 : 1),  $item['hits'], $border.'LR', 0, 'R', 0);
 			$this->SetFont($this->FontFix,'B',$this->FontSizeLines);
 			$this->Cell(12, 4 * ($double ? 2 : 1),  number_format($item['score'],3,$this->NumberDecimalSeparator,$this->NumberThousandsSeparator), $border.'LR', 1, 'R', 0);
@@ -530,23 +500,18 @@ class ResultPDF extends IanseoPdf {
 			$this->SetFont($this->FontStd,'I',5);
 			if($this->ShowCTSO) {
 				if(!empty($item['so']) &&  $item['so']>0) {
-					$tmpArr="";
-					if(strlen(trim($item['tiebreak']))) {
-						$tmpArr=".";
-						for($countArr=0; $countArr<strlen(trim($item['tiebreak'])); $countArr++) {
-							$tmpArr .= DecodeFromLetter(substr(trim($item['tiebreak']),$countArr,1)) . ",";
-						}
-						$tmpArr = substr($tmpArr,0,-1);
-
-					}
-					$this->Cell(8, 4 * ($double ? 2 : 1),  ($this->ShotOffShort . $tmpArr), $border.'LR', 1, 'L', 1);
+					$tmpArr=$this->ShotOffShort .' ';
+                    if(strlen(trim($item['tiebreak']))) {
+                        $tmpArr .= 'T.'.$item['tiebreakDecoded'];
+                    }
+					$this->Cell(0, 4 * ($double ? 2 : 1),  ($tmpArr), $border.'LR', 1, 'L', 1);
 				} elseif(!empty($item['ct']) &&  $item['ct']>1) {
-					$this->Cell(8, 4 * ($double ? 2 : 1),  $this->CoinTossShort, $border.'LR', 1, 'L', 0);
+					$this->Cell(0, 4 * ($double ? 2 : 1),  $this->CoinTossShort, $border.'LR', 1, 'L', 0);
 				} else {
-					$this->Cell(8, 4 * ($double ? 2 : 1),  '', $border.'LR', 1, 'R', 0);
+					$this->Cell(0, 4 * ($double ? 2 : 1),  '', $border.'LR', 1, 'R', 0);
 				}
 			} else {
-				$this->Cell(8, 4 * ($double ? 2 : 1),  '', $border.'LR', 1, 'R', 0);
+				$this->Cell(0, 4 * ($double ? 2 : 1),  '', $border.'LR', 1, 'R', 0);
 			}
 		}
 	}
@@ -621,7 +586,7 @@ class ResultPDF extends IanseoPdf {
 			$this->Cell(12, 4 * ($double ? 2 : 1),  $section['fields']['score'], 1, 1, 'C', 1);
 		}
 		else
-			$this->Cell(8, 4 * ($double ? 2 : 1),  '', 1, 1, 'C', 1);
+			$this->Cell(0, 4 * ($double ? 2 : 1),  '', 1, 1, 'C', 1);
 		$this->SetFont($this->FontStd,'',1);
 		$this->Cell(0, 0.5,  '', 1, 1, 'C', 0);
 	}
@@ -732,7 +697,7 @@ class ResultPDF extends IanseoPdf {
 		if($running)
 			$this->Cell(15, $height, $item['hits'], 1, 0, 'R', 0);
 		$this->SetFont($this->FontFix,'B',$this->FontSizeLines);
-		$this->Cell(11 + ($running ? 4 : 0), $height,  number_format($item['score'],($running ? 3:0),$this->NumberDecimalSeparator,$this->NumberThousandsSeparator), 1, 0, 'R', 0);
+		$this->Cell(11 + ($running ? 4 : 0), $height, (empty(floatval($item['score'])) ? $item['score'] :  number_format($item['score'],($running ? 3:0),$this->NumberDecimalSeparator,$this->NumberThousandsSeparator)), 1, 0, 'R', 0);
 
 		$this->SetFont($this->FontFix,'',$this->FontSizeLines);
 		$this->Cell(9, $height,  $item['gold'], 1, 0, 'R', 0);
@@ -875,28 +840,20 @@ class ResultPDF extends IanseoPdf {
 		$this->SetFont($this->FontFix,'',$this->FontSizeLines);
 		$this->Cell(10, 4, $item['gold'], 1, 0, 'R', 0);
 		$this->Cell(10, 4, $item['xnine'], 1, 0, 'R', 0);
-		if($running)
-		{
+		if($running) {
 			$this->Cell(14, 4, $item['hits'], 1, 0, 'R', 0);
 			$this->Cell(12, 4, number_format($item['score'],3,$this->NumberDecimalSeparator,$this->NumberThousandsSeparator), 1, 1, 'R', 0);
-		}
-		else
-		{
+		} else {
 			$this->Cell(14, 4, number_format($item['score'],0,'',$this->NumberThousandsSeparator), 1, 0, 'R', 0);
 			//Definizione dello spareggio/Sorteggio
 			$this->SetFont($this->FontStd,'I',5);
 			if($item['so']>0)  //Spareggio
 			{
-				$tmpArr="";
-				if(strlen(trim($item['tiebreak'])))
-				{
-					$tmpArr=".";
-					for($countArr=0; $countArr<strlen(trim($item['tiebreak'])); $countArr++)
-						$tmpArr .= DecodeFromLetter(substr(trim($item['tiebreak']),$countArr,1)) . ",";
-					$tmpArr = substr($tmpArr,0,-1);
-				}
-				//$pdf->Cell(12, 4 * ($double ? 2 : 1),  (get_text('ShotOffShort','Tournament') . $tmpArr), 1, 1, 'L', 1);
-				$this->Cell(12, 4 ,  ($this->ShotOffShort . $tmpArr), 1, 1, 'L', 1);
+                $tmpArr=$this->ShotOffShort .' ';
+                if(strlen(trim($item['tiebreak']))) {
+                    $tmpArr .= 'T.'.$item['tiebreakDecoded'];
+                }
+				$this->Cell(12, 4 ,  $tmpArr, 1, 1, 'L', 1);
 			}
 			elseif($item['ct']>1)
 				//$pdf->Cell(12, 4 * ($double ? 2 : 1),  (get_text('CoinTossShort','Tournament')), 1, 1, 'L', 0);

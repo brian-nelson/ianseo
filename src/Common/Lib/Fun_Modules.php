@@ -140,7 +140,7 @@ function runJack($JackEvent, $TourId=0, $param=array()) {
 	//IMPORTANT: Don't change name of $Targets Variable!!!! Used in API-JSON call
 	$Targets = getModuleParameter('Jack', $JackEvent, array(), $TourId, true);
 	//if($Targets) {
-		error_log("Event $JackEvent triggered ".json_encode($param));
+//		error_log("Event $JackEvent triggered ".json_encode($param));
 	//}
 	foreach($Targets as $Target => $Command) {
 		if(is_file($Command['include'])) {

@@ -14,6 +14,27 @@ body
 	background-repeat:repeat-x; */
 }
 
+[onclick] {cursor: pointer;}
+
+.text-white{color:#fff!important}
+.text-primary{color:#007bff!important}
+a.text-primary:focus,a.text-primary:hover{color:#0062cc!important}
+.text-secondary{color:#868e96!important}
+a.text-secondary:focus,a.text-secondary:hover{color:#6c757d!important}
+.text-success{color:#28a745!important}
+a.text-success:focus,a.text-success:hover{color:#1e7e34!important}
+.text-info{color:#17a2b8!important}
+a.text-info:focus,a.text-info:hover{color:#117a8b!important}
+.text-warning{color:#ffc107!important}
+a.text-warning:focus,a.text-warning:hover{color:#d39e00!important}
+.text-danger{color:#dc3545!important}
+a.text-danger:focus,a.text-danger:hover{color:#bd2130!important}
+.text-light{color:#f8f9fa!important}
+a.text-light:focus,a.text-light:hover{color:#dae0e5!important}
+.text-dark{color:#343a40!important}
+a.text-dark:focus,a.text-dark:hover{color:#1d2124!important}
+.text-muted{color:#868e96!important}
+
 @media screen
 {
 	#Header
@@ -66,11 +87,12 @@ body
 		left: 0px;
 		width: 99%;
 		overflow: auto;
-		height: 648px;
+		min-height: 648px;
 		padding:5px;
 		padding-bottom:30px;
 		background-color: #F0F8FF;
 		z-index:0;
+        height:calc( 100vh - 120px );
 	}
 
 	#Debug {
@@ -93,6 +115,7 @@ body
 }
 
 table.Tabella {width:100%; background-color:#E1F0FF; border: 2px; border-color:#E1F0FF; border-collapse:separate; border-spacing:1px; /*empty-cells:hide;*/}
+table.Tabella.freeWidth {width:unset; min-width: 50%; margin:auto; }
 table.Tabella tr { background-color:#F9FCFF; color: #004488;}
 table.Tabella tr.OtherColor { background-color:#FFFFFF; color: #004488;}
 table.Tabella tr.CanShoot { background-color:#A0FFA0; color: #004488;}
@@ -157,6 +180,8 @@ table.Tabella2 td { padding:1px;}
 table.Tabella2 th { background-color:#BFDDFF; text-align:center; padding:1px; font-weight:bold; color: #004488}
 table.Tabella2 th.Title { background-color:#004488; text-align:center; color: #F2F9ff; font-size:120%}
 
+.HeadBlueBg-Dark {background-color:#004488;color:white;}
+.HeadBlueBg-Light {background-color:#BFDDFF}
 
 input, textarea, select, button
 {
@@ -167,7 +192,7 @@ input, textarea, select, button
 }
 input[disabled],select[disabled],checkbox[disabled]
 {
-  background: #D0D0D0;
+  background: #D0D0D0!important;
 }
 
 input.number{text-align:right;}
@@ -183,8 +208,8 @@ select.error {font-weight:bold; background-color:#FFFF99;}
 textarea.red {font-weight:bold; background-color:#FF3C1E;}
 select.red {font-weight:bold; background-color:#FF3C1E;}
 
-.disabled {background-color:#E8E8E8;}
-.disabledDark {background-color:#969292;}
+.disabled {background-color:#E8E8E8!important;}
+.disabledDark {background-color:#969292!important;}
 
 .blue {background-color: #2cc0f1}
 .green  {background-color:#96f886;}
@@ -307,3 +332,14 @@ body.loading .modal {
     font-size:3em;
     padding:1em!important;
 }
+
+.ml-1 {margin-left:0.25em;}
+.mr-1 {margin-right:0.25em;}
+.ml-2 {margin-left:0.5em;}
+.mr-2 {margin-right:0.5em;}
+.ml-5 {margin-left:2em;}
+.mr-5 {margin-right:2em;}
+
+.alert {margin:1rem;padding:1rem;font-size:125%;border-radius: 0.5em;}
+.alert-warning {background-color: #ffe0a0;border:1px solid #bfa575;}
+.alert-danger {background-color:lightpink;;border:1px solid hotpink;}

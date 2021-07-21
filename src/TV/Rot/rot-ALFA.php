@@ -9,7 +9,7 @@ function rotAlfa($TVsettings, $RULE) {
 		'html' => '',
 		'Block' => 'StartList',
 		'BlockCss' => 'height:2em; width:100%; overflow:hidden; font-size:2em; display:flex; flex-direction:row; justify-content:space-between; align-items:center; box-sizing:border-box;',
-		'NextSubBlock' => 1,
+		'NextSubBlock' => 2,
 		'SubBlocks' => 1);
 	$ret=array();
 

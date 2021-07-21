@@ -1,334 +1,134 @@
+$(function () {
+	updateView();
+})
+
 function updateView() {
     ShowCountries();
     ShowCategories();
+    // ShowPhases();
     ShowEntries();
 }
 
-function ShowCategories() {
-    var Events=document.getElementsByName('Event[]');
-    var Tours=document.getElementsByName('TourId[]');
-    var comboPhase=document.getElementById('d_Phase');
-    if(comboPhase!=undefined) {
-        comboPhase='&Phase='+comboPhase.value;
-    } else {
-        comboPhase='';
-    }
+function ShowCountries() {
+	var formData= getFormData();
 
-    // var PrintAccr=document.getElementById('PrintAccredited');
-    // var PrintPhot=document.getElementById('PrintPhoto');
-    // var PrintNoPr=document.getElementById('PrintNotPrinted');
-    // var SortTargt=document.getElementById('SortByTarget');
-
-    var query='?type=Categories'
-        // + '&PrintAccredited=' + (PrintAccr && PrintAccr.checked ? '1' : '0')
-        // + '&PrintPhoto=' + (PrintPhot && PrintPhot.checked ? '1' : '0')
-        // + '&PrintNotPrinted=' + (PrintNoPr && PrintNoPr.checked ? '1' : '0')
-        + '&CardType='+document.getElementById('BadgeType').value
-        + '&CardNumber='+(document.getElementById('BadgeNumber')=== null ? '0' : document.getElementById('BadgeNumber').value)
-        + comboPhase
-    ;
-
-    for(n=1; n<=SesQNo; n++) {
-        var Qsess=document.getElementById('d_QSession_'+n);
-        if(Qsess && Qsess.checked) query+='&QSession[]='+n;
-    }
-
-    for(n=1; n<=SesENo; n++) {
-        var Esess=document.getElementById('d_ESession_'+n);
-        if(Esess && Esess.checked) query+='&ESession[]='+n;
-    }
-    if(Events!=undefined) {
-        for(var n=0; n<Events.length; n++) {
-            if(Events.item(n).checked) query+='&'+Events.item(n).name+'='+Events.item(n).value;
-        }
-    }
-    if(Tours!=undefined) {
-        for(var n=0; n<Tours.length; n++) {
-            if(Tours.item(n).checked) query+='&'+Tours.item(n).name+'='+Tours.item(n).value;
-        }
-    }
-
-    var XMLHttp=CreateXMLHttpRequestObject();
-    if (XMLHttp) {
-        try {
-            if ((XMLHttp.readyState==XHS_COMPLETE || XMLHttp.readyState==XHS_UNINIT)) {
-                XMLHttp.open("POST",'GetCategories.php'+query, true);
-                XMLHttp.onreadystatechange=function() {
-                    if (XMLHttp.readyState!=XHS_COMPLETE) return;
-                    if (XMLHttp.status!=200) return;
-                    try {
-                        var XMLResp=XMLHttp.responseXML;
-                        // intercetto gli errori di IE e Opera
-                        if (!XMLResp || !XMLResp.documentElement) throw(XMLResp.responseText);
-
-                        // Intercetto gli errori di Firefox
-                        var XMLRoot;
-                        if ((XMLRoot = XMLResp.documentElement.nodeName)=="parsererror") throw("ParseError");
-
-                        XMLRoot = XMLResp.documentElement;
-
-                        // clean the Selectors
-                        var comboDivision=document.getElementById('d_Division');
-                        var comboClass=document.getElementById('d_Class');
-
-                        while (comboDivision.options.length>0) {
-                            comboDivision.remove(0);
-                        }
-                        while (comboClass.options.length>0) {
-                            comboClass.remove(0);
-                        }
-
-                        var Divisions=XMLRoot.getElementsByTagName('div');
-                        if(Divisions) {
-                            for(var i=0; i<Divisions.length; i++) {
-                                var descr=Divisions.item(i).getAttribute('option');
-                                var code=Divisions.item(i).getAttribute('id');
-
-                                comboDivision.options[i]=new Option(descr,code);
-                            }
-                        }
-                        var Classes=XMLRoot.getElementsByTagName('class');
-                        if(Classes) {
-                            for(var i=0; i<Classes.length; i++) {
-                                var descr=Classes.item(i).getAttribute('option');
-                                var code=Classes.item(i).getAttribute('id');
-
-                                comboClass.options[i]=new Option(descr,code);
-                            }
-                        }
-                    } catch(e) {
-                        //document.getElementById('idOutput').innerHTML='Errore: ' + e.toString();
-                    }
-
-                };
-                XMLHttp.send();
-            }
-        } catch (e) {
-            //document.getElementById('idOutput').innerHTML='Errore: ' + e.toString();
-        }
-    }
-
+	$.getJSON('GetCountries.php', formData, function(data) {
+		if(data.error==0) {
+			var newCountries='';
+			$.each(data.Countries, function() {
+				newCountries+='<option value="'+this.id+'">'+this.txt+'</option>';
+			});
+			$('#d_Country').html(newCountries);
+		}
+	});
 }
 
-function ShowCountries() {
-    var Events=document.getElementsByName('Event[]');
-    var Tours=document.getElementsByName('TourId[]');
-    var comboPhase=document.getElementById('d_Phase');
-    if(comboPhase!=undefined) {
-        comboPhase='&Phase='+comboPhase.value;
-    } else {
-        comboPhase='';
-    }
+function ShowCategories() {
+	var formData= getFormData();
 
-    var PrintAccr=document.getElementById('PrintAccredited');
-    var PrintPhot=document.getElementById('PrintPhoto');
-    var PrintNoPr=document.getElementById('PrintNotPrinted');
-    var SortTargt=document.getElementById('SortByTarget');
+	$.getJSON('GetCategories.php', formData, function(data) {
+		if(data.error==0) {
+			var newCats='';
+			$.each(data.Divisions, function() {
+				newCats+='<option value="'+this.id+'">'+this.txt+'</option>';
+			});
+			$('#d_Division').html(newCats);
 
-    var query='?type=countries'
-        // + '&PrintAccredited=' + (PrintAccr && PrintAccr.checked ? '1' : '0')
-        // + '&PrintPhoto=' + (PrintPhot && PrintPhot.checked ? '1' : '0')
-        // + '&PrintNotPrinted=' + (PrintNoPr && PrintNoPr.checked ? '1' : '0')
-        + '&CardType='+document.getElementById('BadgeType').value
-        + '&CardNumber='+(document.getElementById('BadgeNumber')=== null ? '0' : document.getElementById('BadgeNumber').value)
-        + comboPhase
-    ;
+			var newCats='';
+			$.each(data.Classes, function() {
+				newCats+='<option value="'+this.id+'">'+this.txt+'</option>';
+			});
+			$('#d_Class').html(newCats);
+		}
+	});
+}
 
-    for(n=1; n<=SesQNo; n++) {
-        var Qsess=document.getElementById('d_QSession_'+n);
-        if(Qsess && Qsess.checked) query+='&QSession[]='+n;
-    }
+function getFormData() {
+	var formData= {
+		PrintAccredited:$('#PrintAccredited:checked').length,
+		PrintPhoto:$('#PrintPhoto:checked').length,
+		PrintNotPrinted:$('#PrintNotPrinted:checked').length,
+		SortByTarget:$('#SortByTarget:checked').length,
+		CardType:$('#BadgeType').val(),
+		CardNumber:$('#BadgeNumber').length==0 ? 0 : $('#BadgeNumber').val(),
+	};
 
-    for(n=1; n<=SesENo; n++) {
-        var Esess=document.getElementById('d_ESession_'+n);
-        if(Esess && Esess.checked) query+='&ESession[]='+n;
-    }
-    if(Events!=undefined) {
-        for(var n=0; n<Events.length; n++) {
-            if(Events.item(n).checked) query+='&'+Events.item(n).name+'='+Events.item(n).value;
-        }
-    }
-    if(Tours!=undefined) {
-        for(var n=0; n<Tours.length; n++) {
-            if(Tours.item(n).checked) query+='&'+Tours.item(n).name+'='+Tours.item(n).value;
-        }
-    }
+	if($('#d_Phase:checked').length>0) {
+		formData.Phase=$('#d_Phase').val();
+	}
 
-    var XMLHttp=CreateXMLHttpRequestObject();
-    if (XMLHttp) {
-        try {
-            if ((XMLHttp.readyState==XHS_COMPLETE || XMLHttp.readyState==XHS_UNINIT)) {
-                XMLHttp.open("POST",'GetCountries.php'+query, true);
-                XMLHttp.onreadystatechange=function() {
-                    if (XMLHttp.readyState!=XHS_COMPLETE) return;
-                    if (XMLHttp.status!=200) return;
-                    try {
-                        var XMLResp=XMLHttp.responseXML;
-                        // intercetto gli errori di IE e Opera
-                        if (!XMLResp || !XMLResp.documentElement) throw(XMLResp.responseText);
+	if($('#HasPlastic:checked').length>0) {
+		formData.HasPlastic=1;
+	}
 
-                        // Intercetto gli errori di Firefox
-                        var XMLRoot;
-                        if ((XMLRoot = XMLResp.documentElement.nodeName)=="parsererror") throw("ParseError");
+	formData.Country=[];
+	$('#d_Country option:selected').each(function() {
+		formData.Country.push(this.value);
+	});
 
-                        XMLRoot = XMLResp.documentElement;
+	formData.Division=[];
+	$('#d_Division option:selected').each(function() {
+		formData.Division.push(this.value);
+	});
 
-                        // clean the Selector
-                        var comboCountry=document.getElementById('d_Country');
+	formData.Class=[];
+	$('#d_Class option:selected').each(function() {
+		formData.Class.push(this.value);
+	});
 
-                        while (comboCountry.options.length>0) {
-                            comboCountry.remove(0);
-                        }
+	formData.QSession=[];
+	$('.QSession:checked').each(function() {
+		formData.QSession.push(this.value);
+	});
 
-                        var Countries=XMLRoot.getElementsByTagName('country');
-                        if(Countries) {
-                            for(var i=0; i<Countries.length; i++) {
-                                var descr=Countries.item(i).getAttribute('option');
-                                var code=Countries.item(i).getAttribute('id');
+	formData.ESession=[];
+	$('.ESession:checked').each(function() {
+		formData.ESession.push(this.value);
+	});
 
-                                comboCountry.options[i]=new Option(descr,code);
-                            }
-                        }
-                    } catch(e) {
-                        //document.getElementById('idOutput').innerHTML='Errore: ' + e.toString();
-                    }
+	formData.Event=[];
+	$('.Events:checked').each(function() {
+		formData.Event.push(this.value);
+	});
 
-                };
-                XMLHttp.send();
-            }
-        } catch (e) {
-            //document.getElementById('idOutput').innerHTML='Errore: ' + e.toString();
-        }
-    }
+	formData.TourId=[];
+	$('.TourId:checked').each(function() {
+		formData.TourId.push(this.value);
+	});
+
+	if($('#TopRanked').length>0) {
+		formData.TopRanked=$('#TopRanked').val()
+	}
+	if($('#TopRankedFinal').length>0) {
+		formData.TopRankedFinal=$('#TopRankedFinal').val()
+	}
+
+	return formData;
 }
 
 function ShowEntries() {
-	var comboCountry=document.getElementById('d_Country');
-	var comboDivision=document.getElementById('d_Division');
-	var comboClass=document.getElementById('d_Class');
-	var comboEntries=document.getElementById('p_Entries');
-	var Events=document.getElementsByName('Event[]');
-	var Tours=document.getElementsByName('TourId[]');
-	var comboPhase=document.getElementById('d_Phase');
-	if(comboPhase!=undefined) {
-		comboPhase='&Phase='+comboPhase.value;
-	} else {
-		comboPhase='';
-	}
-	var HasPlastic=document.getElementById('HasPlastic');
-	if(HasPlastic!=undefined && HasPlastic.checked) {
-		HasPlastic='&HasPlastic=1';
-	} else {
-		HasPlastic='';
-	}
-
-	var PrintAccr=document.getElementById('PrintAccredited');
-	var PrintPhot=document.getElementById('PrintPhoto');
-	var PrintNoPr=document.getElementById('PrintNotPrinted');
-	var SortTargt=document.getElementById('SortByTarget');
-
-	var query='?type='
-		+ '&PrintAccredited=' + (PrintAccr && PrintAccr.checked ? '1' : '0')
-		+ '&PrintPhoto=' + (PrintPhot && PrintPhot.checked ? '1' : '0')
-		+ '&PrintNotPrinted=' + (PrintNoPr && PrintNoPr.checked ? '1' : '0')
-		+ '&SortByTarget=' + (SortTargt && SortTargt.checked ? '1' : '0')
-		+ '&CardType='+document.getElementById('BadgeType').value
-		+ '&CardNumber='+(document.getElementById('BadgeNumber')=== null ? '0' : document.getElementById('BadgeNumber').value)
-		+ comboPhase
-		+ HasPlastic
-		;
-
-	for(var n=0; n<comboCountry.length; n++) {
-		if(comboCountry.options[n].selected) query+='&Country[]='+comboCountry.options[n].value;
-	}
-
-	if(comboDivision!=undefined) {
-		for(n=0; n<comboDivision.length; n++) {
-			if(comboDivision.options[n].selected) query+='&Division[]='+comboDivision.options[n].value;
-		}
-	}
-	if(comboClass!=undefined) {
-		for(n=0; n<comboClass.length; n++) {
-			if(comboClass.options[n].selected) query+='&Class[]='+comboClass.options[n].value;
-		}
-	}
-	for(n=1; n<=SesQNo; n++) {
-		var Qsess=document.getElementById('d_QSession_'+n);
-		if(Qsess && Qsess.checked) query+='&QSession[]='+n;
-	}
-
-	for(n=1; n<=SesENo; n++) {
-		var Esess=document.getElementById('d_ESession_'+n);
-		if(Esess && Esess.checked) query+='&ESession[]='+n;
-	}
-	if(Events!=undefined) {
-		for(var n=0; n<Events.length; n++) {
-			if(Events.item(n).checked) query+='&'+Events.item(n).name+'='+Events.item(n).value;
-		}
-	}
-	if(Tours!=undefined) {
-		for(var n=0; n<Tours.length; n++) {
-			if(Tours.item(n).checked) query+='&'+Tours.item(n).name+'='+Tours.item(n).value;
-		}
-	}
+	var formData= getFormData();
 
     hide_confirm();
 
-	var XMLHttp=CreateXMLHttpRequestObject();
-	if (XMLHttp) {
-		try {
-			if ((XMLHttp.readyState==XHS_COMPLETE || XMLHttp.readyState==XHS_UNINIT)) {
-				XMLHttp.open("POST",'GetEntries.php'+query, true);
-				XMLHttp.onreadystatechange=function() {
-					if (XMLHttp.readyState!=XHS_COMPLETE) return;
-					if (XMLHttp.status!=200) return;
-					try {
-						var XMLResp=XMLHttp.responseXML;
-						// intercetto gli errori di IE e Opera
-						if (!XMLResp || !XMLResp.documentElement) throw(XMLResp.responseText);
+    $.getJSON('GetEntries.php', formData, function(data) {
+    	if(data.error==0) {
+		    // clean the Selectors
+		    var newEntries='';
+		    $.each(data.Entries, function() {
+			    newEntries+='<option value="'+this.id+'" style="color:'+this.style+'">'+this.text+'</option>';
+		    });
+		    $('#p_Entries').html(newEntries);
 
-						// Intercetto gli errori di Firefox
-						var XMLRoot;
-						if ((XMLRoot = XMLResp.documentElement.nodeName)=="parsererror") throw("ParseError");
+		    var numbers=data.reds;
+		    if($('#PrintNotPrinted:checked').length==0) {
+		    	numbers=(parseInt(data.reds)+parseInt(data.greens)) + ': '+data.reds+' + '+data.greens;
+		    }
+		    $('#getEntriesNum').html(numbers);
 
-						XMLRoot = XMLResp.documentElement;
-
-						// clean the Selector
-						while (comboEntries.options.length>0) {
-							comboEntries.remove(0);
-						}
-
-						var Entries=XMLRoot.getElementsByTagName('entry');
-						if(Entries) {
-							for(var i=0; i<Entries.length; i++) {
-								var descr=Entries.item(i).getAttribute('option');
-								var code=Entries.item(i).getAttribute('id');
-								var style=Entries.item(i).getAttribute('style');
-
-								comboEntries.options[i]=new Option(descr,code);
-								comboEntries.options[i].style.color = style;
-							}
-						}
-
-						var red=XMLRoot.getAttribute('red');
-						var green=XMLRoot.getAttribute('green');
-						var tot=0;
-						if(red) tot+=parseInt(red);
-						if(green) tot+=parseInt(green);
-						document.getElementById('getEntriesNum').innerHTML=tot+': '+red+' + '+green;
-
-						hide_confirm();
-					} catch(e) {
-						//document.getElementById('idOutput').innerHTML='Errore: ' + e.toString();
-					}
-
-				};
-				XMLHttp.send();
-			}
-		} catch (e) {
-			//document.getElementById('idOutput').innerHTML='Errore: ' + e.toString();
-		}
-	}
+		    hide_confirm();
+	    }
+    });
 }
 
 function ConfirmPrinted() {
@@ -371,8 +171,7 @@ function ConfirmPrinted() {
 	}
 }
 
-function selectEntries(selected)
-{
+function selectEntries(selected) {
 	var comboCountry=document.getElementById('d_Country');
 	var comboDivision=document.getElementById('d_Division');
 	var comboClass=document.getElementById('d_Class');

@@ -1,0 +1,20 @@
+.btn {background: #FFFFFF;
+    border: 1px #97B9E6 solid;
+    color: #000000;
+    font: 9pt Arial,Verdana,Sans;
+    display:inline-block;
+    margin-left:0.5em;
+    margin-right:0.5em;
+    padding:0.25em 1em;
+}
+
+.Irm-0 {}
+.Irm-5 td, .Irm-5 td .btn {background-color:#BFF3BF;}
+.Irm-10 td, .Irm-10 td .btn {background-color:#F8EBBF;}
+.Irm-15 td, .Irm-15 td .btn {background-color:lightsalmon;}
+.Irm-20 td, .Irm-20 td .btn {background-color:lightpink;}
+
+.jconfirm.jconfirm-light .jconfirm-box .jconfirm-buttons {
+    float:unset;
+    text-align: center;
+}

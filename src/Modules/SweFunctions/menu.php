@@ -1,6 +1,9 @@
 <?php
-$version='2016-09-06';
+$version='2021-02-16';
 
 if(!empty($on) && $_SESSION['TourLocRule'] == 'SE') {
 	$ret['COMP']['EXPT'][] = '* Exportera svenska resultat|'.$CFG->ROOT_DIR.'Modules/SweFunctions/';
+}
+if(!empty($on) && $_SESSION['TourLocRule'] == 'NO') {
+	$ret['COMP']['EXPT'][] = '* Exportere norske resultat|'.$CFG->ROOT_DIR.'Modules/SweFunctions/';
 }

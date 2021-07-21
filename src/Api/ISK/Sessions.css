@@ -1,0 +1,6 @@
+.locked {color:red; background-color: transparent;}
+.unlocked {color:green;}
+.Legend {padding: 0.75em 0.75em !important;}
+.separation {padding: 0.5em;}
+
+[onclick] {cursor: pointer;}

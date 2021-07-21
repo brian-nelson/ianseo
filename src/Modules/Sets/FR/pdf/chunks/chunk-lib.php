@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 01/03/18
- * Time: 13.18
- */
 
 function writeGroupHeaderPrnIndividualAbs(&$pdf, $section, $distSize, $addSize, $running, $distances, $double, $follows=false) {
 	$tmpHeader="";

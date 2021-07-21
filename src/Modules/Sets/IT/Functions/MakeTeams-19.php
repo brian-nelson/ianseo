@@ -17,14 +17,16 @@
 	$Rs=safe_w_sql($Delete);
 
 
-	$Select
-		= "SELECT EnTournament,EnId,IF(EnCountry2=0,EnCountry,EnCountry2) as EnCountry, CONCAT(EnDivision,EnClass) AS Event, "
-		. "QuClRank, QuScore, QuGold, QuXnine "
-		. "FROM Entries INNER JOIN Qualifications ON EnId=QuId "
-		. "WHERE EnAthlete=1 AND EnTeamClEvent=1 AND EnStatus <= 1 AND EnTournament = " . StrSafe_DB($ToId) . " AND QuScore>0 "
+	// TODO: bisogna approfondire e comunque rifare le squadre (firmato Doc)
+	$Select = "SELECT EnTournament,EnId,IF(EnCountry2=0,EnCountry,EnCountry2) as EnCountry, CONCAT(EnDivision,EnClass) AS Event, 
+			QuClRank, QuScore, QuGold, QuXnine
+		FROM Entries 
+	    INNER JOIN Qualifications ON EnId=QuId
+		inner join IrmTypes on IrmId=QuIrmType and IrmShowRank=1
+	    WHERE EnAthlete=1 AND EnTeamClEvent=1 AND EnStatus <= 1 AND EnTournament = " . StrSafe_DB($ToId) . " AND QuScore>0 "
 		. (!is_null($Societa) ? ' AND IF(EnCountry2=0,EnCountry,EnCountry2)=' . StrSafe_DB($Societa)   : '')
 		. (!is_null($Category) ? ' AND CONCAT(EnDivision,EnClass)=' . StrSafe_DB($Category)  : '')
-		. "ORDER BY IF(EnCountry2=0,EnCountry,EnCountry2),CONCAT(EnDivision,EnClass), QuClRank ASC, QuScore DESC,QuGold DESC, QuXnine DESC,EnId ASC ";
+		. " ORDER BY IF(EnCountry2=0,EnCountry,EnCountry2),CONCAT(EnDivision,EnClass), QuClRank ASC, QuScore DESC,QuGold DESC, QuXnine DESC,EnId ASC ";
 
 	$Rs=safe_r_sql($Select);
 

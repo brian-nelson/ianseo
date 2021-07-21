@@ -110,12 +110,10 @@
 				SELECT
 					ToId,TeCoId,TeSubTeam,TeEvent,
 					TeScore, TeGold, TeXnine
-				FROM
-					Tournament
-					INNER JOIN
-						Teams
-					ON ToId=TeTournament AND TeFinEvent=0
-					left JOIN
+				FROM Tournament
+				INNER JOIN Teams ON ToId=TeTournament AND TeFinEvent=0
+			    inner join IrmTypes on IrmId=TeIrmType and IrmShowRank=1
+				left JOIN
 						(
 							SELECT CONCAT(DivId, ClId) DivClass, Divisions.*, Classes.*
 							FROM
@@ -126,9 +124,7 @@
 								DivAthlete and ClAthlete
 						) AS DivClass
 					ON TeEvent=DivClass AND TeTournament=DivTournament
-				WHERE
-					ToId={$this->tournament} AND
-					TeScore<>0
+				WHERE ToId={$this->tournament} AND TeScore<>0
 					{$filter}
 				ORDER BY
 					{$orderBy}

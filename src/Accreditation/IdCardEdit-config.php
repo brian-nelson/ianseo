@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 09/08/18
- * Time: 9.40
- */
 
 require_once(dirname(dirname(__FILE__)) . '/config.php');
 
@@ -27,6 +21,10 @@ if(isset($JSON)) {
 		$lvl = checkACL(AclIndividuals, AclReadOnly);
 	} else if($CardType=='T') {
 		$lvl = checkACL(AclTeams, AclReadOnly);
+	} else if($CardType=='Y') {
+		$lvl = checkACL(AclCompetition, AclReadOnly);
+	} else if($CardType=='Z') {
+		$lvl = checkACL(AclCompetition, AclReadOnly);
 	}
 
 	if($lvl!=AclReadWrite) {
@@ -44,6 +42,10 @@ if(isset($JSON)) {
 		checkACL(AclIndividuals, AclReadWrite);
 	} else if($CardType=='T') {
 		checkACL(AclTeams, AclReadWrite);
+	} else if($CardType=='Y') {
+		checkACL(AclCompetition, AclReadWrite);
+	} else if($CardType=='Z') {
+		checkACL(AclCompetition, AclReadWrite);
 	}
 }
 

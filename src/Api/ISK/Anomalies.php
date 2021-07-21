@@ -11,7 +11,7 @@ require_once('Common/Lib/Fun_Modules.php');
 $PAGE_TITLE=get_text('ISK-Anomalies', 'Api');
 $JS_SCRIPT=array(
 	phpVars2js(array('msgAreYouSure' => get_text('MsgAreYouSure'), 'Anomalies' => 1)),
-    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 	'<script type="text/javascript" src="./index.js"></script>',
 	'<script type="text/javascript" src="./Results.js"></script>',
 	'<link href="ISK.css" rel="stylesheet" type="text/css">',

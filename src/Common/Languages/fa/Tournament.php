@@ -35,7 +35,6 @@ $lang['ImageChecked']='تصویر بررسی شد';
 $lang['LogoL']='تصویر بالا-چپ';
 $lang['LogoManagement']='مدیریت تصویر';
 $lang['LogoR']='تصویر بالا-راست';
-$lang['MailTitle']='نام';
 $lang['ManSubClasses']='مدیریت زیر گروه ها';
 $lang['Name']='نام';
 $lang['New']='جديد';

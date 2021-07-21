@@ -12,7 +12,7 @@ if(!empty($_REQUEST['TestCountries'])) {
 	$MyQuery="SELECT "
 	. " '' EvCode, '' EvEventName, '' EvFinalFirstPhase, '' GrPhase, "
 	. " '' TfTarget, '' GrMatchNo, "
-	. " FlCode CoCode, concat(FlCode,' ', IF(co.CoName,co.CoName,'TEST')) Athlete, 1 AS Rank, 'test1|test2|test3' CoName, "
+	. " FlCode CoCode, concat(FlCode,' ', IF(co.CoName,co.CoName,'TEST')) Athlete, 1 AS `Rank`, 'test1|test2|test3' CoName, "
 	. " '' s16, '' s8, '' s4, '' s2, '' sBr, '' sGo "
 	. " FROM Flags "
 	. " left join (select CoCode, CoName from Countries group by CoCode) co on CoCode=FlCode "
@@ -29,7 +29,7 @@ if(!empty($_REQUEST['TestCountries'])) {
 	$MyQuery="SELECT distinct "
 	. " '' EvCode, '' EvEventName, '' EvFinalFirstPhase, '' GrPhase, "
 	. " '' TfTarget, '' GrMatchNo, "
-	. " CoCode, Countries.CoName Athlete, 1 AS Rank, 'test1|test2|test3' CoName, "
+	. " CoCode, Countries.CoName Athlete, 1 AS `Rank`, 'test1|test2|test3' CoName, "
 	. " FlSVG, FlJPG, "
 	. " '' s16, '' s8, '' s4, '' s2, '' sBr, '' sGo "
 	. " FROM Countries "
@@ -41,7 +41,7 @@ if(!empty($_REQUEST['TestCountries'])) {
 	$TeamLeaf=true;
 } else {
 	$MyQuery = 'SELECT EvCode, EvEventName, EvFinalFirstPhase, concat(TeCoId,\'-\',TeSubTeam,\'-\',TeEvent) as EnId, GrPhase, TfTarget, GrMatchNo, 
-	    CoCode, CoName Athlete, TeRank AS Rank, group_concat(concat(upper(EnFirstname), " ", EnName) separator "|") CoName, 
+	    CoCode, CoName Athlete, TeRank AS `Rank`, group_concat(concat(upper(EnFirstname), " ", EnName) separator "|") CoName, 
 		NULLIF(s16.FSTarget,\'\') s16, NULLIF(s8.FSTarget,\'\') s8, NULLIF(s4.FSTarget,\'\') s4, NULLIF(s2.FSTarget,\'\') s2, NULLIF(sb.FSTarget,\'\') sBr, NULLIF(sg.FSTarget,\'\') sGo 
         FROM Events
 		INNER JOIN TeamFinals ON EvCode=TfEvent AND EvTournament=TfTournament 

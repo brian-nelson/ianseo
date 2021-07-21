@@ -156,8 +156,8 @@ foreach($PdfData->rankData['details'] as $Event => $section) {
 				$pdf->Cell($ClubCol, $Height, $Match['details']['E']['Name1'],1,0,'L');
 				$pdf->Cell(6, $Height, $Match['score1'],1,0,'C');
 	            $pdf->SetFont($pdf->FontStd,'b',8);
-	            if($Match['score1']+$Match['score2']) {
-					$pdf->Cell(6, $Height, ($Match['score1']>$Match['score2'] or ($Match['score1']==$Match['score2'] and $Match['winner1'])) ? 2 : 0,1,1,'C');
+	            if($Match['matchpoints1']or $Match['matchpoints2']) {
+					$pdf->Cell(6, $Height, $Match['matchpoints1'], 1, 1, 'C');
 	            } else {
 					$pdf->Cell(6, $Height, '',1,1,'C');
 	            }
@@ -167,8 +167,8 @@ foreach($PdfData->rankData['details'] as $Event => $section) {
 				$pdf->Cell($ClubCol, $Height, $Match['details']['E']['Name2'],1,0,'L');
 				$pdf->Cell(6, $Height, $Match['score2'],1,0,'C');
 	            $pdf->SetFont($pdf->FontStd,'b',8);
-	            if($Match['score1']+$Match['score2']) {
-					$pdf->Cell(6, $Height, ($Match['score2']>$Match['score1'] or ($Match['score1']==$Match['score2'] and $Match['winner2'])) ? 2 : 0,1,1,'C');
+	            if($Match['matchpoints1']or $Match['matchpoints2']) {
+					$pdf->Cell(6, $Height, $Match['matchpoints2'], 1, 1, 'C');
 	            } else {
 					$pdf->Cell(6, $Height, '',1,1,'C');
 	            }
@@ -189,6 +189,8 @@ $ClubCol=($ColWidth-14)/2;
 
 $pads=$pdf->getCellPaddings();
 $pdf->setCellPaddings(0,0,0,0);
+
+$YEAR = $PdfData->rankData['meta']['Year'];
 
 foreach($PdfData->rankData['details'] as $Event => $section) {
 	$RunNumber=1;
@@ -229,7 +231,7 @@ foreach($PdfData->rankData['details'] as $Event => $section) {
 		        $pdf->SetFont($pdf->FontStd,'b',5);
 				$pdf->Cell(6, $Height, $PdfData->rankData['meta']['points'], 1, 1, 'C', 1);
 
-				foreach(array('I1','I2','E','I3','I4') as $Type) {
+				foreach(array('E','I1','I2','I3','I4') as $Type) {
 					if($Type=='I4' and $Match['team2']=='0335057_0') {
 						//debug_svela($Match);
 					}
@@ -250,8 +252,25 @@ foreach($PdfData->rankData['details'] as $Event => $section) {
 				$pdf->Cell(2, $Height, '', 0, 0, 'C');
 				$pdf->Cell($ClubCol, $Height, $PdfData->rankData['meta']['gameTotal'],0,0,'R');
 	            $pdf->SetFont($pdf->FontStd,'b',4);
-				$pdf->Cell(3, $Height, $PrintScore ? (($Match['score1']>$Match['score2'] or ($Match['score1']==$Match['score2'] and $Match['winner1'])) ? 2 : 0) : '',0,0,'C');
-				$pdf->Cell(3, $Height, $PrintScore ? (($Match['score2']>$Match['score1'] or ($Match['score1']==$Match['score2'] and $Match['winner2'])) ? 2 : 0) : '',0,0,'C');
+	            if($YEAR>=2020) {
+	            	$w1=0;
+	            	$w2=0;
+	            	if(max($Match['score1'],$Match['score2'])>=3) {
+	            		if($Match['score1']>$Match['score2']) {
+	            			$w1=3;
+			            } elseif($Match['score1']<$Match['score2']) {
+	            			$w2=3;
+			            } else {
+	            			$w1=1;
+	            			$w2=1;
+			            }
+		            }
+					$pdf->Cell(3, $Height, $PrintScore ? $w1 : '',0,0,'C');
+					$pdf->Cell(3, $Height, $PrintScore ? $w2 : '',0,0,'C');
+	            } else {
+					$pdf->Cell(3, $Height, $PrintScore ? (($Match['score1']>$Match['score2'] or ($Match['score1']==$Match['score2'] and $Match['winner1'])) ? 2 : 0) : '',0,0,'C');
+					$pdf->Cell(3, $Height, $PrintScore ? (($Match['score2']>$Match['score1'] or ($Match['score1']==$Match['score2'] and $Match['winner2'])) ? 2 : 0) : '',0,0,'C');
+	            }
 				$pdf->Cell($ClubCol, $Height, '',0,0,'C');
 
 				$pdf->Cell(3, $Height, $PrintScore ? $Match['score1'] : '',0,0,'C');

@@ -20,7 +20,7 @@ while($r=safe_fetch($q)) $Accreditations[$r->IcNumber]=$r->IcNumber;
 $PAGE_TITLE=get_text('TakePicture', 'Tournament');
 $JS_SCRIPT[] = phpVars2js(array('ROOT_DIR' => $CFG->ROOT_DIR, 'AreYouSure'=>get_text('MsgAreYouSure'), 'msgPictureThere' => get_text('PictureThere', 'Tournament')));
 $JS_SCRIPT[] = '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/ajax/ObjXMLHttpRequest.js"></script>';
-$JS_SCRIPT[] = '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>';
+$JS_SCRIPT[] = '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>';
 $JS_SCRIPT[] = '<script type="text/javascript" src="./Fun_AJAX_AccreditationPicture.js"></script>';
 $JS_SCRIPT[] = phpVars2js($param);
 if($param["source"]==0) {

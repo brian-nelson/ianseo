@@ -1,6 +1,12 @@
 <?php
+$lang['AllMailsRedirect']='Semua mesej akan dihantar ke';
 $lang['Anomalies']='Anomali';
+$lang['ClassFromToError']='Dari dan Ke mesti berupa nilai berangka';
 $lang['DirectoryNotWriteable']='Direktori $a tidak boleh ditulis oleh pelayan web. Sila ubah keizinannya untuk ditulis oleh sesiapa sahaja.';
+$lang['EmptyBody']='Badan Tiada: bidang ini adalah wajib!';
+$lang['EmptyFrom']='Email Tiada: bidang ini adalah wajib!';
+$lang['EmptySubject']='Subjek Tiada: bidang ini adalah wajib!';
+$lang['EmptyTitle']='Tajuk Tiada: bidang ini adalah wajib!';
 $lang['ErrCodeExists']='Kod sudah wujud!';
 $lang['ErrCommitteeError']='Kod atau perihalan Jawatankuasa tidak sah';
 $lang['ErrConnection']='Tiada sambungan ke pelayan $a';
@@ -19,6 +25,21 @@ $lang['ErrRedCard']='Jawatankuasa ini menjalani kad merah dan tidak boleh memint
 $lang['ErrUnknownNation']='Negara Tidak Diketahui';
 $lang['ErrYellowCard']='Jawatankuasa telah menjalani Kad Kuning kerana tiada hasil pertandingan telah dimuat naik. Hubungi codes@ianseo.net untuk penjelasan lanjut.';
 $lang['LockedProcedure']='Prosuder ini DIKUNCI';
+$lang['MailingAlreadyExists']='E-mel dengan tajuk yang sama ({$a}) sudah ada, sila ubah tajuk atau pilih e-mel untuk dipinda dari pemilih.';
+$lang['MailingDeleteTitle']='Buang Surat';
+$lang['MailingError']='Tiada perubahan dilakukan!';
+$lang['MalformedMail']='Mel tidak betul, sila masukkan e-mel yang sah ($a})';
+$lang['MissingData']='Data Tiada';
+$lang['MissingPhpIntlModule']='Transliterasi boleh dilakukan memasang dan mengaktifkan modul php-intl';
+$lang['NoDNSRecord']='Nama Pelayan tidak betul atau tidak dalam talian: harap maklum bahawa anda mesti disambungkan ke Internet untuk menetapkan pilihan ini.';
+$lang['NoMailingTemplate']='Tiada Templat E-mel yang dipilih/tersedia!';
+$lang['NoMailRecipients']='Email ini tidka ditujukan kepada sesiapa! Sila semak pilihan penapis anda.';
+$lang['NoSmtpServerSet']='Sila tetapkan pelayan SMTP sebelum menghantar e-mel!';
+$lang['SpecialFilterDiscrepancy']='Penapis khas telah ditetapkan tetapi tidak aktif!';
+$lang['TargetNumberMismatch']='Nombor Sasaran hanya boleh berbentuk [NomborTarget][HurufTarget], seperti pada 129C';
+$lang['TargetRangeMismatch']='Julat Sasaran mestilah 2 angka sasaran (tanpa huruf) dipisahkan dengan tanda hubung (tanda tolak), yang pertama lebih rendah daripada yang kedua, seperti pada 23-44';
+$lang['TextSmtpDelete']='Sila sahkan bahawa anda ingin membatalkan tetapan SMTP pada pemasangan Ianseo ini';
 $lang['TooManyArrows']='Terlalu banyak anak panah jumlah: maksimum ialah $a';
 $lang['TooManyElimQualified']='Pusingan jenis $a[0] hanya boleh menerima sehingga $a[1] pemanah';
+$lang['WrongPort']='Port ini tidak disokong!';
 ?>

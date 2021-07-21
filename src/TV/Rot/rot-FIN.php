@@ -87,7 +87,7 @@ function rotFin($TVsettings, $RULE) {
 	if(count($rankData['sections'])==0) return $Return;
 
 	$Return['SubBlocks']=count($rankData['sections']);
-	$Return['NextSubBlock']=$SubBlock+1;
+	$Return['NextSubBlock']=($SubBlock+1);
 
 	if($SubBlock>count($rankData['sections'])) $SubBlock=1;
 

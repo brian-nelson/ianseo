@@ -7,7 +7,6 @@ $lang['BackNoEdit']='Modifica amplasarea/configuratia';
 $lang['BgImage']='Imagine de fond/fundal/decor';
 $lang['Bold']='Litere/Caractere aldine/ingrosate';
 $lang['CharColor']='Culoare litera/caracter';
-$lang['CharSize']='Marime/dimensiune litera/caracter';
 $lang['CharType']='Tip litera/caracter';
 $lang['Heigh']='Cota/Inaltimea corpului literei/caracterului';
 $lang['IncludeLogo']='Imprima/Include steagul tarii/logo-ul clubului';

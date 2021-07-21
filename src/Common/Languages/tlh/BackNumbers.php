@@ -55,7 +55,6 @@ $lang['BlackWhite']='';
 $lang['Bold']='';
 $lang['Category']='';
 $lang['CharColor']='';
-$lang['CharSize']='';
 $lang['CharType']='';
 $lang['CheckBarcodeSeparator']='  ';
 $lang['Club']='/ ';

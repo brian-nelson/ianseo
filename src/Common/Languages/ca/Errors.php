@@ -1,6 +1,12 @@
 <?php
+$lang['AllMailsRedirect']='Tots els missatges s\'enviaran a';
 $lang['Anomalies']='Anomalies';
+$lang['ClassFromToError']='De i A han de ser valors numèrics';
 $lang['DirectoryNotWriteable']='El directori $a no es pot escriure pel servidor web. Si us plau canvia els permisos per a ser modificable per qualsevol persona.';
+$lang['EmptyBody']='Camp buit: aquest camp és obligatori!';
+$lang['EmptyFrom']='Correu electrònic buit o introduït incorrectament: aquest camp és obligatori!';
+$lang['EmptySubject']='Assumpte buit: aquest camp és obligatori!';
+$lang['EmptyTitle']='Títol buit: aquest camp és obligatori!';
 $lang['ErrCodeExists']='Codi ja existent!';
 $lang['ErrCommitteeError']='Codi o descripció comitè no vàlid';
 $lang['ErrConnection']='No hi ha connexió amb el servidor $a';
@@ -19,6 +25,24 @@ $lang['ErrRedCard']='El comitè té targeta vermella i no pot demanar competicio
 $lang['ErrUnknownNation']='Nació desconeguda';
 $lang['ErrYellowCard']='El comitè té targeta groga perquè no han pujat resultats de competició. Contacteu per a més explicacions a codes@ianseo.net .';
 $lang['LockedProcedure']='Aquest procediment està BLOQUEJAT';
+$lang['MailingAlreadyExists']='Ja existeix un correu electrònic amb el mateix títol ({$a}), canvieu el títol o seleccioneu el correu electrònic que voleu modificar al selector.';
+$lang['MailingDeleteText']='Confirmeu que voleu suprimir definitivament aquest correu electrònic!';
+$lang['MailingDeleteTitle']='Elimina el correu';
+$lang['MailingError']='No s\'ha realitzat cap canvi!';
+$lang['MalformedMail']='Correu electrònic introduït incorrectament: introduïu una adreça electrònica vàlida ({$a})';
+$lang['MissingAccreditation']='Falta acreditació en línia!';
+$lang['MissingData']='Dades que falten';
+$lang['MissingPhpIntlModule']='Es pot fer la transcripció instal·lant o activant el mòdul php-intl';
+$lang['NoDNSRecord']='El nom del servidor no és correcte o no està en línia: tingueu en compte que heu d\'estar connectat a Internet per configurar aquesta opció.';
+$lang['NoMailingTemplate']='No hi ha cap plantilla de correu electrònic seleccionada/disponible!';
+$lang['NoMailRecipients']='Ningú a qui enviar el correu! Reviseu les opcions de filtre.';
+$lang['NoPrivilege']='Privilegis insuficients: no teniu autorització per operar en aquesta pàgina!';
+$lang['NoSmtpServerSet']='Si us plau, configureu el servidor SMTP abans d\'enviar correus electrònics!';
+$lang['SpecialFilterDiscrepancy']='S\'ha establert un filtre especial però no està actiu!';
+$lang['TargetNumberMismatch']='El Nombre de Diana només pot tenir la forma [TargetNumber][TargetLetter], per exemple: 129C';
+$lang['TargetRangeMismatch']='Els Intervals de Dianes han de ser de 2 nombres de diana (sense lletres) separats per un guió (signe menys), el primer nombre inferior al segon, per exemple: 23-44';
+$lang['TextSmtpDelete']='Confirmeu que voleu desestablir la configuració SMTP en aquesta instal·lació d\'Ianseo';
 $lang['TooManyArrows']='Massa fletxes totals: el màxim és $a';
 $lang['TooManyElimQualified']='Les rondes del tipus $a[0] només poden acceptar fins a $a[1] arquers';
+$lang['WrongPort']='Aquest port no és compatible!';
 ?>

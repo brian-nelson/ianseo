@@ -20,6 +20,7 @@ function rotQuals($TVsettings, $RULE) {
 	$TVsettings->EventFilter=MakeEventFilter($TVsettings->TVPEventInd);
 
 	$options=array('tournament' => $RULE->TVRTournament);
+	$options['records'] = 1;
 	$options['subFamily'] = 'DivClass';
 
 	if(isset($TVsettings->TVPEventInd) && !empty($TVsettings->TVPEventInd))
@@ -60,7 +61,7 @@ function rotQuals($TVsettings, $RULE) {
 	if(count($rankData['sections'])==0) return $Return;
 
 	$Return['SubBlocks']=count($rankData['sections']);
-	$Return['NextSubBlock']=$SubBlock+1;
+	$Return['NextSubBlock']=($SubBlock+1);
 
 	if($SubBlock>count($rankData['sections'])) $SubBlock=1;
 

@@ -30,7 +30,6 @@ $lang['Barcode']='Barcode';
 $lang['BgImage']='Pozadinska slika';
 $lang['Bold']='podebljano';
 $lang['CharColor']='boja znakova';
-$lang['CharSize']='veličina znakova';
 $lang['CharType']='vrsta znakova';
 $lang['CheckBarcodeSeparator']='Provjerite Barcode Separator';
 $lang['CountryCodeAndLong']='Kod zemlje i dugi naziv zemlje';

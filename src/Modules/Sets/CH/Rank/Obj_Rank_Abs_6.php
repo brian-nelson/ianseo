@@ -203,7 +203,7 @@
 					EnId,EnCode, upper(EnIocCode) EnIocCode, ifnull(EdExtra, EnCode) as LocalId, if(EnDob=0, '', EnDob) as BirthDate, EnOdfShortname, EnName AS Name, EnFirstName AS FirstName, upper(EnFirstName) AS FirstNameUpper, SUBSTRING(QuTargetNo,1,1) AS Session,
 					SUBSTRING(QuTargetNo,2) AS TargetNo, FlContAssoc,
 					EvProgr, ToNumEnds,ToNumDist,ToMaxDistScore,
-					CoId, CoCode, CoName, EnClass, EnDivision,EnAgeClass,  EnSubClass,
+					CoId, CoCode, CoName, CoCaCode, CoMaCode, EnClass, EnDivision,EnAgeClass,  EnSubClass,
 					IFNULL(Td1,'.1.') as Td1, IFNULL(Td2,'.2.') as Td2, IFNULL(Td3,'.3.') as Td3, IFNULL(Td4,'.4.') as Td4, IFNULL(Td5,'.5.') as Td5, IFNULL(Td6,'.6.') as Td6, IFNULL(Td7,'.7.') as Td7, IFNULL(Td8,'.8.') as Td8,
 					QuD1Score, IndD1Rank, QuD2Score, IndD2Rank, QuD3Score, IndD3Rank, QuD4Score, IndD4Rank,
 					QuD5Score, IndD5Rank, QuD6Score, IndD6Rank, QuD7Score, IndD7Rank, QuD8Score, IndD8Rank,
@@ -248,7 +248,7 @@
 				left join DistanceInformation on EnTournament=DiTournament and DiSession=1 and DiDistance=1 and DiType='Q' ";
 			if(!empty($comparedTo))
 				$q .= "LEFT JOIN IndOldPositions ON IopId=EnId AND IopEvent=EvCode AND IopTournament=EnTournament AND IopHits=" . ($comparedTo>0 ? $comparedTo :  "(SELECT MAX(IopHits) FROM IndOldPositions WHERE IopId=EnId AND IopEvent=EvCode AND IopTournament=EnTournament AND IopHits!=QuHits) ") . " ";
-			$q .= "LEFT JOIN Flags ON FlIocCode='FITA' and FlCode=CoCode and FlTournament=-1
+			$q .= "LEFT JOIN Flags ON FlIocCode='FITA' and FlCode=CoCode and FlTournament=ToId
 
 					/* Contatori per CT (gialli)*/
 					LEFT JOIN
@@ -265,9 +265,8 @@
 					ON sqY.sqyRank=IndSO AND sqY.IndEvent=Individuals.IndEvent AND sqY.IndTournament=Individuals.IndTournament
 
 				WHERE
-					EnAthlete=1 AND EnIndFEvent=1 AND EnStatus <= 1  "
-					. (empty($this->opts['includeNullPoints'])? " AND QuScore != 0 " : "")
-					." AND ToId = {$this->tournament}
+					EnAthlete=1 AND EnIndFEvent=1 AND EnStatus <= 1 
+					AND (QuScore != 0 OR QuHits !=0)  AND ToId = {$this->tournament}
 					{$filter}
 					{$EnFilter}
 				ORDER BY
@@ -451,7 +450,8 @@
 						'subclass' => $myRow->EnSubClass,
 						'countryId' => $myRow->CoId,
 						'countryCode' => $myRow->CoCode,
-						'contAssoc' => $myRow->FlContAssoc,
+						'contAssoc' => $myRow->CoCaCode,
+						'memberAssoc' => $myRow->CoMaCode,
 						'countryIocCode' => $myRow->EnIocCode,
 						'countryName' => $myRow->CoName,
 						'rank' => $tmpRank,

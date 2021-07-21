@@ -47,7 +47,7 @@
 			$MyQuery.= "ToType, ToNumDist as NumDist, IFNULL(Td1,'.1.') as Td1, IFNULL(Td2,'.2.') as Td2, IFNULL(Td3,'.3.') as Td3, IFNULL(Td4,'.4.') as Td4, IFNULL(Td5,'.5.') as Td5, IFNULL(Td6,'.6.') as Td6, IFNULL(Td7,'.7.') as Td7, IFNULL(Td8,'.8.') as Td8, ";
 			$MyQuery.= "QuD1Score, QuD1Rank, QuD2Score, QuD2Rank, QuD3Score, QuD3Rank, QuD4Score, QuD4Rank, ";
 			$MyQuery.= "QuD5Score, QuD5Rank, QuD6Score, QuD6Rank, QuD7Score, QuD7Rank, QuD8Score, QuD8Rank, ";
-			$MyQuery.= "QuScore, QuClRank AS Rank, QuGold, QuXnine, ToGolds AS TtGolds, ToXNine AS TtXNine ";
+			$MyQuery.= "QuScore, QuClRank AS `Rank`, QuGold, QuXnine, ToGolds AS TtGolds, ToXNine AS TtXNine ";
 		$MyQuery.= "FROM Tournament AS t ";
 			$MyQuery.= "INNER JOIN Entries AS e ON t.ToId=e.EnTournament ";
 			$MyQuery.= "INNER JOIN Countries AS c ON e.EnCountry=c.CoId AND e.EnTournament=c.CoTournament ";

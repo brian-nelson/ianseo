@@ -46,6 +46,7 @@ function MakeEventFilter($Event) {
 }
 
 function getCss($TourId, $Rule) {
+	global $CFG;
 	$ret='';
 	$q=safe_r_SQL("select TVRSettings from TVRules WHERE TVRId=$Rule AND TVRTournament=$TourId");
 	if($r=safe_fetch($q) and $Settings=unserialize($r->TVRSettings)) {
@@ -69,6 +70,14 @@ function getCss($TourId, $Rule) {
 		.TitleImg {display:inline-block;margin:-0.5vw;padding:0.1vw;background-color:white;}
 		.TitleImg img {height:3.5vw; width:auto;}
 		";
+	}
+	// loads the fonts for the records
+	$q=safe_r_sql("select distinct TrRecCode, TrFontFile from TourRecords where TrTournament=$TourId and TrFontFile!=''");
+	while($r=safe_fetch($q)) {
+		$ret.='@font-face {
+			    font-family: '.$r->TrRecCode.';
+			    src: url("'. $CFG->ROOT_DIR.'Common/tcpdf/fonts/'.$r->TrFontFile.'");
+			}';
 	}
 	return '<style>'.$ret.'</style>';
 }

@@ -9,5 +9,11 @@ $SetType['PAR']['types']=array();
 $SetType['PAR']['rules']=array();
 
 foreach($AllowedTypes as $val) {
-	$SetType['PAR']['types']["$val"]=$TourTypes[$val];
+	$SetType['PAR']['types'][$val]=$TourTypes[$val];
+}
+foreach(array(3, 6, 37) as $val) {
+    $SetType['PAR']['rules'][$val]=array(
+        'SetStandard',
+        'SetIPCandWA',
+    );
 }

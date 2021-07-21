@@ -137,7 +137,6 @@ $lang['MailSmtpPort']='SMTP端口';
 $lang['MailSmtpPwd']='SMTP密码';
 $lang['MailSmtpServer']='SMTP服务器';
 $lang['MailSmtpUser']='SMTP用户';
-$lang['MailTitle']='名称';
 $lang['MakeTeams']='重组团体';
 $lang['ManAthStatus']='选手状态管理';
 $lang['ManSession']='射箭场次管理';

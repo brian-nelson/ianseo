@@ -44,8 +44,7 @@ function ResetPostUpdate()
 	- UpdateQuals(Field)
 	Invia la GET a UpdateQuals.php
 */
-function UpdateQuals(Field)
-{
+function UpdateQuals(Field) {
 	if (XMLHttp)
 	{
 		if (Field)
@@ -408,82 +407,25 @@ function CalcRank_Response()
 	alert(Msg);
 }
 
-function SelectSession()
-{
-	if (XMLHttp)
-	{
-		try
-		{
-			if (!document.getElementById('chk_BlockAutoSave').checked)
-			{
-				var Ses = encodeURIComponent(document.getElementById('x_Session').value);
-				if (XMLHttp.readyState==XHS_COMPLETE || XMLHttp.readyState==XHS_UNINIT)
-				{
-					XMLHttp.open("GET","SelectSession.php?Ses=" + Ses,true);
-					//document.getElementById('idOutput').innerHTML="SelectSession.phpSes=" + Ses;
-					XMLHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-					XMLHttp.onreadystatechange=SelectSession_StateChange;
-					XMLHttp.send(null);
-				}
-			}
-		}
-		catch (e)
-		{
-			//document.getElementById('idOutput').innerHTML='Errore: ' + e.toString();
-		}
-	}
+function SelectSession() {
+	SelectSession_JSON(document.getElementById('x_Session'));
+	return;
 }
 
-function SelectSession_StateChange()
-{
-	// se lo stato � Complete vado avanti
-	if (XMLHttp.readyState==XHS_COMPLETE)
-	{
-	// se lo status di HTTP � ok vado avanti
-		if (XMLHttp.status==200)
-		{
-			try
-			{
-				SelectSession_Response();
-			}
-			catch(e)
-			{
-				//document.getElementById('idOutput').innerHTML='Errore: ' + e.toString();
-			}
-		}
-		else
-		{
-			//document.getElementById('idOutput').innerHTML='Errore: ' +XMLHttp.statusText;
-		}
+function SelectSession_JSON(obj) {
+	if ($('#chk_BlockAutoSave').is(':checked')) {
+		return;
 	}
-}
 
-function SelectSession_Response()
-{
+	$.getJSON('SelectSession.php?Ses='+$(obj).val(), function(data) {
+		if (data.error==0) {
+			$('#x_From').val(data.min);
+			$('#x_To').val(data.max);
+			$('#x_Coalesce_div').html(data.coalesce);
+		}
 
-	// leggo l'xml
-	var XMLResp=XMLHttp.responseXML;
-// intercetto gli errori di IE e Opera
-	if (!XMLResp || !XMLResp.documentElement)
-		throw(XMLResp.responseText);
+	});
 
-// Intercetto gli errori di Firefox
-	var XMLRoot;
-	if ((XMLRoot = XMLResp.documentElement.nodeName)=="parsererror")
-		throw("");
-
-	XMLRoot = XMLResp.documentElement;
-
-	var Error = XMLRoot.getElementsByTagName('error').item(0).firstChild.data;
-
-	if (Error==0)
-	{
-		var Minimo = XMLRoot.getElementsByTagName('minimo').item(0).firstChild.data;
-		var Massimo = XMLRoot.getElementsByTagName('massimo').item(0).firstChild.data;
-
-		document.getElementById('x_From').value=(Minimo!='#' ? Minimo : '');
-		document.getElementById('x_To').value=(Massimo!='#' ? Massimo : '');
-	}
 }
 
 /*

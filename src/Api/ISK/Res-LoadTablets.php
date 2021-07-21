@@ -50,6 +50,24 @@ switch($Sequence[0]) {
 		$Error=0;
 		break;
 	case 'E':
+		// gets the targets
+		$Phase=$Sequence[1]-1;
+		$FieldEnds=($Phase ? 'EvE2Ends' : 'EvE1Ends');
+		$Session=$Sequence[2];
+
+		// gets all the targets
+		$SQL="select distinct ElTargetNo+0 as TargetNum, right(ElTargetNo, 1) Letter
+			from Eliminations
+			inner join Events on EvCode=ElEventCode and EvTournament=ElTournament and EvTeamEvent=0
+			where ElTournament={$_SESSION['TourId']} and ElElimPhase=$Phase and ElSession=$Session and ElTargetNo>''
+			order by (TargetNum-1)%$FieldEnds, ElTargetNo";
+
+		$q=safe_r_sql($SQL);
+		while($r=safe_Fetch($q)) {
+			$Ends[$r->TargetNum][$r->Letter]='';
+			$Payloads[$r->TargetNum]='ses='.$Sequence.'&dist='.$Sequence[2].'&end='.$End.'&target='.$r->TargetNum;
+		}
+		$Error=0;
 		break;
 	case 'I':
 		$Date=substr($Sequence, 1, 10);

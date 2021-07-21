@@ -6,76 +6,43 @@
 
 define('debug',false);
 
-	require_once(dirname(dirname(__FILE__)) . '/config.php');
-	require_once('Common/Fun_Sessions.inc.php');
+require_once(dirname(dirname(__FILE__)) . '/config.php');
+require_once('Common/Fun_Sessions.inc.php');
 
-	if (!CheckTourSession())
-	{
-		print get_text('CrackError');
-		exit;
+$JSON=array('error'=>1,'val'=>'');
+
+if (!CheckTourSession() or checkACL(AclEliminations, AclReadWrite, false)!=AclReadWrite or IsBlocked(BIT_BLOCK_ELIM)) {
+	JsonOut($JSON);
+}
+
+foreach ($_REQUEST as $Key => $Value) {
+	if (substr($Key,0,2)!='d_') {
+		JsonOut($JSON);
 	}
-	checkACL(AclEliminations,AclReadWrite, false);
 
-	$Errore=0;
-	$Id='#';
-	$Ses='0';
+	list( , , , $Fase, $Evento) = explode('_',$Key);
+	$Id=$Fase.'_'.$Evento;
+	$Ses=$Value;
 
-	if (!IsBlocked(BIT_BLOCK_ELIM))
-	{
-		foreach ($_REQUEST as $Key => $Value)
-		{
-			if (substr($Key,0,2)=='d_')
-			{
-				$Fase='';
-				$Evento='';
-				$Torneo='';
-
-				list( , , , $Fase, $Evento, $Torneo) = explode('_',$Key);
-				$Id=$Fase.'_'.$Evento.'_'.$Torneo;
-				$Ses=$Value;
-
-				$sessions=GetSessions('E');
-				$trovato=false;
-				foreach ($sessions as $s)
-				{
-					if ($s->SesOrder==$Ses)
-					{
-						$trovato=true;
-						break;
-					}
-				}
-
-				if ($Ses==0)
-					$trovato=true;
-
-				if (!$trovato)
-				{
-					$Errore=1;
-				}
-				else
-				{
-					$Update
-						= "UPDATE Eliminations SET "
-						. "ElSession=" . StrSafe_DB($Ses) . " "
-						. "WHERE "
-							. "ElElimPhase=" . $Fase . " AND ElEventCode='".$Evento."' AND ElTournament=". $Torneo . " ";
-					$RsUp=safe_w_sql($Update);
-					if (!$RsUp)
-						$Errore=1;
-
-				}
-			}
+	$sessions=GetSessions('E');
+	$trovato=($Ses==0);
+	foreach ($sessions as $s) {
+		if ($s->SesOrder==$Ses) {
+			$trovato=true;
+			break;
 		}
 	}
-	else
-		$Errore=1;
 
-	if (!debug)
-		header('Content-Type: text/xml');
+	if (!$trovato) {
+		JsonOut($JSON);
+	}
 
-	print '<response>' . "\n";
-	print '<error>' . $Errore . '</error>' . "\n";
-	print '<id><![CDATA[' . $Id . ']]></id>' . "\n";
-	print '<ses>' . $Ses . '</ses>' . "\n";
-	print '</response>' . "\n";
-?>
+	$Update = "UPDATE Eliminations SET ElSession=" . StrSafe_DB($Ses) . " WHERE ElElimPhase=" . $Fase . " AND ElEventCode='".$Evento."' AND ElTournament=". $_SESSION['TourId'];
+	$RsUp=safe_w_sql($Update);
+
+	$JSON['val']=$Ses;
+}
+
+$JSON['error']=0;
+
+JsonOut($JSON);

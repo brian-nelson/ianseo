@@ -8,7 +8,7 @@ require_once('Common/Lib/Fun_Modules.php');
 $json_array=array();
 
 if(empty($_REQUEST['lang'])) {
-	$ServerUrl=getModuleParameter('ISK', 'ServerUrl');
+	$ServerUrl=getModuleParameter('ISK', 'ServerUrl', '', $CompId);
 	foreach($Lingue as $lang => $text) {
 		if(!file_exists($CFG->LANGUAGE_PATH . $lang . '/ISK.php')) continue;
 		$json_array[]=array(

@@ -1,4 +1,6 @@
 <?php
+$lang['Anomalies']='Uregelmæssigheder';
+$lang['ClassFromToError']='Fra og Til skal være numeriske værdier';
 $lang['DirectoryNotWriteable']='Webserveren kan ikke skrive i biblioteket $a. Venligst ændre rettighederne således at alle kan skrive.';
 $lang['ErrCodeExists']='Kode findes allerede!';
 $lang['ErrCommitteeError']='Ugyldig Udvalg kode eller beskrivelse';
@@ -18,6 +20,8 @@ $lang['ErrRedCard']='Udvalget er tildelt rødt kort og kan derfor ikke bede om s
 $lang['ErrUnknownNation']='Ukendt land';
 $lang['ErrYellowCard']='Udvalget har tildelt gult kort, da ingen resultater er blevet uploadet. Kontakt codes@ianseo.net for yderligere information.';
 $lang['LockedProcedure']='Denne funktion er LÅST';
+$lang['MissingPhpIntlModule']='Skift af sprog kan gøres ved at installere eller aktivere php-intl module';
+$lang['SpecialFilterDiscrepancy']='Et specielt filter er sat men er ikke aktivt';
 $lang['TooManyArrows']='For mange pile - maksimum er $a';
 $lang['TooManyElimQualified']='Runde af typen $a[0] kan kun acceptere op til $a[1] skytter';
 ?>

@@ -12,69 +12,15 @@ require_once('Common/Lib/Fun_Modules.php');
 
 echo "<script>\nvar WebDir = '$CFG->ROOT_DIR';\n</script>\n";
 
-// <link rel="stylesheet" href="<?php //print $Path_WWW; ? >layersmenu-gtk2.css" type="text/css">
+echo '<link rel="icon" href="'.$CFG->ROOT_DIR.'favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon"/>';
 
-//<link rel="stylesheet" href="<?php print $Path_WWW; ? >layersmenu-keramik.css" type="text/css">
-?>
-<link rel="icon" href="<?php print $CFG->ROOT_DIR; ?>favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon"/>
+// javascript per ingrandire logo on over
+echo '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/Fun_ResizeImg.inc.js"></script>';
 
-<?php // javascript per ingrandire logo on over ?>
-<script type="text/javascript" src="<?php echo $CFG->ROOT_DIR ?>Common/js/Fun_ResizeImg.inc.js"></script>
+// javascript per popup eccetera
+echo '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/Fun_JS.inc.js"></script>';
 
-<?php // javascript per popup eccetera ?>
-<script type="text/javascript" src="<?php echo $CFG->ROOT_DIR ?>Common/js/Fun_JS.inc.js"></script>
-
-<script language="JavaScript" type="text/javascript">
-// <!--
-<?php // require_once $Path_DIR . 'libjs/layersmenu-browser_detection.js'; ?>
-// -->
-</script>
-<?php
-// <script type="text/javascript" src="<?php print $Path_WWW;? >libjs/layersmenu-library.js"></script>
-// <script type="text/javascript" src="<?php print $Path_WWW;? >libjs/layersmenu.js"></script>
-	require_once $Path_DIR . 'lib/PHPLIB.php';
-//	require_once $Path_DIR . 'lib/layersmenu-common.inc.php';
-//	require_once $Path_DIR . 'lib/layersmenu.inc.php';
-
-// 	$mid = new LayersMenu(6, 7, 2, 1);	// Gtk2-like
-
-// 	$mid = new LayersMenu(3, 8, 1, 1);
-
-// 	$mid->setDirroot($Path_DIR);
-// 	$mid->setLibjsdir($Path_DIR . 'libjs/');
-// 	$mid->setImgdir($Path_DIR . 'menuimages/');
-// 	$mid->setImgwww($Path_WWW . 'menuimages/');
-// 	$mid->setIcondir($Path_DIR . 'menuicons/');
-// 	$mid->setIconwww($Path_WWW . 'menuicons/');
-// 	$mid->setTpldir($Path_DIR . 'templates/');
-// 	//$mid->setHorizontalMenuTpl('layersmenu-horizontal_menu-full.ihtml');
-// 	//$mid->setSubMenuTpl('layersmenu-sub_menu.ihtml');
-
-// 	$mid->setHorizontalMenuTpl('layersmenu-horizontal_menu-keramik-full.ihtml');
-// 	$mid->setSubMenuTpl('layersmenu-sub_menu-keramik.ihtml');
-
-// 	$WhichMenu = build_menu(get_which_menu(CheckTourSession()));
-
-// 	$mid->setMenuStructureString($WhichMenu);
-// 	$mid->setIconsize(16, 16);
-// 	$mid->parseStructureForMenu('hormenu1');
-// 	$mid->newHorizontalMenu('hormenu1');
-
-// 	$mid->printHeader();
-
-//if(!$_SESSION['WINHEIGHT']) {
-	echo '<script>';
-	echo 'var video="648";';
-	echo 'var videowidth="1000";';
-	echo 'video=document.documentElement.clientHeight;';
-	echo 'videowidth=document.documentElement.clientWidth;';
-	echo 'document.write(\'<LINK href="http://'.$_SERVER['SERVER_NAME'].$CFG->ROOT_DIR.'Common/Styles/Load_css.php?video=\'+video+\'&videowidth=\'+videowidth+\'" rel="stylesheet" type="text/css">\');';
-	//if($ERROR_REPORT) echo 'alert(video);';
-	echo '</script>';
-//}
-
-	if(!empty($_SESSION['WINHEIGHT'])) echo "<style>#Content {height:".max(180,$_SESSION['WINHEIGHT']-120)."px}</style>";
-
+require_once $Path_DIR . 'lib/PHPLIB.php';
 
 function get_which_menu($on=false) {
 	global $CFG;
@@ -124,8 +70,9 @@ function get_which_menu($on=false) {
             $ret['COMP'][] = MENU_DIVIDER;
             $ret['COMP']['FINI'][] = get_text('MenuLM_Individual Final Setup') . '';
             $ret['COMP']['FINI'][] = get_text('MenuLM_Manage Events') . '|' . $CFG->ROOT_DIR . 'Final/Individual/ListEvents.php';
-            $ret['COMP']['FINI'][] = get_text('MenuLM_Archers on Targets') . '|' . $CFG->ROOT_DIR . 'Final/Individual/SetAthForTarget.php';
-            $ret['COMP']['FINI'][] = get_text('MenuLM_Arr4Set') . '|' . $CFG->ROOT_DIR . 'Final/SetArrForMatch.php';
+            $ret['COMP']['FINI'][] = get_text('MenuLM_Archers on Targets') . '|' . $CFG->ROOT_DIR . 'Final/PhaseDetails.php';
+            $ret['COMP']['FINI'][] = get_text('MenuLM_Arr4Set') . '|' . $CFG->ROOT_DIR . 'Final/PhaseDetails.php?option=ArrowPhase';
+            //$ret['COMP']['FINI'][] = get_text('PhasesDetails', 'Tournament') . '|' . $CFG->ROOT_DIR . 'Final/PhaseDetails.php';
             $ret['COMP']['FINI'][] = get_text("MenuLM_Target's Number") . '|' . $CFG->ROOT_DIR . 'Final/Individual/ManTarget.php';
             $ret['COMP']['FINI'][] = get_text('MenuLM_Scheduling') . '|' . $CFG->ROOT_DIR . 'Final/Individual/ManSchedule.php';
             $ret['COMP']['FINI'][] = get_text('MenuLM_Training') . '|' . $CFG->ROOT_DIR . 'Final/ManTraining.php';
@@ -133,7 +80,9 @@ function get_which_menu($on=false) {
                 $ret['COMP']['FINI'][] = get_text('MenuLM_RunningEvents') . '|' . $CFG->ROOT_DIR . 'Final/RunningEvent.php';
             $ret['COMP']['FINT'][] = get_text('MenuLM_Team Final Setup') . '';
             $ret['COMP']['FINT'][] = get_text('MenuLM_Manage Events') . '|' . $CFG->ROOT_DIR . 'Final/Team/ListEvents.php';
-            $ret['COMP']['FINT'][] = get_text('MenuLM_Arr4Set') . '|' . $CFG->ROOT_DIR . 'Final/SetArrForMatch.php?Teams=1';
+            //$ret['COMP']['FINT'][] = get_text('MenuLM_Arr4Set') . '|' . $CFG->ROOT_DIR . 'Final/SetArrForMatch.php?Teams=1';
+	        //$ret['COMP']['FINI'][] = get_text('MenuLM_Archers on Targets') . '|' . $CFG->ROOT_DIR . 'Final/PhaseDetails.php';
+	        $ret['COMP']['FINT'][] = get_text('MenuLM_Arr4Set') . '|' . $CFG->ROOT_DIR . 'Final/PhaseDetails.php?team=1&option=ArrowPhase';
             $ret['COMP']['FINT'][] = get_text("MenuLM_Target's Number") . '|' . $CFG->ROOT_DIR . 'Final/Team/ManTarget.php';
             $ret['COMP']['FINT'][] = get_text('MenuLM_Scheduling') . '|' . $CFG->ROOT_DIR . 'Final/Team/ManSchedule.php';
             $ret['COMP']['FINT'][] = get_text('MenuLM_Training') . '|' . $CFG->ROOT_DIR . 'Final/ManTraining.php';
@@ -183,6 +132,7 @@ function get_which_menu($on=false) {
             $ret['PART'][] = get_text('MenuLM_Partecipant List (Advanced)') . '|' . $CFG->ROOT_DIR . 'Partecipants-exp/index.php';
             $ret['PART'][] = get_text('MenuLM_Athlete Status Management') . '|' . $CFG->ROOT_DIR . 'Partecipants/ManStatus.php';
             $ret['PART'][] = get_text('MenuLM_Athletes Participation to Ind/Team Event') . '|' . $CFG->ROOT_DIR . 'Partecipants/ManEventAccess.php';
+            $ret['PART'][] = get_text('MenuLM_IrmManagement') . '|' . $CFG->ROOT_DIR . 'Partecipants/ManIrmStatus.php';
             $ret['PART']['TARG'][] = get_text('MenuLM_Target') . '';
             $ret['PART']['TARG'][] = get_text('MenuLM_Manual Assignment') . '|' . $CFG->ROOT_DIR . 'Partecipants/SetTarget_default.php?Ses=*';
             $ret['PART']['TARG'][] = get_text('MenuLM_Draw') . '|' . $CFG->ROOT_DIR . 'Partecipants/SetTarget_auto.php';
@@ -229,6 +179,7 @@ function get_which_menu($on=false) {
             $ret['PART'][] = get_text('MenuLM_Printout') . '|' . $CFG->ROOT_DIR . 'Partecipants/PrintOut.php';
         }
 
+
 		/** QUALIFICATIONS MENU **/
 		$ret['QUAL'][] = get_text('MenuLM_Qualification') .'';
         if ($acl[AclQualification] == AclReadWrite) {
@@ -250,7 +201,6 @@ function get_which_menu($on=false) {
             $ret['QUAL'][] = MENU_DIVIDER;
             $ret['QUAL'][] = get_text('MenuLM_Scorecard Printout') . '|' . $CFG->ROOT_DIR . 'Qualification/PrintScore.php';
             $ret['QUAL'][] = get_text('MenuLM_NewBacknumbers') . '|' . $CFG->ROOT_DIR . 'Accreditation/IdCards.php?CardType=Q';
-// 		$ret['QUAL'][] = get_text('MenuLM_Back Number Printout') .'|'.$CFG->ROOT_DIR.'Qualification/PrintBackNo.php';
             $ret['QUAL'][] = get_text('MenuLM_Qualification Field of Play Layout') . '|' . $CFG->ROOT_DIR . 'Qualification/FopSetup.php|||PrintOut';
             $ret['QUAL'][] = MENU_DIVIDER;
             $ret['QUAL'][] = get_text('MenuLM_Personal Rank') . '|' . $CFG->ROOT_DIR . 'Qualification/RankPersonal1.php';
@@ -273,7 +223,7 @@ function get_which_menu($on=false) {
                 if ($_SESSION['MenuElim2']) {
                     $tmp .= ' <b style="color:red">(Round 2: ' . implode('-', $_SESSION['MenuElim2']) . ')</b>';
                 }
-                $tmp .= '|' . $CFG->ROOT_DIR . 'Elimination/AbsIndividual1.php';
+                $tmp .= '|' . $CFG->ROOT_DIR . 'Final/Individual/AbsIndividual.php';
                 $ret['ELIM'][] = $tmp;
                 $ret['ELIM'][] = MENU_DIVIDER;
             }
@@ -300,13 +250,13 @@ function get_which_menu($on=false) {
 		}
 
 		if($_SESSION['MenuElimPoolDo']) {
-			$ret['ELIMP'][] = get_text('MenuLM_Eliminations') .'';
+			$ret['ELIMP'][] = get_text('MenuLM_Pools') .'';
             if ($acl[AclEliminations] == AclReadWrite) {
                 $tmp = get_text('MenuLM_Check shoot-off before eliminations') . '';
                 if ($_SESSION['MenuElimPool']) {
                     $tmp .= ' <b style="color:red">(Pool: ' . implode('-', $_SESSION['MenuElimPool']) . ')</b>';
                 }
-                $tmp .= '|' . $CFG->ROOT_DIR . 'Elimination/AbsIndividual1.php';
+                $tmp .= '|' . $CFG->ROOT_DIR . 'Final/Individual/AbsIndividual.php';
                 $ret['ELIMP'][] = $tmp;
                 $ret['ELIMP'][] = MENU_DIVIDER;
             }
@@ -320,9 +270,10 @@ function get_which_menu($on=false) {
             }
 			if($_SESSION['MenuElimOn']) {
                 if ($acl[AclEliminations] == AclReadWrite) {
-                    $ret['ELIMP'][] = get_text('MenuLM_Spotting') . '|' . $CFG->ROOT_DIR . 'Final/WriteScoreCard.php?Team=0&ElimPool=1';
+                    $ret['ELIMP'][] = get_text('MenuLM_Spotting') . '|' . $CFG->ROOT_DIR . 'Final/Spotting.php';
                     $ret['ELIMP'][] = MENU_DIVIDER;
                     $ret['ELIMP']['SCOR'][] = get_text('MenuLM_Input Score');
+                    $ret['ELIMP']['SCOR'][] = get_text('MenuLM_Data insert (Table view)') . '|' . $CFG->ROOT_DIR . 'Final/Individual/InsertPoint1.php';
                 }
                 if ($acl[AclEliminations] >= AclReadOnly) {
                     $ret['ELIMP'][] = get_text('MenuLM_Printout') . '|' . $CFG->ROOT_DIR . 'Elimination/PrintOut.php';
@@ -339,7 +290,7 @@ function get_which_menu($on=false) {
                 if ($_SESSION['MenuFinI']) {
                     $tmp .= ' <b style="color:red">(' . implode('-', $_SESSION['MenuFinI']) . ')</b>';
                 }
-                $tmp .= '|' . $CFG->ROOT_DIR . 'Final/Individual/AbsIndividual1.php';
+                $tmp .= '|' . $CFG->ROOT_DIR . 'Final/Individual/AbsIndividual.php';
                 $ret['FINI'][] = $tmp;
             }
             if($acl[AclIndividuals] >= AclReadOnly) {
@@ -357,10 +308,7 @@ function get_which_menu($on=false) {
                     $ret['FINI'][] = get_text('MenuLM_Data insert (Bracket view)') . '|' . $CFG->ROOT_DIR . 'Final/Individual/InsertPoint_Bra.php';
                     $ret['FINI'][] = get_text('MenuLM_Data insert (Table view)') . '|' . $CFG->ROOT_DIR . 'Final/Individual/InsertPoint1.php';
                     $ret['FINI'][] = get_text('MenuLM_Arrow by Arrow (Advanced user)') . '|' . $CFG->ROOT_DIR . 'Final/WriteArrows.php';
-                    $ret['FINI'][] = get_text('MenuLM_Spotting') . '|' . $CFG->ROOT_DIR . 'Final/WriteScoreCard.php?Team=0';
-	                if(ProgramRelease=='HEAD' or ProgramRelease=='TESTING') {
-		                $ret['FINI'][] = get_text('MenuLM_Spotting') . ' (EXPERIMENTAL)|' . $CFG->ROOT_DIR . 'Final/Spotting.php';
-                    }
+                    $ret['FINI'][] = get_text('MenuLM_Spotting') . '|' . $CFG->ROOT_DIR . 'Final/Spotting.php';
                 }
                 if($acl[AclIndividuals] >= AclReadOnly) {
                     $ret['FINI'][] = MENU_DIVIDER;
@@ -377,7 +325,7 @@ function get_which_menu($on=false) {
                 if ($_SESSION['MenuFinT']) {
                     $tmp .= ' <b style="color:red">(' . implode('-', $_SESSION['MenuFinT']) . ')</b>';
                 }
-                $tmp .= '|' . $CFG->ROOT_DIR . 'Final/Team/AbsTeam1.php';
+                $tmp .= '|' . $CFG->ROOT_DIR . 'Final/Team/AbsTeam.php';
                 $ret['FINT'][] = $tmp;
             }
             if ($acl[AclTeams] >= AclReadOnly) {
@@ -392,15 +340,12 @@ function get_which_menu($on=false) {
 			if($_SESSION['MenuFinTOn']) {
                 if ($acl[AclTeams] == AclReadWrite) {
                     $ret['FINT'][] = MENU_DIVIDER;
-                    $ret['FINT'][] = get_text('MenuLM_Change Components') . '|' . $CFG->ROOT_DIR . 'Final/Team/ChangeComponents1.php';
+                    $ret['FINT'][] = get_text('MenuLM_Change Components') . '|' . $CFG->ROOT_DIR . 'Final/Team/ChangeComponents.php';
                     $ret['FINT'][] = MENU_DIVIDER;
                     $ret['FINT'][] = get_text('MenuLM_Data insert (Bracket view)') . '|' . $CFG->ROOT_DIR . 'Final/Team/InsertPoint_Bra.php';
                     $ret['FINT'][] = get_text('MenuLM_Data insert (Table view)') . '|' . $CFG->ROOT_DIR . 'Final/Team/InsertPoint1.php';
                     $ret['FINT'][] = get_text('MenuLM_Arrow by Arrow (Advanced user)') . '|' . $CFG->ROOT_DIR . 'Final/WriteArrows.php';
-                    $ret['FINT'][] = get_text('MenuLM_Spotting') . '|' . $CFG->ROOT_DIR . 'Final/WriteScoreCard.php?Team=1';
-	                if(ProgramRelease=='HEAD' or ProgramRelease=='TESTING') {
-		                $ret['FINT'][] = get_text('MenuLM_Spotting') . ' (EXPERIMENTAL)|' . $CFG->ROOT_DIR . 'Final/Spotting.php?Team=1';
-                    }
+                    $ret['FINT'][] = get_text('MenuLM_Spotting') . '|' . $CFG->ROOT_DIR . 'Final/Spotting.php?Team=1';
                 }
                 if ($acl[AclTeams] >= AclReadOnly) {
                     $ret['FINT'][] = MENU_DIVIDER;
@@ -479,10 +424,10 @@ function get_which_menu($on=false) {
             $ret['MEDI'][] = get_text('MenuLM_TV Output') . '|' . $CFG->ROOT_DIR . 'TV/';
             $ret['MEDI'][] = get_text('MenuLM_TV Channels') . '|' . $CFG->ROOT_DIR . 'TV/ChannelSetup.php';
             $ret['MEDI'][] = MENU_DIVIDER;
-            $ret['MEDI'][] = get_text('MenuLM_Spotting') . '|' . $CFG->ROOT_DIR . 'Final/Spot/|||_blank';
-	        if(ProgramRelease=='HEAD' or ProgramRelease=='TESTING') {
-                $ret['MEDI'][] = 'Judges\' Output (EXPERIMENTAL)|' . $CFG->ROOT_DIR . 'Final/Viewer/|||_blank';
-	        }
+            $ret['MEDI'][] = get_text('MenuLM_Spotting') . '|' . $CFG->ROOT_DIR . 'Final/Viewer/|||_blank';
+	        //if(ProgramRelease=='HEAD' or ProgramRelease=='TESTING') {
+            //    $ret['MEDI'][] = 'Judges\' Output (EXPERIMENTAL)|' . $CFG->ROOT_DIR . 'Final/Viewer/|||_blank';
+	        //}
             $ret['MEDI'][] = 'ShowTvLiveScore|' . $CFG->ROOT_DIR . 'Final/ShowTVScore.php?TourId=' . $_SESSION['TourCode'] . '|||TV';
         }
 
@@ -501,11 +446,12 @@ function get_which_menu($on=false) {
 			$ret['MEDI'][] = get_text('MenuLM_Output') .'';
 			$ret['MEDI'][] = get_text('MenuLM_TV Channels') .'|'.$CFG->ROOT_DIR.'tv.php';
 		}
-
 	}
 
 	$ret['MODS'][] = get_text('MenuLM_Modules');
-	if(ProgramRelease!='HEAD') $ret['MODS'][] = ''.get_text('MenuLM_Update') .'|'.$CFG->ROOT_DIR.'Update/';
+	if(ProgramRelease!='HEAD' AND (empty($_SESSION['AUTH_ENABLE']) OR !empty($_SESSION['AUTH_ROOT']))) {
+	    $ret['MODS'][] = ''.get_text('MenuLM_Update') .'|'.$CFG->ROOT_DIR.'Update/';
+    }
 	//$ret['MODS'][] = get_text('MenuLM_SearchModules') .'|'.$CFG->ROOT_DIR.'Modules/';
 
 	/** Additional Modules Menu **/
@@ -586,11 +532,20 @@ function DoSubMenu($List, $lvl=0) {
 }
 
 function getSubMenuItem($tit, $lvl=-1) {
-		@list($tit, $lnk, $dum, $dum, $tgt)=explode('|', $tit);
-		$link ='<a href="'.($lnk ? $lnk : '#url').'"';
-		if($tgt) $link.=' target="'.$tgt.'"';
-		$link.=($lvl>0 ? ' class="submenu"' : '').'>'.$tit.'</a>';
-		return '<li'.($lvl!=0 ? '' : ' class="MenuTitle"').'>'.$link."\n".($lvl==-1 ? '</li>' : '<ul>');
+    $lnk='';
+    $tgt='';
+    if(strpos($tit,'|')) {
+        $tmp = explode('|', $tit);
+        $tit=$tmp[0];
+        $lnk=$tmp[1];
+        if(count($tmp)>2){
+            $tgt=$tmp[4];
+        }
+    }
+    $link ='<a href="'.($lnk!='' ? $lnk : '#url').'"';
+    if($tgt!='') $link.=' target="'.$tgt.'"';
+    $link.=($lvl>0 ? ' class="submenu"' : '').'>'.$tit.'</a>';
+    return '<li'.($lvl!=0 ? '' : ' class="MenuTitle"').'>'.$link."\n".($lvl==-1 ? '</li>' : '<ul>');
 }
 
 function PrintMenu() {

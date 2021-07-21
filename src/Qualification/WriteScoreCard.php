@@ -1,6 +1,4 @@
 <?php
-	//define('debug',false);	// settare a true per l'output di debug
-
 	require_once(dirname(dirname(__FILE__)) . '/config.php');
 	require_once('Common/ScoreEditor/Score.class.php');
 	CheckTourSession(true);
@@ -18,6 +16,7 @@
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/Fun_JS.inc.js"></script>',
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Qualification/Fun_AJAX_WriteArrows.js"></script>',
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Qualification/Fun_AJAX_index.js"></script>',
+		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 		phpVars2js(array(
 			'CmdPostUpdate'=>get_text('CmdPostUpdate'),
 			'PostUpdating'=>get_text('PostUpdating'),
@@ -54,19 +53,19 @@
 	{
 		$RowTour=safe_fetch($RsTour);
 
-		$ComboSes = '<select name="x_Session" id="x_Session" onChange="javascript:SelectSession();">' . "\n";
-		$ComboSes.= '<option value="-1">---</option>' . "\n";
+		$ComboSes = '<select name="x_Session" id="x_Session" onChange="javascript:SelectSession();">';
+		$ComboSes.= '<option value="-1">---</option>';
 
-		$ComboDist = '<select name="x_Dist" id="x_Dist">' . "\n";
-		$ComboDist.= '<option value="-1">---</option>' . "\n";
+		$ComboDist = '<select name="x_Dist" id="x_Dist">';
+		$ComboDist.= '<option value="-1">---</option>';
 
 		for ($i=1;$i<=$RowTour->ToNumSession;++$i)
-			$ComboSes.= '<option value="' . $i . '"' . (isset($_REQUEST['x_Session']) && $_REQUEST['x_Session']==$i ? ' selected' : '') . '>' . $i . '</option>' . "\n";
-		$ComboSes.= '</select>' . "\n";
+			$ComboSes.= '<option value="' . $i . '"' . (isset($_REQUEST['x_Session']) && $_REQUEST['x_Session']==$i ? ' selected' : '') . '>' . $i . '</option>';
+		$ComboSes.= '</select>';
 
 		for ($i=1;$i<=$RowTour->TtNumDist;++$i)
-			$ComboDist.= '<option value="' . $i . '"' . (isset($_REQUEST['x_Dist']) && $_REQUEST['x_Dist']==$i ? ' selected' : '') . '>' . $i . '</option>' . "\n";
-		$ComboDist.= '</select>' . "\n";
+			$ComboDist.= '<option value="' . $i . '"' . (isset($_REQUEST['x_Dist']) && $_REQUEST['x_Dist']==$i ? ' selected' : '') . '>' . $i . '</option>';
+		$ComboDist.= '</select>';
 
 		$TxtTarget = '<input type="text" name="x_Target" id="x_Target" size="5" maxlength="' . (TargetNoPadding +1) . '" value="' . (isset($_REQUEST['x_Target']) ? $_REQUEST['x_Target'] : '') . '">';
 ?>

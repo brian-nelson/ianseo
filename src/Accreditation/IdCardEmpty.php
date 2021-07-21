@@ -125,6 +125,101 @@ function CreateDefaultE($CardNumber=0, $CardName='') {
 	CreateDefaultQ($CardNumber, $CardName, 'E');
 }
 
+function CreateDefaultZ($CardNumber=0, $CardName='') {
+	CreateDefaultY($CardNumber, $CardName, 'Z');
+}
+
+function CreateDefaultY($CardNumber=0, $CardName='', $CardType='Y') {
+	global $CFG;
+	$Options=emptyIdCard();
+	$Options->Settings['Width']=$Options->Settings['PaperHeight'];
+	$Options->Settings['Height']=$Options->Settings['PaperWidth'];
+	$Options->Settings['PaperHeight']=$Options->Settings['Height'];
+	$Options->Settings['PaperWidth']=$Options->Settings['Width'];
+	$Options->Settings['OffsetX']=0;
+	$Options->Settings['OffsetY']=0;
+	if(!$CardName) $CardName=get_text($CardType.'-Badge', 'BackNumbers');
+
+	$LogoHeight=50;
+	$HeadWidth=$Options->Settings["Width"]-20;
+	$HeadStart=10;
+
+	safe_w_sql("insert ignore into IdCards set
+			IcTournament={$_SESSION['TourId']},
+			IcType='$CardType',
+			IcNumber=$CardNumber,
+			IcName=".StrSafe_DB($CardName).",
+		IcSettings=".StrSafe_DB(serialize($Options->Settings)));
+
+	$SQL="INSERT INTO IdCardElements set IceTournament={$_SESSION['TourId']}, IceCardType='$CardType', IceCardNumber=$CardNumber, IceOrder=%s, IceType='%s', IceContent=%s, IceOptions=%s";
+	$Order=1;
+
+	// logo sx
+	if(file_exists($IM=$CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToLeft.jpg')) {
+		$Opts = Array ('X' =>  10, 'Y' => 10, 'W' => 0, 'H' => $LogoHeight);
+		safe_w_sql(sprintf($SQL, $Order++, 'ToLeft', StrSafe_DB(''), StrSafe_DB(serialize($Opts))));
+		$l=getimagesize($IM);
+		$HeadWidth-=($LogoHeight*$l[0]/$l[1] + 2);
+		$HeadStart+=($LogoHeight*$l[0]/$l[1] + 2);
+	}
+	// logo dx
+	if(file_exists($IM=$CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToRight.jpg')) {
+		$l=getimagesize($IM);
+		$HeadWidth-=($LogoHeight*$l[0]/$l[1] + 2);
+		$Opts = Array ('X' => $Options->Settings["Width"]-10-($LogoHeight*$l[0]/$l[1]), 'Y' => 10, 'W' => 0, 'H' => $LogoHeight);
+		safe_w_sql(sprintf($SQL, $Order++, 'ToRight', StrSafe_DB(''), StrSafe_DB(serialize($Opts))));
+	}
+	// logo bottom
+	if(file_exists($IM=$CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToBottom.jpg')) {
+		$l=getimagesize($IM);
+		$tmp=(10*$l[0]/$l[1]);
+		$Opts = Array ('X' => ($Options->Settings["Width"]-$tmp)/2, 'Y' => $Options->Settings["Height"]-20, 'W' => 0, 'H' => 10);
+		safe_w_sql(sprintf($SQL, $Order++, 'ToBottom', StrSafe_DB(''), StrSafe_DB(serialize($Opts))));
+	}
+
+	$SQL="INSERT INTO IdCardElements set IceTournament={$_SESSION['TourId']}, IceCardType='$CardType', IceCardNumber=$CardNumber, IceOrder=%s, IceType='%s', IceContent=%s, IceOptions=%s";
+
+	// Competition Name
+	$Opts = Array ('X' => $HeadStart, 'Y' => 10, 'W' => $HeadWidth, 'H' => 20, 'Col' => '#000000', 'BackCol' => '', 'Font' => 'arialbd', 'Size' => 20, 'Just' => 1);
+	safe_w_sql(sprintf($SQL, $Order++, 'CompName', StrSafe_DB(''), StrSafe_DB(serialize($Opts))));
+
+	// Competition Detailss
+	$Opts = Array ('X' => $HeadStart, 'Y' => 30, 'W' => $HeadWidth, 'H' => 20, 'Col' => '#000000', 'BackCol' => '', 'Font' => 'arialbd', 'Size' => 18, 'Just' => 1);
+	safe_w_sql(sprintf($SQL, $Order++, 'CompDetails', StrSafe_DB(''), StrSafe_DB(serialize($Opts))));
+
+	// Athlete
+	$Opts = Array ('X' => 10, 'Y' => 60, 'W' => $Options->Settings["Width"] - 20, 'H' => 20, 'Col' => '#000000', 'BackCol' => '', 'Font' => 'timesbd', 'Size' => 30, 'Just' => 1);
+	safe_w_sql(sprintf($SQL, $Order++, 'Athlete', StrSafe_DB('FamCaps-GivCamel'), StrSafe_DB(serialize($Opts))));
+
+	// Flag
+	$Opts = Array ('X' => 10, 'Y' => 85, 'W' => 30, 'H' => 20);
+	safe_w_sql(sprintf($SQL, $Order++, 'Flag', StrSafe_DB(''), StrSafe_DB(serialize($Opts))));
+
+	// ClubName
+	$Opts = Array ('X' => 42, 'Y' => 85, 'W' => $Options->Settings["Width"]-52, 'H' => 20, 'Col' => '#000000', 'BackCol' => '', 'Font' => 'arialbd', 'Size' => 35, 'Just' => 0);
+	safe_w_sql(sprintf($SQL, $Order++, 'Club', StrSafe_DB('ClubCamel'), StrSafe_DB(serialize($Opts))));
+
+	// Category
+	$Opts = Array ('X' => 10, 'Y' => 115, 'W' => $Options->Settings["Width"]-20, 'H' => 30, 'Col' => '#000000', 'BackCol' => '', 'Font' => 'helveticaneueltprob', 'Size' => 25, 'Just' => 1);
+	safe_w_sql(sprintf($SQL, $Order++, 'Event', StrSafe_DB('EvDescr'), StrSafe_DB(serialize($Opts))));
+
+	// ColoredArea
+	$Opts = Array ('X' => 10, 'Y' => 150, 'W' => 140, 'H' => 15, 'Col' => '#000000', 'BackCol' => '', 'Font' => 'timesi', 'Size' => 30, 'Just' => 2);
+	safe_w_sql(sprintf($SQL, $Order++, 'ColoredArea', StrSafe_DB(get_text('QualPosition', 'BackNumbers')), StrSafe_DB(serialize($Opts))));
+
+	// Qual Position
+	$Opts = Array ('X' => 155, 'Y' => 150, 'W' => 80, 'H' => 15, 'Col' => '#000000', 'BackCol' => '', 'Font' => 'timesbd', 'Size' => 30, 'Just' => 0);
+	safe_w_sql(sprintf($SQL, $Order++, 'Ranking', StrSafe_DB(''), StrSafe_DB(serialize($Opts))));
+
+	// ColoredArea
+	$Opts = Array ('X' => 10, 'Y' => 170, 'W' => 140, 'H' => 15, 'Col' => '#000000', 'BackCol' => '', 'Font' => 'timesi', 'Size' => 30, 'Just' => 2);
+	safe_w_sql(sprintf($SQL, $Order++, 'ColoredArea', StrSafe_DB(get_text('FinPosition', 'BackNumbers')), StrSafe_DB(serialize($Opts))));
+
+	// Fin Position
+	$Opts = Array ('X' => 155, 'Y' => 170, 'W' => 80, 'H' => 15, 'Col' => '#000000', 'BackCol' => '', 'Font' => 'timesbd', 'Size' => 30, 'Just' => 0);
+	safe_w_sql(sprintf($SQL, $Order++, 'FinalRanking', StrSafe_DB(''), StrSafe_DB(serialize($Opts))));
+}
+
 function CreateDefaultQ($CardNumber=0, $CardName='', $CardType='Q') {
 	global $CFG;
 	$Options=emptyIdCard();

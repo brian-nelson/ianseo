@@ -109,83 +109,19 @@ function ChangeNew_EvElim()
 */
 
 /*
-	- BlockPhase(Phase,EnValue,DisValue)
-	Blocca/Sblocca una fase
-	Phase è la fase da gestire (0 agisce sia sull'oro che sul bronzo)
-	EnValue è il valore Del bottone quando la fase è attiva,DisValue è quello
-	di fase bloccata.EnValue si scambia con DisValue e vice-versa.
-
-	NumTiebreak è il numero di frecce di tiebreak
-
-	Phase == 0 allora il matchno va da 0 a 3
-	negli altri casi va da 2*Phase a 4*Phase-1
+	- BlockPhase(Phase)
+	Lock/Unlock a phase (0 means both gold and bronze medal matches)
 */
-function BlockPhase(Phase,EnValue,DisValue,NumTiebreak)
-{
-	var Bottone = document.getElementById('CmdBlockPhase_' + Phase);
+function BlockPhase(Phase) {
+	var Button = $('#CmdBlockPhase_' + Phase);
 
-	if (Bottone)
-	{
-		var Disabilita;
-		if (Bottone.value==EnValue) {
-			Disabilita = false;
-			Bottone.value=DisValue;
-		} else if (Bottone.value==DisValue) {
-			Disabilita = true;
-			Bottone.value=EnValue;
-		}
+	var Disable=(Button.val()==CmdDisable);
+	Button.val(Disable ? CmdEnable : CmdDisable);
 
-		var ee = document.getElementById('d_Event').value;	// evento
-
-		if(Phase==24) Phase=32;
-		if(Phase==48) Phase=64;
-
-		var mm1 = (Phase==0 ? 0 : 2*Phase);		// matchno di partenza
-		var mm2 = (Phase==0 ? 3 : 4*Phase-1);	// matchno di arrivo
-
-
-		for (i=mm1;i<=mm2;++i)
-		{
-			var Score = document.getElementById('d_S_' + ee + '_' + i);
-
-			if (Score) {
-				Score.disabled=Disabilita;
-
-				if (Disabilita)
-					SetStyle(Score.id,'disabled');
-				else
-					SetStyle(Score.id,'');
-			}
-
-			var Tie = document.getElementById('d_T_' + ee + '_' + i);
-
-			if (Tie) {
-				Tie.disabled=Disabilita;
-
-				if (Disabilita) {
-                    SetStyle(Tie.id, 'disabled');
-                } else {
-                    SetStyle(Tie.id, '');
-                }
-			}
-
-			for (j=0;j<(NumTiebreak*3);++j) {
-				Tiebreak = document.getElementById('d_t_' + ee + '_' + i + '_' + j);
-
-				if (Tiebreak) {
-					Tiebreak.disabled=Disabilita;
-
-					if (Disabilita) {
-                        SetStyle(Tiebreak.id, 'disabled');
-                    } else {
-                        SetStyle(Tiebreak.id, '');
-                    }
-				}
-			}
-		}
-
-
-	}
+	$('.ph-'+Phase).find('select,input').each(function() {
+		this.disabled=Disable;
+		$(this).toggleClass('disabled', Disable);
+	});
 }
 
 /*
@@ -219,21 +155,3 @@ function GestisciDubbio(Txt)
 	EseguiSubmit();
 }
 
-
-/*
-	---------------------------------- Funzioni associate a AbsIndividual1.php ----------------------------------
-*/
-
-/*
-	- SelectAction()
-	Determina su che pagina ciclare la form in base al valore selezionato
-*/
-function SelectAction() {
-	var x=document.getElementById('EventCode').value;
-	if (x.match(/^.+#{1}2{1}$/))	// eliminatorie
-		document.Frm.action='../../Elimination/AbsIndividual2.php';
-	else	// finali normali
-		document.Frm.action='AbsIndividual2.php';
-
-	document.Frm.submit();
-}

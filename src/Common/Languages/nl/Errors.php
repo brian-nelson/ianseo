@@ -1,4 +1,5 @@
 <?php
+$lang['Anomalies']='Afwijkingen';
 $lang['DirectoryNotWriteable']='De map $a mag niet beschreven worden door de web-server. Wijzig de autorisatie zodat de map beschreven kan worden.';
 $lang['ErrCodeExists']='Code bestaat al';
 $lang['ErrCommitteeError']='Ongeldige code of omschrijving';
@@ -18,4 +19,8 @@ $lang['ErrRedCard']='De oraganisatie heeft een rode kaart gekregen en deze compe
 $lang['ErrUnknownNation']='Onbekend land';
 $lang['ErrYellowCard']='De oraganisatie heeft een geel kaart gekregen omdat er nog geen resultaten zijn verstuurd. Neem contact op met codes@ianseo.net voor verder uitleg.';
 $lang['LockedProcedure']='De procedure is geblokkeerd';
+$lang['MissingPhpIntlModule']='Transliteratie kan worden uitgevoerd door installatie of activatie van de php-intl module';
+$lang['SpecialFilterDiscrepancy']='Speciaal filter is ingesteld, maar is niet actief';
+$lang['TooManyArrows']='Teveel totaal aantal pijlen: het maximum is $a';
+$lang['TooManyElimQualified']='Rondes van type $a[0] kunnen alleen worden geaccepteerd tot $a[1] schutters';
 ?>

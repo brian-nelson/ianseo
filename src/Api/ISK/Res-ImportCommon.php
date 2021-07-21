@@ -1,7 +1,7 @@
 <?php
 
 
-function DoImportData() {
+function DoImportData($ALL=false) {
 	require_once(dirname(dirname(__FILE__)).'/config.php');
 	require_once('Qualification/Fun_Qualification.local.inc.php');
 	require_once('Final/Fun_MatchTotal.inc.php');

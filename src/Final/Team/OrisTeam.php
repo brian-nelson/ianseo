@@ -9,17 +9,19 @@ $isCompleteResultBook = true;
 
 $pdf = new OrisBracketPDF('C75C', 'Result Brackets');
 
-if(isset($_REQUEST["IncBrackets"]) && $_REQUEST["IncBrackets"]==1)
+if(isset($_REQUEST["IncBrackets"]) && $_REQUEST["IncBrackets"]==1) {
 	include 'OrisBracket.php';
-	
+}
+
 $pdf->SetAutoPageBreak(true,OrisPDF::bottomMargin);
 
-if(isset($_REQUEST["IncRankings"]) && $_REQUEST["IncRankings"]==1)
+if(isset($_REQUEST["IncRankings"]) && $_REQUEST["IncRankings"]==1) {
 	include 'OrisRanking.php';
+}
 
 
 if(isset($_REQUEST['ToFitarco']))
-{ 
+{
 	$Dest='D';
 	if (isset($_REQUEST['Dest']))
 		$Dest=$_REQUEST['Dest'];

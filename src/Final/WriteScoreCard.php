@@ -28,7 +28,7 @@
 	$Rs=safe_r_sql($Select);
 
 	$comboEvents
-		.='<select name="d_Event" id="d_Event" onChange="javascript:ChangeEvent(' . $TeamEvent . ',null,true);">' . "\n"
+		.='<select name="d_Event" id="d_Event" onChange="ChangeEvent(' . $TeamEvent . ',null,true);">' . "\n"
 			. '<option value="">----</option>' . "\n";
 
 			if (safe_num_rows($Rs)>0)
@@ -48,6 +48,7 @@
 			. '<option value="2">' . get_text('Review') . '</option>' . "\n"
 		. '</select>' . "\n";
 
+
 	$JS_SCRIPT=array(phpVars2js(array(
 	            "WebDir" => $CFG->ROOT_DIR,
                 'TeamEvent' => $TeamEvent,
@@ -57,6 +58,11 @@
 		        'MoveWinner2PoolB' => get_text('MoveWinner2PoolB','Tournament'),
 		        'Select' => get_text('Select','Tournament'),
                 )),
+			'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/Fun_JS.inc.js"></script>',
+			'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/ajax/ObjXMLHttpRequest.js"></script>',
+			'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
+			'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Final/Fun_AJAX.js"></script>',
+			'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Final/Fun_AJAX_WriteScoreCard.js"></script>',
 			'<style>.hidden {display:none;}</style>'
 	);
 
@@ -122,12 +128,8 @@ if(!empty($GoBack)) {
 // JavaScripts at the end for IE!
 ?>
 <div id="idOutput"></div>
-<script type="text/javascript" src="<?php print $CFG->ROOT_DIR;?>Common/js/Fun_JS.inc.js"></script>
-<script type="text/javascript" src="<?php print $CFG->ROOT_DIR;?>Common/ajax/ObjXMLHttpRequest.js"></script>
-<script type="text/javascript" src="<?php print $CFG->ROOT_DIR;?>Final/Fun_AJAX.js"></script>
-<script type="text/javascript" src="<?php print $CFG->ROOT_DIR;?>Final/Fun_AJAX_WriteScoreCard.js"></script>
 <?php
-	if(file_exists($CFG->DOCUMENT_PATH . 'Modules/DanageDisplay/Fun_Display.js'))
-		echo '<script type="text/javascript" src="' . $CFG->ROOT_DIR . 'Modules/DanageDisplay/Fun_Display.js"></script>';
-	include('Common/Templates/tail' . (isset($_REQUEST["hideMenu"]) ? '-min' : '') . '.php');
-?>
+//if(file_exists($CFG->DOCUMENT_PATH . 'Modules/DanageDisplay/Fun_Display.js'))
+//	echo '<script type="text/javascript" src="' . $CFG->ROOT_DIR . 'Modules/DanageDisplay/Fun_Display.js"></script>';
+
+include('Common/Templates/tail' . (isset($_REQUEST["hideMenu"]) ? '-min' : '') . '.php');

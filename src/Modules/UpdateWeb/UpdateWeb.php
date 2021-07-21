@@ -6,7 +6,17 @@ checkACL(AclInternetPublish, AclReadWrite);
 CheckTourSession(true);
 
 if(empty($_SESSION['OnlineAuth']) or empty($_SESSION['OnlineServices']) or !($_SESSION['OnlineServices']&2)) {
-    cd_redirect($CFG->ROOT_DIR . 'Tournament/SetCredentials.php?return=Modules/UpdateWeb/UpdateWeb.php');
+    $return='Modules/UpdateWeb/UpdateWeb.php';
+	if($Credentials=getModuleParameter('SendToIanseo', 'Credentials', '')) {
+		require_once('Common/Lib/CommonLib.php');
+		if($ErrorMessage=CheckCredentials($Credentials->OnlineId, $Credentials->OnlineAuth, $return)) {
+			safe_error($ErrorMessage);
+		} else {
+			cd_redirect($CFG->ROOT_DIR . $return);
+		}
+	} else {
+        cd_redirect($CFG->ROOT_DIR . 'Tournament/SetCredentials.php?return='.$return);
+	}
 }
 
 // VERSION 0.2010-07-13-08.25
@@ -279,7 +289,7 @@ if($UpdateFins) {
 	$query.= " `EvMatchMode`, ";
 	$query.= " `EvMatchArrowsNo`, ";
 	$query.= " `GrPhase`, ";
-	$query.= " @elimination:=pow(2, ceil(log2(GrPhase))+1) & EvMatchArrowsNo "
+	$query.= " @elimination:=if(GrPhase=0, 1, pow(2, ceil(log2(GrPhase))+1)) & EvMatchArrowsNo "
 		. " , if(@elimination, EvElimEnds, EvFinEnds) CalcEnds "
 		. " , if(@elimination, EvElimArrows, EvFinArrows) CalcArrows "
 		. " , if(@elimination, EvElimSO, EvFinSO) CalcSO ";
@@ -458,7 +468,7 @@ if($UpdateTeam) {
 	$query.= " `TfLive`,";
 	$query.= " `TfVxF`, ";
 	$query.= " `EvMatchMode`, ";
-	$query.= " @elimination:=pow(2, ceil(log2(GrPhase))+1) & EvMatchArrowsNo "
+	$query.= " @elimination:=if(GrPhase=0, 1, pow(2, ceil(log2(GrPhase))+1)) & EvMatchArrowsNo "
 		. " , if(@elimination, EvElimEnds, EvFinEnds) CalcEnds "
 		. " , if(@elimination, EvElimArrows, EvFinArrows) CalcArrows "
 		. " , if(@elimination, EvElimSO, EvFinSO) CalcSO ";

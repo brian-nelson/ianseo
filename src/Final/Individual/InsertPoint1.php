@@ -2,7 +2,8 @@
 	require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 	require_once('Common/Fun_FormatText.inc.php');
 	require_once('Common/Lib/CommonLib.php');
-	require_once('HHT/Fun_HHT.local.inc.php');
+	//require_once('HHT/Fun_HHT.local.inc.php');
+    require_once('Common/Lib/Fun_Phases.inc.php');
 
 	CheckTourSession(true);
     checkACL(AclIndividuals, AclReadWrite);
@@ -12,6 +13,7 @@
 	$JS_SCRIPT=array(
 		phpVars2js(array("WebDir" => $CFG->ROOT_DIR)),
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/ajax/ObjXMLHttpRequest.js"></script>',
+		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Final/Fun_AJAX.js"></script>',
 		);
 
@@ -27,7 +29,7 @@
 	<th class="TitleLeft" colspan="2"><?php print get_text('ScheduledMatches', 'Tournament');?></th>
 </tr>
 <tr>
-	<td colspan="2"><?php echo ComboSes(RowTour(), 'Individuals'); ?></td>
+	<td colspan="2"><?php echo ComboSession('Individuals'); ?></td>
 </tr>
 <tr>
 	<th class="TitleLeft" colspan="2"><?php print get_text('Event');?></th>
@@ -42,7 +44,7 @@
 		. "ORDER BY EvProgr ASC ";
 	$Rs=safe_r_sql($Select);
 
-	print '<select name="d_Event[]" id="d_Event" multiple="multiple" onChange="javascript:ChangeEvent(0);">';
+	print '<select name="d_Event[]" id="d_Event" multiple="multiple" onChange="ChangeEvent(0);">';
 	//print '<option value="">' . get_text('AllEvents') . '</option>';
 	if (safe_num_rows($Rs)>0) {
 		while ($Row=safe_fetch($Rs)) {

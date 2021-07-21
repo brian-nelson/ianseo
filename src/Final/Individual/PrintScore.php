@@ -4,10 +4,10 @@
     checkACL(AclIndividuals, AclReadOnly);
 	require_once('Common/Globals.inc.php');
 	require_once('Common/Fun_DB.inc.php');
-	require_once('Common/Fun_Phases.inc.php');
-	require_once('Common/Fun_FormatText.inc.php');
-	require_once('HHT/Fun_HHT.local.inc.php');
 	require_once('Common/Lib/CommonLib.php');
+	require_once('Common/Lib/Fun_Phases.inc.php');
+	require_once('Common/Lib/Fun_FormatText.inc.php');
+	//require_once('HHT/Fun_HHT.local.inc.php');
 
 	// calcola la massima fase
 	$MyQuery = "SELECT MAX(GrPhase) as MaxPhase FROM Grids left join Finals on GrMatchNo=FinMatchNo where FinTournament={$_SESSION['TourId']}";
@@ -46,7 +46,7 @@
 			$Events[$MyRow->EvCode] = $MyRow->EvEventName;
 			for($i=$TmpCnt; $i>$MyRow->GrPhase; $i = floor($i/2)) $Rows[$MyRow->EvCode] .= '<td>&nbsp;</td>';
 		}
-		$Rows[$MyRow->EvCode] .=  '<td class="Center"><a href="'.$CFG->ROOT_DIR.'Final/Individual/PDFScoreMatch.php?Event=' .  $MyRow->EvCode . '&amp;Phase=' . $MyRow->GrPhase . '" class="Link" target="PrintOut">';
+		$Rows[$MyRow->EvCode] .=  '<td class="Center"><a href="'.$CFG->ROOT_DIR.'Final/Individual/PDFScoreMatch.php?Event=' .  $MyRow->EvCode . '&amp;Phase=' . $MyRow->GrPhase . '&Barcode=1" class="Link" target="PrintOut">';
 		$Rows[$MyRow->EvCode] .=  '<img src="'.$CFG->ROOT_DIR.'Common/Images/pdf' . ($MyRow->Printable==1 ? '' : "_small") . '.gif" alt="' . $MyRow->EvCode . '" border="0"><br>';
 		$Rows[$MyRow->EvCode] .=  $MyRow->EvCode;
 		$Rows[$MyRow->EvCode] .=  '</a></td>';
@@ -62,6 +62,7 @@
 		phpVars2js(array("WebDir" => $CFG->ROOT_DIR, "AllEvents" => get_text('AllEvents'))),
 		'<script type="text/javascript" src="../../Common/js/Fun_JS.inc.js"></script>',
 		'<script type="text/javascript" src="../../Common/ajax/ObjXMLHttpRequest.js"></script>',
+		'<script type="text/javascript" src="../../Common/js/jquery-3.2.1.min.js"></script>',
 		'<script type="text/javascript" src="../Fun_AJAX.js"></script>',
 		'<script type="text/javascript">',
 		'function DisableChkOther(NoDist, NumDist)',
@@ -185,7 +186,7 @@
 	echo '<tr>';
 	//Eventi
 	echo '<td class="Center" width="70%">';
-	echo get_text('Event') . '<br><select name="Event[]" id="d_Event" onChange="javascript:ChangeEvent(0);" multiple="multiple" size="10">';
+	echo get_text('Event') . '<br><select name="Event[]" id="d_Event" onChange="ChangeEvent(0);" multiple="multiple" size="10">';
 	echo '<option value="">' . get_text('AllEvents')  . '</option>';
 	foreach($Events as $Event => $EventName) {
 		echo '<option value="' . $Event . '">' . $Event . ' - ' . get_text($EventName,'','',true)  . '</option>';
@@ -197,7 +198,7 @@
 	echo '</select>';
 	echo '</td>';
 	echo '</tr>';
-	echo '<tr><td colspan="2" class="Center">' . ComboSes(RowTour(), 'Individuals') . '</td></tr>';
+	echo '<tr><td colspan="2" class="Center">' . ComboSession('Individuals') . '</td></tr>';
 	echo '<tr>';
 	echo '<td colspan="2" class="left">';
 	echo '<input name="ScoreFilled" type="checkbox" value="1">&nbsp;' . get_text('ScoreFilled') . '<br>';
@@ -209,7 +210,7 @@
         if(!($tmp=getModuleParameter($Api, 'Mode')) || $tmp=='live' ) {
             continue;
         }
-		echo '<input name="QRCode[]" type="checkbox" checked value="'.$Api.'" >&nbsp;' . get_text($Api.'-QRCode','Api') . '<br>';
+		echo '<input name="QRCode[]" type="checkbox" '.($tmp=='pro' ? '' : 'checked="checked"').' value="'.$Api.'" >&nbsp;' . get_text($Api.'-QRCode','Api') . '<br>';
 	}
 	echo '</td>';
 	echo '</tr>';
@@ -346,7 +347,7 @@
 
 //Eventi
 	echo '<td class="Center" width="25%">';
-	echo get_text('Event') . '<br><select name="Event[]" multiple="multiple" id="p_Event" onChange="javascript:ChangeEvent(0,\'p\',null,true);" size="10">';
+	echo get_text('Event') . '<br><select name="Event[]" multiple="multiple" id="p_Event" onChange="ChangeEvent(0,\'p\',null,true);" size="10">';
 	foreach($Events as $Event => $EventName) {
 		echo '<option value="' . $Event . '">' . $Event . ' - ' . get_text($EventName,'','',true)  . '</option>';
 	}

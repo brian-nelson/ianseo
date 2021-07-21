@@ -43,7 +43,11 @@
 				$f=array();
 
 				foreach ($this->opts['events'] as $e) {
-					@list($event,$phase)=explode('@',$e);
+				    $event = $e;
+				    $phase = null;
+				    if(strpos($e,'@')!==false) {
+                        @list($event, $phase) = explode('@', $e);
+                    }
 					if($event and !is_null($phase)) $f[] = '(EvCode=' . StrSafe_DB($event) . ' AND GrPhase=' . $phase . ')';
 					elseif($event) $f[] = '(EvCode=' . StrSafe_DB($event) . ')';
 					elseif(!is_null($phase)) $f[] = '(GrPhase=' . $phase . ')';
@@ -125,7 +129,7 @@
 		 *  prima passata per costruire la struttura del vettore.
 		 *  Tiro fuori le qualifiche, le posizioni finali e le eliminatorie (se ci sono)
 		 */
-			$q="SELECT f1.*, f2.*,
+			$q="SELECT f1.*, f2.*, '' as LineJudge, '' as TargetJudge,
 					ifnull(concat(DV2.DvMajVersion, '.', DV2.DvMinVersion) ,concat(DV1.DvMajVersion, '.', DV1.DvMinVersion)) as DocVersion,
 					date_format(ifnull(DV2.DvPrintDateTime, DV1.DvPrintDateTime), '%e %b %Y %H:%i UTC') as DocVersionDate,
 					ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes FROM "
@@ -144,7 +148,8 @@
 					. " EvFinalFirstPhase, "
 					. " EvFinalPrintHead, "
 					. " GrPhase Phase,"
-					. " pow(2, ceil(log2(GrPhase))+1) & EvMatchArrowsNo!=0 as FinElimChooser,"
+					. " @BitPhase:=if(GrPhase=0, 1, pow(2, ceil(log2(GrPhase))+1)),"
+					. " @BitPhase & EvMatchArrowsNo!=0 as FinElimChooser,"
 					. " greatest(PhId, PhLevel) as FullPhase,"
 					. " EvShootOff,"
                     . " EvCodeParent,"
@@ -158,10 +163,11 @@
 					. " FinTournament Tournament,"
 					. " FinDateTime LastUpdated,"
 					. " FinMatchNo MatchNo,"
+					. " '' as Coach,"
 					. " EnCode Bib,"
 					. " ifnull(EdExtra,EnCode) LocalBib,"
 					. " EnId, EnNameOrder NameOrder, EnSex Gender, EnDob BirthDate, "
-					. " fs1.FsTarget Target,"
+					. " if(@BitPhase & EvMatchMultipleMatches!=0 or @BitPhase & EvFinalAthTarget!=0, fs1.FsLetter, fs1.FsTarget) as Target,"
 					. " TarId, TarDescr, EvDistance as Distance, EvTargetSize as TargetSize, "
 					. " concat(upper(EnFirstName), ' ', EnName) Athlete,"
 					. " EnFirstName FamilyName,"
@@ -169,6 +175,8 @@
 					. " EnName GivenName,"
 					. " CoId CountryId,"
 					. " CoCode CountryCode,"
+					. " CoMaCode MaCode,"
+					. " CoCaCode CaCode,"
 					. " left(CoName, 20) ShortCountry,"
 					. " CoName CountryName,"
 					. " CoIocCode CountryIocCode,"
@@ -177,6 +185,14 @@
 					. " QuScore QualScore,"
 					. " IndNotes QualNotes,"
 					. "	EvFinEnds, EvFinArrows, EvFinSO, EvElimEnds, EvElimArrows, EvElimSO, "
+					. " FinIrmType Irm,"
+					. " i1.IrmType IrmText,"
+					. " IndIrmType IrmQual,"
+					. " i2.IrmType IrmTextQual,"
+					. " i2.IrmShowRank ShowRankQual,"
+					. " IndIrmTypeFinal IrmFin,"
+					. " i3.IrmType IrmTextFin,"
+					. " i3.IrmShowRank ShowRankFin,"
 					. " FinWinLose Winner,"
 					. " FinScore Score,"
 					. " FinSetScore SetScore,"
@@ -185,8 +201,11 @@
 					. " FinTie AS Tie,"
 					. " FinArrowstring ArrowString,"
 					. " FinTiebreak TieBreak,"
+                    . " FinTbClosest TieClosest,"
+                    . " FinTbDecoded TieDecoded,"
 					. " FinStatus Status, "
 					. " FinConfirmed Confirmed, "
+					. " FinRecordBitmap  as RecBitLevel, EvIsPara, "
 					. " FinLive LiveFlag, FinNotes Notes, FinShootFirst as ShootFirst, if(EvFinalFirstPhase%12=0, GrPosition2, GrPosition) as GridPosition "
 					. "FROM "
 					. " Finals "
@@ -194,7 +213,10 @@
 					. "INNER JOIN Events ON FinEvent=EvCode AND FinTournament=EvTournament AND EvTeamEvent=0 "
 					. "inner join Phases on PhId=EvFinalFirstPhase and (PhIndTeam & 1)=1 "
 					. "INNER JOIN Targets ON EvFinalTargetType=TarId "
+					. "INNER JOIN IrmTypes i1 ON i1.IrmId=FinIrmType "
 					. "LEFT JOIN Individuals ON FinAthlete=IndId AND FinEvent=IndEvent AND FinTournament=IndTournament "
+					. "left JOIN IrmTypes i2 ON i2.IrmId=IndIrmType "
+					. "left JOIN IrmTypes i3 ON i3.IrmId=IndIrmTypeFinal "
 					. "LEFT JOIN Entries ON FinAthlete=EnId AND FinTournament=EnTournament "
 					. "LEFT JOIN ExtraData ON EdId=EnId AND EdType='Z' "
 					. "LEFT JOIN Qualifications ON QuId=EnId "
@@ -214,10 +236,12 @@
 					. " FinTournament OppTournament,"
 					. " FinDateTime OppLastUpdated,"
 					. " FinMatchNo OppMatchNo,"
+					. " '' as OppCoach,"
 					. " EnCode OppBib,"
 					. " ifnull(EdExtra,EnCode) OppLocalBib,"
 					. " EnId OppEnId, EnNameOrder OppNameOrder, EnSex as OppGender, EnDob OppBirthDate,"
-					. " fs1.FsTarget OppTarget,"
+					. " @BitPhase:=if(GrPhase=0, 1, pow(2, ceil(log2(GrPhase))+1)),"
+					. " if(@BitPhase & EvMatchMultipleMatches!=0 or @BitPhase & EvFinalAthTarget!=0, fs1.FsLetter, fs1.FsTarget) as OppTarget,"
 					. " concat(fs2.FSScheduledDate,' ',fs2.FSScheduledTime) AS OppPreviousMatchTime, "
 					. " concat(upper(EnFirstName), ' ', EnName) OppAthlete,"
 					. " EnFirstName OppFamilyName,"
@@ -226,6 +250,8 @@
 					. " EnName OppGivenName,"
 					. " CoId OppCountryId,"
 					. " CoCode OppCountryCode,"
+					. " CoMaCode OppMaCode,"
+					. " CoCaCode OppCaCode,"
 					. " left(CoName, 20) OppShortCountry,"
 					. " CoName OppCountryName,"
 					. " CoIocCode OppCountryIocCode,"
@@ -233,6 +259,14 @@
 					. " IndRankFinal OppFinRank,"
 					. " QuScore OppQualScore,"
 					. " IndNotes OppQualNotes,"
+					. " FinIrmType OppIrm,"
+					. " i1.IrmType OppIrmText,"
+					. " IndIrmType OppIrmQual,"
+					. " i2.IrmType OppIrmTextQual,"
+					. " i2.IrmShowRank OppShowRankQual,"
+					. " IndIrmTypeFinal OppIrmFin,"
+					. " i3.IrmType OppIrmTextFin,"
+					. " i3.IrmShowRank OppShowRankFin,"
 					. " FinWinLose OppWinner,"
 					. " FinScore OppScore,"
 					. " FinSetScore OppSetScore,"
@@ -241,13 +275,19 @@
 					. " FinTie AS OppTie,"
 					. " FinArrowstring OppArrowString,"
 					. " FinTiebreak OppTieBreak, "
+                    . " FinTbClosest OppTieClosest, "
+                    . " FinTbDecoded OppTieDecoded, "
 					. " FinConfirmed OppConfirmed, "
+					. " FinRecordBitmap  as OppRecBitLevel, "
 					. " FinStatus OppStatus, FinNotes OppNotes, FinShootFirst as OppShootFirst, if(EvFinalFirstPhase%12=0, GrPosition2, GrPosition) as OppGridPosition  "
 					. "FROM "
 					. " Finals "
 					. "INNER JOIN Grids ON FinMatchNo=GrMatchNo "
 					. "INNER JOIN Events ON FinEvent=EvCode AND FinTournament=EvTournament AND EvTeamEvent=0 "
+					. "INNER JOIN IrmTypes i1 ON i1.IrmId=FinIrmType "
 					. "LEFT JOIN Individuals ON FinAthlete=IndId AND FinEvent=IndEvent AND FinTournament=IndTournament "
+					. "left JOIN IrmTypes i2 ON i2.IrmId=IndIrmType "
+					. "left JOIN IrmTypes i3 ON i3.IrmId=IndIrmTypeFinal "
 					. "LEFT JOIN Entries ON FinAthlete=EnId AND FinTournament=EnTournament "
 					. "LEFT JOIN ExtraData ON EdId=EnId AND EdType='Z' "
 					. "LEFT JOIN Qualifications ON QuId=EnId "
@@ -278,9 +318,13 @@
 
 			$this->data['meta']['title']=get_text('BracketsInd');
 			$this->data['meta']['saved']=get_text('Seeded16th');
+			$this->data['meta']['notAwarded']=get_text('NotAwarded','ODF');
 			$this->data['meta']['lastUpdate']='0000-00-00 00:00:00';
 			$this->data['meta']['fields']=array(
 				// qui ci sono le descrizioni dei campi
+				'coach' => get_text('Coach', 'Tournament'),
+				'lineJudge' => get_text('LineJudge', 'Tournament'),
+				'targetJudge' => get_text('TargetJudge', 'Tournament'),
 				'scheduledDate' => get_text('Date', 'Tournament'),
 				'scheduledTime' => get_text('Time', 'Tournament'),
 				'winner' => get_text('Winner'),
@@ -300,12 +344,15 @@
 				'qualRank' => get_text('RankScoreShort'),
 				'finRank' => get_text('FinalRank','Tournament'),
 				'qualscore'=>get_text('TotalShort','Tournament'),
+				'scoreLong'=>get_text('TotaleScore'),
 				'score'=>get_text('TotalShort','Tournament'),
 				'setScore'=>get_text('SetTotal','Tournament'),
 			 	'setPoints'=>get_text('SetPoints','Tournament'),
 				'tie'=>'S.O.',
 				'arrowstring'=>get_text('Arrows','Tournament'),
 			 	'tiebreak'=>get_text('TieArrows'),
+                'closest'=>get_text('Close2Center', 'Tournament'),
+				'closestShort'=>get_text('ClosestShort', 'Tournament'),
 				'status'=>get_text('Status', 'Tournament'),
 				'shootFirst'=>get_text('ShootsFirst', 'Tournament'),
 
@@ -330,6 +377,8 @@
 				'oppTie'=>'S.O.',
 				'oppArrowstring'=>get_text('Arrows','Tournament'),
 			 	'oppTiebreak'=>get_text('TieArrows'),
+                'oppClosest'=>get_text('Close2Center', 'Tournament'),
+				'oppClosestShort'=>get_text('ClosestShort', 'Tournament'),
 				'oppStatus'=>get_text('Status', 'Tournament'),
 				'oppShootFirst'=>get_text('ShootsFirst', 'Tournament')
 				);
@@ -393,23 +442,13 @@
 					if($myRow->EvElimType==3 and isset($PoolMatchesShort[$myRow->MatchNo])) {
 						$this->data['sections'][$myRow->Event]['phases'][$myRow->Phase]['meta']['phaseName'] = $PoolMatchesPhases[$myRow->Phase];
 						$this->data['sections'][$myRow->Event]['phases'][$myRow->Phase]['meta']['matchName'] = $PoolMatchesShort[$myRow->MatchNo];
-					}if($myRow->EvElimType==4 and isset($PoolMatchesShortWA[$myRow->MatchNo])) {
+					}
+					if($myRow->EvElimType==4 and isset($PoolMatchesShortWA[$myRow->MatchNo])) {
 						$this->data['sections'][$myRow->Event]['phases'][$myRow->Phase]['meta']['phaseName'] = $PoolMatchesPhasesWA[$myRow->Phase];
 						$this->data['sections'][$myRow->Event]['phases'][$myRow->Phase]['meta']['matchName'] = $PoolMatchesShortWA[$myRow->MatchNo];
 					}
 					$this->data['sections'][$myRow->Event]['phases'][$myRow->Phase]['meta']['FinElimChooser'] = $myRow->FinElimChooser;
 					$this->data['sections'][$myRow->Event]['meta']['phaseNames'][$myRow->Phase]=$this->data['sections'][$myRow->Event]['phases'][$myRow->Phase]['meta']['phaseName'];
-				}
-
-				$tmpArr=array();
-				$oppArr=array();
-				if($myRow->TieBreak) {
-					for($countArr=0; $countArr<strlen(trim($myRow->TieBreak)); $countArr++)
-						$tmpArr[] = DecodeFromLetter(substr(trim($myRow->TieBreak),$countArr,1));
-				}
-				if($myRow->OppTieBreak) {
-					for($countArr=0; $countArr<strlen(trim($myRow->OppTieBreak)); $countArr++)
-						$oppArr[] = DecodeFromLetter(substr(trim($myRow->OppTieBreak),$countArr,1));
 				}
 
 				$athlete=$myRow->Athlete;
@@ -439,6 +478,8 @@
 				}
 				$item=array(
 					// qui ci sono le descrizioni dei campi
+					'lineJudge' => $myRow->LineJudge,
+					'targetJudge' => $myRow->TargetJudge,
 					'liveFlag' => $myRow->LiveFlag,
 					'scheduledDate' => $myRow->ScheduledDate,
 					'scheduledTime' => $myRow->ScheduledTime,
@@ -446,13 +487,14 @@
 					'lastUpdated' => $myRow->LastUpdated,
 					'matchNo' => $myRow->MatchNo,
 				 	'isValidMatch'=> ($myRow->GridPosition + $myRow->OppGridPosition),
+					'coach' => $myRow->Coach,
 					'bib' => $myRow->Bib,
 					'localBib' => $myRow->LocalBib,
 					'odfMatchName' => $myRow->OdfMatchName ? $myRow->OdfMatchName : '',
 					'odfPath' => $myRow->OdfPreviousMatch && intval($myRow->OdfPreviousMatch)==0 ? $myRow->OdfPreviousMatch : get_text(($myRow->MatchNo==2 or $myRow->MatchNo==3) ? 'LoserMatchName' : 'WinnerMatchName', 'ODF', $myRow->OdfPreviousMatch ? $myRow->OdfPreviousMatch : $myRow->PreviousMatchTime),
 					'birthDate' => $myRow->BirthDate,
 					'id' => $myRow->EnId,
-					'target' => $myRow->Target,
+					'target' => ltrim($myRow->Target, '0'),
 					'athlete' => $athlete,
                     'fullName' => ($myRow->NameOrder ? $athlete : $myRow->GivenName . ' ' . $myRow->FamilyNameUpper),
 					'familyName' => $myRow->FamilyName,
@@ -463,11 +505,20 @@
 					'countryId' => $myRow->CountryId,
 					'countryCode' => $myRow->CountryCode,
 					'countryName' => $myRow->CountryName,
+					'contAssoc' => $myRow->CaCode,
+					'memberAssoc' => $myRow->MaCode,
 					'countryIocCode'=> $myRow->CountryIocCode,
-					'qualRank' => $myRow->QualRank,
+					'qualRank' => $myRow->ShowRankQual ? $myRow->QualRank : $myRow->IrmTextQual,
+					'qualIrm' => $myRow->IrmQual,
+					'qualIrmText' => $myRow->IrmTextQual,
 					'qualScore'=> $myRow->QualScore,
 					'qualNotes'=> $myRow->QualNotes,
 					'finRank' => $myRow->FinRank,
+					'showRank' => $myRow->ShowRankFin,
+					'finIrm' => $myRow->IrmFin,
+					'finIrmText' => $myRow->IrmTextFin,
+					'irm' => $myRow->Irm,
+					'irmText' => $myRow->IrmText,
 					'winner' => $myRow->Winner,
 					'score'=> $myRow->Score,
 					'setScore'=> $myRow->SetScore,
@@ -477,23 +528,26 @@
 					'tie'=> $myRow->Tie,
 					'arrowstring'=> $myRow->ArrowString,
 				 	'tiebreak'=> $myRow->TieBreak,
-				 	'tiebreakDecoded'=> implode(',', $tmpArr),
+				 	'closest' => $myRow->TieClosest,
+				 	'tiebreakDecoded'=> $myRow->TieDecoded,
                     'arrowpositionAvailable'=>($myRow->ArrowPosition != ''),
 					'status'=>$myRow->Status,
 					'scoreConfirmed'=>$myRow->Confirmed,
+					'record' => $this->ManageBitRecord($myRow->RecBitLevel, $myRow->CaCode, $myRow->MaCode, $myRow->EvIsPara),
 					'shootFirst'=>$myRow->ShootFirst,
 				 	'position'=> $myRow->QualRank ? $myRow->QualRank : ($myRow->Position>$myRow->EvNumQualified ? 0 : $myRow->Position),
 				 	'saved'=> ($myRow->Position>0 and $myRow->Position<=SavedInPhase($myRow->EvFinalFirstPhase)),
 //
 					'oppLastUpdated' => $myRow->OppLastUpdated,
 					'oppMatchNo' => $myRow->OppMatchNo,
+					'oppCoach' => $myRow->OppCoach,
 					'oppBib' => $myRow->OppBib,
 					'oppLocalBib' => $myRow->OppLocalBib,
 					'oppOdfMatchName' => $myRow->OppOdfMatchName,
 					'oppOdfPath' => $myRow->OppOdfPreviousMatch && intval($myRow->OppOdfPreviousMatch)==0 ? $myRow->OppOdfPreviousMatch : get_text(($myRow->OppMatchNo==2 or $myRow->OppMatchNo==3) ? 'LoserMatchName' : 'WinnerMatchName', 'ODF', $myRow->OppOdfPreviousMatch ? $myRow->OppOdfPreviousMatch : $myRow->OppPreviousMatchTime),
 					'oppBirthDate' => $myRow->OppBirthDate,
 					'oppId' => $myRow->OppEnId,
-					'oppTarget' => $myRow->OppTarget,
+					'oppTarget' => ltrim($myRow->OppTarget,'0'),
 					'oppAthlete' => $oppAthlete,
                     'oppFullName' => ($myRow->OppNameOrder ? $oppAthlete : $myRow->OppGivenName . ' ' . $myRow->OppFamilyNameUpper),
 					'oppFamilyName' => $myRow->OppFamilyName,
@@ -504,11 +558,20 @@
 					'oppCountryId' => $myRow->OppCountryId,
 					'oppCountryCode' => $myRow->OppCountryCode,
 					'oppCountryName' => $myRow->OppCountryName,
+					'oppContAssoc' => $myRow->OppCaCode,
+					'oppMemberAssoc' => $myRow->OppMaCode,
 					'oppCountryIocCode'=> $myRow->OppCountryIocCode,
-					'oppQualRank' => $myRow->OppQualRank,
+					'oppQualRank' => $myRow->OppShowRankQual ? $myRow->OppQualRank : $myRow->OppIrmTextQual,
+					'oppQualIrm' => $myRow->OppIrmQual,
+					'oppQualIrmText' => $myRow->OppIrmTextQual,
 					'oppQualScore'=> $myRow->OppQualScore,
 					'oppQualNotes'=> $myRow->OppQualNotes,
 					'oppFinRank' => $myRow->OppFinRank,
+					'oppShowRank' => $myRow->OppShowRankFin,
+					'oppFinIrm' => $myRow->OppIrmFin,
+					'oppFinIrmText' => $myRow->OppIrmTextFin,
+					'oppIrm' => $myRow->OppIrm,
+					'oppIrmText' => $myRow->OppIrmText,
 					'oppWinner' => $myRow->OppWinner,
 					'oppScore'=> $myRow->OppScore,
 					'oppSetScore'=> $myRow->OppSetScore,
@@ -518,10 +581,12 @@
 					'oppTie'=> $myRow->OppTie,
 					'oppArrowstring'=> $myRow->OppArrowString,
 				 	'oppTiebreak'=> $myRow->OppTieBreak,
-				 	'oppTiebreakDecoded'=> implode(',', $oppArr),
+                    'oppClosest' => $myRow->OppTieClosest,
+                    'oppTiebreakDecoded'=> $myRow->OppTieDecoded,
                     'oppArrowpositionAvailable'=>($myRow->OppArrowPosition != ''),
 					'oppStatus'=>$myRow->OppStatus,
 					'oppScoreConfirmed'=>$myRow->OppConfirmed,
+					'oppRecord' => $this->ManageBitRecord($myRow->OppRecBitLevel, $myRow->OppCaCode, $myRow->OppMaCode, $myRow->EvIsPara),
 					'oppShootFirst'=>$myRow->OppShootFirst,
 				 	'oppPosition'=> $myRow->OppQualRank ? $myRow->OppQualRank : ($myRow->OppPosition>$myRow->EvNumQualified ? 0 : $myRow->OppPosition),
 				 	'oppSaved'=> ($myRow->OppPosition>0 and $myRow->OppPosition<=SavedInPhase($myRow->EvFinalFirstPhase)),

@@ -34,7 +34,7 @@ function rotBlAbs($TVsettings, $RULE) {
 	$Events=explode('|',$TVsettings->TVPEventTeam);
 
 	$Return['SubBlocks']=count($Events);
-	$Return['NextSubBlock']=$SubBlock+1;
+	$Return['NextSubBlock']=($SubBlock+1);
 
 	if($SubBlock>count($Events)) $SubBlock=1;
 

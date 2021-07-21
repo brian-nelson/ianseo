@@ -52,6 +52,7 @@ $lang['ErrPassToSet']='Indtast nyt kodeord';
 $lang['ErrSubClass']='Ugyldig skydeklasse';
 $lang['ErrSubClassNotFound']='Skydeklasse ikke fundet';
 $lang['ErrWronglevel']='Klub/skytte forkert niveau';
+$lang['InvalidData']='Ugyldigt data';
 $lang['LoginTooManyArchers']='Mere end en skytte har denne e-mail. Anvend istedet medlemsnummer';
 $lang['WrongType']='Forkert type';
 ?>

@@ -19,6 +19,7 @@
 	 */
 		protected $tournament=null;
 		protected $tourcode=null;
+		protected $touryear=null;
 
 	/**
 	 * Struttura contenente la rank con tutte le metainformazioni
@@ -38,9 +39,12 @@
 		protected $opts=null;
 
 		/**
-		 * Will contain the records available for this comeptition. Most usefull are WR (World Record), OR (Olympic Records), CR (Continental records)...
-		 * The structure will be an array of arrays: $HasRecords=array(WR=>array(WA), OR=>array(WA), CR=>array(WAE, WAAm, WAAs, WAAf, WAO))
-		 * @var array of records levels
+		 * Will contain the records available for this competition.
+		 * The structure will be an array of arrays:
+		 * $HasRecords=array(
+		 *  [BitLevel|Claimer]=>object(RecAreas.*),
+		 *  ...)
+		 * @var array
 		 */
 		protected $HasRecords=array();
 
@@ -64,16 +68,28 @@
 				$this->tournament=$_SESSION['TourId'];
 			}
 
-			$q=safe_r_sql("select ToTimeZone, ToOptions, ToCode from Tournament where ToId=$this->tournament");
-			if($r=safe_fetch($q)) {
-				$this->TourOptions = unserialize($r->ToOptions);
-				$this->TimeZone = $r->ToTimeZone;
-				$this->tourcode = $r->ToCode;
+			$q=safe_r_sql("select ToTimeZone, ToOptions, ToCode, year(ToWhenTo) as ToYear, RecAreas.* 
+				from Tournament 
+			    left join (select distinct RecAreas.*, TrTournament from RecAreas inner join TourRecords on TrRecCode=ReArCode and TrTournament=$this->tournament) RecAreas on TrTournament=ToId 
+				where ToId=$this->tournament");
+			while($r=safe_fetch($q)) {
+				if(empty($this->tourcode)) {
+					$this->TourOptions = unserialize($r->ToOptions);
+					$this->TimeZone = $r->ToTimeZone;
+					$this->tourcode = $r->ToCode;
+					$this->touryear = $r->ToYear;
+				}
+				unset($r->ToOptions, $r->ToTimeZone, $r->ToCode, $r->ToYear, $r->TrTournament);
+				if(!empty($r->ReArCode)) {
+					$this->HasRecords["$r->ReArBitLevel|$r->ReArMaCode"]=$r;
+				}
 			}
 
 
 			// defines a constant that overrides printing if not empty
-			if(!empty($_SESSION['TourPrintLang'])) @define('PRINTLANG', $_SESSION['TourPrintLang']);
+			if(!empty($_SESSION['TourPrintLang']) AND !defined('PRINTLANG')) {
+			    @define('PRINTLANG', $_SESSION['TourPrintLang']);
+            }
 
 		}
 
@@ -109,23 +125,34 @@
 			return $this->opts;
 		}
 
-		public function getRecords($Event='', $Team=false, $Match=false) {
+		public function getRecords($Event='', $Team=false, $Match=false, $IsEvent=true) {
 			$ret=array();
-			$sql="select distinct RtRecType, RtRecCode, RtRecDistance, RtRecTotal, RtRecXNine, RtRecDate, RtRecExtra, TrColor,
-					find_in_set('bar', TrFlags) TrBars,
-					find_in_set('gap', TrFlags) TrGaps
-				from RecTournament
-				inner join TourRecords on TrTournament=RtTournament and TrRecType=RtRecType and TrRecCode=RtRecCode and TrRecTeam=RtRecTeam and TrRecPara=RtRecPara
-				inner join Events on RtTournament=EvTournament and EvRecCategory=RtRecCategory and EvTournament={$this->tournament}  and RtRecTeam=EvTeamEvent
-				".($Event ? "and EvCode='{$Event}'" : '')."
-				and EvTeamEvent=".($Team ? '1' : '0')."
-				where ".($Match ? 'RtRecPhase in (0, 3)' : 'RtRecPhase=1')."
-				order by RtRecTotal desc "; // for now we only do on totals
+			if($IsEvent) {
+				$sql="select distinct TrHeader, TrHeaderCode, RtRecCode, RtRecDistance, RtRecMaxScore, ReArBitLevel, ReArMaCode, TrFontFile, RtRecTotal, RtRecXNine, RtRecDate, RtRecExtra, TrColor,
+						find_in_set('bar', TrFlags) TrBars,
+						find_in_set('gap', TrFlags) TrGaps
+					from RecTournament
+					inner join RecAreas on ReArCode=RtRecCode
+					inner join TourRecords on TrTournament=RtTournament and TrRecCode=RtRecCode and TrRecTeam=RtRecTeam and TrRecPara=RtRecPara
+					inner join Events on RtTournament=EvTournament and RtRecCategory=if(ReArWaMaintenance=1, EvRecCategory, EvCode) and EvTournament={$this->tournament}  and RtRecTeam=EvTeamEvent
+					".($Event ? "and EvCode='{$Event}'" : '')."
+					and EvTeamEvent=".($Team ? '1' : '0')."
+					where RtRecTotal>0 and RtRecPhase=".($Match ? 3 : 1)."
+					order by ReArBitLevel desc, ReArCode, RtRecTotal desc "; // for now we only do on totals
+			} else {
+				$sql="select distinct TrHeader, TrHeaderCode, RtRecCode, RtRecDistance, RtRecMaxScore, ReArBitLevel, ReArMaCode, TrFontFile, RtRecTotal, RtRecXNine, RtRecDate, RtRecExtra, TrColor,
+						find_in_set('bar', TrFlags) TrBars,
+						find_in_set('gap', TrFlags) TrGaps
+					from RecTournament
+					inner join RecAreas on ReArCode=RtRecCode
+					inner join TourRecords on TrTournament=RtTournament and TrRecCode=RtRecCode and TrRecTeam=RtRecTeam and TrRecPara=RtRecPara
+					where RtTournament={$this->tournament} and RtRecTeam=".($Team ? '1' : '0')." and RtRecTotal>0 and RtRecPhase=".($Match ? 3 : 1).($Event ? " and RtRecLocalCategory='{$Event}'" : '')."
+					order by ReArBitLevel desc, ReArCode, RtRecTotal desc "; // for now we only do on totals
+			}
 
 			$q=safe_r_sql($sql);
 			while($r=safe_fetch($q)) {
 				if($r->RtRecExtra) $r->RtRecExtra=unserialize($r->RtRecExtra);
-				$r->RtRecType=get_text($r->RtRecType.'-Record', 'Tournament');
 				$ret[]=$r;
 			}
 			return $ret;
@@ -140,6 +167,28 @@
 					}
 				}
 			}
+			return '';
+		}
+
+		public function ManageBitRecord($BitLevel, $CaCode, $MaCode, $EvIsPara=0) {
+			if(!$BitLevel) {
+				return '';
+			}
+
+			$Field=$EvIsPara ? 'ReArOdfParaCode' : 'ReArOdfCode';
+
+			foreach(array(128,64,32,16,8,4,2,1) as $Level) {
+				if($BitLevel&$Level) {
+					if(isset($this->HasRecords[$Level.'|'])) {
+						return $this->HasRecords[$Level.'|']->{$Field};
+					} elseif(isset($this->HasRecords[$Level.'|'.$CaCode])) {
+						return $this->HasRecords[$Level.'|'.$CaCode]->{$Field};
+					} elseif(isset($this->HasRecords[$Level.'|'.$MaCode])) {
+						return $this->HasRecords[$Level.'|'.$MaCode]->{$Field};
+					}
+				}
+			}
+			// fall back to empty string
 			return '';
 		}
 	}

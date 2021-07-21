@@ -1,6 +1,6 @@
 <?php
 
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 
 //$pdf->HideCols=$PdfData->HideCols;
 $pdf->NumberThousandsSeparator=$PdfData->NumberThousandsSeparator;
@@ -10,13 +10,11 @@ $pdf->TotalShort=$PdfData->TotalShort;
 $pdf->ShotOffShort=$PdfData->ShotOffShort;
 $pdf->CoinTossShort=$PdfData->CoinTossShort;
 
-if(count($rankData['sections']))
-{
+if(count($rankData['sections'])) {
 	$DistSize = 11;
 	$AddSize=0;
 	$pdf->setDocUpdate($rankData['meta']['lastUpdate']);
-	foreach($rankData['sections'] as $section)
-	{
+	foreach($rankData['sections'] as $section) {
 		//Calcolo Le Misure per i Campi
 		if($section['meta']['numDist']>=4 && !$rankData['meta']['double'])
 			$DistSize = 44/$section['meta']['numDist'];
@@ -30,22 +28,28 @@ if(count($rankData['sections']))
 			$pdf->AddPage();
 		$pdf->writeGroupHeaderPrnIndividualAbs($section['meta'], $DistSize, $AddSize, $section['meta']['running'], $section['meta']['numDist'], $rankData['meta']['double'], false);
 		$EndQualified = ($section['meta']['qualifiedNo']==0);
-		foreach($section['items'] as $item)
-		{
-			if($EndQualified===false && $item['rank']>$section['meta']['qualifiedNo'])
-			{
+        $StartQualified = ($section['meta']['firstQualified']==1);
+		foreach($section['items'] as $item) {
+		    if(!$StartQualified AND ($section['meta']['finished'] ? $item['rank']: $item['rankBeforeSO']+$item['ct'])>=$section['meta']['firstQualified']) {
+                $pdf->SetFont($pdf->FontStd,'',1);
+		        $pdf->Cell(190, 1,  '', 1, 1, 'C', 1);
+                if (!$pdf->SamePage(4* ($rankData['meta']['double'] ? 2 : 1))) {
+                    $pdf->AddPage();
+                    $pdf->writeGroupHeaderPrnIndividualAbs($section['meta'], $DistSize, $AddSize, $section['meta']['running'], $section['meta']['numDist'], $rankData['meta']['double'], true);
+                }
+                $StartQualified = true;
+            }
+			if(!$EndQualified AND $item['rank']>($section['meta']['qualifiedNo']+$section['meta']['firstQualified']-1))	{
 				$pdf->SetFont($pdf->FontStd,'',1);
 				$pdf->Cell(190, 1,  '', 1, 1, 'C', 1);
-				if (!$pdf->SamePage(4* ($rankData['meta']['double'] ? 2 : 1)))
-				{
+				if (!$pdf->SamePage(4* ($rankData['meta']['double'] ? 2 : 1))) {
 					$pdf->AddPage();
 					$pdf->writeGroupHeaderPrnIndividualAbs($section['meta'], $DistSize, $AddSize, $section['meta']['running'], $section['meta']['numDist'], $rankData['meta']['double'], true);
 				}
 				$EndQualified = true;
 			}
 
-			if (!$pdf->SamePage(4* ($rankData['meta']['double'] ? 2 : 1)))
-			{
+			if (!$pdf->SamePage(4* ($rankData['meta']['double'] ? 2 : 1))) {
 				$pdf->AddPage();
 				$pdf->writeGroupHeaderPrnIndividualAbs($section['meta'], $DistSize, $AddSize, $section['meta']['running'], $section['meta']['numDist'], $rankData['meta']['double'], true);
 			}

@@ -15,6 +15,8 @@ if(isset($_REQUEST['Session']) && preg_match("/^[0-9]+$/", $_REQUEST['Session'])
 
 $json_array=array();
 
+/* AGGINGERE SESSION MATCH */
+
 
 $Sql = "SELECT SesOrder, SesName, SesDtStart, SesDtEnd FROM Session WHERE SesTournament={$TourId} AND SesType='F' AND SesOrder={$SesId}";
 $q=safe_r_SQL($Sql);
@@ -28,7 +30,7 @@ if($r=safe_fetch($q)) {
 		$options['tournament']=$TourId;
 		$options['events']=$r->FsEvent;
 		$options['matchno']=$r->FsMatchNo;
-		
+
 		$rank=null;
 		if($r->FsTeamEvent) {
 			$rank=Obj_RankFactory::create('GridTeam',$options);
@@ -37,7 +39,7 @@ if($r=safe_fetch($q)) {
 		}
 		$rank->read();
 		$Data=$rank->getData();
-		
+
 		foreach($Data['sections'] as $kSec=>$vSec) {
 			foreach($vSec['phases'] as $kPh=>$vPh) {
 				foreach($vPh['items'] as $kItem=>$vItem) {
@@ -49,7 +51,15 @@ if($r=safe_fetch($q)) {
 					}
 					$tmpL += array("TeamCode"=>$vItem["countryCode"], "TeamName"=>$vItem["countryName"]);
 					$tmpR += array("TeamCode"=>$vItem["oppCountryCode"], "TeamName"=>$vItem["oppCountryName"]);
-					$json_array[] = Array("Event"=>$r->FsEvent, "Type"=>$r->FsTeamEvent, "MatchId"=>$vItem['matchNo'], "PhaseId"=>strval($kPh), "ScheduledDateTime"=>date("Y-m-d H:i",strtotime($vItem["scheduledDate"] . " ". $vItem["scheduledTime"])),  "LeftOpponent"=>$tmpL, "RightOpponent"=>$tmpR);
+					$json_array[] = Array(
+						"Event"=>$r->FsEvent,
+						"Type"=>$r->FsTeamEvent,
+						"MatchId"=>$vItem['matchNo'],
+						"MatchName"=>get_text('SessionName', 'ODF', (object) array('Category' => $vSec['meta']['eventName'], 'RoundType'=>$vPh['meta']['matchName'])),
+						"PhaseId"=>strval($kPh),
+						"ScheduledDateTime"=>date("Y-m-d H:i",strtotime($vItem["scheduledDate"] . " ". $vItem["scheduledTime"])),
+						"LeftOpponent"=>$tmpL,
+						"RightOpponent"=>$tmpR);
 				}
 			}
 		}

@@ -5,7 +5,7 @@ CheckTourSession(true);
 
 require_once('./LibScheduler.php');
 
-if(empty($_REQUEST['Fld'])) out();
+if(empty($_REQUEST['Fld'])) jsonout(array('error'=>1));
 
 $Field=key($_REQUEST['Fld']);
 
@@ -20,7 +20,7 @@ switch($Field) {
 }
 
 // always outputs error...
-out();
+jsonout(array('error'=>1));
 
 function DoESchedule($Item) {
 	DoQSchedule($Item, $Type='E');
@@ -54,7 +54,7 @@ function DoQSchedule($Item, $Type='Q') {
 		default:
 // 			debug_svela($Field);
 	}
-	out($ret);
+	jsonout($ret);
 }
 
 function DoTSchedule($Item) {
@@ -88,7 +88,7 @@ function DoISchedule($Item, $Team='0') {
 		default:
 // 			debug_svela($Field);
 	}
-	out($ret);
+	jsonout($ret);
 }
 
 function DoZSchedule($Item) {
@@ -118,6 +118,6 @@ function DoZSchedule($Item) {
 		default:
 // 			debug_svela($Field);
 	}
-	out($ret);
+	jsonout($ret);
 
 }

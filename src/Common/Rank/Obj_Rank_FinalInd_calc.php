@@ -65,7 +65,7 @@
 					IndRankFinal={$rank},
 					IndTimestampFinal='{$date}'
 				WHERE
-					IndTournament={$this->tournament} AND IndEvent='{$event}' AND IndId={$id}
+					IndTournament={$this->tournament} AND IndEvent='{$event}' AND IndId={$id} and IndIrmTypeFinal<15
 			";
 			//print $q.'<br><br>';
 			$r=safe_w_sql($q);
@@ -202,15 +202,10 @@
 			$date=date('Y-m-d H:i:s');
 
 		// reset delle RankFinal della fase x le persone di quell'evento e quella fase
-			$q="
-				UPDATE
-					Individuals
-					INNER JOIN
-						Finals
-					ON IndId=FinAthlete AND IndTournament=FinTournament AND IndEvent=FinEvent
-					INNER JOIN
-						Grids
-					ON FinMatchNo=GrMatchNo AND GrPhase={$realphase}
+			$q=" UPDATE Individuals 
+				INNER JOIN Finals ON IndId=FinAthlete AND IndTournament=FinTournament AND IndEvent=FinEvent
+     			inner join IrmTypes on IrmId=IndIrmTypeFinal and IrmShowRank=1
+				INNER JOIN Grids ON FinMatchNo=GrMatchNo AND GrPhase={$realphase}
 				SET
 					IndRankFinal=0,
 					IndTimestampFinal='{$date}'
@@ -230,6 +225,7 @@
 				SELECT EvElimType, EvWinnerFinalRank, SubCodes, EvCodeParent, GrPhase, EvFinalFirstPhase, least(f.FinMatchNo,f2.FinMatchNo) as MatchNo,
 					f.FinAthlete AS AthId, i.IndRank as AthRank,
 					f2.FinAthlete AS OppAthId, i2.IndRank as OppAthRank,
+					f.FinIrmType as IrmType, f2.FinIrmType as OppIrmType,
 					IF(EvMatchMode=0,f.FinScore,f.FinSetScore) AS Score, f.FinScore AS CumScore,f.FinTie AS Tie,
 					IF(EvMatchMode=0,f2.FinScore,f2.FinSetScore) as OppScore, f2.FinScore AS OppCumScore,f2.FinTie as OppTie
 				FROM
@@ -246,8 +242,7 @@
 
 				WHERE
 					f.FinTournament={$this->tournament} AND f.FinEvent='{$event}' AND GrPhase={$realphase}
-					AND (f.FinWinLose=1 OR f2.FinWinLose=1)
-					AND (IF(EvMatchMode=0,f.FinScore,f.FinSetScore) < IF(EvMatchMode=0,f2.FinScore,f2.FinSetScore) OR (IF(EvMatchMode=0,f.FinScore,f.FinSetScore)=IF(EvMatchMode=0,f2.FinScore,f2.FinSetScore) AND f.FinTie < f2.FinTie))
+					AND (f2.FinWinLose=1 or (f.FinIrmType>0 and f.FinIrmType<20 and f2.FinIrmType>0 and f2.FinIrmType<20))
 				ORDER BY
 					IF(EvMatchMode=0,f.FinScore,f.FinSetScore) DESC,f.FinScore DESC
 			";
@@ -325,39 +320,14 @@
 				 */
 					if($realphase==4) {
 						// these are all ranked one by one
-						$pos=max(4,8-safe_num_rows($rs));		// dovendo partire dal fondo, recupero l'ultimo posto disponibile
+						$MaxRank= ($myRow->EvElimType==3 or $myRow->EvElimType==4) ? 4 : 8;
+						$pos=max(4,$MaxRank-safe_num_rows($rs));		// dovendo partire dal fondo, recupero l'ultimo posto disponibile
 					} elseif($realphase>4) {
 						$pos=numMatchesByPhase($phase)+SavedInPhase($phase)+1;
 					} else {
 						// no need to rerank
 						return false;
 					}
-					//switch ($phase)
-					//{
-					//	case 4:
-					//		$pos=8-safe_num_rows($rs);		// dovendo partire dal fondo, recupero l'ultimo posto disponibile
-					//		break;
-					//	case 8:
-					//		$pos=9;
-					//		break;
-					//	case 16:
-					//		$pos=17;
-					//		break;
-					//	case 32: // (e 24)
-					//		$pos=33;
-					//		break;
-					//	case 48:
-					//		$pos=57;
-					//		break;
-					//	case 64:
-					//		// gets the real firstpase of the event
-					//		$tt=safe_r_sql("select EvFinalFirstPhase from Events WHERE EvTournament={$this->tournament} AND EvCode='{$event}' ");
-					//		$uu=safe_fetch($tt);
-					//		$pos=$uu->EvFinalFirstPhase==48 ? 57 : 65;
-					//		break;
-					//	default:
-					//		return false;
-					//}
 
 					if ($phase==4)
 					{
@@ -377,24 +347,24 @@
 							if (!($myRow->Score==$scoreOld && $myRow->CumScore==$cumOld)) {
 								$rank=$pos;
 							}
+							if($myRow->IrmType==15) {
+								$rank=8;
+							}
 						}
 
 						$scoreOld=$myRow->Score;
 						$cumOld=$myRow->CumScore;
 
-					// devo scrivere solo il perdente
-						if($myRow->EvElimType==3 and $myRow->GrPhase>$myRow->EvFinalFirstPhase) {
+						// Only the loser needs to be ranked
+						if(($myRow->EvElimType==3 or $myRow->EvElimType==4) and $myRow->GrPhase>$myRow->EvFinalFirstPhase and $myRow->MatchNo>=8) {
 							// needs to get his final rank, based on the matchno
-							$rank=getPoolLooserRank($myRow->MatchNo);
-						} elseif($myRow->EvElimType==4 and $myRow->GrPhase>$myRow->EvFinalFirstPhase) {
-							// needs to get his final rank, based on the matchno
-							$rank=getPoolLooserRankWA($myRow->MatchNo);
+							if($myRow->EvElimType==3) {
+								$rank=getPoolLooserRank($myRow->MatchNo);
+							} else {
+								$rank=getPoolLooserRankWA($myRow->MatchNo);
+							}
 						}
-						$x=$this->writeRow($myRow->AthId,$event,$rank+$myRow->EvWinnerFinalRank-1);
-
-						if ($x===false) {
-							return false;
-						}
+						$this->writeRow($myRow->AthId,$event,$rank+$myRow->EvWinnerFinalRank-1);
 
 						$myRow=safe_fetch($rs);
 					}

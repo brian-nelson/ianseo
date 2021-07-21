@@ -8,6 +8,10 @@ div {overflow:hidden;}
 #ImageContent {position:relative; top:20%; bottom:20%; left:20%; right:20%; width:60%; height:60%; text-align: center; box-sizing:border-box;overflow:hidden;}
 #ImageContent img {height:100%; width:auto;}
 
+#ImageContent.FullImage {
+    top:0;bottom:0;left:0;right:0;width:100%;height:100%;
+}
+
 .Rotate {
 	-webkit-transform: rotate(-90deg) translateY(150%);
 	-moz-transform: rotate(-90deg) translateY(150%);
@@ -20,4 +24,4 @@ div {overflow:hidden;}
 
 .Headers .Headers {background:none;}
 .RecBar {flex: 0 0 1vw; height:2em;}
-.Record {flex: 1 0 40vw; text-align:right;}
+.Record {flex: 1 0 40vw; text-align:right; padding:0 0.5em; font-size:85%;}

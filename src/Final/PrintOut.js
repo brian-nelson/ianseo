@@ -1,5 +1,5 @@
-function CheckIfOris(chkValue,FormName,Individual) {
-if(Individual) {
+function CheckIfOris(chkValue, FormName, Individual) {
+	if(Individual) {
         if(document.getElementById(chkValue).checked) {
             document.getElementById(FormName).action = 'Individual/OrisIndividual.php';
         } else {
@@ -10,6 +10,17 @@ if(Individual) {
             document.getElementById(FormName).action = 'Team/OrisTeam.php';
         } else {
             document.getElementById(FormName).action = 'Team/PrnTeam.php';
+        }
+    }
+	CheckIfOrisBrackets(Individual);
+}
+
+function CheckIfOrisBrackets(Individual) {
+	if(Individual) {
+        if($('#IncBrackets').is(':checked') && $('#ShowOrisInd').is(':checked')) {
+            $('#OrisDetails').show();
+        } else {
+            $('#OrisDetails').hide();
         }
     }
 }

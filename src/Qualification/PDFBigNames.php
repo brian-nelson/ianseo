@@ -25,7 +25,7 @@ $Height[2]=$Height[1]*2;
 $Width=$pdf->getPageWidth()-65;
 $CellHeight=$Height[1]-10; // 5 top and bottom
 
-$fontname=$pdf->addTTFfont($CFG->DOCUMENT_PATH.'Common/tcpdf/fonts/ariblk.ttf');
+$fontname=TCPDF_FONTS::addTTFfont($CFG->DOCUMENT_PATH.'Common/tcpdf/fonts/ariblk.ttf');
 $pdf->SetFont($fontname);
 
 $Filter='';
@@ -37,7 +37,7 @@ $Rs=safe_r_SQL("select EnName, EnFirstName, QuTargetNo
 	inner join Qualifications on EnId=QuId $Filter where EnTournament={$_SESSION['TourId']}
 	order by QuTargetNo");
 
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 
 $n=0;
 while($MyRow=safe_fetch($Rs)) {

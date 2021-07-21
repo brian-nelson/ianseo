@@ -51,7 +51,6 @@ $lang['BlackWhite']='Blanco y Negro';
 $lang['Bold']='Negrita';
 $lang['Category']='Categoría';
 $lang['CharColor']='Color Letra';
-$lang['CharSize']='Tamaño Letra';
 $lang['CharType']='Tipo de Letra';
 $lang['CheckBarcodeSeparator']='Verificar Separador Código de Barras';
 $lang['Club']='Detalle del País/Club';

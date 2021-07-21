@@ -5,7 +5,7 @@ $lang['CustomAward']='פרס מיוחד';
 $lang['CustomEvent']='שם הפרס';
 $lang['CustomNation']='מדינת מקבל הפרס';
 $lang['CustomPrize']='הענקת הפרס';
-$lang['CustomWinner']='הזוכה/זוכים';
+$lang['CustomWinner']='מקבל(י) הפרס';
 $lang['CW0']='קומפאונד נשים';
 $lang['CW1']='קומפאונד נשים קבוצתי';
 $lang['CX']='קומפאונד קבוצה מעורבת';
@@ -19,5 +19,5 @@ $lang['RW0']='ריקרב נשים';
 $lang['RW1']='ריקרב נשים קבוצתי';
 $lang['RX']='ריקרב קבוצה מעורבת';
 $lang['RX1']='ריקרב קבוצה מעורבת';
-$lang['WaitAthletes']='המתן למתמודדים';
+$lang['WaitAthletes']='המתן לספורטאים';
 ?>

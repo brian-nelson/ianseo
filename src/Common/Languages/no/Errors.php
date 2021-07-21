@@ -1,5 +1,12 @@
 <?php
+$lang['AllMailsRedirect']='Alle meldinger blir sendt til';
+$lang['Anomalies']='Avvik';
+$lang['ClassFromToError']='Fra og til må være numeriske verdier';
 $lang['DirectoryNotWriteable']='Mappen $a er ikke skrivbar for webserveren. Endre rettigeten slik at mappen blir skrivbar.';
+$lang['EmptyBody']='Ingen tekst i meldinger: dette feltet er obligatorisk!';
+$lang['EmptyFrom']='Tom e-post: dette feltet er obligatorisk!';
+$lang['EmptySubject']='Tomt emne: dette feltet er obligatorisk!';
+$lang['EmptyTitle']='Tom tittel: dette feltet er obligatorisk!';
 $lang['ErrCodeExists']='Koden finnes allerede!';
 $lang['ErrCommitteeError']='Ugyldig komitekode eller beskrivelse';
 $lang['ErrConnection']='Ingen kontakt med server $a';
@@ -18,5 +25,19 @@ $lang['ErrRedCard']='Utvalget har rødt kort og kan ikke be om at resultatene vi
 $lang['ErrUnknownNation']='Ukjent klubb';
 $lang['ErrYellowCard']='Utvalget har gult kort for ingen resultater har blitt lastet opp. Kontakt codes@ianseo.net for ytterligere forklaringer.';
 $lang['LockedProcedure']='Denne prosedyren er LÅST';
+$lang['MailingAlreadyExists']='En e-postadresse med samme tittel ({$a}) eksisterer allerede. Vennligst endre tittel eller velg e-postadressen du vil endre fra velgeren.';
+$lang['MailingError']='Ingen endringer utført!';
+$lang['MissingAccreditation']='Mangler online akkreditering';
+$lang['MissingData']='Manglende data';
+$lang['MissingPhpIntlModule']='Translitterasjon kan gjøres ved å installere eller aktivere php-intl-modulen';
+$lang['NoDNSRecord']='Servernavnet er feil eller ikke online: Vær oppmerksom på at du må være koblet til Internett for å angi dette alternativet.';
+$lang['NoMailingTemplate']='Ingen e-postmal valgt/tilgjengelig!';
+$lang['NoMailRecipients']='Ingen å sende meldingen til! Se gjennom filteralternativene dine.';
+$lang['NoPrivilege']='Utilstrekkelig privilegium: du har ikke lov til å operere på denne siden';
+$lang['NoSmtpServerSet']='Angi SMTP-serveren før du sender e-post!';
+$lang['SpecialFilterDiscrepancy']='Et spesialfilter er satt, men er ikke aktivt!';
+$lang['TargetNumberMismatch']='Matte nummer kan bare ha formen [bummer][bokstav], som i 129C';
+$lang['TextSmtpDelete']='Bekreft at du vil deaktivere SMTP-innstillingene for denne installasjonen av Ianseo';
 $lang['TooManyArrows']='For mange piler totalt: maks antall er $a';
+$lang['WrongPort']='Denne porten støttes ikke!';
 ?>

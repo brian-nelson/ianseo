@@ -9,6 +9,7 @@
 		'<script type="text/javascript" src="../Common/ajax/ObjXMLHttpRequest.js"></script>',
 		'<script type="text/javascript" src="../Common/js/Fun_JS.inc.js"></script>',
 		'<script type="text/javascript" src="../Qualification/Fun_AJAX_index.js"></script>',
+		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 		'<script type="text/javascript" src="Fun_JS.js"></script>',
 		'<script type="text/javascript">',
 		'function DisableChkOther(NoDist, NumDist)',
@@ -52,7 +53,8 @@
 		safe_free_result($RsTour);
 	}
 
-	echo '<form id="PrnParameters" action="' . ($RowTour->TtElabTeam!=2 ? 'PDFScoreField.php' : 'PDFScore3D.php') . '" method="post" target="PrintOut">';
+	echo '<form id="PrnParameters" action="../Qualification/PDFScore.php" method="post" target="PrintOut">';
+    echo '<input name="SessionType" type="hidden" value="E" >';
 	echo '<table class="Tabella">';
 	echo '<tr><th class="Title" colspan="2">' . get_text('PrintScore','Tournament')  . '</th></tr>';
 	echo '<tr><th class="SubTitle" colspan="2">' . get_text('ScorePrintMode','Tournament')  . '</th></tr>';
@@ -71,6 +73,12 @@
 	if(module_exists("Barcodes")) {
 		echo '<input name="ScoreBarcode" type="checkbox" checked value="1" >&nbsp;' . get_text('ScoreBarcode','Tournament') . '<br>';
 	}
+    foreach(AvailableApis() as $Api) {
+        if(!($tmp=getModuleParameter($Api, 'Mode')) || $tmp=='live' ) {
+            continue;
+        }
+        echo '<input name="QRCode[]" type="checkbox" '.($tmp=='pro' ? '' : 'checked="checked"').' value="'.$Api.'" >&nbsp;' . get_text($Api.'-QRCode','Api') . '<br>';
+    }
 	echo '</td>';
 	echo '</tr>';
 

@@ -1,7 +1,5 @@
 <?php
 
-error_reporting(E_ALL);
-
 //$pdf->HideCols=$PdfData->HideCols;
 $pdf->NumberThousandsSeparator=$PdfData->NumberThousandsSeparator;
 $pdf->NumberDecimalSeparator=$PdfData->NumberDecimalSeparator;

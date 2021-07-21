@@ -136,7 +136,7 @@ echo '</tr>';
 			}
 		}
 	}
-	$ArcPerButt=count($TgtArray);
+	$ArcPerButt=(empty($TgtArray) ? 0 : count($TgtArray));
 	safe_free_result($Rs);
 ?>
 <tr>

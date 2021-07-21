@@ -31,13 +31,13 @@ if($Block>safe_num_rows($Rs)) {
 	$Block=1;
 }
 
-// $NextBlock=$Block+1;
+//$NextBlock=$Block+1;
 $OrgBlock=$Block;
 
 $RotMatches=false;
 while($Block) {
 	$r=safe_fetch($Rs);
-	$Block--;
+	$Block=max(0, --$Block);
 }
 
 $tmp='';

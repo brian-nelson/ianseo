@@ -20,5 +20,5 @@ $ONLOAD=' onload="GetContent('.(empty($Hidden) ? '' : "'hide'").')"';
 
 // uses the same headings as Caspar
 require_once('Common/Templates/head-caspar.php');
-echo '<div id="body"></div>';
+//echo '<div id="body"></div>';
 require_once('Common/Templates/tail-min.php');

@@ -4,6 +4,8 @@
 	require_once('Common/Fun_FormatText.inc.php');
 	require_once('serial.php');
 	require_once('Fun_HHT.local.inc.php');
+    require_once('Common/Lib/CommonLib.php');
+    require_once('Common/Lib/Fun_Phases.inc.php');
 
 	$Modes=array
 	(
@@ -204,7 +206,7 @@
 	include('Common/Templates/head.php');
 
 	$ComboHHT=ComboHHT();
-	$ComboSes=ComboSes(RowTour());
+	$ComboSes=ComboSession();
 ?>
 <form name="FrmParam" method="POST" action="<?php print $_SERVER["PHP_SELF"];?>">
 	<table class="Tabella">

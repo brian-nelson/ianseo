@@ -8,7 +8,7 @@ $pdf->pushMargins();
 $pdf->SetLineWidth(0.125);
 $pdf->setCellPaddings(0.5,0,0.5,0);
 
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 
 //Costanti
 $PaginaUtile=$pdf->GetPageHeight()-47;
@@ -220,11 +220,13 @@ foreach($PdfData->rankData['sections'] as $Event => $section) {
 			$tieText = "";
 			if($Match['tiebreakDecoded']) {
 				$pdf->SetFont($pdf->FontStd,'',6);
-				$tieText = $Match['tiebreakDecoded'];
+				$tieText = 'T.'.$Match['tiebreakDecoded'];
 			} elseif($Match['tie']==1) {
-				$tieText = "*";
-			} 
-			if($Match['notes']) {
+				$tieText = "+";
+			}
+			if($Match['irmText']) {
+				$tieText .= $Match['irmText'];
+			} elseif($Match['notes']) {
 				$pdf->SetFont($pdf->FontStd,'B',6);
 				$tieText .= $Match['notes'];
 			}
@@ -233,15 +235,17 @@ foreach($PdfData->rankData['sections'] as $Event => $section) {
 			$tieText = "";
 			if($Match['oppTiebreakDecoded']) {
 				$pdf->SetFont($pdf->FontStd,'',6);
-				$tieText = $Match['oppTiebreakDecoded'];
+				$tieText = 'T.'.$Match['oppTiebreakDecoded'];
 			} elseif($Match['oppTie']==1) {
-				$tieText = "*";
+				$tieText = "+";
 			}
-			if($Match['oppNotes']) {
+			if($Match['oppIrmText']) {
+				$tieText .= $Match['oppIrmText'];
+			} elseif($Match['oppNotes']) {
 				$pdf->SetFont($pdf->FontStd,'B',6);
 				$tieText .= $Match['oppNotes'];
 			}
-			$pdf->Cell($MisTie, $CellHeight, $tieText, 0, 0, 'L', 0);		
+			$pdf->Cell($MisTie, $CellHeight, $tieText, 0, 0, 'L', 0);
 			$pdf->SetY($OrgY, false);
 
 			$pdf->Cell(0.1, $CellHeight, "", 0, 1, 'C', 0);		//A Capo

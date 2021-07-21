@@ -74,11 +74,11 @@ function CreateStandardDivisions($TourId, $Type, $SubRule=1) {
 		case '3':
 			CreateDivision($TourId, $i++, 'R', 'Recurve');
 			CreateDivision($TourId, $i++, 'C', 'Compound');
-			CreateDivision($TourId, $i++, 'CO', 'Compound Open');
-			CreateDivision($TourId, $i++, 'C1', 'Compound W1');
-			CreateDivision($TourId, $i++, 'RS', 'Recurve Standing');
-			CreateDivision($TourId, $i++, 'R2', 'Recurve W2');
-			CreateDivision($TourId, $i++, 'VI', 'Visually Impaired');
+			CreateDivision($TourId, $i++, 'CO', 'Compound Open',1,'C','C',1);
+			CreateDivision($TourId, $i++, 'C1', 'Compound W1',1,'W1','W1',1);
+			CreateDivision($TourId, $i++, 'RS', 'Recurve Standing',1,'R','R',1);
+			CreateDivision($TourId, $i++, 'R2', 'Recurve W2',1,'W2','W2',1);
+			CreateDivision($TourId, $i++, 'VI', 'Visually Impaired',1,'VI','VI',1);
 			$ArlefDivisions=array(
 				'R' => 'Recurve',
 				'C' => 'Compound',
@@ -96,11 +96,11 @@ function CreateStandardDivisions($TourId, $Type, $SubRule=1) {
 				CreateDivision($TourId, $i++, 'BN', 'Brevet Nu Longbow');
 				CreateDivision($TourId, $i++, 'BB', 'Brevet Recurve/Barebow');
 				CreateDivision($TourId, $i++, 'B', 'Brevet 10m');
-				CreateDivision($TourId, $i++, 'CO', 'Compound Open');
-				CreateDivision($TourId, $i++, 'C1', 'Compound W1');
-				CreateDivision($TourId, $i++, 'RS', 'Recurve Standing');
-				CreateDivision($TourId, $i++, 'R2', 'Recurve W2');
-				CreateDivision($TourId, $i++, 'VI', 'Visually Impaired');
+				CreateDivision($TourId, $i++, 'CO', 'Compound Open',1,'C','C',1);
+				CreateDivision($TourId, $i++, 'C1', 'Compound W1',1,'W1','W1',1);
+				CreateDivision($TourId, $i++, 'RS', 'Recurve Standing',1,'R','R',1);
+				CreateDivision($TourId, $i++, 'R2', 'Recurve W2',1,'W2','W2',1);
+				CreateDivision($TourId, $i++, 'VI', 'Visually Impaired',1,'VI','VI',1);
 			}
 			break;
 		case '23':
@@ -110,11 +110,11 @@ function CreateStandardDivisions($TourId, $Type, $SubRule=1) {
 			CreateDivision($TourId, $i++, 'C', 'Compound');
 			CreateDivision($TourId, $i++, 'NL', 'Nu Longbow');
 			CreateDivision($TourId, $i++, 'NR', 'Nu Recurve/Barebow');
-			CreateDivision($TourId, $i++, 'CO', 'Compound Open');
-			CreateDivision($TourId, $i++, 'C1', 'Compound W1');
-			CreateDivision($TourId, $i++, 'RS', 'Recurve Standing');
-			CreateDivision($TourId, $i++, 'R2', 'Recurve W2');
-			CreateDivision($TourId, $i++, 'VI', 'Visually Impaired');
+			CreateDivision($TourId, $i++, 'CO', 'Compound Open',1,'C','C',1);
+			CreateDivision($TourId, $i++, 'C1', 'Compound W1',1,'W1','W1',1);
+			CreateDivision($TourId, $i++, 'RS', 'Recurve Standing',1,'R','R',1);
+			CreateDivision($TourId, $i++, 'R2', 'Recurve W2',1,'W2','W2',1);
+			CreateDivision($TourId, $i++, 'VI', 'Visually Impaired',1,'VI','VI',1);
 			break;
 		case '26': // Brevet 10m outdoor
 			CreateDivision($TourId, $i++, 'BR', 'Brevet 10m Recurve');
@@ -158,8 +158,8 @@ function CreateStandardClasses($TourId, $Type, $SubRule) {
 			CreateClass($TourId, $i++, 50, 59,  1, 'DM', 'DM', 'Dame Master', '1', 'C,R');
 			CreateClass($TourId, $i++, 60,100,  0, 'HV', 'HV', 'Homme Vétéran', '1', 'C,R');
 			CreateClass($TourId, $i++, 60,100,  1, 'DV', 'DV', 'Dame Vétéran', '1', 'C,R');
-			CreateClass($TourId, $i++, 1, 100,  0, 'H', 'H', 'Homme', '1', 'CO,C1,RS,R2,VI');
-			CreateClass($TourId, $i++, 1, 100,  1, 'D', 'D', 'Dame', '1', 'CO,C1,RS,R2,VI');
+			CreateClass($TourId, $i++, 1, 100,  0, 'H', 'H', 'Homme', '1', 'CO,C1,RS,R2,VI','','',1);
+			CreateClass($TourId, $i++, 1, 100,  1, 'D', 'D', 'Dame', '1', 'CO,C1,RS,R2,VI','','',1);
 			$ArlefClasses=array(
 				'R' => array('MB','HC','DC','HJ','DJ','H1','D1','H2','D2','HM','DM','HV','DV'),
 				'C' => array('MB','HC','DC','HJ','DJ','H1','D1','H2','D2','HM','DM','HV','DV'),
@@ -181,8 +181,8 @@ function CreateStandardClasses($TourId, $Type, $SubRule) {
 			CreateClass($TourId, $i++, 50, 59,  1, 'DM', 'DM', 'Dame Master', '1', 'C,R');
 			CreateClass($TourId, $i++, 60,100,  0, 'HV', 'HV', 'Homme Vétéran', '1', 'C,R');
 			CreateClass($TourId, $i++, 60,100,  1, 'DV', 'DV', 'Dame Vétéran', '1', 'C,R');
-			CreateClass($TourId, $i++, 1, 100,  0, 'H', 'H', 'Homme', '1', 'CO,C1,RS,R2,VI');
-			CreateClass($TourId, $i++, 1, 100,  1, 'D', 'D', 'Dame', '1', 'CO,C1,RS,R2,VI');
+			CreateClass($TourId, $i++, 1, 100,  0, 'H', 'H', 'Homme', '1', 'CO,C1,RS,R2,VI','','',1);
+			CreateClass($TourId, $i++, 1, 100,  1, 'D', 'D', 'Dame', '1', 'CO,C1,RS,R2,VI','','',1);
 			$ArlefClasses=array(
 				'R' => array('MP','HB','DB','HC','DC','HJ','DJ','H1','D1','H2','D2','HM','DM','HV','DV'),
 				'C' => array('MP','HB','DB','HC','DC','HJ','DJ','H1','D1','H2','D2','HM','DM','HV','DV'),
@@ -211,8 +211,8 @@ function CreateStandardClasses($TourId, $Type, $SubRule) {
 				CreateClass($TourId, $i++, 50, 100, -1, 'M', 'M', 'Master', '1', 'BB,BN,NL,NR');
 				CreateClass($TourId, $i++, 1, 100, -1, 'A', 'A', 'Apache', '1', 'B');
 				CreateClass($TourId, $i++, 1, 100, -1, 'V', 'V', 'Viseur', '1', 'B');
-				CreateClass($TourId, $i++, 1, 100, 0, 'H', 'H', 'Homme', '1', 'CO,C1,RS,R2,VI');
-				CreateClass($TourId, $i++, 1, 100, 1, 'D', 'D', 'Dame', '1', 'CO,C1,RS,R2,VI');
+				CreateClass($TourId, $i++, 1, 100, 0, 'H', 'H', 'Homme', '1', 'CO,C1,RS,R2,VI','','',1);
+				CreateClass($TourId, $i++, 1, 100, 1, 'D', 'D', 'Dame', '1', 'CO,C1,RS,R2,VI','','',1);
 				$ArlefClasses['R'][]='MP';
 				$ArlefClasses['C'][]='MP';
 			} else {
@@ -241,8 +241,8 @@ function CreateStandardClasses($TourId, $Type, $SubRule) {
 			CreateClass($TourId, $i++, 50, 59, 1, 'DM', 'DM,D2', 'Dame Master', '1', 'C,R');
 			CreateClass($TourId, $i++, 60, 100, 0, 'HV', 'HV,HM,H2', 'Homme Vétéran', '1', 'C,R');
 			CreateClass($TourId, $i++, 60, 100, 1, 'DV', 'DV,DM,D2', 'Dame Vétéran', '1', 'C,R');
-			CreateClass($TourId, $i++, 1, 100, 0, 'H', 'H', 'Homme', '1', 'CO,C1,RS,R2,VI');
-			CreateClass($TourId, $i++, 1, 100, 1, 'D', 'D', 'Dame', '1', 'CO,C1,RS,R2,VI');
+			CreateClass($TourId, $i++, 1, 100, 0, 'H', 'H', 'Homme', '1', 'CO,C1,RS,R2,VI','','',1);
+			CreateClass($TourId, $i++, 1, 100, 1, 'D', 'D', 'Dame', '1', 'CO,C1,RS,R2,VI','','',1);
 			CreateClass($TourId, $i++,  1, 17, -1, 'J', 'J', 'Jeune', '1', 'NL,NR');
 			CreateClass($TourId, $i++, 18, 49, -1, 'S', 'S', 'Senior', '1', 'NL,NR');
 			CreateClass($TourId, $i++, 50, 100, -1, 'M', 'M,S', 'Master', '1', 'NL,NR');
@@ -302,7 +302,9 @@ function CreateStandardEvents($TourId, $Type) {
 		case 23:
 		case 24:
 		case 25:
-			foreach($ArlefDivisions as $k => $v) CreateEvent($TourId, $i++, 1, 0, 0, 1, 4, 6, 3, 4, 6, 3, $k.'T',  'Equipe '.$v);
+			foreach($ArlefDivisions as $k => $v) {
+				CreateEvent($TourId, $i++, 1, 0, 0, 1, 4, 6, 3, 4, 6, 3, $k.'T',  'Equipe '.$v);
+			}
 			break;
 	}
 }

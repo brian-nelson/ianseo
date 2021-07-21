@@ -79,3 +79,5 @@ select {
 th[id$=Order][ordertype=ordasc]:after {content: url('../../Common/Images/isk-arrow-up.png');margin-left:0.7em;}
 th[id$=Order][ordertype=orddesc]:after {content: url('../../Common/Images/isk-arrow-down.png');margin-left:0.7em;}
 th[id$=Order] {text-decoration: underline;cursor: pointer;}
+
+.LiteIndex .Button {margin-top:0.5em;margin-bottom: 0.5em;}

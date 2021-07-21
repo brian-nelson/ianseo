@@ -176,7 +176,7 @@
 								. "CaTournament as Tournament, '2' as Phase, CaGMMatchNo as MatchNo, "
 								. "CaEventCode as EventCode,  "
 								. "CaTeam AS Team,	CaSubTeam AS SubTeam, "
-								. " 0 AS Rank, '' AS Tiebreak "
+								. " 0 AS `Rank`, '' AS Tiebreak "
 							. "FROM "
 								. "CasTeam "
 								. "INNER JOIN "

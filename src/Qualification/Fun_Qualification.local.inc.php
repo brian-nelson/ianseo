@@ -68,7 +68,9 @@ function CalcRank($Dist=0, $IncludeNullPoints=false)
 				{
 				// faccio la rank ma non tocco i valori già esistenti
 					$Opts=array('events'=>'%','dist'=>$Dist,'skipExisting'=>1);
-					if($IncludeNullPoints) $Opts['includeNullPoints']=true;
+					if($IncludeNullPoints) {
+					    $Opts['includeNullPoints']=true;
+					}
 					if (!Obj_RankFactory::create('Abs', $Opts)->calculate())
 					{
 						$Errore=1;
@@ -161,15 +163,16 @@ function MakeIndividuals(&$affected, $tournament=null) {
 	$QTNations=array();
 	$QTDates=array();
 	if(module_exists('QuotaTournament')) {
-
 		$dbValues = getModuleParameter("QuotaTournament", "allowedIOC", array());
-		foreach($dbValues as $k => $v) {
-			if(substr($k,0,3)=='ev_') {
-				$evCode = explode("_",$k);
-				$evCode = $evCode[2];
-				$QTNations[$evCode]=$v;
-			}
-		}
+		if(count($dbValues)>0) {
+            foreach ($dbValues as $k => $v) {
+                if (substr($k, 0, 3) == 'ev_') {
+                    $evCode = explode("_", $k);
+                    $evCode = $evCode[2];
+                    $QTNations[$evCode] = $v;
+                }
+            }
+        }
 	}
 
 	// Select the people that needs to be inserted in Individuals
@@ -215,42 +218,67 @@ function MakeIndividuals(&$affected, $tournament=null) {
 
 	// In case of Quota Tournament removes the non eligibles
 	if(module_exists('QuotaTournament')) {
-		$dbValues=getModuleParameter("QuotaTournament", "allowedIOC", array());
-		foreach($dbValues as $k => $v) {
-			if(substr($k,0,3)=='ev_') {
-				$evCode = explode("_",$k);
-				$evCode = $evCode[2];
-				$q = "DELETE FROM Individuals
-					USING Individuals
-					INNER JOIN Entries ON IndId = EnId AND IndTournament=EnTournament
-					INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament
-					INNER JOIN EventClass ON EnTournament = EcTournament AND EcTeamEvent =0 AND EnDivision = EcDivision AND EnClass = EcClass and if(EcSubClass='', true, EcSubClass=EnSubClass) AND IndEvent = EcCode
-					WHERE EnTournament = {$tournament} AND EnIndFEvent=1 AND EnStatus<=1 AND EcCode='{$evCode}'
-					AND (CoCode NOT IN ('" . implode("', '",$v). "') OR EnIndClEvent!=1)";
-				$r=safe_w_sql($q);
-				if(safe_w_affected_rows()) {
-					if (!in_array($k,$affected,true))
-						$affected[]=$k;
-				}
-			} else if (substr($k,0,4)=='dob_') {
-				$evCode = explode("_",$k);
-				$dobType = $evCode[1];
-				$evCode = $evCode[2];
-				$q = "DELETE FROM Individuals
-					USING Individuals
-					INNER JOIN Entries ON IndId = EnId AND IndTournament=EnTournament
-					INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament
-					INNER JOIN EventClass ON EnTournament = EcTournament AND EcTeamEvent =0 AND EnDivision = EcDivision AND EnClass = EcClass and if(EcSubClass='', true, EcSubClass=EnSubClass) AND IndEvent = EcCode
-					WHERE EnTournament = {$tournament} AND EnIndFEvent=1 AND EnStatus<=1 AND EcCode='{$evCode}'
-					AND (EnDob " . ($dobType == 's' ? "<=" : ">=") . " '{$v}' OR EnIndClEvent!=1)";
-				$r=safe_w_sql($q);
-				if(safe_w_affected_rows()) {
-					if (!in_array($k,$affected,true))
-						$affected[]=$k;
-				}
+        $maxByCountry = getModuleParameter("QuotaTournament", "maxByCountry", array());
+        if(count($maxByCountry)!=0) {
+            foreach ($maxByCountry as $k => $v) {
+                $sql = "SELECT i.IndId, i.IndEvent, COUNT(sqy.IndRank) as qty " .
+                    "FROM Individuals i " .
+                    "INNER JOIN Entries e on i.IndId=e.EnId " .
+                    "LEFT JOIN (SELECT IndRank, IndEvent, IndTournament, EnCountry " .
+                    "FROM Individuals " .
+                    "INNER JOIN Entries on IndId=EnId " .
+                    "WHERE EnTournament={$tournament} " .
+                    ") sqy on i.IndTournament=sqy.IndTournament and i.IndEvent=sqy.IndEvent and e.EnCountry=sqy.EnCountry and i.IndRank>sqy.IndRank " .
+                    "WHERE e.EnTournament={$tournament} and i.IndEvent = '" . $k . "' " .
+                    "GROUP BY i.IndId, i.IndEvent, i.IndRank, e.EnCountry " .
+                    "HAVING qty>=" . $v['Num'] . " " .
+                    "ORDER BY i.IndEvent, i.IndRank";
+                $q = safe_r_sql($sql);
+                while($r = safe_fetch($q)) {
+                    $sql = "DELETE FROM Individuals WHERE IndId={$r->IndId} AND IndEvent='" . $v['Ev'] . "' AND IndTournament={$tournament}";
+                    safe_w_sql($sql);
+                }
+            }
+        }
 
-			}
-		}
+		$dbValues=getModuleParameter("QuotaTournament", "allowedIOC", array());
+        if(count($dbValues)!=0) {
+            foreach ($dbValues as $k => $v) {
+                if (substr($k, 0, 3) == 'ev_') {
+                    $evCode = explode("_", $k);
+                    $evCode = $evCode[2];
+                    $q = "DELETE FROM Individuals
+                        USING Individuals
+                        INNER JOIN Entries ON IndId = EnId AND IndTournament=EnTournament
+                        INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament
+                        INNER JOIN EventClass ON EnTournament = EcTournament AND EcTeamEvent =0 AND EnDivision = EcDivision AND EnClass = EcClass and if(EcSubClass='', true, EcSubClass=EnSubClass) AND IndEvent = EcCode
+                        WHERE EnTournament = {$tournament} AND EnIndFEvent=1 AND EnStatus<=1 AND EcCode='{$evCode}'
+                        AND (CoCode NOT IN ('" . implode("', '", $v) . "') OR EnIndClEvent!=1)";
+                    $r = safe_w_sql($q);
+                    if (safe_w_affected_rows()) {
+                        if (!in_array($k, $affected, true))
+                            $affected[] = $k;
+                    }
+                } else if (substr($k, 0, 4) == 'dob_') {
+                    $evCode = explode("_", $k);
+                    $dobType = $evCode[1];
+                    $evCode = $evCode[2];
+                    $q = "DELETE FROM Individuals
+                        USING Individuals
+                        INNER JOIN Entries ON IndId = EnId AND IndTournament=EnTournament
+                        INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament
+                        INNER JOIN EventClass ON EnTournament = EcTournament AND EcTeamEvent =0 AND EnDivision = EcDivision AND EnClass = EcClass and if(EcSubClass='', true, EcSubClass=EnSubClass) AND IndEvent = EcCode
+                        WHERE EnTournament = {$tournament} AND EnIndFEvent=1 AND EnStatus<=1 AND EcCode='{$evCode}'
+                        AND (EnDob " . ($dobType == 's' ? "<=" : ">=") . " '{$v}' OR EnIndClEvent!=1)";
+                    $r = safe_w_sql($q);
+                    if (safe_w_affected_rows()) {
+                        if (!in_array($k, $affected, true))
+                            $affected[] = $k;
+                    }
+
+                }
+            }
+        }
 	}
 	return false;
 }
@@ -268,21 +296,20 @@ function MakeIndAbs($Dists=null)
 {
 	$Errore=0;
 
-	if (is_null($Dists))
-	{
+	if (is_null($Dists)) {
 	// scopro quante distanze ha la gara
 		$q="SELECT ToNumDist FROM Tournament WHERE ToId={$_SESSION['TourId']} ";
 		$r=safe_r_sql($q);
 
-		if ($r && safe_num_rows($r)==1)
-		{
+		if (safe_num_rows($r)==1){
 			$row=safe_fetch($r);
 
-			for ($i=0;$i<=$row->ToNumDist;++$i)
-				$Dists[]=$i;
-		}
-		else
-			return 1;
+			for ($i=0;$i<=$row->ToNumDist;++$i) {
+                $Dists[] = $i;
+            }
+		} else {
+            return 1;
+        }
 	}
 
 	//print_r($Dists);exit;
@@ -291,24 +318,18 @@ function MakeIndAbs($Dists=null)
 
 	$x=MakeIndividuals($affected);
 
-	if (!$x)
-	{
-		if(count($affected)>0)
-		{
-			foreach ($Dists as $d)
-			{
+	if (!$x) {
+		if(count($affected)>0) {
+			foreach ($Dists as $d) {
 				$y=Obj_RankFactory::create('Abs',array('events'=>$affected,'dist'=>$d))->calculate();
 
-				if (!$y)
-				{
+				if (!$y) {
 					$Errore=1;
 					break;
 				}
 			}
 		}
-	}
-	else
-	{
+	} else {
 		$Errore=1;
 	}
 
@@ -371,24 +392,25 @@ function MakeTeams($Societa, $Category, $ToId=0) {
 			. "Teams, TeamComponent  "
 			. "WHERE TeCoId=TcCoId AND TeEvent=TcEvent AND TeTournament=TcTournament AND TeTournament=" . StrSafe_DB($ToId)
 			. (!is_null($Societa) ? ' AND TeCoId=' . StrSafe_DB($Societa) . ' AND TcCoId=' . StrSafe_DB($Societa)  : '')
-			. (!is_null($Category) && $TipoElaborazione==0 ? ' AND TeEvent=' . StrSafe_DB($Category) . ' AND TcEvent=' . StrSafe_DB($Category) : '')
+			. ((!is_null($Category) AND $TipoElaborazione==0) ? ' AND TeEvent=' . StrSafe_DB($Category) . ' AND TcEvent=' . StrSafe_DB($Category) : '')
 			. " AND TeFinEvent='0' AND TcFinEvent='0' ";
 		$Rs=safe_w_sql($Delete);
 
 		if($TipoElaborazione==0)	//Gare Standard
 		{
-			// Estraggo l'elenco delle persone
-			$Select
-				= "SELECT EnTournament,EnId,IF(EnCountry2=0,EnCountry,EnCountry2) as EnCountry, CONCAT(EnDivision,EnClass) AS Event,"
-				. "QuScore,QuGold,QuXnine,QuHits "
-				. "FROM Entries INNER JOIN Qualifications ON EnId=QuId and QuClRank!=9999 "
-				. "WHERE EnAthlete=1 AND EnTeamClEvent=1 AND EnStatus <= 1 AND EnTournament = " . StrSafe_DB($ToId) . " AND QuScore>0 "
+			// Get the people eligible, exept who got an IRM in qualification
+			$Select = "SELECT EnTournament, EnId, IF(EnCountry2=0,EnCountry,EnCountry2) as EnCountry, CONCAT(EnDivision,EnClass) AS Event, QuScore, QuGold, QuXnine, QuHits
+				FROM Entries 
+			    INNER JOIN Qualifications ON EnId=QuId
+				inner join IrmTypes on IrmId=QuIrmType and IrmShowRank=1
+				WHERE EnAthlete=1 AND EnTeamClEvent=1 AND EnStatus <= 1 AND EnTournament = " . StrSafe_DB($ToId) . " AND QuScore>0 "
 				. (!is_null($Societa) ? ' AND IF(EnCountry2=0,EnCountry,EnCountry2)=' . StrSafe_DB($Societa)   : '')
 				. (!is_null($Category) ? ' AND CONCAT(EnDivision,EnClass)=' . StrSafe_DB($Category)  : '')
-				. "ORDER BY IF(EnCountry2=0,EnCountry,EnCountry2),CONCAT(EnDivision,EnClass), QuScore DESC,QuGold DESC, QuXnine DESC,EnId ASC ";
+				."ORDER BY IF(EnCountry2=0, EnCountry, EnCountry2), CONCAT(EnDivision,EnClass), QuScore DESC, QuGold DESC, QuXnine DESC, EnId ASC ";
 			$Rs=safe_r_sql($Select);
-			if (!$Rs)
+			if (!$Rs) {
 				$Errore=1;
+			}
 
 			// Variabili di Servizio
 			$Peoples = 0;	// Contatore delle persone
@@ -403,13 +425,10 @@ function MakeTeams($Societa, $Category, $ToId=0) {
 			$Hits = array(0,0,0);
 
 			//Ciclo per Scorrere l'elenco partecipanti
-			if (safe_num_rows($Rs))
-			{
-				while ($MyRow=safe_fetch($Rs))
-				{
+			if (safe_num_rows($Rs)) {
+				while ($MyRow=safe_fetch($Rs)) {
 					//Cambio di società
-					if ($MyCountry != $MyRow->EnCountry || $MyEvent != $MyRow->Event)
-					{
+					if ($MyCountry != $MyRow->EnCountry || $MyEvent != $MyRow->Event) {
 						$Peoples=0;
 						$Countries=array(0,0,0);
 						$Event=array(0,0,0);
@@ -420,9 +439,9 @@ function MakeTeams($Societa, $Category, $ToId=0) {
 						$Hits = array(0,0,0);
 						$MyCountry = $MyRow->EnCountry;
 						$MyEvent = $MyRow->Event;
+					} else {
+					    ++$Peoples;
 					}
-					else
-						++$Peoples;
 
 					//Ho la Squadra----> Salvo
 					if ($Peoples<=2)
@@ -478,13 +497,15 @@ function MakeTeams($Societa, $Category, $ToId=0) {
 		}
 		elseif($TipoElaborazione==1)	// gare di Campagna
 		{
-			$Select
-				= "SELECT EnTournament,EnId,IF(EnCountry2=0,EnCountry,EnCountry2) AS EnCountry, EnDivision, RIGHT(EnClass,1) AS Sex, "
-				. "QuScore,QuGold,QuXnine,QuHits "
-				. "FROM Entries INNER JOIN Qualifications ON EnId=QuId "
-				. "WHERE EnAthlete=1 AND EnTeamClEvent=1 AND EnStatus <= 1 AND EnTournament = " . StrSafe_DB($ToId) . " "
+			$Select = "SELECT EnTournament,EnId,IF(EnCountry2=0,EnCountry,EnCountry2) AS EnCountry, EnDivision, RIGHT(EnClass,1) AS Sex,
+					QuScore,QuGold,QuXnine,QuHits
+				FROM Entries 
+			    INNER JOIN Qualifications ON EnId=QuId and QuScore>0 
+			    inner join IrmTypes on IrmId=QuIrmType and IrmShowRank=1
+				inner join Individuals on IndId=EnId and IndTournament=EnTournament
+				WHERE EnAthlete=1 AND EnTeamClEvent=1 AND EnStatus <= 1 AND EnTournament = " . StrSafe_DB($ToId) . " "
 				. (!is_null($Societa) ? ' AND IF(EnCountry2=0,EnCountry,EnCountry2)=' . StrSafe_DB($Societa)   : '')
-				. "AND EnClass NOT IN ('AF','AM','GF','GM','RF','RM') AND EnDivision IN ('OL','CO','AN')"
+				. " AND EnClass NOT IN ('AF','AM','GF','GM','RF','RM') AND EnDivision IN ('OL','CO','AN')"
 				. "ORDER BY IF(EnCountry2=0,EnCountry,EnCountry2), RIGHT(EnClass,1), EnDivision, QuScore DESC, QuGold DESC, QuXnine DESC,EnId ASC ";
 
 			$Rs=safe_r_sql($Select);
@@ -580,14 +601,15 @@ function MakeTeams($Societa, $Category, $ToId=0) {
 		elseif($TipoElaborazione==2)	// gare 3D
 		{
 			// Estraggo l'elenco delle persone
-			$Select
-				= "SELECT EnTournament,EnId,IF(EnCountry2=0,EnCountry,EnCountry2) AS EnCountry, if(EnDivision='AI' OR EnDivision='OL' OR EnDivision='AN','AN',EnDivision) as Division, EnClass AS Sex, "
-				. "QuScore,QuGold,QuXnine,QuHits "
-				. "FROM Entries INNER JOIN Qualifications ON EnId=QuId "
-				. "WHERE EnAthlete=1 AND EnTeamClEvent=1 AND EnStatus <= 1 AND QuScore>0 AND EnTournament = " . StrSafe_DB($ToId) . " "
+			$Select = "SELECT EnTournament,EnId,IF(EnCountry2=0,EnCountry,EnCountry2) AS EnCountry, if(EnDivision='AI' OR EnDivision='OL' OR EnDivision='AN','AN',EnDivision) as Division, EnClass AS Sex, QuScore,QuGold,QuXnine,QuHits
+				FROM Entries 
+			    INNER JOIN Qualifications ON EnId=QuId and QuScore>0 
+				inner join IrmTypes on IrmId=QuIrmType and IrmShowRank=1
+				WHERE EnAthlete=1 AND EnTeamClEvent=1 AND EnStatus <= 1 AND QuScore>0 AND EnTournament = " . StrSafe_DB($ToId) . " "
 				. (!is_null($Societa) ? ' AND IF(EnCountry2=0,EnCountry,EnCountry2)=' . StrSafe_DB($Societa)   : '')
 				. "AND EnDivision IN ('AI','OL','CO','AN','LB')"
 				. "ORDER BY IF(EnCountry2=0,EnCountry,EnCountry2), EnClass, QuScore DESC, QuGold DESC, QuXnine DESC, if(EnDivision='AI' OR EnDivision='OL' OR EnDivision='AN','AN',EnDivision), EnId ASC ";
+
 			$Rs=safe_r_sql($Select);
 			if (!$Rs)
 				$Errore=1;
@@ -606,13 +628,10 @@ function MakeTeams($Societa, $Category, $ToId=0) {
 			$Divisions = array("LB" => false, "AN" => false, "CO" => false);
 
 			//Ciclo per Scorrere l'elenco partecipanti
-			if (safe_num_rows($Rs)>0)
-			{
-				while ($MyRow=safe_fetch($Rs))
-				{
+			if (safe_num_rows($Rs)>0) {
+				while ($MyRow=safe_fetch($Rs)) {
 					//Cambio di società
-					if ($MyCountry != $MyRow->EnCountry || $MyEvent != 'XX' . $MyRow->Sex)
-					{
+					if ($MyCountry != $MyRow->EnCountry || $MyEvent != 'XX' . $MyRow->Sex) {
 						$Peoples=-1;			//N.B. inizializzo a -1 perchè qui si incrementa Sempre ad ogni persona, altrimenti sballa gli indici degli array di appoggio
 						$Countries=array(0,0,0);
 						$Event=array(0,0,0);
@@ -636,8 +655,7 @@ function MakeTeams($Societa, $Category, $ToId=0) {
 						$XNines[$Peoples]=$MyRow->QuXnine;
 						$Hits[$Peoples]=$MyRow->QuHits;
 						// se ho proprio 3 persone faccio la squadra
-						if ($Peoples==2)
-						{
+						if ($Peoples==2) {
 							// Insert in Teams
 							$InsertT
 								= "INSERT INTO Teams (TeCoId,TeEvent,TeTournament,TeFinEvent,TeScore,TeGold,TeXNine,TeFinal,TeHits) "
@@ -656,8 +674,7 @@ function MakeTeams($Societa, $Category, $ToId=0) {
 							$RsTC=array(NULL,NULL,NULL);
 
 							// Insert in TeamComponent
-							for ($i=0;$i<=2;++$i)
-							{
+							for ($i=0;$i<=2;++$i) {
 								$InsertTC
 									= "INSERT INTO TeamComponent (TcCoId,TcTournament,TcEvent,TcFinEvent,TcId,TcOrder) "
 									. "VALUES("
@@ -670,8 +687,9 @@ function MakeTeams($Societa, $Category, $ToId=0) {
 									. ") ";
 								$RsTC[$i]=safe_w_sql($InsertTC);
 							}
-							if (!$RsT || !$RsTC[0] || !$RsTC[1] || !$RsTC[2])
-								$Errore=1;
+							if (!$RsT || !$RsTC[0] || !$RsTC[1] || !$RsTC[2]) {
+                                $Errore = 1;
+                            }
 						}
 					}
 				}
@@ -680,7 +698,7 @@ function MakeTeams($Societa, $Category, $ToId=0) {
 	}
 	Obj_RankFactory::create('DivClassTeam',array(
 		'tournament' => $ToId,
-		'events'=>($Category!==null && $TipoElaborazione==0 ? array($Category)  : array())
+		'events'=>(($Category!==null AND $TipoElaborazione==0) ? array($Category)  : array())
 	))->calculate();
 	return $Errore;
 }
@@ -689,8 +707,7 @@ function MakeTeams($Societa, $Category, $ToId=0) {
  * Crea lo snapshoot della Individuals su tmpIndividuals.
  * @return int: 0 no error 1 errore
  */
-function CreateTmpIndAndSnap()
-{
+function CreateTmpIndAndSnap() {
 	// tmp
 	$query="
 		CREATE TEMPORARY TABLE IF NOT EXISTS `tmpIndividuals` (
@@ -801,7 +818,7 @@ function CreateTmpTeamsAndSnap($ToId=0) {
 	$query="
 		CREATE TEMPORARY TABLE IF NOT EXISTS `tmpTeams` (
 		  `tTeCoId` int(11) NOT NULL,
-		  `tTeSubTeam` varchar(1) NOT NULL default '0',
+		  `tTeSubTeam` tinyint(4) NOT NULL default '0',
 		  `tTeEvent` varchar(4) NOT NULL,
 		  `tTeTournament` int(11) NOT NULL,
 		  `tTeFinEvent` tinyint(3) unsigned NOT NULL default '0',
@@ -811,6 +828,8 @@ function CreateTmpTeamsAndSnap($ToId=0) {
 		  `tTeXnine` smallint(6) NOT NULL,
 		  `tTeTie` tinyint(1) NOT NULL,
 		  `tTeTieBreak` varchar(15) NOT NULL,
+		  `tTeTbClosest` tinyint(4) NOT NULL,
+		  `tTeTbDecoded` varchar(15) NOT NULL,
 		  `tTeRank` tinyint(4) NOT NULL,
 		  `tTeRankFinal` smallint(6) NOT NULL,
 		  `tTeSO` smallint(6) NOT NULL,
@@ -822,15 +841,9 @@ function CreateTmpTeamsAndSnap($ToId=0) {
 	";
 	$Rs=safe_w_sql($query);
 
-	if (!$Rs)
-		return 1;
-
 // per sicurezza faccio una truncate
 	$query="TRUNCATE TABLE tmpTeams";
 	$Rs=safe_w_sql($query);
-
-	if (!$Rs)
-		return 1;
 
 // snapshoot
 	$query="
@@ -847,6 +860,8 @@ function CreateTmpTeamsAndSnap($ToId=0) {
 			tTeXnine,
 			tTeTie,
 			tTeTieBreak,
+			tTeTbClosest,
+		 	tTeTbDecoded,
 			tTeRank,
 			tTeRankFinal,
 			tTeTimeStamp,
@@ -866,6 +881,8 @@ function CreateTmpTeamsAndSnap($ToId=0) {
 			 TeXnine,
 			 TeTie,
 			 TeTieBreak,
+			 TeTbClosest,
+			 TeTbDecoded,
 			 TeRank,
 			 TeRankFinal,
 			 TeTimeStamp,
@@ -1112,10 +1129,10 @@ function MakeTeamsAbs($Societa=null, $Div=null, $Cl=null, $ToId=0)/*,$MoreTeam=t
 	$Rs=safe_w_sql($Delete);
 	//
 	// Estraggo la lista di eventi per le finali a squadre
-	$Select
-		= "SELECT DISTINCT EcCode, EvPartialTeam, EvMultiTeam, EvMixedTeam, EvTeamCreationMode, EvRunning "
-		. "FROM EventClass INNER JOIN Events ON EcCode=EvCode AND EvTeamEvent=1 AND EcTeamEvent!='0' AND EcTournament=EvTournament "
-		. "WHERE EcTournament=" . StrSafe_DB($ToId);
+	$Select = "SELECT DISTINCT EcCode, EvPartialTeam, EvMultiTeam, EvMultiTeamNo, EvMixedTeam, EvTeamCreationMode, EvRunning 
+		FROM EventClass 
+	    INNER JOIN Events ON EcCode=EvCode AND EvTeamEvent=1 AND EcTeamEvent!='0' AND EcTournament=EvTournament 
+		WHERE EcTournament=" . StrSafe_DB($ToId);
 	if (!is_null($Societa)) {
 		$Select
 			.= " AND EcDivision=" . StrSafe_DB($Div) . " AND EcClass=" . StrSafe_DB($Cl) . " ";
@@ -1145,7 +1162,6 @@ function MakeTeamsAbs($Societa=null, $Div=null, $Cl=null, $ToId=0)/*,$MoreTeam=t
 			} else {
 				$TeamDef=array();
 				$TeamNum=array();
-				$TeamComponent=array();
 				while($MyRowDef=safe_fetch($RsDef)) {
 					if(!array_key_exists($MyRowDef->EcTeamEvent, $TeamDef))
 						$TeamDef[$MyRowDef->EcTeamEvent] = array();
@@ -1156,28 +1172,32 @@ function MakeTeamsAbs($Societa=null, $Div=null, $Cl=null, $ToId=0)/*,$MoreTeam=t
 						$TeamNum[$MyRowDef->EcTeamEvent] = $MyRowDef->EcNumber;
 
 				}
-				$MyQuery = '';
+				$MyQuery = 'select * from (';
 				foreach($TeamDef as $key=>$value) {
 					$ifc=ifSqlForCountry($RowEv->EvTeamCreationMode);
-					$MyQuery .= "(SELECT {$ifc} AS Country, " . $key . " as CheQuery, EnId, EnSubTeam, "
-						. "QuScore, QuGold, QuXnine, QuHits, " . ($RowEv->EvRunning==1 ? "(QuScore/QuHits)" : "QuScore") . " As ScoreCalc "
-						. "FROM Entries INNER JOIN Qualifications ON EnId=QuId and QuClRank!=9999 "
+					$MyQuery .= "(SELECT {$ifc} AS Country, " . $key . " as CheQuery, EnId, EnSubTeam,
+						QuScore, QuGold, QuXnine, QuHits, " . ($RowEv->EvRunning==1 ? "(QuScore/QuHits)" : "QuScore") . " As ScoreCalc
+						FROM Entries 
+							INNER JOIN Qualifications ON EnId=QuId and (QuScore>0 or QuHits>0)
+						    inner join IrmTypes on IrmId=QuIrmType and IrmShowRank=1 "
 //*Taipei (TPE) 2017*/		. "INNER JOIN Countries ON {$ifc}=CoId AND EnTournament=CoTournament "
 						. "WHERE EnAthlete=1 AND {$ifc}<>0 "
 						. " AND " . ($RowEv->EvMixedTeam ? "EnTeamMixEvent" : "EnTeamFEvent") . "=1 "
-						. " AND EnStatus <= 1 AND QuScore>0 AND EnTournament = " . StrSafe_DB($ToId) . " AND ";
-//*Taipei (TPE) 2017*/		$MyQuery .=  ($EventCode=="CM" && $ToCode=="17UNI" ? " (" : "");
+						. " AND EnStatus <= 1 AND (QuScore!=0 OR QuHits!=0) AND EnTournament = " . StrSafe_DB($ToId) . " AND ";
+//*Taipei (TPE) 2017*/		$MyQuery .=  (($EventCode=="CM" AND $ToCode=="17UNI") ? " (" : "");
                     $tmpQuery = array();
                     foreach ($value as $vDef) {
                         $tmpQuery[] = "CONCAT(EnDivision, '|', EnClass, '|'" . (substr($vDef,-1,1)=='|' ? "" : ", EnSubClass" ) . ") = '$vDef'";
                     }
                     $MyQuery .= '(' .implode(' OR ', $tmpQuery). ')';
-//*Taipei (TPE) 2017*/		$MyQuery .= ($EventCode=="CM" && $ToCode=="17UNI" ? " OR (CONCAT(EnDivision, EnClass)='CW' AND CoCode IN ('GBR', 'GER', 'HKG', 'INA'))) " : "");
+//*Taipei (TPE) 2017*/		$MyQuery .= (($EventCode=="CM" AND $ToCode=="17UNI") ? " OR (CONCAT(EnDivision, EnClass)='CW' AND CoCode IN ('GBR', 'GER', 'HKG', 'INA'))) " : "");
 					$MyQuery .= (!is_null($Societa) ? " AND {$ifc}=" . StrSafe_DB($Societa)   : '') . ') ';
 					$MyQuery .= "UNION ALL ";
 				}
 				$MyQuery = substr($MyQuery,0,-1*strlen("UNION ALL "))
-					. "ORDER BY Country, EnSubTeam, CheQuery, ScoreCalc DESC, QuGold DESC, QuXnine DESC,EnId ASC ";
+					. ") TeamEntries 
+					group by EnId
+					ORDER BY Country, EnSubTeam, CheQuery, ScoreCalc DESC, QuGold DESC, QuXnine DESC,EnId ASC ";
 				//print $RowEv->EcCode . ":<br>" . $MyQuery. "<br><br>\n";//exit;
 				$Rs=safe_r_sql($MyQuery);
 				if (!$Rs) {
@@ -1185,8 +1205,6 @@ function MakeTeamsAbs($Societa=null, $Div=null, $Cl=null, $ToId=0)/*,$MoreTeam=t
 				} else {
 					$CurTeam = 0;									//Codice team attuale
 					$CurSubTeam = ($RowEv->EvMultiTeam ? 1 : 0);	//Codice Subteam attuale
-					$MaxSubTeam = 0;
-					$CntCheQuery = 0;
 					$CurSubQuery = 0;								//Codice team attuale
 					$TeamCount= array();			//contatore degli elementi trovati
 					$CurComponent = array();		//Componenti della Squadra
@@ -1196,18 +1214,16 @@ function MakeTeamsAbs($Societa=null, $Div=null, $Cl=null, $ToId=0)/*,$MoreTeam=t
 					$Hits = array();
 					while($MyRow=safe_fetch($Rs)) {
 						// Change Team
-						if($CurTeam != $MyRow->Country || ($MyRow->EnSubTeam!=0 && $CurSubTeam!=$MyRow->EnSubTeam)) {
-                            //If Partial Team I have to scrool the complete array
+						if($CurTeam != $MyRow->Country OR ($MyRow->EnSubTeam!=0 AND $CurSubTeam!=$MyRow->EnSubTeam)) {
+                            //If Partial Team I have to scroll the complete array
 						    if ($RowEv->EvPartialTeam==1) {
 								foreach($TeamCount as $k=>$value) {
-									if(array_sum($TeamCount[$k])>0)	//Insert Partial Team if not complete yet
+									if(array_sum($TeamCount[$k])>0 AND count($CurComponent[$k])>1 AND ($k==0 OR ($k>0 AND $RowEv->EvMultiTeam!=0 and ($RowEv->EvMultiTeamNo==0 OR $RowEv->EvMultiTeamNo>=$k))))	//Insert Partial Team if not complete yet
 								 		WriteTeamAbs($CurTeam,$k,$CurComponent[$k],$EventCode,$Scores[$k],$Golds[$k],$XNines[$k],$Hits[$k], $ToId);
 								}
 							}
 							$CurTeam = $MyRow->Country;
 							$CurSubTeam = ($MyRow->EnSubTeam!=0 ? $MyRow->EnSubTeam : ($RowEv->EvMultiTeam ? 1 : 0));
-							$MaxSubTeam = 0;
-							$CntCheQuery = 0;
 							$CurSubQuery=$MyRow->CheQuery;
 							$TeamCount= array();
 							$CurComponent = array();
@@ -1223,7 +1239,7 @@ function MakeTeamsAbs($Societa=null, $Div=null, $Cl=null, $ToId=0)/*,$MoreTeam=t
 							$Hits[$CurSubTeam] = array();
 						}
 						//Multiteam Management
-						if($MyRow->EnSubTeam==0 && $RowEv->EvMultiTeam && ($TeamCount[$CurSubTeam][$MyRow->CheQuery] == 0 || $CurSubQuery != $MyRow->CheQuery)) {
+						if($MyRow->EnSubTeam==0 AND $RowEv->EvMultiTeam AND ($TeamCount[$CurSubTeam][$MyRow->CheQuery] == 0 || $CurSubQuery != $MyRow->CheQuery)) {
 							if($CurSubQuery == $MyRow->CheQuery) {
                                 $CurSubTeam++;
                             } else {
@@ -1243,25 +1259,27 @@ function MakeTeamsAbs($Societa=null, $Div=null, $Cl=null, $ToId=0)/*,$MoreTeam=t
 						//Looking for team components
 						if(array_sum($TeamCount[$CurSubTeam])>0) {
 							if($TeamCount[$CurSubTeam][$MyRow->CheQuery]>0) {
-								$CurComponent[$CurSubTeam][] = $MyRow->EnId;
-								$Scores[$CurSubTeam][] = $MyRow->QuScore;
-								$Golds[$CurSubTeam][] = $MyRow->QuGold;
-								$XNines[$CurSubTeam][] = $MyRow->QuXnine;
-								$Hits[$CurSubTeam][] = $MyRow->QuHits;
-								$TeamCount[$CurSubTeam][$MyRow->CheQuery]--;
-								//If we have everybody, we save....
-								if(array_sum($TeamCount[$CurSubTeam])==0) {
-                                    WriteTeamAbs($CurTeam, $CurSubTeam, $CurComponent[$CurSubTeam], $EventCode, $Scores[$CurSubTeam], $Golds[$CurSubTeam], $XNines[$CurSubTeam], $Hits[$CurSubTeam], $ToId);
-                                }
+								if(!in_array($MyRow->EnId, $CurComponent[$CurSubTeam])) {
+									$CurComponent[$CurSubTeam][] = $MyRow->EnId;
+									$Scores[$CurSubTeam][] = $MyRow->QuScore;
+									$Golds[$CurSubTeam][] = $MyRow->QuGold;
+									$XNines[$CurSubTeam][] = $MyRow->QuXnine;
+									$Hits[$CurSubTeam][] = $MyRow->QuHits;
+									$TeamCount[$CurSubTeam][$MyRow->CheQuery]--;
+									//If we have everybody, we save....
+									if(array_sum($TeamCount[$CurSubTeam])==0 AND ($RowEv->EvMultiTeamNo==0 OR $RowEv->EvMultiTeamNo>=$CurSubTeam)) {
+	                                    WriteTeamAbs($CurTeam, $CurSubTeam, $CurComponent[$CurSubTeam], $EventCode, $Scores[$CurSubTeam], $Golds[$CurSubTeam], $XNines[$CurSubTeam], $Hits[$CurSubTeam], $ToId);
+	                                }
+								}
 							}
 						}
 
 					}
-                    //If Partial Team I have to scrool the complete array
+                    //If Partial Team I have to scroll the complete array
 					if ($RowEv->EvPartialTeam==1) {
 						foreach($TeamCount as $k=>$value) {
                             //Insert Partial Team if not complete yet
-							if(array_sum($TeamCount[$k])>0) {
+							if(array_sum($TeamCount[$k])>0 AND count($CurComponent[$k])>1 AND ($k==0 OR ($k>0 AND $RowEv->EvMultiTeam!=0 and ($RowEv->EvMultiTeamNo==0 OR $RowEv->EvMultiTeamNo>=$k)))) {
                                 WriteTeamAbs($CurTeam, $k, $CurComponent[$k], $EventCode, $Scores[$k], $Golds[$k], $XNines[$k], $Hits[$k], $ToId);
                             }
 						}
@@ -1275,7 +1293,7 @@ function MakeTeamsAbs($Societa=null, $Div=null, $Cl=null, $ToId=0)/*,$MoreTeam=t
 			'events'=>$events4abs
 	))->calculate();
 
-	if ($Errore==0 && is_null($Societa)) {
+	if ($Errore==0 AND is_null($Societa)) {
 		$tmp=FindTeamEventsWithNull($ToId);
 		if ($tmp===false) {
 			$Errore=1;
@@ -1393,7 +1411,7 @@ function WriteTeamAbs($CurTeam,$CurSubTeam,$CurComponent,$EventCode,$Scores,$Gol
 						foreach ($section['meta']['fields'] as $k=>$f)
 						{
 							//print $k .' - ' . $f."\n";
-							if (substr($k,0,5)=='dist_' && $f!='')
+							if (substr($k,0,5)=='dist_' AND $f!='')
 							{
 								$StrData.= str_pad($f,$Value,' ',STR_PAD_RIGHT);
 							}
@@ -1421,7 +1439,7 @@ function WriteTeamAbs($CurTeam,$CurSubTeam,$CurComponent,$EventCode,$Scores,$Gol
 						$StrData.= str_pad(stripslashes(substr($item['countryName'],0,$MyHeader['Societa'])),$MyHeader['Societa'],' ',STR_PAD_RIGHT);
 						foreach ($item as $k=>$f)
 						{
-							if (substr($k,0,5)=='dist_' && $f!='0|0|0|0')
+							if (substr($k,0,5)=='dist_' AND $f!='0|0|0|0')
 							{
 								list($r,$s,$g,$x)=explode('|',$f);
 								$StrData.= str_pad($s . '-' . str_pad($r,'2','0',STR_PAD_LEFT),$MyHeader['~Dist'],' ',STR_PAD_RIGHT);

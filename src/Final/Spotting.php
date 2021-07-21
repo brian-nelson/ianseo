@@ -36,6 +36,7 @@ $JS_SCRIPT = array(
 		    'PreEvent' => $PreEvent,
 			'PreMatchno' => $PreMatchno,
 			'PrePhase' => $PrePhase,
+			'ConfirmIrmMsg' => get_text('ConfirmIrmMsg','Tournament'),
 	    )
     ),
 );
@@ -63,17 +64,24 @@ echo '<table class="Tabella" id="MatchSelector">';
         </tr>';
 echo '</table>';
 
+$IrmStatus='<option value="0">' . get_text('IrmStatus','Tournament') . '</option>';
+$q=safe_r_sql("select * from IrmTypes where IrmId>0 order by IrmId");
+while($r=safe_fetch($q)) {
+	$IrmStatus.='<option value="'.$r->IrmId.'">' . $r->IrmType . ' - ' . get_text($r->IrmType,'Tournament') . '</option>';
+}
+
+
+
 echo '<table class="Tabella Hiddens" id="Spotting">
 	<tr>
-		<td class="Opponents OpponentL OppTitle" id="OpponentNameL">Name Left</td>
+		<td class="Opponents OpponentL OppTitle"><span id="OpponentNameL">Name Left</span><select id="IrmSelectL" onchange="updateIrm(this)" initial="0">'.$IrmStatus.'</select></td>
 		<td class="Target Hidden" id="Target" rowspan="2"><svg></svg></td>
-		<td class="Opponents OpponentR OppTitle" id="OpponentNameR">Name Right</td>
+		<td class="Opponents OpponentR OppTitle"><select id="IrmSelectR" onchange="updateIrm(this)" initial="0">'.$IrmStatus.'</select><span id="OpponentNameR">Name Right</span></td>
 	</tr>
 	<tr>
 		<td class="Opponents Scores" id="ScorecardL">Scorecard Left</td>
 		<td class="Opponents Scores" id="ScorecardR">Scorecard Right</td>
 	</tr>
-	
 		';
 
 if(!empty($GoBack)) {
@@ -84,10 +92,10 @@ if(!empty($GoBack)) {
     echo '</td></tr>';
     echo '<tr><td colspan="3" class="Opponents CmdRow">';
     echo '<div style="display:flex;justify-content: space-between">
-		<div><input type="checkbox" id="MatchAlternate" onclick="toggleAlternate()"/>'.get_text('AlternateMatch', 'Tournament').'</div>
+		<div><input type="checkbox" id="MatchAlternate" onclick="toggleAlternate(this)"/>'.get_text('AlternateMatch', 'Tournament').'</div>
 		<div><input type="checkbox" id="ActivateKeys" onclick="toggleKeypress()"/>'.get_text('KeyPress', 'Tournament').'</div>
 		<div><input type="button" id="liveButton" value="" onclick="setLive()"/></div>
-		<div><input type="button" id="moveWinner" onclick="moveToNextPhase(this)" value="'.get_text('MoveWinner2NextPhase','Tournament').'"></div>
+		<div id="buttonMove2Next"><input type="button" id="moveWinner" onclick="moveToNextPhase(this)" value="'.get_text('MoveWinner2NextPhase','Tournament').'"></div>
 		</div>';
     echo ''.
 		'';
@@ -99,6 +107,7 @@ echo '<tr id="keypadLegenda" class="Hidden"><td colspan="3">'.
     '<div class="Legenda"><div class="value">0</div>: 0, numpad_0, m, M</div>'.
     '<div class="Legenda"><div class="value">1 - 9</div>: 1...9, numpad_1 ... numpad_9</div>'.
     '<div class="Legenda"><div class="value">10</div>: numpad_-, T, t</div>'.
+    '<div class="Legenda"><div class="value">11</div>: E, e</div>'.
     '<div class="Legenda"><div class="value">X</div>: numpad_+, X, x</div>'.
     '<div class="Legenda"><div class="value">*</div>: *, numpad_*, D, d</div>'.
     '<div class="Legenda"><div class="value">[DEL]</div>: numpad_., [DEL], [ESC]</div>'.

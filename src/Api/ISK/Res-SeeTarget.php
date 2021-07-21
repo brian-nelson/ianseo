@@ -121,6 +121,76 @@ switch($Type) {
 		}
 		break;
 	case 'E':
+		$Phase=$_REQUEST['ses'][1]-1;
+		$Session=$_REQUEST['ses'][2];
+		$Target=$_REQUEST['target'];
+		$EndsField=($Phase==0 ? 'EvE1Ends' : 'EvE2Ends');
+		$ArrowsField=($Phase==0 ? 'EvE1Arrows' : 'EvE2Arrows');
+		// fetches all the scorings of the target for that end, distance and session
+		$SQL="select IskData.*, EnFirstName, ElTargetNo+0 Target, right(ElTargetNo, 1) Letter, ElTargetNo, $EndsField as Ends, $ArrowsField as Arrows, IskDtArrowstring, rpad(ElArrowstring, $EndsField*$ArrowsField, ' ') as Arrowstring
+			from Eliminations
+			inner join Events on EvCode=ElEventCode and EvTournament=ElTournament and EvTeamEvent=0
+			left join Entries on EnId=ElId and EnTournament=ElTournament
+			left join IskData on IskDtTargetNo=ElTargetNo and IskDtTournament={$_SESSION['TourId']} and IskDtType='E' and IskDtDistance=$Distance and IskDtEndNo=$End
+			where ElTournament={$_SESSION['TourId']} and ElTargetNo+0=".intval($Target)." and ElSession=$Session and ElElimPhase=$Phase
+			order by ElTargetNo
+			";
+		$q=safe_r_sql($SQL);
+		if($r=safe_fetch($q)) {
+			$popId='';
+			$SpanArrows='';
+			$QuEnds=str_split($r->Arrowstring, $r->Arrows);
+			$arrows=array();
+			$QuArrows=DecodeFromString(rtrim($QuEnds[$End-1]), false, true);
+			if($r->IskDtEndNo) {
+				$popId="data[][$r->IskDtMatchNo][".($r->IskDtEvent ? $r->IskDtEvent : ':::')."][$r->IskDtTeamInd][$r->IskDtType][".($r->IskDtTargetNo ? $r->IskDtTargetNo : ':::')."][$r->IskDtDistance][$r->IskDtEndNo]=$r->IskDtArrowstring";
+				$arrows=DecodeFromString($r->IskDtArrowstring, false, true);
+				if(!is_array($arrows)) $arrows=array($arrows);
+			}
+			for($i=0; $i<$r->Arrows; $i++) {
+				if(isset($arrows[$i])) {
+					$SpanArrows.='<div class="Let-Z">'.$arrows[$i].'</div>';
+				} else {
+					$SpanArrows.='<div class="Let-S"> </div>';
+				}
+				if(isset($QuArrows[$i])) {
+					$SpanArrows.='<div class="Let-B">'.$QuArrows[$i].'</div>';
+				} else {
+					$SpanArrows.='<div class="Let-S"> </div>';
+				}
+			}
+			$Out.='<div class="PopUpEvent">'.get_text('PopupStatusSession', 'Api', '<b>'.$Session.'</b>')
+				.' - '.get_text('PopupStatusDistance', 'Api', '<b>'.$Distance.'</b>')
+				.' - '.get_text('PopupStatusEnd', 'Api', '<b>'.$End.'</b>')
+				.'</div>';
+			$Out.='<div class="PopUpSpot" value="'.$popId.'"><div class="Let-G">'.$r->Letter.'</div><div class="SpanName">'.$r->EnFirstName.'</div> '.$SpanArrows.'</div>';
+			while($r=safe_fetch($q)) {
+				$popId='';
+				$SpanArrows='';
+				$QuEnds=str_split($r->Arrowstring, $r->Arrows);
+				$arrows=array();
+				$QuArrows=DecodeFromString(rtrim($QuEnds[$End-1]), false, true);
+				if($r->IskDtEndNo) {
+					$popId="data[][$r->IskDtMatchNo][".($r->IskDtEvent ? $r->IskDtEvent : ':::')."][$r->IskDtTeamInd][$r->IskDtType][".($r->IskDtTargetNo ? $r->IskDtTargetNo : ':::')."][$r->IskDtDistance][$r->IskDtEndNo]=$r->IskDtArrowstring";
+					$arrows=DecodeFromString($r->IskDtArrowstring, false, true);
+					if(!is_array($arrows)) $arrows=array($arrows);
+				}
+				for($i=0; $i<$r->Arrows; $i++) {
+					if(isset($arrows[$i])) {
+						$SpanArrows.='<div class="Let-Z">'.$arrows[$i].'</div>';
+					} else {
+						$SpanArrows.='<div class="Let-S"> </div>';
+					}
+					if(isset($QuArrows[$i])) {
+						$SpanArrows.='<div class="Let-B">'.$QuArrows[$i].'</div>';
+					} else {
+						$SpanArrows.='<div class="Let-S"> </div>';
+					}
+				}
+				$Out.='<div class="PopUpSpot" value="'.$popId.'"><div class="Let-G">'.$r->Letter.'</div><div class="SpanName">'.$r->EnFirstName.'</div> '.$SpanArrows.'</div>';
+			}
+			$Error=0;
+		}
 		break;
 	case 'I':
 		// fetches all the scorings regarding that event and matchno and teamevent and end

@@ -105,7 +105,7 @@
 						$k=0;
 						while ($myRow=safe_fetch($rsDist)) {
 							echo '<tr id="row_'.$k.'">
-								<td>'.print_distances($DefinedDistances[$myRow->TdClasses]).'</td>
+								<td>'.(array_key_exists($myRow->TdClasses, $DefinedDistances) ? print_distances($DefinedDistances[$myRow->TdClasses]) : '&nbsp;') . '</td>
 								<td class="Center" style="width:20%;"><div id="cl_'.$k.'">'.$myRow->TdClasses.'</div></td>';
 							foreach(range(1, $numDist) as $i) {
 								echo '<td class="Center"><div id="td_'.$k.'_'.$i.'">'.$myRow->{'Td' . $i}.'</div></td>';

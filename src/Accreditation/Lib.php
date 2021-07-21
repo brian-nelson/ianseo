@@ -109,11 +109,14 @@ function CheckAccreditationCode($EnCode, $Options=array(), $OnlyTour=false) {
 		}
 
 		// Normal check failed, check against all the accreditation QRcodes for this competition...
-		$q=safe_r_sql("select * from IdCardElements where IceType='AthQrCode' and IceContent!='' and IceTournament=$TourId");
+		$q=safe_r_sql("select * from IdCardElements where IceType IN ('AthQrCode','AthBarCode') and IceTournament=$TourId");
 		while($r=safe_fetch($q)) {
 			$CardsMatched=getModuleParameter('Accreditation', 'Matches-'.$r->IceCardType.'-'.$r->IceCardNumber, '', $TourId, true);
 
-			$RegExp=preg_quote($r->IceContent, '/');
+            $RegExp = preg_quote('{ENCODE}-{DIVISION}-{CLASS}', '/');
+            if ($r->IceContent != '') {
+                $RegExp = preg_quote($r->IceContent, '/');
+            }
 
 			$iceContent=getIceRegExpMatches($r->IceContent);
 
@@ -188,11 +191,11 @@ function getIceRegExpMatches($IceContent) {
 	preg_match_all('/(\\{[A-Z]+\\})/sim', $IceContent, $Elements);
 
 	$ret=array(
-		'encode' => '-1',
-		'country' => '-1',
-		'division' => '-1',
-		'class' => '-1',
-		'tocode' => '-1',
+		'encode' => -1,
+		'country' => -1,
+		'division' => -1,
+		'class' => -1,
+		'tocode' => -1,
 	);
 	foreach($Elements[0] as $k => $v) {
 		switch($v) {

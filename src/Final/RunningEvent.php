@@ -31,7 +31,7 @@ $MyQuery ="(select IndEvent as Event, '0_1' as What, MIN(QuHits) as MinHits, MAX
 	FROM Entries
 	INNER JOIN Qualifications ON EnId=QuId
 	INNER JOIN Individuals ON EnId=IndId
-	WHERE EnTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND IndRank!=0
+	WHERE EnTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND IndRank!=0 AND IndIrmType=0
 	GROUP BY Event, What)
 	UNION ALL
 	(select TeEvent as Event, '1_1' as What, MIN(TeHits) as MinHits, MAX(TeHits) as MaxHits

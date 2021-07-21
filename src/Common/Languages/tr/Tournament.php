@@ -64,7 +64,6 @@ $lang['LocalRule']='Yarışma Kuralı';
 $lang['LogoL']='Sol Üst Resim';
 $lang['LogoManagement']='Resim Yönetimi';
 $lang['LogoR']='Sağ Üst Resim';
-$lang['MailTitle']='Ad';
 $lang['ManDistances']='Mesafeleri Yönet';
 $lang['ManStaffOnField']='Saha Ekibi Yönetimi';
 $lang['Match']='Maç';

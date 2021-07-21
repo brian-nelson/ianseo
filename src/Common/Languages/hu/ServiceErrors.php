@@ -1,4 +1,7 @@
 <?php
+$lang['ArcClassified']='Téves minősítési érték';
+$lang['ArcNative']='Téves First nation státusz';
+$lang['ArcPara']='Téves para-státusz';
 $lang['ErrArcherCodeExists']='Versenyző azonosító (ID) már létezik';
 $lang['ErrArcherCodeFree']='Versenyző azonosító (ID) szabad';
 $lang['ErrArcherCodeTooLong']='Túl hosszó versenyző azonosító (ID)';
@@ -49,5 +52,7 @@ $lang['ErrPassToSet']='Irj be új jelszót';
 $lang['ErrSubClass']='Érvéncstelen korcsoport';
 $lang['ErrSubClassNotFound']='Kiegészitú korcsoport nem található';
 $lang['ErrWronglevel']='Hibás Klub/Versenyző szint';
+$lang['InvalidData']='Érvénytelen adat';
 $lang['LoginTooManyArchers']='Több mint 1 versenyző kapja ezt a mailt, ird be a tagsági azonosítót.';
+$lang['WrongType']='Téves adat típus';
 ?>

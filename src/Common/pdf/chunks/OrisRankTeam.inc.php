@@ -6,23 +6,11 @@ $pdf->setDocUpdate($PdfData->rankData['meta']['lastUpdate']);
 $First=true;
 foreach($PdfData->rankData['sections'] as $Event => $section) {
 	if(empty($section['items'])) continue;
-
-	$NumPhases=$section['meta']['firstPhase'] ? ceil(log($section['meta']['firstPhase'], 2))+1 : 1;
 	$NumComponenti = 1;
 
 	//Titolo del Report
-	$arrTitles = array("Rk", "NOC", "Back\nNo#", "Name", "RR Score\nRank");
-	$arrSizes = array(10, 45+(8*(4-$NumPhases)), 11, 45+(7*(4-$NumPhases)), array(10,9));
-
-	foreach($section['meta']['fields']['finals'] as $k=>$v) {
-		if(is_numeric($k) && $k!=1) {
-			$arrTitles[] = $v;
-			$arrSizes[] = array(8,7);
-		}
-	}
-	//l'ultimo campo è SEMPRE in inglese, quindi lo sovrascrivo!
-	$arrTitles[count($arrTitles)-1] = 'Finals';
-
+	$arrTitles = array("Rank#", "", "NOC", "Name");
+	$arrSizes = array(13,2, array(15,$pdf->getPageWidth()-160),100, 10);
 
 	$pdf->SetDataHeader($arrTitles, $arrSizes);
 	$pdf->setEvent($section['meta']['descr']);
@@ -31,8 +19,8 @@ foreach($PdfData->rankData['sections'] as $Event => $section) {
 	} else {
 		$pdf->setComment(trim($section['meta']['printHeader']));
 	}
-	$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 	$pdf->AddPage();
+	$pdf->setOrisCode($section['meta']['OrisCode'], $PdfData->Description);
 	if($First and (empty($pdf->CompleteBookTitle) or $pdf->CompleteBookTitle!=$PdfData->IndexName)) {
 		$pdf->Bookmark($PdfData->IndexName, 0);
 		$pdf->CompleteBookTitle=$PdfData->IndexName;
@@ -40,26 +28,79 @@ foreach($PdfData->rankData['sections'] as $Event => $section) {
 	$First=false;
 	$pdf->Bookmark($section['meta']['descr'], 1);
 
-	foreach($section['items'] as $item) {
+    $whatPhase = 0;
+    $oldRank = -1;
+	// Rank needs to take into account the missing positions due to DQB!
+	$CurRanked=0;
+	$ShowNotAwarded=false;
+	//$JumpLine=false;
+
+    foreach($section['items'] as $item) {
 		$NumComponenti = max(1, count($item['athletes']));
-		$pdf->SamePage($NumComponenti, 3.5, $pdf->lastY);
+		$changedPage = !$pdf->SamePage($NumComponenti+1, 3.5, $pdf->lastY);
+        $minPhase = (count($item['finals']) ==0 ? -1 : min(array_keys($item['finals'])));
+		if($item['rank']==1) {
+			$ShowNotAwarded=true;
+		}
+		//if($item['rank']!=0) {
+		//	$JumpLine=true;
+		//}
+
+	    if($ShowNotAwarded and ($minPhase==4 or $minPhase==8) and $minPhase!=$whatPhase and is_numeric($item['rank'])) {
+		    // we have a change in the phase layer, from medals to semifinal losers or from semi to quarters
+		    while($CurRanked<4) {
+			    // there are missing positions due to DQB, so print "not assigned"
+			    $CurRanked++;
+			    $rnk=$CurRanked+($whatPhase==4 ? 4 : 0);
+			    $pdf->printDataRow(array($rnk.'#','',$PdfData->rankData['meta']['notAwarded'],'',''));
+			    $pdf->lastY += 2.5;
+		    }
+		    $CurRanked=0;
+	    }
+	    $CurRanked++;
 
 		$dataRow = array(
-			($item['rank'] ? $item['rank'] : ''),
-			$item['countryCode'] . ' -  ' . $item['countryName'] . ($item['subteam']<=1 ? '' : ' (' . $item['subteam'] .')'));
+            (($item['rank'] AND ($oldRank!=$item['rank'] OR !is_numeric($item['rank']) OR $minPhase <= 4 OR $changedPage)) ? $item['rank'].'#' : ' '),
+			' ',
+			$item['countryCode'],
+            $item['countryNameLong'] . ($item['subteam']<=1 ? '' : ' (' . $item['subteam'] .')'));
 
 		if(count($item['athletes'])) {
-			$dataRow[] = $item['qualRank']. "A#";
 			$dataRow[] = $item['athletes'][0]['athlete'];
+			$dataRow[] = $item['athletes'][0]['irm'];
 		} else {
 			$dataRow[]='';
-			$dataRow[]='';
 		}
-		$dataRow[] = $item['qualScore'] . "#";
-		$dataRow[] = '/' . substr('00' . $item['qualRank'],-2,2);
+
+		$pdf->printDataRow($dataRow);
+
+		//Metto i nomi degli altri Componenti se li ho
+		if($NumComponenti>1) {
+			for($k=1; $k<$NumComponenti; $k++) {
+				$pdf->printDataRow(array('','','','',
+					$item['athletes'][$k]['athlete'],
+					$item['athletes'][$k]['irm']));
+			}
+		}
+
+		$pdf->lastY += 2.5;
+        $whatPhase = $minPhase;
+        $oldRank = $item['rank'];
+	}
+}
+
+/*
+
 		//Risultati  delle varie fasi
 		foreach($item['finals'] as $k=>$v) {
-			if($v['tie']==2) {
+			if($v['irm']) {
+				if($v['irmText']=='DQB') {
+					break;
+				}
+				$dataRow[] = $v['irmText'];
+				$dataRow[] = '';
+				break;
+			} elseif($v['tie']==2) {
 				$dataRow[] = $PdfData->Bye;
 				$dataRow[] = '';
 			} else {
@@ -80,21 +121,6 @@ foreach($PdfData->rankData['sections'] as $Event => $section) {
 					}
 				}
 			}
-		}
 
-		$pdf->printDataRow($dataRow);
 
-		//Metto i nomi degli altri Componenti se li ho
-		if($NumComponenti>1) {
-			for($k=1; $k<$NumComponenti; $k++) {
-				$pdf->printDataRow(array('','',
-					$item['qualRank']. chr(65+$k) . "#",
-					$item['athletes'][$k]['athlete']));
-			}
-		}
-
-		$pdf->lastY += 2.5;
-	}
-}
-
-?>
+ */

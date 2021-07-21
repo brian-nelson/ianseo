@@ -52,36 +52,39 @@ foreach($rankData['sections'] as $IdEvent => $section) {
 		if($section['meta']['arrowsShot']) {
 			// Records handling
 			$MaxScore=$section['meta']['numDist']*$section['meta']['maxScore'];
-			$sql="select RtRecType, RtRecCode, RtRecDistance, RtRecTotal, RtRecXNine, TrColor, RtRecExtra,
+			$Final=(max($section['meta']['arrowsShot'])==$section['meta']['numDist']*$section['meta']['maxArrows']);
+			$sql="select TrHeaderCode, TrHeader, RtRecCode, RtRecDistance, RtRecTotal, RtRecXNine, TrColor, RtRecExtra, ReArBitLevel, ReArMaCode,
 					find_in_set('bar', TrFlags) TrBars,
 					find_in_set('gap', TrFlags) TrGaps
 				from RecTournament
-				inner join TourRecords on TrTournament=RtTournament and TrRecType=RtRecType and TrRecCode=RtRecCode and TrRecTeam=RtRecTeam and TrRecPara=RtRecPara
+				inner join TourRecords on TrTournament=RtTournament and TrRecCode=RtRecCode and TrRecTeam=RtRecTeam and TrRecPara=RtRecPara
+				inner join RecAreas on ReArCode=RtRecCode
 				inner join Events on RtTournament=EvTournament and EvRecCategory=RtRecCategory and EvCode='{$IdEvent}' and EvTournament={$TourId} and RtRecTeam=EvTeamEvent and EvTeamEvent=0
 				where RtRecPhase=1
 				order by RtRecTotal desc "; // for now we only do on totals
 			$q=safe_r_sql($sql);
 			while($r=safe_fetch($q)) {
-				$RecTot[$r->RtRecType][$r->RtRecCode]['tot']=$MaxScore-$r->RtRecTotal;
-				$RecTot[$r->RtRecType][$r->RtRecCode]['gap']=$r->TrGaps;
+				$RecTot[$r->RtRecCode]['tot']=$MaxScore-$r->RtRecTotal;
+				$RecTot[$r->RtRecCode]['gap']=$r->TrGaps;
+				$RecTot[$r->RtRecCode]['area']=$r->ReArBitLevel;
+				$RecTot[$r->RtRecCode]['claim']=$r->ReArMaCode;
 				// no X9 checks now...
-				// $RecTot[$r->RtRecType][$r->RtRecCode]['X9']=$MaxScore-$r->RtRecTotal;
-//				$JS_SCRIPT[]='.Rec-'.$r->RtRecType.' {color:#'.$r->TrColor.';font-weight:bold;}';
-				if($r->TrGaps) {
+				// $RecTot[$r->RtRecCode]['X9']=$MaxScore-$r->RtRecTotal;
+				if($r->TrGaps and !$Final) {
 
-					$RecTitle.='&nbsp;<span class="piccolo" style="color:#'.$r->TrColor.'">'.get_text('RecordAverage', 'Tournament', get_text($r->RtRecType.'-short', 'Tournament'));
-					if($r->RtRecExtra and $tmp=unserialize($r->RtRecExtra)) {
-						$RecTitle.=' ('.$r->RtRecTotal .' - '. $tmp[0]->Archers[0]['Archer'] . ')';
-					}
+					$RecTitle.='&nbsp;<span class="piccolo" style="color:#'.$r->TrColor.'">'.get_text('RecordAverage', 'Tournament', $r->TrHeaderCode);
+					//if($r->RtRecExtra and $tmp=unserialize($r->RtRecExtra)) {
+					//	$RecTitle.=' ('.$r->RtRecTotal .' - '. $tmp[0]->Archers[0]['Archer'] . ')';
+					//}
 					$RecTitle.='</span>';
 				}
 
 
-				$RecCut=max($RecCut, $RecTot[$r->RtRecType][$r->RtRecCode]['tot']);
+				$RecCut=max($RecCut, $RecTot[$r->RtRecCode]['tot']);
 				$rec=round($r->RtRecTotal*max($section['meta']['arrowsShot'])/($section['meta']['numDist']*$section['meta']['maxArrows']),1); // no X9 checks now...
 				if($r->TrBars) {
-					$RecordCut["$rec"][]='<tr class="Record_'.$r->RtRecType.'_'. $r->RtRecCode.'"><th colspan="%s">'.get_text('Record-'.$r->RtRecType.'-'.$r->RtRecCode.'-avg', 'InfoSystem').'</th>
-						<td class="NumberAlign Grassetto">' . number_format($rec,1) . '</td>
+					$RecordCut["$rec"][]='<tr class="Record_'. $r->RtRecCode.'"><th colspan="%s">'.($Final ? $r->TrHeader : get_text('RecordAverage', 'Records', $r->RtRecCode)).'</th>
+						<td class="NumberAlign Grassetto">' . ($section['meta']['running'] ? number_format($rec/($section['meta']['numDist']*$section['meta']['maxArrows']), 3) : number_format($rec, $Final ? 0 : 1)) . '</td>
 						</tr>';
 				}
 			}
@@ -165,14 +168,14 @@ foreach($rankData['sections'] as $IdEvent => $section) {
 		$RecColumns=str_repeat('<td>&nbsp;</td>',count($RecTot));
 		if($item['recordGap'] < $RecCut) {
 			$RecColumns='';
-			foreach ($RecTot as $RecType => $RecCodes) {
-				foreach($RecCodes as $RecCode => $Record) {
-					if($Record['gap'] and $item['recordGap'] < $Record['tot'] and ($RecCode=='WA' or $RecCode==$item['contAssoc'])) {
-//						$RecClass='Rec-'.$RecType;
-						$RecColumns.='<td class="Rec-Bg-'.$RecType.'">&nbsp;</td>';
-					} else {
-						$RecColumns.='<td>&nbsp;</td>';
-					}
+			foreach ($RecTot as $RecCode => $Record) {
+				if($Record['gap'] and $item['recordGap'] < $Record['tot'] and
+					(!$Record['claim']
+						or $Record['claim']==$item['contAssoc']
+						or $Record['claim']==$item['memberAssoc'])) {
+					$RecColumns.='<td class="Rec-Bg-'.$RecCode.'">&nbsp;</td>';
+				} else {
+					$RecColumns.='<td>&nbsp;</td>';
 				}
 			}
 		}

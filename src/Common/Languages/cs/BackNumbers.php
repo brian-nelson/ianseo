@@ -13,7 +13,6 @@ $lang['Barcode']='Čárový kód';
 $lang['BgImage']='Obrázek pozadí';
 $lang['Bold']='Tučně';
 $lang['CharColor']='Barva znaku';
-$lang['CharSize']='Velikost znaku';
 $lang['CharType']='Typ znaku';
 $lang['CountryCodeAndLong']='Kód oddílu a dlouhé jméno';
 $lang['CountryCodeOnly']='Pouze kód oddílu';

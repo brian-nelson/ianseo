@@ -1,12 +1,13 @@
 <?php
 
-define('PRINTLANG', 'EN');
+if(!defined('PRINTLANG')) {
+    define('PRINTLANG', 'EN');
+}
 require_once('Common/pdf/IanseoPdf.php');
 require_once('Common/Lib/Fun_DateTime.inc.php');
 
 
-class OrisPDF extends IanseoPdf
-{
+class OrisPDF extends IanseoPdf {
 	var $Number, $Title, $Event, $EvPhase, $EvComment;
 	var $Name, $Where, $WhenF, $WhenT, $imgR, $imgL, $imgB, $imgB2, $prnGolds, $prnXNine;
 	var $HeaderName = array();
@@ -25,44 +26,43 @@ class OrisPDF extends IanseoPdf
     const bottomMargin=16;
 	const topStart=45;
 	var $extraBottomMargin=0;
+	var $printPageNo=true;
 
 
 	//Constructor
-	function __construct($DocNumber, $DocTitle, $headers='')
-	{
+	function __construct($DocNumber, $DocTitle, $headers='') {
 		parent::__construct($DocTitle, true, $headers);
 		if($this->ToPaths['ToBottom']) {
             $im=getimagesize($this->ToPaths['ToBottom']);
             if($im[0]/$im[1] < 17) {
                 $this->extraBottomMargin = 8;
             }
-        } else {
-            $this->extraBottomMargin = -5;
+        //} else {
+        //    $this->extraBottomMargin = -5;
         }
 		$this->Title=$DocTitle;
 		$this->Number=$DocNumber;
 		$this->Event='';
 		$this->EvPhase='';
-		if(isset($_REQUEST["ReportCreated"]) && preg_match("/^[0-9]{12}$/i", $_REQUEST["ReportCreated"]))
-			$this->utsReportCreated = mktime(substr($_REQUEST["ReportCreated"],8,2),substr($_REQUEST["ReportCreated"],10,2),0,substr($_REQUEST["ReportCreated"],4,2),substr($_REQUEST["ReportCreated"],6,2),substr($_REQUEST["ReportCreated"],0,4));
-		else
-			$this->utsReportCreated = strtotime("now");
+		if(isset($_REQUEST["ReportCreated"]) && preg_match("/^[0-9]{12}$/i", $_REQUEST["ReportCreated"])) {
+            $this->utsReportCreated = mktime(substr($_REQUEST["ReportCreated"], 8, 2), substr($_REQUEST["ReportCreated"], 10, 2), 0, substr($_REQUEST["ReportCreated"], 4, 2), substr($_REQUEST["ReportCreated"], 6, 2), substr($_REQUEST["ReportCreated"], 0, 4));
+        } else {
+            $this->utsReportCreated = strtotime("now");
+        }
 
 		$this->SetSubject($DocNumber . ' - ' . $DocTitle);
 		$this->SetDefaultColor();
 
 		$this->SetMargins(OrisPDF::leftMargin,OrisPDF::topMargin,OrisPDF::leftMargin);
 
-		$this->SetAutoPageBreak(true,(OrisPDF::bottomMargin+$this->extraBottomMargin));
+		$this->SetAutoPageBreak(true,OrisPDF::bottomMargin+$this->extraBottomMargin);
 	}
 
-	public function setDocUpdate($newDate)
-	{
+	public function setDocUpdate($newDate) {
 		$this->utsReportCreated = mktime(substr($newDate,11,2),substr($newDate,14,2),0,substr($newDate,5,2),substr($newDate,8,2),substr($newDate,0,4));
 	}
 
-	function SetDefaultColor()
-	{
+	function SetDefaultColor() {
 		$this->SetDrawColor(0x00, 0x00, 0x00);
 		$this->SetFillColor(0xE0,0xE0,0xE0);
 		$this->SetTextColor(0x00, 0x00, 0x00);
@@ -81,8 +81,7 @@ class OrisPDF extends IanseoPdf
 	}
 
 
-	function Header()
-	{
+	function Header() {
 		global $CFG;
 		$LeftStart = 10;
 		$RightStart = 10;
@@ -114,16 +113,14 @@ class OrisPDF extends IanseoPdf
 		$this->Cell($this->w-$LeftStart-$RightStart-40, 5, preg_replace("/[\r\n]+/sim", ' ', $this->Name),0,0,'L');
 
 		//Event Name if available
-		if($this->Event != '')
-		{
+		if($this->Event != '') {
 			$this->SetXY($LeftStart+40,12.5);
 			$this->SetFont($this->FontStd,'B',11);
 			$this->Cell($this->w-$LeftStart-$RightStart-40, 5, $this->Event,0,0,'L');
 		}
 
 		//Event Phase if available
-		if($this->EvPhase != '')
-		{
+		if($this->EvPhase != '') {
 			$this->SetXY($LeftStart+40,19.5);
 			$this->SetFont($this->FontStd,'B',11);
 			$this->Cell($this->w-$LeftStart-$RightStart-40, 5, $this->EvPhase,0,0,'L');
@@ -141,8 +138,7 @@ class OrisPDF extends IanseoPdf
 		$this->Cell(190,7,mb_convert_case($this->Title, MB_CASE_UPPER, "UTF-8"),0,1,'C');
 
 		//Comment if available
-		if($this->EvPhase != '')
-		{
+		if($this->EvPhase != '') {
 			$this->SetXY(145,30);
 			$this->SetFont($this->FontStd,'B',8);
 			$this->Cell(60,7,$this->EvComment,0,1,'R');
@@ -155,6 +151,9 @@ class OrisPDF extends IanseoPdf
 		$this->SetXY(OrisPDF::leftMargin, $this->lastY);
 
 		// Prints Records if available...
+		// set defaults cell padding ;)
+		$OldPadding=$this->cell_padding;
+		$this->setCellPaddings(1,0,1,0);
 		foreach($this->Records as $Record) {
 			$Rows=0;
 			foreach($Record->RtRecExtra as $Extra) {
@@ -162,10 +161,10 @@ class OrisPDF extends IanseoPdf
 			}
 			// what
 			$this->SetFont('', 'B');
-			$this->cell(40, $Rows, ' '.$Record->RtRecType.' '.$Record->RtRecDistance.':', 'LTB', 0);
+			$this->cell(45, $Rows, $Record->TrHeader.' '.$Record->RtRecDistance.':', 'LTB', 0);
 			$this->SetFont('', '');
 			// how much
-			$this->cell(10, $Rows, $Record->RtRecTotal.($Record->RtRecXNine ? '/'.$Record->RtRecXNine : '').' ', 'TB', 0, 'R');
+			$this->cell(10, $Rows, $Record->RtRecTotal.($Record->RtRecXNine ? '/'.$Record->RtRecXNine : ''), 'TB', 0, 'R');
 			$X=$this->getX();
 			$Y=$this->getY();
 			foreach($Record->RtRecExtra as $k=>$Extra) {
@@ -175,15 +174,15 @@ class OrisPDF extends IanseoPdf
 					$arc[]=$Archer['Archer'];
 				}
 				// who
-				$this->cell(80, $this->RecCelHeight, ' '.implode('/', $arc). ' ', 'TB', 0, 'R');
+				$this->cell(80, $this->RecCelHeight, implode('/', $arc), 'TB', 0, 'R');
 				// NOC
-				$this->cell(10, $this->RecCelHeight, " $Extra->NOC ", 'TB', 0);
+				$this->cell(10, $this->RecCelHeight, $Extra->NOC, 'TB', 0);
 				// where (NOC)
-				$this->cell(30, $this->RecCelHeight, " $Extra->EventNOC ", 'TB', 0, 'R');
+				$this->cell(30, $this->RecCelHeight, $Extra->EventNOC, 'TB', 0, 'R');
 			}
 			// date
 			$this->SetXY($X+120, $Y);
-			$this->cell(20, $Rows, " $Record->RtRecDate ", 'TBR', 1, 'R');
+			$this->cell(0, $Rows, $Record->RtRecDate, 'TBR', 1, 'R');
 
 			$this->lastY+=$Rows;
 		}
@@ -191,14 +190,14 @@ class OrisPDF extends IanseoPdf
 
 
 		//Report Table Header
-		if(!$this->StopHeader and count($this->HeaderSize)>0) {
+		if(!$this->StopHeader and count($this->HeaderName)>0) {
 			$this->printHeader(OrisPDF::leftMargin, $this->lastY);
 		}
+		$this->cell_padding=$OldPadding;
 	}
 
 
-	function Footer()
-	{
+	function Footer() {
 		global $CFG;
 
         $TopStart = ($this->h-(15 + $this->extraBottomMargin));
@@ -210,8 +209,10 @@ class OrisPDF extends IanseoPdf
 		$this->SetFont($this->FontStd,'',8);
 		$this->SetXY(10,$TopStart);
 		$this->Cell(60,3,mb_convert_case($this->FooterPrefix . $this->Number, MB_CASE_UPPER, "UTF-8"),0,0,'L');
-		$this->SetXY($this->w-70,$TopStart);
-		$this->Cell(60,3,'Page '.$this->PageNo().'/'.$this->getAliasNbPages(),0,0,'R');
+        if($this->printPageNo) {
+		    $this->SetXY($this->w-60,$TopStart);
+            $this->Cell(60, 3, 'Page ' . $this->getAliasNumPage() . '/' . $this->getAliasNbPages(), 0, 0, 'R');
+        }
 		$this->SetXY($this->w/2-30,$TopStart);
 		$this->Cell(60,3,'Report Created: ' . date('d M Y H:i',$this->utsReportCreated).' @ UTC'.$this->TzOffset.($this->Version ? ' (v. '.$this->Version.')' : ''),0,0,'C');
 
@@ -225,8 +226,7 @@ class OrisPDF extends IanseoPdf
 
 	}
 
-	function setDataHeader($FieldNames, $FieldSizes)
-	{
+	function setDataHeader($FieldNames, $FieldSizes) {
 		$this->HeaderName=array();
 		$this->HeaderSize=array();
 		$this->DataSize=array();
@@ -234,67 +234,84 @@ class OrisPDF extends IanseoPdf
 			$FieldSizes[count($FieldSizes)-1]=$this->getPageWidth()-$this->lMargin-$this->rMargin-array_sum($FieldSizes);
 		}
 
-		if(!is_array($FieldNames))
-			$this->HeaderName[] = $FieldNames;
-		else
-			$this->HeaderName = $FieldNames;
+		if(!is_array($FieldNames)) {
+            $this->HeaderName[] = $FieldNames;
+        } else {
+            $this->HeaderName = $FieldNames;
+        }
 
-		if(!is_array($FieldSizes))
-		{
+		if(!is_array($FieldSizes)) {
 			$this->HeaderSize[] = $FieldSizes;
 			$this->DataSize[] = $FieldSizes;
-		}
-		else
-		{
-			foreach($FieldSizes as $fs)
-			{
-				if(!is_array($fs))
-				{
+		} else {
+			foreach($FieldSizes as $fs) {
+				if(!is_array($fs)) {
 					$this->HeaderSize[] = $fs;
 					$this->DataSize[] = $fs;
-				}
-				else
-				{
+				} else {
 					$this->HeaderSize[] = array_sum($fs);
 					$this->DataSize = array_merge($this->DataSize,$fs);
 				}
 			}
 		}
-
 	}
 
-	function printHeader($xPosition, $yPosition)
-	{
+	function printHeader($xPosition, $yPosition) {
 		$maxCell= 0;
 		$this->SetLineWidth(0.1);
 		$this->SetFont($this->FontStd,'B',8);
 		$this->SetXY($xPosition, $yPosition);
-		for($i=0; $i<count($this->HeaderName); $i++)
-		{
-			if(strpos($this->HeaderName[$i],"@")===0)
-			{
-				$this->HeaderName[$i] = substr($this->HeaderName[$i],1);
-				$this->Cell($this->HeaderSize[min($i,count($this->HeaderSize)-1)],3.5,str_replace(array("#",'§'),"",$this->HeaderName[$i]),0,0,(strpos($this->HeaderName[$i],"#")===false ? (strpos($this->HeaderName[$i],"§")===false ? 'L':'C'):'R'));
-			}
-			else
-				$maxCell = max($maxCell,$this->MultiCell($this->HeaderSize[min($i,count($this->HeaderSize)-1)],3.5,str_replace(array("#",'§'),"",$this->HeaderName[$i]),0,(strpos($this->HeaderName[$i],"#")===false ? (strpos($this->HeaderName[$i],"§")===false ? 'L':'C'):'R'),0,0));
+		$Rows=3.5;
+		if(strstr(implode('', $this->HeaderName), "\n")) {
+			$Rows=7;
 		}
-		$this->Rect($xPosition, $yPosition-1, array_sum($this->HeaderSize),3.5*$maxCell+2);
+		foreach($this->HeaderName as $i => $Header) {
+			if($Header and $Header[0]=='@') {
+				$Header=substr($Header, 1);
+			}
+
+			$Align='L';
+			if(strstr($Header, '#')) {
+				$Align='R';
+			} elseif(strstr($Header, '§')) {
+				$Align='C';
+			}
+
+			if(strstr($Header, "\n")) {
+				$Header=explode("\n", $Header);
+				$cHeight=3.5;
+			} else {
+				$Header=array($Header);
+				$cHeight=$Rows;
+			}
+
+			$OrgX=$this->getx();
+
+			foreach($Header as $j => $Head) {
+				if(strstr($Head, '#')) {
+					$Align='R';
+				} elseif(strstr($Head, '§')) {
+					$Align='C';
+				}
+				$Head=str_replace(array("#",'§'),"", $Head);
+				$this->SetXY($OrgX, $yPosition+$j*3.5);
+				$this->Cell($this->HeaderSize[min($i,count($this->HeaderSize)-1)], $cHeight, $Head,0,0, $Align);
+			}
+		}
+		$this->Rect($xPosition, $yPosition-1, $this->getPageWidth()-20,$Rows+2);
 		$this->SetFont($this->FontStd,'',8);
-		$this->lastY = $yPosition+(3.5*$maxCell)+1+1;
+		$this->lastY = $yPosition+$Rows+2;
 	}
 
-	function addSpacer($size=2)
-	{
+	function addSpacer($size=2) {
 		$this->lastY += $size;
 	}
 
 	function printDataRow($data) {
 		$maxCell= 1;
 		$this->SetFont($this->FontStd,'',8);
-		$this->SetXY(OrisPDF::leftMargin, $this->lastY);
-		$this->Cell(0.1,3.5,'',0,0,'L');
-		$this->SetXY(OrisPDF::leftMargin, $this->lastY);
+        $this->samePage(2, 3.5, $this->lastY); // check if there is enough space from the future location
+		$this->SetXY(OrisPDF::leftMargin, $this->lastY); // sets the correct location after eventually the reset of lastY made by the setheader in case of a new page
 		for($i=0; $i<count($data); $i++) {
 			$Align='L';
 			if(strstr($data[$i],"#")) {
@@ -308,7 +325,7 @@ class OrisPDF extends IanseoPdf
 				$OrgY=$this->GetY();
 				$maxCell=count($CellData);
 				foreach($CellData as $k=>$v) {
-					$this->SetAbsXY($OrgX, $OrgY + ($k*3.5));
+					$this->SetXY($OrgX, $OrgY + ($k*3.5));
 					if(!$k) {
 						// first line bold
 						$this->SetFont('', 'B');
@@ -334,33 +351,307 @@ class OrisPDF extends IanseoPdf
 		$this->lastY += 5;
 	}
 
-	function setEvent($name)
-	{
+	function setEvent($name) {
 		$this->Event = $name;
 	}
 
-	function setPhase($name)
-	{
+	function setPhase($name) {
 		$this->EvPhase = $name;
 	}
 
-	function setComment($comment)
-	{
+	function setComment($comment) {
 		$this->EvComment = $comment;
 	}
 
-	function samePage($rowNo, $rowHeight=3.5, $y='', $addPage=true)
-	{
+	function samePage($rowNo, $rowHeight=3.5, $y='', $addPage=true) {
 		return !$this->checkPageBreak($rowNo * $rowHeight, $y, $addPage);
 	}
 
-	function setOrisCode($newCode='', $newTitle='')
-	{
-		if($newCode != '')
+	function setOrisCode($newCode='', $newTitle='', $force=false) {
+		if($newCode != '' or $force) {
 			$this->Number=$newCode;
-		if($newTitle != '')
+		}
+		if($newTitle != '' or $force) {
 			$this->Title=$newTitle;
+		}
 	}
-}
 
-?>
+	function setPrintPageNo($doPrint) {
+	    $this->printPageNo = $doPrint;
+    }
+
+    function OrisScorecard($Data, $Bottom=0, $Phase, $Section, $Meta, $Team=0) {
+	    if($Phase['FinElimChooser']) {
+	    	$Ends=$Section['elimEnds'];
+	    	$Arrows=$Section['elimArrows'];
+	    	$SO=$Section['elimSO'];
+	    } else {
+	    	$Ends=$Section['finEnds'];
+	    	$Arrows=$Section['finArrows'];
+	    	$SO=$Section['finSO'];
+	    }
+
+		$CellHeight=5;
+		$ScoreWidth=($this->getPageWidth()-30)/2;
+		$CellWidthShort=8+($Arrows==3 ? 4 : 0);
+		$CellWidthLong=($ScoreWidth-3-$CellWidthShort*(1 + $Arrows))/2;
+		$SoWidth=min($CellWidthShort, ($CellWidthShort*$Arrows)/$SO);
+		$SoGap=$CellWidthShort*$Arrows - $SoWidth*$SO;
+	    $HeadWidthTitle=20;
+	    $HeadWidthData=$ScoreWidth-$HeadWidthTitle;
+
+		$Offset=35+($Bottom ? $this::topMargin+($this->getPageHeight()-35-$this->extraBottomMargin-$this::bottomMargin-$this::topMargin)/2 : 0);
+		$this->SetY($Offset, true);
+		$this->SetFont('','b',12);
+		$this->Cell(0,0, $Phase['matchName'], '', '1','C');
+		$this->SetFont('','',10);
+		$this->Cell(0,0, date('D j M Y', strtotime($Data['scheduledKey'])).' '.$Meta['fields']['scheduledTime'].': '.$Data['scheduledTime'], '', '1','C');
+		$this->ln();
+
+		// line 1: targets
+	    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['target'].':');
+	    $this->Cell($HeadWidthData, 0, ltrim($Data['target'],'0'));
+	    $this->Cell(10,0, '');
+	    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['target'].':');
+	    $this->Cell($HeadWidthData, 0, ltrim($Data['oppTarget'],'0'));
+	    $this->ln();
+
+	    //line 2: NOC / athlete
+	    if($Team) {
+		    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['countryCode'] .':');
+		    $this->SetFont('','b');
+		    $this->Cell($HeadWidthData,0, $Data['countryCode']);
+		    $this->SetFont('','');
+		    $this->Cell(10,0, '');
+		    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['countryCode'].':');
+		    $this->SetFont('','b');
+		    $this->Cell($HeadWidthData,0, $Data['oppCountryCode']);
+		    $this->SetFont('','');
+	    } else {
+		    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['fullName'].':');
+		    $this->SetFont('','b');
+		    $this->Cell($HeadWidthData,0, $Data['athlete'].' ('.$Data['countryCode'].' - '.$Data['countryName'].')');
+		    $this->SetFont('','');
+		    $this->Cell(10,0, '');
+		    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['fullName'].':');
+		    $this->SetFont('','b');
+		    $this->Cell($HeadWidthData,0, $Data['oppAthlete'].' ('.$Data['oppCountryCode'].' - '.$Data['oppCountryName'].')');
+		    $this->SetFont('','');
+	    }
+	    $this->ln();
+
+	    //line 3: Bib / Country
+	    if($Team) {
+		    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['countryName'] . ':');
+		    $this->SetFont('', 'b');
+		    $this->Cell($HeadWidthData, 0, $Data['countryName']);
+		    $this->SetFont('', '');
+		    $this->Cell(10, 0, '');
+		    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['countryName'] . ':');
+		    $this->SetFont('', 'b');
+		    $this->Cell($HeadWidthData, 0, $Data['oppCountryName']);
+		    $this->SetFont('', '');
+	    } else {
+		    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['bib'].':');
+		    $this->Cell($HeadWidthData,0, $Data['bib']);
+		    $this->Cell(10,0, '');
+		    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['bib'].':');
+		    $this->Cell($HeadWidthData,0, $Data['oppBib']);
+	    }
+	    $this->ln();
+
+	    //line 4: Coach?
+	    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['coach'].':');
+	    $this->Cell($HeadWidthData,0, $Data['coach']);
+	    $this->Cell(10,0, '');
+	    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['coach'].':');
+	    $this->Cell($HeadWidthData,0, $Data['oppCoach']);
+	    $this->ln();
+
+	    // empty line
+	    $this->ln(2);
+
+	    // Winner / IRM status, BOXED
+	    $this->SetFontSize(13);
+	    $Txt='';
+	    if($Data['irm']) {
+	    	$Txt=$Data['irmText'];
+	    } elseif($Data['winner']) {
+	    	$Txt=$Meta['fields']['winner'];
+	    }
+	    $this->Cell($ScoreWidth,0, $Txt, $Txt ? 1 : 0, 0, 'C');
+	    $this->Cell(10,0, '');
+	    $Txt='';
+	    if($Data['oppIrm']) {
+	    	$Txt=$Data['oppIrmText'];
+	    } elseif($Data['oppWinner']) {
+	    	$Txt=$Meta['fields']['winner'];
+	    }
+	    $this->Cell($ScoreWidth,6, $Txt, $Txt ? 1 : 0, 0, 'C');
+	    $this->ln();
+	    $this->SetFontSize(10);
+
+	    // empty line
+	    $this->ln(2);
+
+	    // score drawing
+	    // head
+	    $this->Cell($CellWidthShort, $CellHeight,'',1);
+        $this->Cell($CellWidthShort*$Arrows, $CellHeight, $Meta['fields']['arrowstring'],1, '0', 'C');
+        $this->Cell($CellWidthLong, $CellHeight, $Meta['fields']['score'],1, 0, 'C');
+	    $this->Cell(3, $CellHeight, '');
+        $this->Cell($CellWidthLong, $CellHeight, $Section['matchMode'] ? $Meta['fields']['setPoints'] : $Meta['fields']['scoreLong'],1, 0, 'C');
+
+	    $this->Cell(10, $CellHeight, '');
+
+        $this->Cell($CellWidthLong, $CellHeight, $Section['matchMode'] ? $Meta['fields']['setPoints'] : $Meta['fields']['scoreLong'],1, 0, 'C');
+	    $this->Cell(3, $CellHeight, '');
+	    $this->Cell($CellWidthShort, $CellHeight,'',1);
+        $this->Cell($CellWidthShort*$Arrows, $CellHeight, $Meta['fields']['arrowstring'],1, 0, 'C');
+        $this->Cell($CellWidthLong, $CellHeight, $Meta['fields']['score'],1, 0, 'C');
+	    $this->ln();
+
+        $endTot=explode('|', $Data['setPoints']);
+        $endPts=explode('|', $Data['setPointsByEnd']);
+        $oppEndTot=explode('|', $Data['oppSetPoints']);
+        $oppEndPts=explode('|', $Data['oppSetPointsByEnd']);
+        $Tot=0;
+        $OppTot=0;
+        for($i=0;$i<$Ends;$i++) {
+	        $this->Cell($CellWidthShort, $CellHeight,$i+1,1, 0, 'C');
+	        $pts='';
+        	for($j=0;$j<$Arrows;$j++) {
+        		$pts=substr($Data['arrowstring'], $i*$Arrows + $j,1);
+	            $this->Cell($CellWidthShort, $CellHeight, DecodeFromLetter($pts),1, 0, 'C');
+	        }
+			if(trim($pts)) {
+				$Tot+=$endTot[$i];
+		        $this->Cell($CellWidthLong, $CellHeight, $endTot[$i],1, 0, 'C');
+	            $this->Cell(3, $CellHeight, '');
+		        $this->Cell($CellWidthLong, $CellHeight, $Section['matchMode'] ? $endPts[$i] : $Tot,1, 0, 'C');
+			} else {
+		        $this->Cell($CellWidthLong, $CellHeight, '',1, 0, 'C');
+	            $this->Cell(3, $CellHeight, '');
+		        $this->Cell($CellWidthLong, $CellHeight, '',1, 0, 'C');
+			}
+
+			$this->Cell(10, $CellHeight, '');
+
+            $pts=substr($Data['oppArrowstring'], $i*$Arrows,1);
+			if(trim($pts)) {
+				$OppTot+=$oppEndTot[$i];
+		        $this->Cell($CellWidthLong, $CellHeight, $Section['matchMode'] ? $oppEndPts[$i] : $OppTot,1, 0, 'C');
+			} else {
+		        $this->Cell($CellWidthLong, $CellHeight, '',1, 0, 'C');
+			}
+            $this->Cell(3, $CellHeight, '');
+	        $this->Cell($CellWidthShort, $CellHeight,$i+1,1, 0, 'C');
+        	for($j=0;$j<$Arrows;$j++) {
+        		$pts=substr($Data['oppArrowstring'], $i*$Arrows + $j,1);
+	            $this->Cell($CellWidthShort, $CellHeight, DecodeFromLetter($pts),1, 0, 'C');
+	        }
+			if(trim($pts)) {
+		        $this->Cell($CellWidthLong, $CellHeight, $oppEndTot[$i],1, 0, 'C');
+			} else {
+		        $this->Cell($CellWidthLong, $CellHeight, '',1, 0, 'C');
+			}
+	        $this->ln();
+        }
+
+        $this->ln(2);
+
+		// SO
+	    if($Data['tie'] or $Data['oppTie']) {
+	    	$Rows=ceil(strlen(trim($Data['tiebreak']))/$SO);
+	    	$Ties=explode(',', $Data['tiebreakDecoded']);
+	    	$OppTies=explode(',', $Data['oppTiebreakDecoded']);
+	        for($i=0; $i<$Rows; $i++) {
+		        $this->Cell($CellWidthShort, $CellHeight,$Meta['fields']['tie'].' '.($i+1),1,0,'C');
+		        $pts='';
+		        for($j=0;$j<$SO;$j++) {
+		            $pts=substr($Data['tiebreak'], $i*$SO + $j,1);
+		            $this->Cell($SoWidth, $CellHeight, DecodeFromLetter($pts),1,0,'C');
+		        }
+
+		        if($SoGap) {
+			        $this->Cell($SoGap, $CellHeight, '');
+		        }
+
+		        if($SO>1) {
+			        $this->Cell($CellWidthLong, $CellHeight, $Ties[$i],1,0,'C');
+		        } else {
+			        $this->Cell($CellWidthLong, $CellHeight, '');
+		        }
+
+		        // closest to center goes only on last row
+		        if($i==$Rows-1) {
+			        //$this->Cell(1,$CellHeight,'');
+			        //$this->Cell($CellHeight, $CellHeight,$Data['closest'] ? '+' : '', 1);
+			        //$this->Cell(1,$CellHeight,'');
+			        //$this->Cell($ClosestWidth, $CellHeight, $Meta['fields']['closestShort']);
+			        $this->Cell(3,$CellHeight,'');
+			        if($Section['matchMode']) {
+				        $this->Cell($CellWidthLong, $CellHeight, $Data['tie'], 1,0,'C');
+			        } else {
+				        $this->Cell($CellWidthLong, $CellHeight, '', 0,0,'C');
+			        }
+		        } else {
+			        $this->Cell(3+$CellWidthLong,$CellHeight,'');
+		        }
+
+				$this->Cell(10, $CellHeight, '');
+
+		        if($i==$Rows-1) {
+			        if($Section['matchMode']) {
+				        $this->Cell($CellWidthLong, $CellHeight, $Data['oppTie'], 1,0,'C');
+			        } else {
+				        $this->Cell($CellWidthLong, $CellHeight, '', 0,0,'C');
+			        }
+			        $this->Cell(3,$CellHeight,'');
+		        } else {
+			        $this->Cell(3+$CellWidthLong, $CellHeight,'');
+		        }
+		        $this->Cell($CellWidthShort, $CellHeight,$Meta['fields']['tie'].' '.($i+1),1,0,'C');
+		        $pts='';
+		        for($j=0;$j<$SO;$j++) {
+		            $pts=substr($Data['oppTiebreak'], $i*$SO + $j,1);
+		            $this->Cell($SoWidth, $CellHeight, DecodeFromLetter($pts),1,0,'C');
+		        }
+
+		        if($SoGap) {
+			        $this->Cell($SoGap, $CellHeight, '');
+		        }
+
+		        if($SO>1) {
+			        $this->Cell($CellWidthLong, $CellHeight, $OppTies[$i],1,0,'C');
+		        } else {
+			        $this->Cell($CellWidthLong, $CellHeight, '',0,0,'C');
+		        }
+
+		        $this->ln();
+	        }
+	        $this->ln(2);
+	    }
+
+	    // Closest+TOTALS
+        $this->Cell($CellWidthShort*(1+$Arrows)+$CellWidthLong+3, $CellHeight, $Data['closest'] ? $Meta['fields']['closest'] : '');
+	    $this->SetFont('', 'b');
+        $this->Cell($CellWidthLong, $CellHeight, $Section['matchMode'] ? $Data['setScore'] : $Data['score'], 1, 0, 'C');
+		$this->Cell(10, $CellHeight, '');
+        $this->Cell($CellWidthLong, $CellHeight, $Section['matchMode'] ? $Data['oppSetScore'] : $Data['oppScore'], 1, 0, 'C');
+	    $this->SetFont('', '');
+        $this->Cell(3,$CellHeight, '');
+        $this->Cell($CellWidthShort*(1+$Arrows), $CellHeight, $Data['oppClosest'] ? $Meta['fields']['closest'] : '');
+
+	    //last line: Judges?
+	    $this->ln();
+	    $this->ln(2);
+	    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['lineJudge'].':');
+	    $this->Cell($HeadWidthData,0, $Data['lineJudge']);
+	    $this->Cell(10,0, '');
+	    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['targetJudge'].':');
+	    $this->Cell($HeadWidthData,0, $Data['targetJudge']);
+
+	    return;
+    }
+}

@@ -24,8 +24,6 @@ $tourDetXNine			= 'X';
 $tourDetGoldsChars		= 'KL';
 $tourDetXNineChars		= 'K';
 $tourDetDouble			= '0';
-$DistanceInfoArray=array(array(6, 6), array(6, 6));
+$DistanceInfoArray=array(array(6, 6));
 
 require_once('Setup_Target.php');
-
-?>

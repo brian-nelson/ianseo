@@ -77,7 +77,6 @@ class BackNoPDF extends IanseoPdf {
 		$this->setPageOrientation($Orientation);
 		$this->setPageFormat(array($this->RowBn->BnWidth, $this->RowBn->BnHeight), $Orientation);
 		$this->SetFont($this->FontStd,'',10);
-		$this->AliasNbPages();
 		$this->setPrintHeader(false);
 		$this->setPrintFooter(false);
 		$this->SetMargins(10,10,10);

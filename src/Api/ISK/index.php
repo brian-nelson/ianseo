@@ -12,7 +12,11 @@ this file gets included in the Competition Setup (Tournament/index.php)
 this file is used by the ScoreCard printout routines.
  */
 
-require_once(dirname(dirname(__FILE__)).'/config.php');
+require_once(__DIR__.'/config-ianseo.php');
+
+if(!ISK_PRO) {
+	CD_redirect('./Lite.php');
+}
 
 CheckTourSession(true);
 checkACL(AclISKServer, AclReadWrite);
@@ -46,7 +50,7 @@ $JS_SCRIPT=array(
 		'msgIskStatusOK'=>htmlspecialchars(get_text('ISK-StatusOK', 'Api')),
 		'imgPath'=>$CFG->ROOT_DIR.'Common/Images/',
 		)),
-	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 	'<script type="text/javascript" src="./index.js"></script>',
 	'<link href="ISK.css" rel="stylesheet" type="text/css">',
 );

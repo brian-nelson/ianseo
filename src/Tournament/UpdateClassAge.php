@@ -1,58 +1,47 @@
 <?php
-	define('debug',false);	// settare a true per l'output di debug
+define('debug',false);	// settare a true per l'output di debug
 
-	require_once(dirname(dirname(__FILE__)) . '/config.php');
-	require_once('Tournament/Fun_Tournament.local.inc.php');
-    checkACL(AclCompetition, AclReadWrite, false);
+require_once(dirname(dirname(__FILE__)) . '/config.php');
+require_once('Tournament/Fun_Tournament.local.inc.php');
 
-	if (!CheckTourSession() ||
-		!isset($_REQUEST['ClId']) ||
-		!isset($_REQUEST['Age']) ||
-		!isset($_REQUEST['FromTo']) ||
-		($_REQUEST['FromTo']!='From' && $_REQUEST['FromTo']!='To'))
-	{
-		print get_text('CrackError');
-		exit;
-	}
+checkACL(AclCompetition, AclReadWrite, false);
 
-	$Errore=0;
+$JSON=array('error'=>1, 'clid'=>'', 'fromto' => '');
 
-	if (!IsBlocked(BIT_BLOCK_TOURDATA) && !defined('dontEditClassDiv')) {
-		$Age = $_REQUEST['Age'];
-		$ClId = $_REQUEST['ClId'];
+if (!CheckTourSession()
+		or !isset($_REQUEST['ClId'])
+		or !isset($_REQUEST['Age'])
+		or !isset($_REQUEST['FromTo'])
+		or ($_REQUEST['FromTo']!='From' and $_REQUEST['FromTo']!='To')
+		or IsBlocked(BIT_BLOCK_TOURDATA)
+		or defined('dontEditClassDiv')
+		) {
+	JsonOut($JSON);
+}
 
-		if (!is_numeric($Age)) {
-			$Errore=1;
-		} else {
-			$ClDivAllowed=(empty($_REQUEST['AlDivs']) ? '' : $_REQUEST['AlDivs']);
-			if (!CheckClassAge($ClId,$Age,$_REQUEST['FromTo'], $ClDivAllowed)) $Errore=1;
-		}
+$Age = intval($_REQUEST['Age']);
+$ClId = $_REQUEST['ClId'];
 
-		if (!$Errore) {
-			$Update
-				= "UPDATE Classes SET "
-				. "ClAge" . $_REQUEST['FromTo'] . "=" . StrSafe_DB($Age) . " "
-				. ", ClDivisionsAllowed=" . StrSafe_DB($ClDivAllowed) . " "
-				. "WHERE ClId=" . StrSafe_DB($ClId) . " AND ClTournament=" . StrSafe_DB($_SESSION['TourId']) . "";
-			$Rs=safe_w_sql($Update);
-			
-			$err=safe_w_error();
-			if($err->errno!=0) {
-				$Errore=1;
-			} else if(safe_w_affected_rows()) {
-				safe_w_sql("UPDATE Classes SET ClTourRules='' WHERE ClId=" . StrSafe_DB($ClId) . " AND ClTournament=" . StrSafe_DB($_SESSION['TourId']));
-			}
-		}
-	} else {
-		$Errore=1;
-	}
+$JSON['clid']=$ClId;
+$JSON['fromto']=$_REQUEST['FromTo'];
 
-	if (!debug)
-		header('Content-Type: text/xml');
+$ClDivAllowed=(empty($_REQUEST['AlDivs']) ? '' : $_REQUEST['AlDivs']);
+if (!CheckClassAge($ClId, $Age, $_REQUEST['FromTo'], $ClDivAllowed)) {
+	JsonOut($JSON);
+}
 
-	print '<response>' . "\n";
-	print '<error>' . $Errore . '</error>' . "\n";
-	print '<clid>' . $_REQUEST['ClId'] . '</clid>' . "\n";
-	print '<fromto>' . $_REQUEST['FromTo'] . '</fromto>' . "\n";
-	print '</response>' . "\n";
-?>
+$Update = "UPDATE Classes SET "
+	. "ClAge" . $_REQUEST['FromTo'] . "=" . StrSafe_DB($Age) . " "
+	. ", ClDivisionsAllowed=" . StrSafe_DB($ClDivAllowed) . " "
+	. "WHERE ClId=" . StrSafe_DB($ClId) . " AND ClTournament=" . StrSafe_DB($_SESSION['TourId']) . "";
+safe_w_sql($Update);
+
+$err=safe_w_error();
+if($err->errno!=0) {
+	JsonOut($JSON);
+} else if(safe_w_affected_rows()) {
+	safe_w_sql("UPDATE Classes SET ClTourRules='' WHERE ClId=" . StrSafe_DB($ClId) . " AND ClTournament=" . StrSafe_DB($_SESSION['TourId']));
+}
+
+$JSON['error']=0;
+JsonOut($JSON);

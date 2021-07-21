@@ -449,7 +449,7 @@ require_once('Common/Fun_Phases.inc.php');
 			= "SELECT "
 				. "'1' AS RowType,EnCode as Bib, EnDivision, EnClass,"
 				. "CONCAT(EnFirstName,' ',EnName) AS Name, CoCode,EnAgeClass, ";
-		if ($ToType==8)
+		if ($ToType==8 || $ToType==37)
 		{
 			$Query .= "(QuD1Score+QuD2Score) AS Score1, "
 				. "(QuD1Gold+QuD2Gold) AS Gold1, "
@@ -766,7 +766,7 @@ require_once('Common/Fun_Phases.inc.php');
 	 * CodiceSocieta-Divisione-Classe-Totale1-ori1-X1-Totale2-Ori2-X2-PosizioneClassifica-MatricolaPartecipanti(in lista)
 	 */
 		$MyQuery = "SELECT TcOrder,CoCode, TeEvent,Quanti,EnCode, EnClass, EnDivision,EnAgeClass, ";
-		if ($ToType==8)
+		if ($ToType==8 || $ToType==37)
 		{
 			$MyQuery .= "(QuD1Score+QuD2Score) AS Score1, "
 				. "(QuD1Gold+QuD2Gold) AS Gold1, "

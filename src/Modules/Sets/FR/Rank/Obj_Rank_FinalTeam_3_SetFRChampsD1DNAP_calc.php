@@ -364,10 +364,16 @@
 						 * EACH match assigns 1 point to the winner in individual and 2 in team
 						 * EACH group of matches (game) assigns 2 points to the winner, tie is resolved through the winner of the team match
 						 *
-						 *
+						 * in 2020 change of points: After 5 matches the winning team gets 3 poiints, in case of tie 1 point each
 						 */
 						$TeamDavis=array();
 						$Bonus=getModuleParameter('FFTA', 'D1Bonus');
+						$YEAR = substr($_SESSION['TourRealWhenFrom'],0,4);
+						if($YEAR>=2020) {
+							$MatchWinner=3;
+						} else {
+							$MatchWinner=2;
+						}
 
 						// calculates the starting situation
 						if($this->FromIndividual) {
@@ -409,19 +415,24 @@
 							$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=0;
 							$TeamDavis["$r->Team2"][$r->SubTeam2]['wp']+=$r->WinPoints2;
 							$TeamDavis["$r->Team2"][$r->SubTeam2]['lp']+=$r->WinPoints1;
-							if(max($r->WinPoints1, $r->WinPoints2) >= 3) {
+							if($r->WinPoints1 + $r->WinPoints2 >= 5) {
 								if($r->WinPoints1 > $r->WinPoints2) {
-									$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=2;
-									$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=0;
+									$TeamDavis["$r->Team1"][$r->SubTeam1]['mp'] += $MatchWinner;
 								} elseif($r->WinPoints1 < $r->WinPoints2) {
-									$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=0;
-									$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=2;
-								} elseif($r->Winner1) {
-									$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=2;
-									$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=0;
-								} elseif($r->Winner2) {
-									$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=0;
-									$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=2;
+									$TeamDavis["$r->Team2"][$r->SubTeam2]['mp'] += $MatchWinner;
+								} else {
+									if($YEAR>=2020) {
+										$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=1;
+										$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=1;
+									} else {
+										if($r->Winner1) {
+											$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=2;
+											$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=0;
+										} elseif($r->Winner2) {
+											$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=0;
+											$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=2;
+										}
+									}
 								}
 							}
 						}

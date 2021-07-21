@@ -8,16 +8,26 @@ require_once('IdCardEmpty.php');
 
 $CardType=(empty($_REQUEST['CardType']) ? 'A' : $_REQUEST['CardType']);
 $lvl=0;
-if($CardType=='A') {
-    $lvl = checkACL(AclAccreditation, AclReadOnly);
-} else if($CardType=='Q') {
-    $lvl = checkACL(AclQualification, AclReadOnly);
-} else if($CardType=='E') {
-    $lvl = checkACL(AclEliminations, AclReadOnly);
-} else if($CardType=='I') {
-    $lvl = checkACL(AclIndividuals, AclReadOnly);
-} else if($CardType=='T') {
-    $lvl = checkACL(AclTeams, AclReadOnly);
+switch($CardType) {
+	case 'A':
+	    $lvl = checkACL(AclAccreditation, AclReadOnly);
+		break;
+	case 'Q':
+	    $lvl = checkACL(AclQualification, AclReadOnly);
+		break;
+	case 'E':
+	    $lvl = checkACL(AclEliminations, AclReadOnly);
+		break;
+	case 'I':
+	    $lvl = checkACL(AclIndividuals, AclReadOnly);
+		break;
+	case 'T':
+	    $lvl = checkACL(AclTeams, AclReadOnly);
+		break;
+	case 'Y':
+	case 'Z':
+	    $lvl = checkACL(AclCompetition, AclReadOnly);
+		break;
 }
 
 // check card number
@@ -116,8 +126,10 @@ $SesENo=count($Esessions);
 
 $JS_SCRIPT = array(
 	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/ajax/ObjXMLHttpRequest.js"></script>',
+	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 	'<script type="text/javascript" src="Fun_AJAX_IdCards.js"></script>',
 	);
+
 $JS_SCRIPT[]='<script type="text/javascript">';
 $JS_SCRIPT[]='	var SesQNo='.$SesQNo.';';
 $JS_SCRIPT[]='	var SesENo='.$SesENo.';';
@@ -167,12 +179,22 @@ echo '<div class="CustomBadges">';
 	echo '<tr><th>'.get_text('BadgeType', 'Tournament').'</th>
 		<td><select id="BadgeType" name="CardType" onchange="location.href=\'?CardType=\'+this.value">';
 
-	$TypeArray=array('A', 'Q');
+	$TypeArray=array();
+	if(checkACL(AclAccreditation, AclReadOnly)) {
+		$TypeArray[]='A';
+	}
+	if(checkACL(AclQualification, AclReadOnly)) {
+		$TypeArray[]='Q';
+	}
 	$q=safe_r_sql("Select distinct EvElim2, EvTeamEvent from Events where EvTournament={$_SESSION['TourId']} and EvFinalFirstPhase>0 order by EvElim2=0");
 	while($r=safe_fetch($q)) {
-		if($r->EvElim2>0 and !in_array('E', $TypeArray)) $TypeArray[]='E';
-		if(!$r->EvTeamEvent and !in_array('I', $TypeArray)) $TypeArray[]='I';
-		if($r->EvTeamEvent and !in_array('T', $TypeArray)) $TypeArray[]='T';
+		if($r->EvElim2>0 and !in_array('E', $TypeArray) and checkACL(AclEliminations, AclReadOnly)) $TypeArray[]='E';
+		if(!$r->EvTeamEvent and !in_array('I', $TypeArray) and checkACL(AclIndividuals, AclReadOnly)) $TypeArray[]='I';
+		if($r->EvTeamEvent and !in_array('T', $TypeArray) and checkACL(AclTeams, AclReadOnly)) $TypeArray[]='T';
+	}
+	if(checkACL(AclCompetition, AclReadOnly)) {
+		$TypeArray[]='Y';
+		$TypeArray[]='Z';
 	}
 	foreach($TypeArray as $Type) {
 		echo '<option value="'.$Type.'"'.($CardType==$Type ? ' selected="selected"' : '').'>'.get_text($Type.'-Badge', 'BackNumbers').'</options>';
@@ -202,215 +224,217 @@ echo '<div class="CustomBadges">';
 	echo '</table>';
 echo '</div>';
 
-/** Show all the options for this badge type and number **/
-echo '<div class="CustomBadges">';
-echo '<input name="BadgeDraw" type="radio" value="Complete" checked="checked" onclick="hide_confirm()">&nbsp;' . get_text('BadgeComplete', 'BackNumbers') . '<br>';
-echo '<input name="BadgeDraw" type="radio" value="Test" onclick="hide_confirm()">&nbsp;' . get_text('BadgeTest', 'BackNumbers') . '<br><br>';
-echo '</div>';
+if (safe_num_rows($IdCards)) {
 
-if($lvl==AclReadWrite) {
-    echo '<div class="CustomBadges">';
-    echo '<div><input type="button" value="' . get_text('BadgeEdit', 'BackNumbers') . '" onClick="window.open(\'' . $CFG->ROOT_DIR . 'Accreditation/IdCardEdit.php?' . $GlobalLink . '\')"></div>';
-    echo '<div><input type="submit" name="ExportLayout" value="' . get_text('BadgeExportLayout', 'BackNumbers') . '" onclick="baseForm(this)"></div>';
-    echo '<div></div><input type="file" name="ImportBackNumbers" />&nbsp;&nbsp;&nbsp;';
-    echo '<input type="submit" name="ImportLayout" value="' . get_text('BadgeImportLayout', 'BackNumbers') . '" onclick="baseForm(this)"></div>';
-    echo '</div>';
-}
-echo '</td>';
+	/** Show all the options for this badge type and number **/
+	echo '<div class="CustomBadges">';
+	echo '<input name="BadgeDraw" type="radio" value="Complete" checked="checked" onclick="hide_confirm()">&nbsp;' . get_text('BadgeComplete', 'BackNumbers') . '<br>';
+	echo '<input name="BadgeDraw" type="radio" value="Test" onclick="hide_confirm()">&nbsp;' . get_text('BadgeTest', 'BackNumbers') . '<br><br>';
+	echo '</div>';
 
-//Header e Immagini
-// immagine fittizia del badge
-	echo '<td width="50%" align="center">';
-		echo '<div class="CustomBadges">';
-		if(safe_num_rows($t)) echo '<img src="ImgIdCard.php?'.$GlobalLink.'">';
-		echo '</div>';
-
+	if($lvl==AclReadWrite) {
+	    echo '<div class="CustomBadges">';
+	    echo '<div><input type="button" value="' . get_text('BadgeEdit', 'BackNumbers') . '" onClick="window.open(\'' . $CFG->ROOT_DIR . 'Accreditation/IdCardEdit.php?' . $GlobalLink . '\')"></div>';
+	    echo '<div><input type="submit" name="ExportLayout" value="' . get_text('BadgeExportLayout', 'BackNumbers') . '" onclick="baseForm(this)"></div>';
+	    echo '<div></div><input type="file" name="ImportBackNumbers" />&nbsp;&nbsp;&nbsp;';
+	    echo '<input type="submit" name="ImportLayout" value="' . get_text('BadgeImportLayout', 'BackNumbers') . '" onclick="baseForm(this)"></div>';
+	    echo '</div>';
+	}
 	echo '</td>';
-	echo '</tr>';
-echo '</table>';
 
-	// Badge printout
-echo '<table class="Tabella">' ;
-	echo '<tr><th class="Title" colspan="'.(5+($CardType=='I' or $CardType=='T')).'">' . get_text('BadgePrintout','Tournament')  . '</th></tr>' ;
-
-	/******
-	 * these items follow the multi competition setting!
-	 * */
-
-	// Selector for specific badges if any
-	$Head=true;
-	foreach(explode(',', $TourId) as $ToId) {
-		if($Specific=getModuleParameterLike('Accreditation', 'Matches-'.$CardType.'-%', $ToId)) {
-			if($Head) {
-				echo '<tr><th class="Title" colspan="'.(5+($CardType=='I' or $CardType=='T')).'">' . get_text('PrintSpecificBadges','BackNumbers')  . '</th></tr>';
-				$Head=false;
-			}
-			$SpecCards=array();
-			foreach($Specific as $Id => $Name) {
-				$tmp=explode('-', $Id);
-				$SpecCards[$Id]=end($tmp);
-			}
-			$tt=safe_r_sql("select * from IdCards where IcType='$CardType' and IcNumber in (".implode(',', $SpecCards).") and IcTournament=$ToId");
-			echo '<tr class="CustomBadges"><td colspan="'.(5+($CardType=='I' or $CardType=='T')).'" align="center"><div id="SpecificBadges">';
-			while($uu=safe_fetch($tt)) {
-				echo '<div><input type="checkbox" name="Specifics['.$ToId.']['.$uu->IcNumber.']" value="'.$Specific['Matches-'.$CardType.'-'.$uu->IcNumber].'" checked="checked">'.$uu->IcName.' ('.$Specific['Matches-'.$CardType.'-'.$uu->IcNumber].')</div>';
-			}
-			echo '</div></td></tr>';
-		}
-	}
-
-	echo '<tr>';
-	echo '<th class="Title">'.get_text('BadgeOptions','Tournament').'</th>';
-	echo '<th class="Title">'.get_text('Country').' (<span id="CountriesLeft"></span>)</th>';
-	if($CardType=='I' or $CardType=='T') {
-		echo '<th class="Title">'.get_text('Phase').'</th>';
-	} else {
-		echo '<th class="Title">'.get_text('Division').'</th>';
-		echo '<th class="Title">'.get_text('Class').'</th>';
-	}
-	echo '<th class="Title">'.get_text('BadgeNames','Tournament').' (<span id="getEntriesNum"></span>)</th>';
-	echo '</tr>';
-
-
-	echo '<tr valign="top">';
-
-	// Elenco opzioni
-	echo '<td nowrap="nowrap">';
-
-	// Select a bib
-	echo '<div style="margin-bottom:1em"><b>'.get_text('BibNumber', 'BackNumbers').':</b> <input type="text" id="BibNumber" name="BibNumber" onkeypress="checkBibNumber(this)"> <input type="button" id="print_button2" value="'.get_text('Print','Tournament').'" onclick="printBibname(this)"></div>';
-
-	// Specific Options
-	switch($CardType) {
-		case 'A':
-			if($_SESSION['AccreditationTourIds']) {
-				$TourId=$_SESSION['AccreditationTourIds'];
-			}
-			if($_SESSION['AccBooth']) {
-				echo '<div style="margin-bottom:1em"><b>'.get_text('Depot', 'BackNumbers').'</b>'."\n";
-				echo '<br/><input type="checkbox" name="HasPlastic" id="HasPlastic" onclick="ShowEntries()">'.get_text('PrintHasPlastic', 'BackNumbers')."\n";
-				echo '</div>';
-				echo '<div style="margin-bottom:1em"><b>'.get_text('AutoCHK-Code', 'BackNumbers').'</b>';
-				$t=safe_r_sql("select * from Tournament where ToId in ({$_SESSION['AccreditationTourIds']})");
-				while($u=safe_fetch($t)) {
-					echo '<br/><input type="checkbox" name="TourId[]" id="TourId[]" onclick="updateView()" value="'.$u->ToId.'">'.$u->ToCode."\n";
-				}
-				echo '</div>';
-			}
-		case 'Q':
-			echo '<div style="margin-bottom:1em"><b>'.get_text('BadgeSessions', 'Tournament').'</b>'."\n";
-			foreach ($Qsessions as $s)
-			{
-				echo '<br/><input type="checkbox" onclick="ShowEntries()" id="d_QSession_'.$s->SesOrder.'" name="Session[]" value="' . $s->SesOrder . '">Session ' . $s->Descr ."\n";
-			}
-			echo '<br/><input type="checkbox" name="SortByTarget" id="SortByTarget"'.($CardType=='A' ? '' : ' checked="checked"').' onclick="ShowEntries()">'.get_text('SortByTarget', 'Tournament')."\n";
-			// break is left out on purpose!
-			if($CardType=='A') {
-				echo '</div>'."\n";
-				echo '<div style="margin-bottom:1em"><b>'.get_text('BadgeOptions', 'Tournament').'</b>'."\n";
-				// badges devono includere la foto?
-				echo '<br/><input type="checkbox" name="IncludePhoto" id="IncludePhoto" checked="checked" onclick="hide_confirm(this.form)">'.get_text('BadgeIncludePhoto', 'Tournament')."\n";
-				// solo badges con foto?
-				echo '<br/><input type="checkbox" name="PrintPhoto" id="PrintPhoto" checked="checked" onclick="ShowEntries()">'.get_text('BadgeOnlyPrintPhoto', 'Tournament')."\n";
-				// solo accreditati?
-				echo '<br/><input type="checkbox" name="PrintAccredited" id="PrintAccredited" onclick="ShowEntries()">'.get_text('BadgeOnlyPrintAccredited', 'Tournament')."\n";
-			}
-			// solo i non stampati precedentemente?
-			echo '<br/><input type="checkbox" name="PrintNotPrinted" id="PrintNotPrinted" checked="checked" onclick="ShowEntries()">'.get_text('BadgeOnlyNotPrinted', 'Tournament')."\n";
+	//Header e Immagini
+	// immagine fittizia del badge
+		echo '<td width="50%" align="center">';
+			echo '<div class="CustomBadges">';
+			if(safe_num_rows($t)) echo '<img src="ImgIdCard.php?'.$GlobalLink.'">';
 			echo '</div>';
-			break;
-		case 'E':
-			echo '<div style="margin-bottom:1em"><b>'.get_text('BadgeSessions', 'Tournament').'</b>'."\n";
-			foreach ($Esessions as $s)
-			{
-				echo '<br/><input type="checkbox" onclick="ShowEntries()" id="d_ESession_'.$s->SesOrder.'" name="ESession[]" value="' . $s->SesOrder . '">Session ' . $s->Descr ."\n";
+
+		echo '</td>';
+		echo '</tr>';
+	echo '</table>';
+
+		// Badge printout
+	echo '<table class="Tabella">' ;
+		echo '<tr><th class="Title" colspan="'.(5+($CardType=='I' or $CardType=='T')).'">' . get_text('BadgePrintout','Tournament')  . '</th></tr>' ;
+
+		/******
+		 * these items follow the multi competition setting!
+		 * */
+
+		// Selector for specific badges if any
+		$Head=true;
+		foreach(explode(',', $TourId) as $ToId) {
+			if($Specific=getModuleParameterLike('Accreditation', 'Matches-'.$CardType.'-%', $ToId)) {
+				if($Head) {
+					echo '<tr><th class="Title" colspan="'.(5+($CardType=='I' or $CardType=='T')).'">' . get_text('PrintSpecificBadges','BackNumbers')  . '</th></tr>';
+					$Head=false;
+				}
+				$SpecCards=array();
+				foreach($Specific as $Id => $Name) {
+					$tmp=explode('-', $Id);
+					$SpecCards[$Id]=end($tmp);
+				}
+				$tt=safe_r_sql("select * from IdCards where IcType='$CardType' and IcNumber in (".implode(',', $SpecCards).") and IcTournament=$ToId");
+				echo '<tr class="CustomBadges"><td colspan="'.(5+($CardType=='I' or $CardType=='T')).'" align="center"><div id="SpecificBadges">';
+				while($uu=safe_fetch($tt)) {
+					echo '<div><input type="checkbox" name="Specifics['.$ToId.']['.$uu->IcNumber.']" value="'.$Specific['Matches-'.$CardType.'-'.$uu->IcNumber].'" checked="checked">'.$uu->IcName.' ('.$Specific['Matches-'.$CardType.'-'.$uu->IcNumber].')</div>';
+				}
+				echo '</div></td></tr>';
 			}
-			echo '<br/><input type="checkbox" name="SortByTarget" id="SortByTarget"'.($CardType=='A' ? '' : ' checked="checked"').' onclick="ShowEntries()">'.get_text('SortByTarget', 'Tournament')."\n";
-			// solo i non stampati precedentemente?
-			echo '<br/><input type="checkbox" name="PrintNotPrinted" id="PrintNotPrinted" checked="checked" onclick="ShowEntries()">'.get_text('BadgeOnlyNotPrinted', 'Tournament')."\n";
-			echo '</div>'."\n";
-			break;
-		case 'I':
-		case 'T':
-			echo '<div style="margin-bottom:1em"><b>'.get_text('Events', 'Tournament').'</b>'."\n";
-			$q=safe_r_sql("select * from Events where EvTournament={$_SESSION['TourId']} and EvTeamEvent=".intval($CardType=='T')." and EvFinalFirstPhase>0 and EvShootOff=1 order by EvProgr");
-			while ($r=safe_fetch($q)) {
-				echo '<br/><input type="checkbox" onclick="ShowEntries()" id="Event['.$r->EvCode.']" name="Event[]" value="'.$r->EvCode.'">' . $r->EvEventName ."\n";
+		}
+
+		echo '<tr>';
+		echo '<th class="Title">'.get_text('BadgeOptions','Tournament').'</th>';
+		echo '<th class="Title">'.get_text('Country').' (<span id="CountriesLeft"></span>)</th>';
+		if($CardType=='I' or $CardType=='T') {
+			echo '<th class="Title">'.get_text('Phase').'</th>';
+		} else {
+			echo '<th class="Title">'.get_text('Division').'</th>';
+			echo '<th class="Title">'.get_text('Class').'</th>';
+		}
+		echo '<th class="Title">'.get_text('BadgeNames','Tournament').' (<span id="getEntriesNum"></span>)</th>';
+		echo '</tr>';
+
+
+		echo '<tr valign="top">';
+
+		// Elenco opzioni
+		echo '<td nowrap="nowrap">';
+
+		// Select a bib
+		echo '<div style="margin-bottom:1em"><b>'.get_text('BibNumber', 'BackNumbers').':</b> <input type="text" id="BibNumber" name="BibNumber" onkeypress="checkBibNumber(this)"> <input type="button" id="print_button2" value="'.get_text('Print','Tournament').'" onclick="printBibname(this)"></div>';
+
+		// Specific Options
+		switch($CardType) {
+			case 'A':
+				if($_SESSION['AccreditationTourIds']) {
+					$TourId=$_SESSION['AccreditationTourIds'];
+				}
+				if($_SESSION['AccBooth']) {
+					echo '<div style="margin-bottom:1em"><b>'.get_text('Depot', 'BackNumbers').'</b>'."\n";
+					echo '<br/><input type="checkbox" name="HasPlastic" id="HasPlastic" onclick="ShowEntries()">'.get_text('PrintHasPlastic', 'BackNumbers')."\n";
+					echo '</div>';
+					echo '<div style="margin-bottom:1em"><b>'.get_text('AutoCHK-Code', 'BackNumbers').'</b>';
+					$t=safe_r_sql("select * from Tournament where ToId in ({$_SESSION['AccreditationTourIds']})");
+					while($u=safe_fetch($t)) {
+						echo '<br/><input type="checkbox" name="TourId[]" class="TourId" id="TourId[]" onclick="updateView()" value="'.$u->ToId.'">'.$u->ToCode."\n";
+					}
+					echo '</div>';
+				}
+			case 'Q':
+				echo '<div style="margin-bottom:1em"><b>'.get_text('BadgeSessions', 'Tournament').'</b>'."\n";
+				foreach ($Qsessions as $s)
+				{
+					echo '<br/><input type="checkbox" onclick="ShowEntries()" id="d_QSession_'.$s->SesOrder.'" class="QSession" name="Session[]" value="' . $s->SesOrder . '">Session ' . $s->Descr ."\n";
+				}
+				echo '<br/><input type="checkbox" name="SortByTarget" id="SortByTarget"'.($CardType=='A' ? '' : ' checked="checked"').' onclick="ShowEntries()">'.get_text('SortByTarget', 'Tournament')."\n";
+				// break is left out on purpose!
+				if($CardType=='A') {
+					echo '</div>'."\n";
+					echo '<div style="margin-bottom:1em"><b>'.get_text('BadgeOptions', 'Tournament').'</b>'."\n";
+					// badges devono includere la foto?
+					echo '<br/><input type="checkbox" name="IncludePhoto" id="IncludePhoto" checked="checked" onclick="hide_confirm(this.form)">'.get_text('BadgeIncludePhoto', 'Tournament')."\n";
+					// solo badges con foto?
+					echo '<br/><input type="checkbox" name="PrintPhoto" id="PrintPhoto" checked="checked" onclick="ShowEntries()">'.get_text('BadgeOnlyPrintPhoto', 'Tournament')."\n";
+					// solo accreditati?
+					echo '<br/><input type="checkbox" name="PrintAccredited" id="PrintAccredited" onclick="ShowEntries()">'.get_text('BadgeOnlyPrintAccredited', 'Tournament')."\n";
+				}
+				// solo i non stampati precedentemente?
+				echo '<br/><input type="checkbox" name="PrintNotPrinted" id="PrintNotPrinted" checked="checked" onclick="ShowEntries()">'.get_text('BadgeOnlyNotPrinted', 'Tournament')."\n";
+				echo '</div>';
+				break;
+			case 'E':
+				echo '<div style="margin-bottom:1em"><b>'.get_text('BadgeSessions', 'Tournament').'</b>'."\n";
+				foreach ($Esessions as $s)
+				{
+					echo '<br/><input type="checkbox" onclick="ShowEntries()" id="d_ESession_'.$s->SesOrder.'" class="ESession" name="ESession[]" value="' . $s->SesOrder . '">Session ' . $s->Descr ."\n";
+				}
+				echo '<br/><input type="checkbox" name="SortByTarget" id="SortByTarget"'.($CardType=='A' ? '' : ' checked="checked"').' onclick="ShowEntries()">'.get_text('SortByTarget', 'Tournament')."\n";
+				// solo i non stampati precedentemente?
+				echo '<br/><input type="checkbox" name="PrintNotPrinted" id="PrintNotPrinted" checked="checked" onclick="ShowEntries()">'.get_text('BadgeOnlyNotPrinted', 'Tournament')."\n";
+				echo '</div>'."\n";
+				break;
+			case 'I':
+			case 'T':
+			case 'Y':
+			case 'Z':
+				echo '<div style="margin-bottom:1em"><b>'.get_text('Events', 'Tournament').'</b>'."\n";
+				$q=safe_r_sql("select * from Events where EvTournament={$_SESSION['TourId']} and EvTeamEvent=".intval($CardType=='T' or $CardType=='Z')." and EvFinalFirstPhase>0 and EvShootOff=1 order by EvProgr");
+				while ($r=safe_fetch($q)) {
+					echo '<br/><input type="checkbox" onclick="ShowEntries()" id="Event['.$r->EvCode.']" class="Events" name="Event[]" value="'.$r->EvCode.'">' . $r->EvEventName ."\n";
+				}
+				if(strstr('YZ', $CardType)) {
+					echo '<br/><input type="number" name="TopRanked" id="TopRanked" onchange="ShowEntries()">&nbsp;'.get_text('RankLimit', 'BackNumbers');
+					echo '<br/><input type="number" name="TopRankedFinal" id="TopRankedFinal" onchange="ShowEntries()">&nbsp;'.get_text('FinalRankLimit', 'BackNumbers');
+				}
+				// solo i non stampati precedentemente?
+				echo '<br/><input type="checkbox" name="PrintNotPrinted" id="PrintNotPrinted" checked="checked" onclick="ShowEntries()">'.get_text('BadgeOnlyNotPrinted', 'Tournament')."\n";
+				echo '</div>'."\n";
+				break;
+		}
+
+		echo '</td>';
+
+		// elenco Countries
+		echo '<td align="center">
+			<select onchange="ShowEntries()" name="Country[]" id="d_Country" multiple="multiple" title="'.get_text('PressCtrl2SelectAll').'" onclick="hide_confirm(this.form)" size="10">
+			</select>
+			</td>';
+
+		if($CardType=='I' or $CardType=='T') {
+			// elenco Phases
+			echo '<td align="center"><select onchange="ShowEntries()" name="Phase" id="d_Phase" title="'.get_text('PressCtrl2SelectAll').'" size="10">';
+			echo '<option value="-1" selected></option>';
+			$phases = getPhaseArray();
+			$q=safe_r_sql("SELECT distinct EvFinalFirstPhase, greatest(PhId, PhLevel) as Phase
+				from Events 
+				inner join Phases on PhId=EvFinalFirstPhase and (PhIndTeam & pow(2, EvTeamEvent))>0
+				where EvTeamEvent=".($CardType=='T' ? 1 : 0)." and EvTournament in ($TourId) and EvFinalFirstPhase>0 order by EvFinalFirstPhase desc");
+			while($Rs = safe_fetch($q)) {
+	            foreach ($phases as $k=>$v) {
+	                if($k<=valueFirstPhase($Rs->EvFinalFirstPhase)) {
+	                    echo '<option value="' . $k . '">' . get_text(namePhase($Rs->EvFinalFirstPhase, $k) . '_Phase') . '</option>';
+	                }
+	            }
+
 			}
-// 			echo '<br/><input type="checkbox" name="SortByTarget" id="SortByTarget"'.($CardType=='A' ? '' : ' checked="checked"').' onclick="ShowEntries()">'.get_text('SortByTarget', 'Tournament')."\n";
-			// solo i non stampati precedentemente?
-			echo '<br/><input type="checkbox" name="PrintNotPrinted" id="PrintNotPrinted" checked="checked" onclick="ShowEntries()">'.get_text('BadgeOnlyNotPrinted', 'Tournament')."\n";
-			echo '</div>'."\n";
-			break;
-	}
+		    echo '<option value="1">'.get_text('1_Phase').'</option>';
+		    echo '<option value="0">'.get_text('0_Phase').'</option>';
+			echo '</select></td>';
+		} else {
+			// elenco Divisions
+			echo '<td align="center"><select onchange="ShowEntries()" name="Division[]" id="d_Division" multiple="multiple" title="'.get_text('PressCtrl2SelectAll').'" size="10">';
+			//$Sql = "SELECT distinct EnDivision From Entries WHERE EnTournament in ($TourId) order by EnDivision";
+			//$Rs = safe_r_sql($Sql);
+			//while($r=safe_fetch($Rs)) {
+			//	echo '<option value="'.$r->EnDivision.'">'.$r->EnDivision.'</option>'."\n";
+			//}
+			echo '</select></td>'."\n";
 
-	echo '</td>';
-
-	// elenco Countries
-	echo '<td align="center"><select onchange="ShowEntries()" name="Country[]" id="d_Country" multiple="multiple" title="'.get_text('PressCtrl2SelectAll').'" onclick="hide_confirm(this.form)" size="10">';
-	$Sql = "SELECT distinct CoId, CoCode, CoName From Entries left join Countries on EnCountry=CoId WHERE EnTournament in ($TourId) order by CoCode, CoName";
-	$Rs = safe_r_sql($Sql);
-	while($r=safe_fetch($Rs)) {
-		echo '<option value="'.$r->CoId.'">'.$r->CoCode.'-'.substr($r->CoName, 0, 30).'</option>';
-	}
-	echo '</select></td>';
-
-	if($CardType=='I' or $CardType=='T') {
-		// elenco Phases
-		echo '<td align="center"><select onchange="ShowEntries()" name="Phase" id="d_Phase" title="'.get_text('PressCtrl2SelectAll').'" size="10">';
-		echo '<option value="-1" selected></option>';
-		$phases = getPhaseArray();
-		$q=safe_r_sql("SELECT distinct EvFinalFirstPhase, greatest(PhId, PhLevel) as Phase
-			from Events 
-			inner join Phases on PhId=EvFinalFirstPhase and (PhIndTeam & pow(2, EvTeamEvent))>0
-			where EvTeamEvent=".($CardType=='T' ? 1 : 0)." and EvTournament in ($TourId) and EvFinalFirstPhase>0 order by EvFinalFirstPhase desc");
-		while($Rs = safe_fetch($q)) {
-            foreach ($phases as $k=>$v) {
-                if($k<=valueFirstPhase($Rs->EvFinalFirstPhase)) {
-                    echo '<option value="' . $k . '">' . get_text(namePhase($Rs->EvFinalFirstPhase, $k) . '_Phase') . '</option>';
-                }
-            }
-
+			// elenco Classes
+			echo '<td align="center"><select onchange="ShowEntries()" name="Class[]" id="d_Class" multiple="multiple" title="'.get_text('PressCtrl2SelectAll').'" size="10">';
+			//$Sql = "SELECT distinct EnClass From Entries WHERE EnTournament in ($TourId) order by EnClass";
+			//$Rs = safe_r_sql($Sql);
+			//while($r=safe_fetch($Rs)) {
+			//	echo '<option value="'.$r->EnClass.'">'.$r->EnClass.'</option>';
+			//}
+			echo '</select></td>';
 		}
-	    echo '<option value="1">'.get_text('1_Phase').'</option>';
-	    echo '<option value="0">'.get_text('0_Phase').'</option>';
-		echo '</select></td>';
-	} else {
-		// elenco Divisions
-		echo '<td align="center"><select onchange="ShowEntries()" name="Division[]" id="d_Division" multiple="multiple" title="'.get_text('PressCtrl2SelectAll').'" size="10">';
-		$Sql = "SELECT distinct EnDivision From Entries WHERE EnTournament in ($TourId) order by EnDivision";
-		$Rs = safe_r_sql($Sql);
-		while($r=safe_fetch($Rs)) {
-			echo '<option value="'.$r->EnDivision.'">'.$r->EnDivision.'</option>'."\n";
-		}
-		echo '</select></td>'."\n";
 
-		// elenco Classes
-		echo '<td align="center"><select onchange="ShowEntries()" name="Class[]" id="d_Class" multiple="multiple" title="'.get_text('PressCtrl2SelectAll').'" size="10">';
-		$Sql = "SELECT distinct EnClass From Entries WHERE EnTournament in ($TourId) order by EnClass";
-		$Rs = safe_r_sql($Sql);
-		while($r=safe_fetch($Rs)) {
-			echo '<option value="'.$r->EnClass.'">'.$r->EnClass.'</option>';
-		}
-		echo '</select></td>';
-	}
+		// elenco Entries
+		echo '<td align="center">
+			<select name="Entries[]" id="p_Entries" multiple="multiple" title="'.get_text('PressCtrl2SelectAll').'"  size="10">
+			</select>
+			</td>';
 
-	// elenco Entries
-	echo '<td align="center"><select name="Entries[]" id="p_Entries" multiple="multiple" title="'.get_text('PressCtrl2SelectAll').'"  size="10">';
-	// $Sql = "SELECT distinct EnId, EnDivision, EnClass, concat(EnFirstname, ' ', EnName) Name, (EnBadgePrinted is not null and EnBadgePrinted!='0000-00-00 00:00:00') Printed From Entries WHERE EnTournament = " . StrSafe_DB($_SESSION['TourId']) . " order by Printed, Name";
-	// $Rs = safe_r_sql($Sql);
-	// while($r=safe_fetch($Rs)) {
-	// 	echo '<option value="'.$r->EnId.'"'.($r->Printed?' style="color:green"':' style="color:red"').'>'.$r->Name.' ('.$r->EnDivision.$r->EnClass.')</option>';
-	// }
-	echo '</select></td>';
+		echo '</tr>'."\n";
 
-	echo '</tr>'."\n";
+		echo '<tr><td colspan="'.(5+($CardType=='I' or $CardType=='T')).'" align="center">'."\n";
+		echo '<input type="button" style="display:none;margin-left:2em" id="confirm_button" name="DoPrint" title="'.get_text('BadgeConfirmPrintedDescr','Tournament').'" value="'.get_text('BadgeConfirmPrinted','Tournament').'" onclick="ConfirmPrinted()">'."\n";
+		echo '<input type="submit" id="print_button" value="'.get_text('Print','Tournament').'" onclick="pdfForm(this)">'."\n";
 
-	echo '<tr><td colspan="'.(5+($CardType=='I' or $CardType=='T')).'" align="center">'."\n";
-	echo '<input type="button" style="display:none;margin-left:2em" id="confirm_button" name="DoPrint" title="'.get_text('BadgeConfirmPrintedDescr','Tournament').'" value="'.get_text('BadgeConfirmPrinted','Tournament').'" onclick="ConfirmPrinted()">'."\n";
-	echo '<input type="submit" id="print_button" value="'.get_text('Print','Tournament').'" onclick="pdfForm(this)">'."\n";
-
-echo '</td></tr>'."\n";
+	echo '</td></tr>'."\n";
+}
 echo '</table></form>'."\n";
 
 include('Common/Templates/tail.php');

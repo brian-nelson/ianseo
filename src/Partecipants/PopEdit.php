@@ -1,7 +1,7 @@
 <?php
 	define('debug',false);	// settare a true per l'output di debug
 
-	error_reporting(E_ALL);
+	//error_reporting(E_ALL);
 
 	require_once(dirname(dirname(__FILE__)) . '/config.php');
 	require_once('Common/Fun_Various.inc.php');
@@ -248,7 +248,13 @@
 			// if it is an email...
 			if(preg_match('/^[a-z0-9._#-]+@[a-z0-9._-]+$/sim', $_REQUEST['d_ed_EdEmail_'])) {
 				safe_w_sql("insert into ExtraData set EdId=$id, EdType='E', EdEmail=".StrSafe_DB($_REQUEST['d_ed_EdEmail_'])." on duplicate key update EdEmail=".StrSafe_DB($_REQUEST['d_ed_EdEmail_']));
+				$up=safe_w_affected_rows();
 				LogAccBoothQuerry("insert into ExtraData set EdId=($SelectEnId), EdType='E', EdEmail=".StrSafe_DB($_REQUEST['d_ed_EdEmail_'])." on duplicate key update EdEmail=".StrSafe_DB($_REQUEST['d_ed_EdEmail_']));
+				if($up) {
+				    // updates the entry timestamp as well
+                    safe_w_SQL("update Entries set EnTimestamp='".date('Y-m-d H:i:s')."' where EnId={$id}");
+                    LogAccBoothQuerry("update Entries set EnTimestamp='".date('Y-m-d H:i:s')."' where EnId=($SelectEnId)");
+                }
 			}
 
 			if ($Op=='Ins') {
@@ -411,7 +417,7 @@
 
 	$arrStatus=array();
 
-	foreach (array(1,5,6,7,8,9) as $s)
+	foreach (array(1,5,7,8,9) as $s)
 	{
 		$arrStatus[]=array('id'=>$s,'descr'=>get_text('Status_'.$s));
 	}
@@ -462,7 +468,7 @@
 		'd_e_EnSex_',
 		'd_e_EnSex_',
 		array(
-			'onchange'=>'CheckCtrlCode();'
+			'onchange'=>'CheckCtrlCode(this);'
 		)
 	);
 
@@ -478,7 +484,7 @@
 		'd_e_EnDivision_',
 		'd_e_EnDivision_',
 		array(
-			'onchange'=>'CheckCtrlCode();'
+			'onchange'=>'CheckCtrlCode(this);'
 		)
 	);
 
@@ -508,7 +514,7 @@
 		'd_e_EnClass_',
 		'd_e_EnClass_',
 		array(
-			'onchange'=>'CheckCtrlCode();'
+			'onchange'=>'CheckCtrlCode(this);'
 		)
 	);
 
@@ -523,7 +529,7 @@
 		'd_e_EnAgeClass_',
 		'd_e_EnAgeClass_',
 		array(
-			'onchange'=>'CheckCtrlCode();',
+			'onchange'=>'CheckCtrlCode(this);',
 //			'onblur'=>'SelectAgeClass();',
 //			'onfocus'=>'GetClassesByGender();'
 		)
@@ -736,6 +742,7 @@
 		)),
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/ajax/ObjXMLHttpRequest.js"></script>',
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/Fun_JS.inc.js"></script>',
+		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 		'<script type="text/javascript" src="Fun_AJAX_PopEdit.js"></script>',
 		'<script type="text/javascript">
 			function save(c)
@@ -782,7 +789,7 @@
 	}
 
 	$comboLup='<select name="LupSelect" id="LupSelect"><option></option>';
-	$t=safe_r_sql("select distinct LueIocCode, ToId is not null as LueDefault from LookUpEntries left join Tournament on LueIocCode=ToIocCode and ToId={$_SESSION['TourId']} order by LueIocCode");
+	$t=safe_r_sql("select LueIocCode, ToId is not null as LueDefault from (select distinct LueIocCode from LookUpEntries) lue left join Tournament on LueIocCode=ToIocCode and ToId={$_SESSION['TourId']} order by LueIocCode");
 	while($u=safe_fetch($t)) {
 		$selected='';
 		if($id) {
@@ -865,7 +872,7 @@
 		</tr>
 		<tr>
 			<th class="TitleLeft"><?php print get_text('DOB','Tournament');?></th>
-			<td><input type="text" maxlength="16" name="d_e_EnCtrlCode_" id="d_e_EnCtrlCode_" value="" onblur="CheckCtrlCode();"/></td>
+			<td><input type="text" maxlength="16" name="d_e_EnCtrlCode_" id="d_e_EnCtrlCode_" value="" onblur="CheckCtrlCode(this);"/></td>
 			<th class="TitleLeft"><?php echo $combos['teamcl']['descr']; ?></th>
 			<td><?php echo $combos['teamcl']['combo']; ?></td>
 		</tr>

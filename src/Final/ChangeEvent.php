@@ -9,14 +9,15 @@ require_once(dirname(dirname(__FILE__)) . '/config.php');
 require_once('Common/Fun_FormatText.inc.php');
 require_once('Common/Fun_Phases.inc.php');
 
-if (!isset($_REQUEST['Ev']) || !CheckTourSession()) {
-	print get_text('CrackError');
-	exit;
+$JSON=array('error' => 1);
+
+if (!isset($_REQUEST['Ev']) or !CheckTourSession() or checkACL(array(AclIndividuals,AclTeams, AclOutput), AclReadOnly, false) < AclReadOnly) {
+	JsonOut($JSON);
 }
-checkACL(array(AclIndividuals,AclTeams, AclOutput), AclReadOnly, false);
+
 
 $Errore=0;
-$Team = (isset($_REQUEST['TeamEvent']) ? $_REQUEST['TeamEvent'] : 0);
+$Team = (isset($_REQUEST['TeamEvent']) ? intval($_REQUEST['TeamEvent']) : 0);
 $StartPhase = -1;
 $SetPoints = 0;
 $PoolMatches=(!empty($_REQUEST['ElimPool']) and !$Team and !empty($_REQUEST['Ev']));
@@ -25,10 +26,9 @@ $PoolMatchesSingleWA=false;
 
 // se ho un event faccio la query
 if (!empty($_REQUEST['Ev'])) {
-	$Select
-		= "SELECT EvFinalFirstPhase AS StartPhase, EvMatchMode as MatchMode, EvElimType "
-		. "FROM Events "
-		. "WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvCode=" . StrSafe_DB($_REQUEST['Ev']) . " AND EvTeamEvent=" . StrSafe_DB($Team) . " ";
+	$Select = "SELECT EvFinalFirstPhase AS StartPhase, EvMatchMode as MatchMode, EvElimType
+		FROM Events
+		WHERE EvTournament={$_SESSION['TourId']} AND EvCode=" . StrSafe_DB($_REQUEST['Ev']) . " AND EvTeamEvent=$Team";
 	$Rs=safe_r_sql($Select);
 
 	if (safe_num_rows($Rs)==1) {
@@ -38,12 +38,12 @@ if (!empty($_REQUEST['Ev'])) {
 		$PoolMatchesSingle=($Row->EvElimType==3);
 		$PoolMatchesSingleWA=($Row->EvElimType==4);
 	} else {
-		$Errore=1;
+		JsonOut($JSON);
 	}
 } else {
     $Select = "SELECT MAX(EvFinalFirstPhase) AS Phase, MAX(EvMatchMode) AS MatchMode 
         FROM Events 
-        WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent=" . StrSafe_DB($Team);
+        WHERE EvTournament={$_SESSION['TourId']} AND EvTeamEvent=$Team";
 
     $Rs=safe_r_sql($Select);
 
@@ -52,23 +52,18 @@ if (!empty($_REQUEST['Ev'])) {
         $StartPhase=$Row->Phase;
         $SetPoints = ($Row->MatchMode!=0);
     } else {
-        $Errore=1;
+		JsonOut($JSON);
     }
 }
 
+$JSON['error']=0;
+$JSON['team']=$Team;
+$JSON['set_points']=($SetPoints ? '1':'0');
+$JSON['start_phase']=-1;
+$JSON['good_phase']=array();
 
-header('Content-Type: text/xml');
-
-print '<response>';
-print '<error>' . $Errore . '</error>';
-print '<team>' . $Team . '</team>';
-print '<set_points>' . ($SetPoints ? '1':'0') . '</set_points>';
 if($PoolMatches) {
-	print '<start_phase>-1</start_phase>';
-	print '<good_phase>';
-	print '<code>-1</code>';
-	print '<name>' . get_text('All_Phases') . '</name>';
-	print '</good_phase>';
+	$JSON['good_phase'][]=array('code' => -1, 'name' => get_text('All_Phases'));
 } elseif($PoolMatchesSingleWA) {
 	require_once('Common/Lib/CommonLib.php');
 	$Starting=64;
@@ -95,12 +90,9 @@ if($PoolMatches) {
 		}
 	}
 
-	print '<start_phase>'.$Starting.'</start_phase>';
+	$JSON['start_phase']=$Starting;
 	foreach($AllPhases as $k => $v) {
-		print '<good_phase>';
-		print '<code>'.$k.'</code>';
-		print '<name>' . $v . '</name>';
-		print '</good_phase>';
+		$JSON['good_phase'][]=array('code' => $k, 'name' => $v);
 	}
 } elseif($PoolMatchesSingle) {
 	require_once('Common/Lib/CommonLib.php');
@@ -128,25 +120,16 @@ if($PoolMatches) {
 		}
 	}
 
-	print '<start_phase>'.$Starting.'</start_phase>';
+	$JSON['start_phase']=$Starting;
 	foreach($AllPhases as $k => $v) {
-		print '<good_phase>';
-		print '<code>'.$k.'</code>';
-		print '<name><![CDATA[' . $v . ']]></name>';
-		print '</good_phase>';
+		$JSON['good_phase'][]=array('code' => $k, 'name' => $v);
 	}
 } else {
-	print '<start_phase>' . $StartPhase . '</start_phase>';
-	for ($i=bitwisePhaseId($StartPhase);$i>=1;$i/=2)
-	{
-		print '<good_phase>';
-		print '<code>' . bitwisePhaseId($i) . '</code>';
-		print '<name><![CDATA[' . get_text( namePhase($StartPhase,$i). '_Phase') . ']]></name>';
-		print '</good_phase>';
+	$JSON['start_phase']=$StartPhase;
+	for ($i=bitwisePhaseId($StartPhase);$i>=1;$i/=2) {
+		$JSON['good_phase'][]=array('code' => bitwisePhaseId($i), 'name' => get_text( namePhase($StartPhase,$i). '_Phase'));
 	}
-	print '<good_phase>';
-	print '<code>0</code>';
-	print '<name>' . get_text('0_Phase') . '</name>';
-	print '</good_phase>';
+	$JSON['good_phase'][]=array('code' => 0, 'name' => get_text( '0_Phase'));
 }
-print '</response>';
+
+JsonOut($JSON);

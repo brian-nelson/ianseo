@@ -1,10 +1,5 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: deligant
- * Date: 09/05/17
- * Time: 16.13
- *
  * Called through GetAcPerson.php?id=XXX[&pic=1]
  *
  * JSON returned:
@@ -60,6 +55,16 @@ if(empty($Options)) {
 }
 
 $JSON['error']=0;
+
+$q=safe_r_sql("select IceContent, ToCode from IdCardElements inner join Tournament on ToId=IceTournament where IceType IN ('AthQrCode','AthBarCode') and IceTournament in (".implode(',', array_keys($Options)).")");
+$RegArray = array();
+while ($r = safe_fetch($q)) {
+    $RegExp = preg_quote('{ENCODE}-{DIVISION}-{CLASS}', '/');
+    if ($r->IceContent != '') {
+        $RegExp = preg_quote($r->IceContent, '/');
+    }
+    $RegArray[$r->ToCode] = getIceRegExpMatches($r->IceContent);
+}
 
 $EnId=0;
 if(!empty($_REQUEST['id'])) {
@@ -149,6 +154,7 @@ if($r=safe_fetch($q)) {
 					inner join Entries on EnId=EdId and EnTournament in (".implode(', ', array_keys($Options)).")
 					inner join Countries on CoId=EnCountry
 					where EdType='Z' and EdId=$EnId");
+
 				if($u=safe_fetch($t) and $u->EdExtra) {
 					$bits=explode('-', $u->EdExtra);
 					$TmpEnCode = $bits[0];
@@ -235,6 +241,9 @@ if($r=safe_fetch($q)) {
 		}
 	}
     $JSON['key']=$r->ToCode.'|'.$r->EnCode.'|'.$r->CoCode.'|'.$r->DivId;
+    if(array_key_exists($r->ToCode,$RegArray)) {
+        $JSON['key'] = $r->ToCode . '|' . $r->EnCode . ($RegArray[$r->ToCode]["country"] != -1 ? '|' . $r->CoCode : '') . ($RegArray[$r->ToCode]["division"] != -1 ? '|' . $r->DivId : '');
+    }
 	$JSON['enCode']=$r->EnCode;
 	$JSON['famName']=$r->EnFirstName;
 	$JSON['givName']=$r->EnName;

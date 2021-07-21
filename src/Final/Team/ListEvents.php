@@ -8,7 +8,7 @@
 
 
 	$JS_SCRIPT=array(
-        '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+        '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 		'<script type="text/javascript" src="Fun_AJAX_ListEvents.js"></script>',
 		'<script type="text/javascript" src="Fun_JS.js"></script>',
 		);
@@ -19,11 +19,12 @@
 ?>
 <table class="Tabella" id="MyTable">
 <tbody id="tbody">
-<tr><th class="Title" colspan="9"><?php print get_text('TeamEventList');?></th></tr>
-<tr class="Divider"><td colspan="9"></td></tr>
+<tr><th class="Title" colspan="10"><?php print get_text('TeamEventList');?></th></tr>
+<tr class="Divider"><td colspan="10"></td></tr>
 <tr>
 <th width="5%"><?php print get_text('EvCode');?></th>
 <th width="30%"><?php print get_text('EvName');?></th>
+<th width="5%"><?php print get_text('Para', 'Records');?></th>
 <th width="5%"><?php print get_text('Progr');?></th>
 <th width="10%"><?php print get_text('MatchModeScoring');?></th>
 <th width="10%"><?php print get_text('FirstPhase');?></th>
@@ -74,6 +75,10 @@
 			print '</td>';
 
 			print '<td class="Center">';
+			print '<input type="checkbox" name="d_EvIsPara_' . $MyRow->EvCode . '" id="d_EvIsPara_' . $MyRow->EvCode . '" ' . ($MyRow->EvIsPara ? 'checked="checked"' : '') . ' onclick="togglePara(this)">';
+			print '</td>';
+
+			print '<td class="Center">';
 			print '<input type="text" size="3" maxlength="3" name="d_EvProgr_' . $MyRow->EvCode . '" id="d_EvProgr_' . $MyRow->EvCode . '" value="' . $MyRow->EvProgr . '" onBlur="javascript:UpdateField(\'d_EvProgr_' . $MyRow->EvCode . '\');">';
 			print '</td>';
 
@@ -116,10 +121,11 @@
 		}
 	}
 ?>
-<tr id="RowDiv" class="Divider"><td colspan="9"></td></tr>
+<tr id="RowDiv" class="Divider"><td colspan="10"></td></tr>
 <tr id="NewRow">
 <td class="Center"><input type="text" name="New_EvCode" id="New_EvCode" size="4" maxlength="4"></td>
 <td class="Center"><input type="text" size="64" maxlength="64" name="New_EvEventName" id="New_EvEventName"></td>
+<td class="Center"><input type="checkbox" name="New_EvIsPara" id="New_EvIsPara"></td>
 <td class="Center"><input type="text" size="3" maxlength="3" name="New_EvProgr" id="New_EvProgr"></td>
 <td class="Center">
 <select name="New_EvMatchMode" id="New_EvMatchMode">

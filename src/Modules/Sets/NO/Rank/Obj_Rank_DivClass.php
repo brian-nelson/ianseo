@@ -204,7 +204,7 @@
 					EnId, EnCode, upper(EnIocCode) EnIocCode, EnName AS Name, upper(EnFirstName) AS FirstNameUpper,
 					EnFirstName AS FirstName, SUBSTRING(QuTargetNo,1,1) AS Session,
 					SUBSTRING(QuTargetNo,2) AS TargetNo, FlContAssoc,
-					CoId, CoCode, CoName, EnClass, EnDivision,EnAgeClass, EnSubClass, ClDescription, DivDescription, ";
+					CoId, CoCode, CoName, CoCaCode, CoMaCode, EnClass, EnDivision,EnAgeClass, EnSubClass, ClDescription, DivDescription, ";
 			for($i=1; $i<=8; $i++) {
 				$q.="IFNULL(Td{$i},'.{$i}.') as Td{$i},
 					if(EnDivision='F', '', QuD{$i}Score) QuD{$i}Score,
@@ -213,7 +213,7 @@
 					if(EnDivision='F', '', QuD{$i}Xnine) QuD{$i}Xnine, ";
 			}
 			$q.="{$tmp} AS Arrows_Shot, ToNumEnds,
-					if(EnDivision='F', '', {$MyRank}) AS Rank,
+					if(EnDivision='F', '', {$MyRank}) AS `Rank`,
 					if(EnDivision='F', '', Qu{$dd}Score) AS Score,
 					if(EnDivision='F', '', Qu{$dd}Gold) AS Gold,
 					if(EnDivision='F', '', Qu{$dd}Xnine) AS XNine, ";
@@ -235,46 +235,21 @@
 			}
 			$q .= "	QuTimestamp,
 					ToGolds AS GoldLabel, ToXNine AS XNineLabel,
-					ToNumDist,ToDouble, DiEnds, DiArrows
+					ToNumDist,ToDouble, DiEnds, DiArrows, IrmType, IrmShowRank
 				FROM
 					Tournament
-
-					INNER JOIN
-						Entries
-					ON ToId=EnTournament
-
-					INNER JOIN
-						Countries
-					ON EnCountry=CoId AND EnTournament=CoTournament AND EnTournament={$this->tournament}
-
-					INNER JOIN
-						Qualifications
-					ON EnId=QuId
-
-					INNER JOIN
-						Classes
-					ON EnClass=ClId AND ClTournament=EnTournament AND ClAthlete=1
-
-					INNER JOIN
-						Divisions
-					ON EnDivision=DivId AND DivTournament=EnTournament AND DivAthlete=1
-
-					LEFT JOIN
-						TournamentDistances
-					ON ToType=TdType AND TdTournament=ToId AND CONCAT(TRIM(EnDivision),TRIM(EnClass)) LIKE TdClasses
-
-					LEFT JOIN
-						Flags
-						ON FlIocCode='FITA' and FlCode=CoCode and FlTournament=-1
-					left join DistanceInformation
-						on ToId=DiTournament and DiSession=1 and DiDistance=1 and DiType='Q'
-
-					WHERE
-						EnAthlete=1 AND EnIndClEvent=1 AND EnStatus <= 1 AND QuScore != 0 AND ToId={$this->tournament}
+					INNER JOIN Entries ON ToId=EnTournament
+					INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament AND EnTournament={$this->tournament}
+					INNER JOIN Qualifications ON EnId=QuId
+					INNER JOIN Classes ON EnClass=ClId AND ClTournament=EnTournament AND ClAthlete=1
+					INNER JOIN Divisions ON EnDivision=DivId AND DivTournament=EnTournament AND DivAthlete=1
+					inner join IrmTypes on IrmId=QuIrmType
+					LEFT JOIN TournamentDistances ON ToType=TdType AND TdTournament=ToId AND CONCAT(TRIM(EnDivision),TRIM(EnClass)) LIKE TdClasses
+					LEFT JOIN Flags ON FlIocCode='FITA' and FlCode=CoCode and FlTournament=ToId
+					left join DistanceInformation on ToId=DiTournament and DiSession=1 and DiDistance=1 and DiType='Q'
+					WHERE EnAthlete=1 AND EnIndClEvent=1 AND EnStatus <= 1 AND QuScore != 0 AND ToId={$this->tournament}
 						{$filter}
-
-					ORDER BY
-						DivViewOrder, EnDivision, ClViewOrder, EnClass, if(DivId='F', FirstName, ''), if(DivId='F', Name, ''), ";
+					ORDER BY DivViewOrder, EnDivision, ClViewOrder, EnClass, if(DivId='F', FirstName, ''), if(DivId='F', Name, ''), ";
 			if(!empty($this->opts['runningDist']) && $this->opts['runningDist']>0)
 				$q .= "OrderScore DESC, OrderGold DESC, OrderXnine DESC, FirstName, Name ";
 			else
@@ -392,12 +367,10 @@
 					$oldGold = $myRow->OrderGold;
 					$oldXnine = $myRow->OrderXnine;
 
-					if($myRow->Rank==9999) {
-						$tmpRank = 'DSQ';
-					} else if ($myRow->Rank==9998) {
-						$tmpRank = 'DNS';
-					} else {
+					if($myRow->IrmShowRank) {
 						$tmpRank= (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $myRank : $myRow->Rank);
+					} else {
+						$tmpRank = $myRow->IrmType;
 					}
 
 					// creo un elemento per la sezione
@@ -416,7 +389,8 @@
 						'subclass' => $myRow->EnSubClass,
 						'countryId' => $myRow->CoId,
 						'countryCode' => $myRow->CoCode,
-						'contAssoc' => $myRow->FlContAssoc,
+						'contAssoc' => $myRow->CoCaCode,
+						'memberAssoc' => $myRow->CoMaCode,
 						'countryIocCode' => $myRow->EnIocCode,
 						'countryName' => $myRow->CoName,
 						'rank' => $tmpRank,

@@ -35,7 +35,7 @@ if (isset($_REQUEST['Exec'])) {
 	exit;
 }
 
-$JS_SCRIPT[]='<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>';
+$JS_SCRIPT[]='<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>';
 $JS_SCRIPT[]='<script type="text/javascript" src="index.js"></script>';
 include('Common/Templates/head.php');
 

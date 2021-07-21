@@ -137,7 +137,9 @@ if (safe_num_rows($rs)>0) {
 					for ($i=0;$i<strlen($arrowstring);++$i) {
 						$tmp[]=DecodeFromLetter($arrowstring[$i]);
 					}
-
+                    if($myRow->{'tieclosest'.$index} != 0) {
+                        $tmp[] = '+';
+                    }
 					${'setPoints'.$index}.=' ' . implode(' ',$tmp);
 				}
 			}

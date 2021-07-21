@@ -8,24 +8,25 @@ $CardNumber=(empty($_REQUEST['CardNumber']) ? 0 : intval($_REQUEST['CardNumber']
 $FIELDS='distinct CoId, CoCode, CoName, "" as Bib';
 $SORTSTRICT='CoCode, CoName';
 
-require_once('CommonCard.php');
-
-$xmlDoc=new DOMDocument('1.0','UTF-8');
-$xmlRoot=$xmlDoc->createElement('response');
-$xmlDoc->appendChild($xmlRoot);
-
-$Countries=array();
-$q=safe_r_sql($MyQuery);
-while($r=safe_fetch($q)) {
-	if(in_array($r->CoId, $Countries)) continue;
-	$xmlRule=$xmlDoc->createElement('country');
-	$xmlRule->setAttribute('id', $r->CoId);
-	$xmlRule->setAttribute('option', $r->CoCode.'-'.substr($r->CoName, 0, 30));
-	$xmlRoot->appendChild($xmlRule);
-	$Countries[]=$r->CoId;
+foreach(array('PrintNotPrinted','PrintAccredited','PrintPhoto') as $tmp) {
+	if(isset($_REQUEST[$tmp])) {
+		unset($_REQUEST[$tmp]);
+	}
 }
 
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Content-type: text/xml; charset=' . PageEncode);
+require_once('CommonCard.php');
 
-print $xmlDoc->saveXML();
+$JSON=array(
+	'error' =>0,
+	'Countries' => array(),
+);
+
+$Countries=array();
+
+$q=safe_r_sql($MyQuery);
+while($r=safe_fetch($q)) {
+	$Countries[$r->CoId] = array('id'=>$r->CoId, 'txt' => $r->CoCode.'-'.substr($r->CoName, 0, 30));
+}
+$JSON['Countries']=array_values($Countries);
+
+JsonOut($JSON);

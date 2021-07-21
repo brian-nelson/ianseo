@@ -17,6 +17,7 @@ if(empty($_REQUEST['event']) or !isset($_REQUEST['team']) or !isset($_REQUEST['m
 $event=$_REQUEST['event'];
 $team=intval($_REQUEST['team']);
 $match=intval($_REQUEST['matchno']);
+$pool=empty($_REQUEST['pool']) ? '' : $_REQUEST['pool'];
 
 if($team==0 ? IsBlocked(BIT_BLOCK_IND) : IsBlocked(BIT_BLOCK_TEAM)) {
 	JsonOut($JSON);
@@ -42,7 +43,7 @@ $ok=false;
 if ($team) {
 	$ok=move2NextPhaseTeam(null,$event,$match);
 } else {
-	$ok=move2NextPhase(null,$event,$match);
+	$ok=move2NextPhase(null, $event, $match, 0, false, $pool);
 }
 
 if ($ok) {

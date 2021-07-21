@@ -21,7 +21,7 @@ $rep=array(
 	);
 
 $n=0;
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 $EnIds=array();
 
 while($MyRow=safe_fetch($Rs)) {

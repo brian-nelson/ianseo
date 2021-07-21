@@ -1,6 +1,5 @@
 <?php
 /*
-													- UpdateFieldEventList.php -
 	Aggiorna il campo di Events passato in querystring.
 */
 

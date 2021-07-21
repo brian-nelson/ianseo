@@ -41,7 +41,6 @@ $lang['BgImage']='Hintergrundbild';
 $lang['Bold']='Fettschrift';
 $lang['Category']='Kategorie';
 $lang['CharColor']='Schriftzeichenfarbe';
-$lang['CharSize']='Schriftzeichengröße';
 $lang['CharType']='Schriftzeichentyp';
 $lang['CheckBarcodeSeparator']='Barcode Separator kontrolieren';
 $lang['Club']='Details Land / Klub';

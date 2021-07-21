@@ -42,6 +42,9 @@ function saveField($Field, $Value, $EnId, $ToId) {
 			if($Value) {
 				$Value=strtolower($Value);
 				safe_w_sql("insert into ExtraData set EdId=$EnId, EdType='E', EdEmail=".StrSafe_DB($Value)." on duplicate key update EdEmail=".StrSafe_DB($Value));
+				if(safe_w_affected_rows()) {
+					safe_w_sql("update Entries set EnTimestamp='".date('Y-m-d H:i:s')."' where EnId=$EnId");
+				}
 			} else {
 				safe_w_sql("update ExtraData set EdEmail='' where EdId=$EnId and EdType='E'");
 				safe_w_sql("delete from ExtraData where EdEmail='' and EdExtra='' and EdId=$EnId and EdType='E'");

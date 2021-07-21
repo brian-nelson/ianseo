@@ -111,21 +111,16 @@
 				SELECT
 					EnTournament,EnId,EnCountry,CONCAT(EnDivision,EnClass) AS MyEvent,ToType,
 					Qu{$dd}Score AS Score,Qu{$dd}Gold AS Gold ,Qu{$dd}Xnine AS XNine, Qu{$dd}Hits AS Hits
-				FROM
-					Entries
-					LEFT JOIN
-						Tournament
-					ON EnTournament=ToId
-					INNER JOIN
-						Qualifications
-					ON EnId=QuId
+				FROM Entries
+				inner JOIN Tournament ON EnTournament=ToId
+				INNER JOIN Qualifications ON EnId=QuId
+			    inner join IrmTypes on IrmId=QuIrmType and IrmShowRank=1
 				WHERE
 					EnTournament={$this->tournament} AND
 					EnAthlete=1 AND
 					EnStatus <=1  AND
 					EnIndClEvent='1' AND
-					Qu{$dd}Score<>0 AND
-					QuClRank!=9999
+					(Qu{$dd}Score>0 or Qu{$dd}Hits>0) 
 					{$filter}
 				ORDER BY
 					{$orderBy}

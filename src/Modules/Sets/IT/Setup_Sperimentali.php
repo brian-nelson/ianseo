@@ -21,13 +21,14 @@ CreateDivision($TourId, 3, 'AN', 'Arco Nudo');
 CreateStandardSperimClasses($TourId);
 
 // default Distances
-CreateDistance($TourId, $TourType, 'AN_1', '30m','30m');
-CreateDistance($TourId, $TourType, 'OL_1', '30m','30m');
-CreateDistance($TourId, $TourType, 'CO_1', '50m','50m');
-CreateDistance($TourId, $TourType, '___2', '50m','50m');
+CreateDistanceNew($TourId, $TourType, 'AN_1', array(array('30m',30),array('30m',30)));
+CreateDistanceNew($TourId, $TourType, 'OL_1', array(array('30m',30),array('30m',30)));
+CreateDistanceNew($TourId, $TourType, 'CO__', array(array('50m',50),array('50m',50)));
+CreateDistanceNew($TourId, $TourType, 'AN_2', array(array('30m',30),array('30m',30)));
+CreateDistanceNew($TourId, $TourType, 'OL_2', array(array('50m',50),array('50m',50)));
 
 // Default Target
-CreateTargetFace($TourId, 1, '~Default', '%', '1', 5, 120, 5, 120);
+CreateTargetFace($TourId, 1, '~Default', '%', '1', 5, 122, 5, 122);
 CreateTargetFace($TourId, 2, '~DefaultCO', 'REG-^CO[MF]2', '1', 5, 80, 5, 80);
 
 
@@ -58,4 +59,3 @@ $tourDetails=array(
 	);
 UpdateTourDetails($TourId, $tourDetails);
 
-?>

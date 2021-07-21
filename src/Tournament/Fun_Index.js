@@ -1,18 +1,19 @@
 function ChangeTourType(who) {
 	var combo=document.getElementById('d_ToType');
 	var subrule=document.getElementById('d_SubRule');
-	
+
 	while(combo.options.length>0) combo.remove(0);
 	while(subrule.options.length>0) subrule.remove(0);
 	document.getElementById('rowSubRule').style.display='none';
-	
+
 	if(who && ToTypes[who]) {
 		var morethan1=0;
-		for(n in ToTypes[who]['types']) {
+		for(n in ToTypes[who]['ordered_types']) {
+			var tourType = ToTypes[who]['ordered_types'][n]
 			morethan1++;
 			y=document.createElement('option');
-			y.value=n;
-			y.text=ToTypes[who]['types'][n];
+			y.value=tourType.type;
+			y.text=tourType.name;
 			try {
 				combo.add(y,null); // standards compliant
 			} catch(ex) {
@@ -37,22 +38,15 @@ function ChangeTourType(who) {
 function ChangeLocalSubRule(who) {
 	var local=document.getElementById('d_Rule').value;
 	var subrule=document.getElementById('d_SubRule');
-	
-	while(subrule.options.length>0) subrule.remove(0);
-	
+
+	$('#d_SubRule').empty();
+
 	document.getElementById('rowSubRule').style.display='none';
-	
+
 	if(ToTypes[local]['rules'][who]) {
-		for(n in ToTypes[local]['rules'][who]) {
-			y=document.createElement('option');
-			y.value=n;
-			y.text=ToTypes[local]['rules'][who][n];
-			try {
-				subrule.add(y,null); // standards compliant
-			} catch(ex) {
-				subrule.add(y); // IE only
-			}
-		}
+		$.each(ToTypes[local]['rules'][who], function(idx) {
+			$('#d_SubRule').append('<option value="'+idx+'">'+this+'</option>');
+		});
 		document.getElementById('rowSubRule').style.display='table-row';
 	}
 }

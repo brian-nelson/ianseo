@@ -40,7 +40,7 @@
  * @return void
  *
  */
-	function GetSetupFile($TourId, $ToType=0, $Lang='', $SubRule='1', $useOldRules=false, $subRuleName)
+	function GetSetupFile($TourId, $ToType=0, $Lang='', $SubRule='1', $subRuleName)
 	{
 		static $ciclo=0;
 		$typeName='';
@@ -59,6 +59,7 @@
 				'Events' => 'Ev',
 				'EventClass' => 'Ec',
 				'Finals' => 'Fin',
+                'FinSchedule' => 'FS',
 				'TeamFinals' => 'Tf',
 				'TargetFaces' => 'Tf',
 				);

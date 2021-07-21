@@ -200,25 +200,20 @@
 			if (array_key_exists('cutRank',$this->opts) && is_numeric($this->opts['cutRank']) && $this->opts['cutRank']>0)
 				$filter.= "AND TeRank<={$this->opts['cutRank']} ";
 
-			$orderBy= "DivViewOrder, ClViewOrder, TeEvent, TeRank ASC,CoCode ASC, TcOrder ";
+			$orderBy= "DivViewOrder, ClViewOrder, TeEvent, if(IrmShowRank=1, 0, TeIrmType), TeRank ASC, CoCode ASC, TcOrder ";
 
 			$q="
 				SELECT
-					ToId,TeRank,CoId,CoCode,CoName,	TeSubTeam ,TeEvent, DivId, ClId, ClDescription, DivDescription,ToNumEnds,ToNumDist,FlContAssoc,
+					ToId,TeRank,CoId,CoCode,CoName,	CoCaCode, CoMaCode, TeSubTeam ,TeEvent, DivId, ClId, ClDescription, DivDescription,ToNumEnds,ToNumDist,FlContAssoc,
 					EnId,EnCode,EnSex,EnNameOrder,EnFirstName,upper(EnFirstName) EnFirstNameUpper,EnName,Q,EnClass,EnDivision,EnAgeClass,EnSubClass,
 					IFNULL(Td1,'.1.') as Td1, IFNULL(Td2,'.2.') as Td2, IFNULL(Td3,'.3.') as Td3, IFNULL(Td4,'.4.') as Td4, IFNULL(Td5,'.5.') as Td5, IFNULL(Td6,'.6.') as Td6, IFNULL(Td7,'.7.') as Td7, IFNULL(Td8,'.8.') as Td8,
 					TeHits AS Arrows_Shot, QuSession AS Session, QuScore,QuGold, QuXnine, TeScore, TeGold, TeXnine, TeHits,ToGolds, ToXNine ,TeTimeStamp,
-					DiEnds, DiArrows
-				FROM
-					Tournament
-					INNER JOIN
-						Teams
-					ON ToId=TeTournament AND TeFinEvent=0
-					INNER JOIN
-						Countries
-					ON TeCoId=CoId AND TeTournament=CoTournament
-					INNER JOIN
-						(
+					DiEnds, DiArrows, TeIrmType, IrmType, IrmShowRank
+				FROM Tournament
+				INNER JOIN Teams ON ToId=TeTournament AND TeFinEvent=0
+			    inner join IrmTypes on IrmId=TeIrmType
+				INNER JOIN Countries ON TeCoId=CoId AND TeTournament=CoTournament
+				INNER JOIN (
 							SELECT
 								TcCoId, TcEvent, TcTournament, TcFinEvent, COUNT(TcId) as Q
 							FROM
@@ -228,15 +223,9 @@
 								TcCoId, TcEvent, TcFinEvent
 						) AS sq
 					ON TeCoId=sq.TcCoId AND TeEvent=sq.TcEvent AND TeTournament=sq.TcTournament AND TeFinEvent=sq.TcFinEvent
-					INNER JOIN
-						TeamComponent  AS tc
-					ON TeCoId=tc.TcCoId AND TeEvent=tc.TcEvent AND TeTournament=tc.TcTournament AND TeFinEvent=tc.TcFinEvent
-					INNER JOIN
-						Entries
-					ON TcId=EnId
-					INNER JOIN
-						Qualifications
-					ON EnId=QuId
+				INNER JOIN TeamComponent  AS tc ON TeCoId=tc.TcCoId AND TeEvent=tc.TcEvent AND TeTournament=tc.TcTournament AND TeFinEvent=tc.TcFinEvent
+				INNER JOIN Entries ON TcId=EnId
+				INNER JOIN Qualifications ON EnId=QuId
 
 					left JOIN
 						(
@@ -254,7 +243,7 @@
 					ON ToType=TdType AND TdTournament=ToId AND TeEvent like TdClasses
 					LEFT JOIN
 						Flags
-						ON FlIocCode='FITA' and FlCode=CoCode and FlTournament=-1
+						ON FlIocCode='FITA' and FlCode=CoCode and FlTournament=ToId
 					left join DistanceInformation on EnTournament=DiTournament and DiSession=1 and DiDistance=1 and DiType='Q'
 				WHERE
 					ToId={$this->tournament}
@@ -358,8 +347,12 @@
 								'sesArrows'=> array(),
 								'fields'=>$fields
 								),
+							'records' => array(),
 							'items' => array(),
 						);
+						if(!empty($this->opts['records'])) {
+							$section['records'] = $this->getRecords($myEv,1,false,false);
+						}
 					}
 
 					if ($myTeam!=$row->CoId . $row->TeEvent) {
@@ -373,15 +366,17 @@
 						$item=array(
 							'id' 			=> $row->CoId,
 							'countryCode' 	=> $row->CoCode,
-							'contAssoc' 	=> $row->FlContAssoc,
+							'contAssoc'     => $row->CoCaCode,
+							'memberAssoc'   => $row->CoMaCode,
 							'countryName' 	=> $row->CoName,
 							'subteam' 		=> $row->TeSubTeam,
 							'athletes'		=> array(),
-							'rank'			=> $tmpRank,
+							'rank'			=> $row->IrmShowRank ? $tmpRank : $row->IrmType,
 							'score' 		=> $row->TeScore,
 							'gold' 			=> $row->TeGold,
 							'xnine' 		=> $row->TeXnine,
-							'hits'			=> $row->TeHits
+							'hits'			=> $row->TeHits,
+							'recordGap'     => ($row->Arrows_Shot*10)-$row->TeScore,
 						);
 
 						//Gestisco il numero di frecce tirate per sessione
@@ -413,7 +408,9 @@
 							'subclass' => $row->EnSubClass,
 							'quscore' => $row->QuScore,
 							'qugold' => $row->QuGold,
-							'quxnine' => $row->QuXnine
+							'quxnine' => $row->QuXnine,
+							'irm' => $row->TeIrmType,
+							'irmText' => $row->IrmType,
 						);
 						$section['items'][count($section['items'])-1]['athletes'][]=$athlete;
 					}

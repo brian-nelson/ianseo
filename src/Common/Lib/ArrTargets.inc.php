@@ -23,8 +23,8 @@
 		"L" => array("P" => "10", "N" => "10", 'W' => 200),
 		"M" => array("P" => "11", "N" => "11", 'W' => 210),
 		"N" => array("P" => "12", "N" => "12", 'W' => 220),
-//		"O" => array("P" => "13", "N" => "13", 'W' => 230),
-//		"P" => array("P" => "14", "N" => "14", 'W' => 240),
+		"O" => array("P" => "O", "N" => "1", 'W' =>110),
+		"P" => array("P" => "X", "N" => "0", 'W' => 0),
 		"Q" => array("P" => "X", "N" => "15", 'W' => 250),
 //		"R" => array("P" => "16", "N" => "16", 'W' => 260),
 //		"S" => array("P" => "17", "N" => "17", 'W' => 270),
@@ -37,269 +37,7 @@
 		"Z" => array("P" => "X", "N" => "5", 'W' => 160),
 	);
 
-/*
- * Di seguito sono definiti i vettori che rappresentano i bersagli.
- * Il nome della variabile deve terminare con 'Small' per indicare un bersaglio
- * non completo.
- */
-// Bersaglio OutDoor
-//	$TrgOutdoor = array
-//	(
-//	// Punti non dubbi
-//		"A" => array("P" => "M", "N" => "0", "R" => "M"),
-//		"B" => array("P" => "1", "N" => "1", "R" => "1"),
-//		"C" => array("P" => "2", "N" => "2", "R" => "2"),
-//		"D" => array("P" => "3", "N" => "3", "R" => "3"),
-//		"E" => array("P" => "4", "N" => "4", "R" => "4"),
-//		"F" => array("P" => "5", "N" => "5", "R" => "5"),
-//		"G" => array("P" => "6", "N" => "6", "R" => "6"),
-//		"H" => array("P" => "7", "N" => "7", "R" => "7"),
-//		"I" => array("P" => "8", "N" => "8", "R" => "8"),
-//		"J" => array("P" => "9", "N" => "9", "R" => "9"),
-//		"K" => array("P" => "X", "N" => "10", "R" => "X"),
-//		"L" => array("P" => "10", "N" => "10", "R" => "10"),
-//	// Punti dubbi
-//		"a" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"b" => array("P" => "1*", "N" => "1", "R" => "1*"),
-//		"c" => array("P" => "2*", "N" => "2", "R" => "2*"),
-//		"d" => array("P" => "3*", "N" => "3", "R" => "3*"),
-//		"e" => array("P" => "4*", "N" => "4", "R" => "4*"),
-//		"f" => array("P" => "5*", "N" => "5", "R" => "5*"),
-//		"g" => array("P" => "6*", "N" => "6", "R" => "6*"),
-//		"h" => array("P" => "7*", "N" => "7", "R" => "7*"),
-//		"i" => array("P" => "8*", "N" => "8", "R" => "8*"),
-//		"j" => array("P" => "9*", "N" => "9", "R" => "9*"),
-//		"k" => array("P" => "X*", "N" => "10", "R" => "X*"),
-//		"l" => array("P" => "10*", "N" => "10", "R" => "10*")
-//	);
-
-// Bersaglio Campagna
-//	$TrgField = array
-//	(
-//		// Punti non dubbi
-//		"A" => array("P" => "M", "N" => "0", "R" => "M"),
-//		"B" => array("P" => "M", "N" => "0", "R" => "1"),
-//		"C" => array("P" => "M", "N" => "0", "R" => "2"),
-//		"D" => array("P" => "M", "N" => "0", "R" => "3"),
-//		"E" => array("P" => "M", "N" => "0", "R" => "4"),
-//		"F" => array("P" => "1", "N" => "1", "R" => "5"),
-//		"G" => array("P" => "2", "N" => "2", "R" => "6"),
-//		"H" => array("P" => "3", "N" => "3", "R" => "7"),
-//		"I" => array("P" => "4", "N" => "4", "R" => "8"),
-//		"J" => array("P" => "5", "N" => "5", "R" => "9"),
-//		"K" => array("P" => "6", "N" => "6", "R" => "X"),
-//		"L" => array("P" => "6", "N" => "6", "R" => "10"),
-//	// Punti dubbi
-//		"a" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"b" => array("P" => "M*", "N" => "0", "R" => "1*"),
-//		"c" => array("P" => "M*", "N" => "0", "R" => "2*"),
-//		"d" => array("P" => "M*", "N" => "0", "R" => "3*"),
-//		"e" => array("P" => "M*", "N" => "0", "R" => "4*"),
-//		"f" => array("P" => "1*", "N" => "1", "R" => "5*"),
-//		"g" => array("P" => "2*", "N" => "2", "R" => "6*"),
-//		"h" => array("P" => "3*", "N" => "3", "R" => "7*"),
-//		"i" => array("P" => "4*", "N" => "4", "R" => "8*"),
-//		"j" => array("P" => "5*", "N" => "5", "R" => "9*"),
-//		"k" => array("P" => "6*", "N" => "6", "R" => "X*"),
-//		"l" => array("P" => "6*", "N" => "6", "R" => "10*")
-//	);
-
-// OLIMPICO INDOOR Completo
-//	$TrgIndComplete = array
-//	(
-//	// Punti non dubbi
-//		"A" => array("P" => "M", "N" => "0", "R" => "M"),
-//		"B" => array("P" => "1", "N" => "1", "R" => "1"),
-//		"C" => array("P" => "2", "N" => "2", "R" => "2"),
-//		"D" => array("P" => "3", "N" => "3", "R" => "3"),
-//		"E" => array("P" => "4", "N" => "4", "R" => "4"),
-//		"F" => array("P" => "5", "N" => "5", "R" => "5"),
-//		"G" => array("P" => "6", "N" => "6", "R" => "6"),
-//		"H" => array("P" => "7", "N" => "7", "R" => "7"),
-//		"I" => array("P" => "8", "N" => "8", "R" => "8"),
-//		"J" => array("P" => "9", "N" => "9", "R" => "9"),
-//		"K" => array("P" => "10", "N" => "10", "R" => "X"),
-//		"L" => array("P" => "10", "N" => "10", "R" => "10"),
-//	// Punti dubbi
-//		"a" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"b" => array("P" => "1*", "N" => "1", "R" => "1*"),
-//		"c" => array("P" => "2*", "N" => "2", "R" => "2*"),
-//		"d" => array("P" => "3*", "N" => "3", "R" => "3*"),
-//		"e" => array("P" => "4*", "N" => "4", "R" => "4*"),
-//		"f" => array("P" => "5*", "N" => "5", "R" => "5*"),
-//		"g" => array("P" => "6*", "N" => "6", "R" => "6*"),
-//		"h" => array("P" => "7*", "N" => "7", "R" => "7*"),
-//		"i" => array("P" => "8*", "N" => "8", "R" => "8*"),
-//		"j" => array("P" => "9*", "N" => "9", "R" => "9*"),
-//		"k" => array("P" => "10*", "N" => "10", "R" => "X*"),
-//		"l" => array("P" => "10*", "N" => "10", "R" => "10*")
-//	);
-
-// OLIMPICO INDOOR ridotto
-//	$TrgIndSmall = array
-//		(
-//	// Punti non dubbi
-//		"A" => array("P" => "M", "N" => "0", "R" => "M"),
-//		"B" => array("P" => "M", "N" => "0", "R" => "1"),
-//		"C" => array("P" => "M", "N" => "0", "R" => "2"),
-//		"D" => array("P" => "M", "N" => "0", "R" => "3"),
-//		"E" => array("P" => "M", "N" => "0", "R" => "4"),
-//		"F" => array("P" => "M", "N" => "0", "R" => "5"),
-//		"G" => array("P" => "6", "N" => "6", "R" => "6"),
-//		"H" => array("P" => "7", "N" => "7", "R" => "7"),
-//		"I" => array("P" => "8", "N" => "8", "R" => "8"),
-//		"J" => array("P" => "9", "N" => "9", "R" => "9"),
-//		"K" => array("P" => "10", "N" => "10", "R" => "X"),
-//		"L" => array("P" => "10", "N" => "10", "R" => "10"),
-//	// Punti dubbi
-//		"a" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"b" => array("P" => "M*", "N" => "0", "R" => "1*"),
-//		"c" => array("P" => "M*", "N" => "0", "R" => "2*"),
-//		"d" => array("P" => "M*", "N" => "0", "R" => "3*"),
-//		"e" => array("P" => "M*", "N" => "0", "R" => "4*"),
-//		"f" => array("P" => "M*", "N" => "0", "R" => "5*"),
-//		"g" => array("P" => "6*", "N" => "6", "R" => "6*"),
-//		"h" => array("P" => "7*", "N" => "7", "R" => "7*"),
-//		"i" => array("P" => "8*", "N" => "8", "R" => "8*"),
-//		"j" => array("P" => "9*", "N" => "9", "R" => "9*"),
-//		"k" => array("P" => "10*", "N" => "10", "R" => "X*"),
-//		"l" => array("P" => "10*", "N" => "10", "R" => "10*")
-//	);
-// COMPOUND Indoor Completo
-//	$TrgCOIndComplete = array
-//	(
-//	// Punti non dubbi
-//		"A" => array("P" => "M", "N" => "0", "R" => "M"),
-//		"B" => array("P" => "1", "N" => "1", "R" => "1"),
-//		"C" => array("P" => "2", "N" => "2", "R" => "2"),
-//		"D" => array("P" => "3", "N" => "3", "R" => "3"),
-//		"E" => array("P" => "4", "N" => "4", "R" => "4"),
-//		"F" => array("P" => "5", "N" => "5", "R" => "5"),
-//		"G" => array("P" => "6", "N" => "6", "R" => "6"),
-//		"H" => array("P" => "7", "N" => "7", "R" => "7"),
-//		"I" => array("P" => "8", "N" => "8", "R" => "8"),
-//		"J" => array("P" => "9", "N" => "9", "R" => "9"),
-//		"K" => array("P" => "10", "N" => "10", "R" => "X"),
-//		"L" => array("P" => "9", "N" => "9", "R" => "10"),
-//	// Punti dubbi
-//		"a" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"b" => array("P" => "1*", "N" => "1", "R" => "1*"),
-//		"c" => array("P" => "2*", "N" => "2", "R" => "2*"),
-//		"d" => array("P" => "3*", "N" => "3", "R" => "3*"),
-//		"e" => array("P" => "4*", "N" => "4", "R" => "4*"),
-//		"f" => array("P" => "5*", "N" => "5", "R" => "5*"),
-//		"g" => array("P" => "6*", "N" => "6", "R" => "6*"),
-//		"h" => array("P" => "7*", "N" => "7", "R" => "7*"),
-//		"i" => array("P" => "8*", "N" => "8", "R" => "8*"),
-//		"j" => array("P" => "9*", "N" => "9", "R" => "9*"),
-//		"k" => array("P" => "10*", "N" => "10", "R" => "X*"),
-//		"l" => array("P" => "9*", "N" => "9", "R" => "10*")
-//	);
-
-// Compound Indoor
-//	$TrgCOIndSmall = array
-//		(
-//	// Punti non dubbi
-//		"A" => array("P" => "M", "N" => "0", "R" => "M"),
-//		"B" => array("P" => "M", "N" => "0", "R" => "1"),
-//		"C" => array("P" => "M", "N" => "0", "R" => "2"),
-//		"D" => array("P" => "M", "N" => "0", "R" => "3"),
-//		"E" => array("P" => "M", "N" => "0", "R" => "4"),
-//		"F" => array("P" => "M", "N" => "0", "R" => "5"),
-//		"G" => array("P" => "6", "N" => "6", "R" => "6"),
-//		"H" => array("P" => "7", "N" => "7", "R" => "7"),
-//		"I" => array("P" => "8", "N" => "8", "R" => "8"),
-//		"J" => array("P" => "9", "N" => "9", "R" => "9"),
-//		"K" => array("P" => "10", "N" => "10", "R" => "X"),
-//		"L" => array("P" => "9", "N" => "9", "R" => "10"),
-//	// Punti dubbi
-//		"a" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"b" => array("P" => "M*", "N" => "0", "R" => "1*"),
-//		"c" => array("P" => "M*", "N" => "0", "R" => "2*"),
-//		"d" => array("P" => "M*", "N" => "0", "R" => "3*"),
-//		"e" => array("P" => "M*", "N" => "0", "R" => "4*"),
-//		"f" => array("P" => "M*", "N" => "0", "R" => "5*"),
-//		"g" => array("P" => "6*", "N" => "6", "R" => "6*"),
-//		"h" => array("P" => "7*", "N" => "7", "R" => "7*"),
-//		"i" => array("P" => "8*", "N" => "8", "R" => "8*"),
-//		"j" => array("P" => "9*", "N" => "9", "R" => "9*"),
-//		"k" => array("P" => "10*", "N" => "10", "R" => "X*"),
-//		"l" => array("P" => "9*", "N" => "9", "R" => "10*")
-//	);
-// Hit/Miss Outdoor
-//	$TrgHMOutComplete = array
-//	(
-//	// Punti non dubbi
-//		"A" => array("P" => "M", "N" => "0", "R" => "M"),
-//		"B" => array("P" => "M", "N" => "0", "R" => "1"),
-//		"C" => array("P" => "M", "N" => "0", "R" => "2"),
-//		"D" => array("P" => "M", "N" => "0", "R" => "3"),
-//		"E" => array("P" => "M", "N" => "0", "R" => "4"),
-//		"F" => array("P" => "M", "N" => "0", "R" => "5"),
-//		"G" => array("P" => "M", "N" => "0", "R" => "6"),
-//		"H" => array("P" => "M", "N" => "0", "R" => "7"),
-//		"I" => array("P" => "M", "N" => "0", "R" => "8"),
-//		"J" => array("P" => "1", "N" => "1", "R" => "9"),
-//		"K" => array("P" => "1", "N" => "1", "R" => "X"),
-//		"L" => array("P" => "1", "N" => "1", "R" => "10"),
-//	// Punti dubbi
-//		"a" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"b" => array("P" => "M*", "N" => "0", "R" => "1*"),
-//		"c" => array("P" => "M*", "N" => "0", "R" => "2*"),
-//		"d" => array("P" => "M*", "N" => "0", "R" => "3*"),
-//		"e" => array("P" => "M*", "N" => "0", "R" => "4*"),
-//		"f" => array("P" => "M*", "N" => "0", "R" => "5*"),
-//		"g" => array("P" => "M*", "N" => "0", "R" => "6*"),
-//		"h" => array("P" => "M*", "N" => "0", "R" => "7*"),
-//		"i" => array("P" => "M*", "N" => "0", "R" => "8*"),
-//		"j" => array("P" => "1*", "N" => "1", "R" => "9*"),
-//		"k" => array("P" => "1*", "N" => "1", "R" => "X*"),
-//		"l" => array("P" => "1*", "N" => "1", "R" => "10*")
-//	);
-	// Hit/Miss Outdoor
-//	$Trg3DComplete = array
-//	(
-//	// Punti non dubbi
-//		"A" => array("P" => "M", "N" => "0", "R" => "M"),
-//		"B" => array("P" => "M", "N" => "0", "R" => "1"),
-//		"C" => array("P" => "M", "N" => "0", "R" => "2"),
-//		"D" => array("P" => "M", "N" => "0", "R" => "3"),
-//		"E" => array("P" => "M", "N" => "0", "R" => "4"),
-//		"F" => array("P" => "5", "N" => "5", "R" => "5"),
-//		"G" => array("P" => "M", "N" => "0", "R" => "6"),
-//		"H" => array("P" => "M", "N" => "0", "R" => "7"),
-//		"I" => array("P" => "8", "N" => "8", "R" => "8"),
-//		"J" => array("P" => "M", "N" => "0", "R" => "9"),
-//		"K" => array("P" => "11", "N" => "11", "R" => "11"),
-//		"L" => array("P" => "10", "N" => "10", "R" => "10"),
-//	// Punti dubbi
-//		"a" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"b" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"c" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"d" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"e" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"f" => array("P" => "5*", "N" => "5", "R" => "5*"),
-//		"g" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"h" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"i" => array("P" => "8*", "N" => "8", "R" => "8*"),
-//		"j" => array("P" => "M*", "N" => "0", "R" => "M*"),
-//		"k" => array("P" => "11*", "N" => "11", "R" => "11*"),
-//		"l" => array("P" => "10*", "N" => "10", "R" => "10*")
-//	);
-
-/*
- * Sta roba qua serve perchè php è ignorante e non usa bene le var globali.
- * Queste globals verranno usate nelle classi di import/export arf
- */
 	$GLOBALS['LetterPoint']=$LetterPoint;
-//	$GLOBALS['TrgOutdoor']=$TrgOutdoor;
-//	$GLOBALS['TrgField']=$TrgField;
-//	$GLOBALS['TrgIndComplete']=$TrgIndComplete;
-//	$GLOBALS['TrgIndSmall']=$TrgIndSmall;
-//	$GLOBALS['TrgCOIndComplete']=$TrgCOIndComplete;
-//	$GLOBALS['TrgCOIndSmall']=$TrgCOIndSmall;
-//	$GLOBALS['TrgHMOutComplete']=$TrgHMOutComplete;
-//	$GLOBALS['Trg3DComplete']=$Trg3DComplete;
 
 /*
 	- GetTargetType($EventCode,$TeamEvent=0)
@@ -495,7 +233,7 @@ function GetHigerArrowValue($EventCode,$TeamEvent=0,$curValue='',$TourId=-1)
 	 *  Valuta l'arrowstring contanto ori e x usando $LetterPoint
 	 *
 	 *  @param string $MyStr: lettera chiave di $LetterPoint
-	 *  @return int[]: Array di 3 elementi: [Points, Max Weight, Number of stars]
+	 *  @return int[]: Array di 5 elementi: [Points, Max Weight, Number of stars, SOArrows in Order of value, SOArrows in Order of input]
 	 */
 	function ValutaArrowStringSO($MyStr) {
 		global $LetterPoint;
@@ -523,10 +261,10 @@ function GetHigerArrowValue($EventCode,$TeamEvent=0,$curValue='',$TourId=-1)
 				if($LetterPoint[$letter]["P"]=='X') $TotX++;
 			}
 		}
+        $LettersSorted = $Letters;
+		rsort($LettersSorted);
 
-		rsort($Letters);
-
-		return array($TotScore, $MaxWeight, $TotStars, $TotX, $Letters);
+		return array($TotScore, $MaxWeight, $TotStars, $TotX, $LettersSorted, $Letters);
 	}
 
 /**
@@ -537,7 +275,7 @@ function GetHigerArrowValue($EventCode,$TeamEvent=0,$curValue='',$TourId=-1)
  *  @return string: stringa vuota in caso di problemi oppure colonna "P" di $LetterPoint
  */
 //XXX tolto il parametro $Target e sganciato dal sorgente
-	function DecodeFromLetter($Letter='')
+	function DecodeFromLetter($Letter='', $IsSO=false)
 	{
 		global $LetterPoint;
 
@@ -557,7 +295,7 @@ function GetHigerArrowValue($EventCode,$TeamEvent=0,$curValue='',$TourId=-1)
 
 		if (array_key_exists($Letter,$LetterPoint))
 		{
-			return $LetterPoint[$Letter]['P'] . ($maybe ? '*' : '');
+			return $LetterPoint[$Letter]['P'] . ($maybe ? ($IsSO ? '+' : '*') : '');
 		}
 		else
 			return '';
@@ -788,117 +526,117 @@ function GetHigerArrowValue($EventCode,$TeamEvent=0,$curValue='',$TourId=-1)
 	MaxSO    = maximum TOTAL ShootOff arrows
 
 */
-	function GetMaxScores($EventCode, $MatchNo=0, $TeamEvent=0, $TourId=-1)
+function GetMaxScores($EventCode, $MatchNo=0, $TeamEvent=0, $TourId=-1){
+	global $LetterPoint;
+
+	$ret = array();
+
+	$ToId=($TourId!=-1 ? $TourId : StrSafe_DB($_SESSION['TourId']));
+
+	if($MatchNo<=1) {
+		$Phase=0;
+	} else {
+		$Phase= pow(2, intval(log($MatchNo, 2)));
+	}
+	$Select = "SELECT Targets.*, EvMatchMode, EvFinalTargetType, EvTargetSize, EvDistance,
+			@PhaseMatch:=($Phase & EvMatchArrowsNo), 
+			if(@PhaseMatch, EvElimEnds, EvFinEnds) CalcEnds, 
+			if(@PhaseMatch, EvElimArrows, EvFinArrows) CalcArrows, 
+			if(@PhaseMatch, EvElimSO, EvFinSO) CalcSO 
+		FROM Events
+		INNER JOIN Targets ON EvFinalTargetType=TarId 
+		WHERE EvTournament=" . $ToId . "
+			AND EvCode=" . StrSafe_DB($EventCode) . " 
+			AND EvTeamEvent=" . StrSafe_DB($TeamEvent);
+		$Rs=safe_r_sql($Select);
+
+	if ($MyRow=safe_fetch($Rs))
 	{
-		global $LetterPoint;
-
-		$ret = array();
-
-		$ToId=($TourId!=-1 ? $TourId : StrSafe_DB($_SESSION['TourId']));
-
-		if($MatchNo<=1) {
-			$Phase=0;
-		} else {
-			$Phase= pow(2, intval(log($MatchNo, 2)));
+		$ret['Arrows']=array('A' => array(0, '', ''));
+		$ret['MaxPoint']=0;
+		$ret['MinPoint']=999;
+		if(isset($GLOBALS['CurrentTarget'])) {
+			$GLOBALS['CurrentTarget']['A'] = $LetterPoint['A'];
 		}
-		$Select = "SELECT Targets.*, EvMatchMode, EvFinalTargetType, EvTargetSize, EvDistance,
-				@PhaseMatch:=($Phase & EvMatchArrowsNo), 
-				if(@PhaseMatch, EvElimEnds, EvFinEnds) CalcEnds, 
-				if(@PhaseMatch, EvElimArrows, EvFinArrows) CalcArrows, 
-				if(@PhaseMatch, EvElimSO, EvFinSO) CalcSO 
-			FROM Events
-			INNER JOIN Targets ON EvFinalTargetType=TarId 
-			WHERE EvTournament=" . $ToId . "
-				AND EvCode=" . StrSafe_DB($EventCode) . " 
-				AND EvTeamEvent=" . StrSafe_DB($TeamEvent);
-			$Rs=safe_r_sql($Select);
+		$size=0;
+		$targetRings=array(PHP_INT_MAX => array(
+            'size'=>0,
+            'fillColor'=>'',
+            'lineColor'=>'',
+            'letter'=>'A',
+            'value'=>$LetterPoint['A']['N'],
+            'print'=>$LetterPoint['A']['P'],
+            'radius'=>-1)
+        );
+		foreach(range('A','Z') as $key) {
+			if($MyRow->{$key.'_size'}) {
+			    $targetRings[$MyRow->{$key.'_size'}] = array(
+			        "size"=>$MyRow->{$key.'_size'},
+                    "fillColor"=>$MyRow->{$key.'_color'},
+                    "lineColor"=>'000000',
+                    "letter"=>$key,
+			        "value"=>$LetterPoint[$key]['N'],
+			        "print"=>$LetterPoint[$key]['P'],
+                    "radius"=>0
+                );
 
-		if ($MyRow=safe_fetch($Rs))
-		{
-			$ret['Arrows']=array('A' => array(0, '', ''));
-			$ret['MaxPoint']=0;
-			$ret['MinPoint']=999;
-			if(isset($GLOBALS['CurrentTarget'])) {
-				$GLOBALS['CurrentTarget']['A'] = $LetterPoint['A'];
-			}
-			$size=0;
-			$targetRings=array(PHP_INT_MAX => array(
-                'size'=>0,
-                'fillColor'=>'',
-                'lineColor'=>'',
-                'letter'=>'A',
-                'value'=>$LetterPoint['A']['N'],
-                'print'=>$LetterPoint['A']['P'],
-                'radius'=>-1)
-            );
-			foreach(range('A','Z') as $key) {
-				if($MyRow->{$key.'_size'}) {
-				    $targetRings[$MyRow->{$key.'_size'}] = array(
-				        "size"=>$MyRow->{$key.'_size'},
-                        "fillColor"=>$MyRow->{$key.'_color'},
-                        "lineColor"=>'000000',
-                        "letter"=>$key,
-				        "value"=>$LetterPoint[$key]['N'],
-				        "print"=>$LetterPoint[$key]['P'],
-                        "radius"=>0
-                    );
-
-					if($size < $MyRow->{$key.'_size'}) {
-                        $size = $MyRow->{$key . '_size'};
-                    }
-                    /*
-					// fills the accepted arrows array
-					$ret['Arrows'][$key]=array(
-					    $MyRow->{$key.'_size'},
-                        $MyRow->{$key.'_color'},
-                        ($MyRow->{$key.'_color'}=='000000' && $oldcolor=='000000')?'FFFFFF':'000000'
-                    );
-					$oldcolor=$MyRow->{$key.'_color'};
+				if($size < $MyRow->{$key.'_size'}) {
+                    $size = $MyRow->{$key . '_size'};
+                }
+                /*
+				// fills the accepted arrows array
+				$ret['Arrows'][$key]=array(
+				    $MyRow->{$key.'_size'},
+                    $MyRow->{$key.'_color'},
+                    ($MyRow->{$key.'_color'}=='000000' && $oldcolor=='000000')?'FFFFFF':'000000'
+                );
+				$oldcolor=$MyRow->{$key.'_color'};
 */
-					// check the maxpoint
-					if($LetterPoint[$key]['N']>$ret['MaxPoint']) {
-					    $ret['MaxPoint']=$LetterPoint[$key]['N'];
-                    }
+				// check the maxpoint
+				if($LetterPoint[$key]['N']>$ret['MaxPoint']) {
+				    $ret['MaxPoint']=$LetterPoint[$key]['N'];
+                }
 
-					// check the minpoint
-					if($LetterPoint[$key]['N'] and $LetterPoint[$key]['N']<$ret['MinPoint']) {
-					    $ret['MinPoint']=$LetterPoint[$key]['N'];
-                    }
+				// check the minpoint
+				if($LetterPoint[$key]['N'] and $LetterPoint[$key]['N']<$ret['MinPoint']) {
+				    $ret['MinPoint']=$LetterPoint[$key]['N'];
+                }
 
-					if(isset($GLOBALS['CurrentTarget'])) {
-						$GLOBALS['CurrentTarget'][$key] = $LetterPoint[$key];
-					}
+				if(isset($GLOBALS['CurrentTarget'])) {
+					$GLOBALS['CurrentTarget'][$key] = $LetterPoint[$key];
 				}
 			}
-			$ret['MaxEnd']=$ret['MaxPoint']*$MyRow->CalcArrows;
-			$ret['MaxMatch']=$ret['MaxEnd']*$MyRow->CalcEnds;
-			$ret['MaxSetPoints']=($MyRow->EvMatchMode ? $MyRow->CalcEnds+2 : 0);
-			$ret['MaxSO']=$ret['MaxPoint']*$MyRow->CalcSO;
-			$ret['ArrowsPerEnd']=$MyRow->CalcArrows;
-			$ret['Ends']=$MyRow->CalcEnds;
-			$ret['SO']=$MyRow->CalcSO;
-			$ret['Distance']=$MyRow->EvDistance;
-			$ret['TargetRadius'] = ($MyRow->TarFullSize ? ($MyRow->EvTargetSize ? $MyRow->EvTargetSize : 122) * ($size/$MyRow->TarFullSize) * 5 : 0);
-			$ret['Size']=($MyRow->EvTargetSize ? $MyRow->EvTargetSize : 122) * ($size/2);
-			$ret['TargetSize']= ($MyRow->EvTargetSize ? $MyRow->EvTargetSize : 122);
-			$ret['FullSize']= $MyRow->TarFullSize;
-			$ret['MaxSize']= $size;
-            krsort($targetRings);
-            $oldColor='';
-
-            foreach ($targetRings as $k=>$v) {
-                $v['radius'] = ($ret['TargetRadius'] / $size) * $v['size'];
-                if($oldColor == $v['fillColor'] AND $v['fillColor']=='000000') {
-                    $v['lineColor'] = 'FFFFFF';
-                }
-                $ret['Arrows'][$v['letter']] = $v;
-
-                $oldColor= $v['fillColor'];
-            }
 		}
+		$ret['MaxEnd']=$ret['MaxPoint']*$MyRow->CalcArrows;
+		$ret['MaxMatch']=$ret['MaxEnd']*$MyRow->CalcEnds;
+		$ret['MaxSetPoints']=($MyRow->EvMatchMode ? $MyRow->CalcEnds+2 : 0);
+		$ret['MaxSO']=$ret['MaxPoint']*$MyRow->CalcSO;
+		$ret['ArrowsPerEnd']=$MyRow->CalcArrows;
+		$ret['Ends']=$MyRow->CalcEnds;
+		$ret['SO']=$MyRow->CalcSO;
+		$ret['Distance']=$MyRow->EvDistance;
+		$ret['TargetRadius'] = ($MyRow->TarFullSize ? ($MyRow->EvTargetSize ? $MyRow->EvTargetSize : 122) * ($size/$MyRow->TarFullSize) * 5 : 0);
+		$ret['Size']=($MyRow->EvTargetSize ? $MyRow->EvTargetSize : 122) * ($size/2);
+		$ret['TargetSize']= ($MyRow->EvTargetSize ? $MyRow->EvTargetSize : 122);
+		$ret['FullSize']= $MyRow->TarFullSize;
+		$ret['MaxSize']= $size;
+        krsort($targetRings);
+        $oldColor='';
 
-		return $ret;
+        foreach ($targetRings as $k=>$v) {
+            $v['radius'] = ($ret['TargetRadius'] / $size) * $v['size'];
+            if($oldColor == $v['fillColor'] AND $v['fillColor']=='000000') {
+                $v['lineColor'] = 'FFFFFF';
+            }
+            $ret['Arrows'][$v['letter']] = $v;
+
+            $oldColor= $v['fillColor'];
+        }
 	}
+
+	return $ret;
+}
+
 
 function GetTarget($TourId, $TrgName='') {
 	global $LetterPoint;
@@ -1067,4 +805,26 @@ function RaiseStars($ArrowString, &$Regexp='', $Event='', $TeamEvent=0, $TourId=
 	if(!$Regexp) return 0;
 
 	return strlen($ArrowString) - strlen(preg_replace('/['.$Regexp.']/', '', $ArrowString));
+}
+
+function getLettersFromPrintList($printList) {
+    global $LetterPoint;
+    $retValue = '';
+    if(!is_array($printList)) {
+        if(strpos(str_replace(' ','',$printList),',')!==false) {
+            $printList = explode(',',str_replace(' ','',$printList));
+        } else if(strpos(trim($printList),' ')!==false) {
+            $printList = explode(',',trim($printList));
+        } else {
+            $printList = array($printList);
+        }
+    }
+    foreach ($printList as $v) {
+        foreach ($LetterPoint as $k=>$l) {
+            if ($v==$l['P']) {
+                $retValue .= $k;
+            }
+        }
+    }
+    return $retValue;
 }

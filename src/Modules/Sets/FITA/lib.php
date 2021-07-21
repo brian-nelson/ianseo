@@ -9,16 +9,20 @@ STANDARD DEFINITIONS (Target Tournaments)
 // these go here as it is a "global" definition, used or not
 $tourCollation = '';
 $tourDetIocCode = 'FITA';
-if(empty($SubRule)) $SubRule='1';
+if(empty($SubRule)) {
+    $SubRule='1';
+}
 
 function CreateStandardDivisions($TourId, $Type='FITA') {
 	$i=1;
-	if($Type!='3D') CreateDivision($TourId, $i++, 'R', 'Recurve');
+	if($Type!='3D') {
+	    CreateDivision($TourId, $i++, 'R', 'Recurve');
+    }
 	CreateDivision($TourId, $i++, 'C', 'Compound');
-	if($Type=='FIELD') {
-		CreateDivision($TourId, $i++, 'B', 'Barebow');
-	} elseif($Type=='3D') {
-		CreateDivision($TourId, $i++, 'B', 'Barebow');
+    if($Type!='FITA') {
+        CreateDivision($TourId, $i++, 'B', 'Barebow');
+    }
+    if($Type=='3D') {
 		CreateDivision($TourId, $i++, 'L', 'Longbow');
 		CreateDivision($TourId, $i++, 'I', 'Instinctive');
 	}
@@ -56,15 +60,17 @@ function CreateStandardClasses($TourId, $SubRule, $Type='FITA') {
 	}
 }
 
-function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
-	global $useOldRules;
+function CreateStandardEvents($TourId, $SubRule, $Outdoor=true, $allowBB=true) {
 	$TargetR=($Outdoor?5:2);
 	$TargetC=($Outdoor?9:4);
+    $TargetB=($Outdoor?5:1);
 	$TargetSizeR=($Outdoor ? 122 : 40);
 	$TargetSizeC=($Outdoor ? 80 : 40);
+    $TargetSizeB=($Outdoor ? 122 : 40);
 	$DistanceR=($Outdoor ? 70 : 18);
 	$DistanceRcm=($Outdoor ? 60 : 18);
 	$DistanceC=($Outdoor ? 50 : 18);
+    $DistanceB=($Outdoor ? 50 : 18);
 	$FirstPhase = ($Outdoor ? 48 : 16);
 	$TeamFirstPhase = ($Outdoor ? 12 : 8);
 	switch($SubRule) {
@@ -86,6 +92,16 @@ function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetC, 5, 3, 1, 5, 3, 1, 'CCW', 'Compound Cadet Women', 0, 240, 240, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetC, 5, 3, 1, 5, 3, 1, 'CMM', 'Compound Master Men', 0, 240, 240, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetC, 5, 3, 1, 5, 3, 1, 'CMW', 'Compound Master Women', 0, 240, 240, 0, 0, '', '', $TargetSizeC, $DistanceC);
+			if($allowBB) {
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BM', 'Barebow Men', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BW', 'Barebow Women', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BJM', 'Barebow Junior Men', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BJW', 'Barebow Junior Women', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BCM', 'Barebow Cadet Men', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BCW', 'Barebow Cadet Women', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BMM', 'Barebow Master Men', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BMW', 'Barebow Master Women', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+            }
 			$i=1;
 			CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetR, 4, 6, 3, 4, 6, 3, 'RM',  'Recurve Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeR, $DistanceR);
 			CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetR, 4, 6, 3, 4, 6, 3, 'RW',  'Recurve Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeR, $DistanceR);
@@ -110,12 +126,28 @@ function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
 			CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetC, 4, 6, 3, 4, 6, 3, 'CMM', 'Compound Master Men Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetC, 4, 6, 3, 4, 6, 3, 'CMW', 'Compound Master Women Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			if($Outdoor) {
-				CreateEvent($TourId, $i++, 1, $TeamFirstPhase, 8, $TargetC, 4, 4, 2, 4, 4, 2, 'CX',  'Compound Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
-				CreateEvent($TourId, $i++, 1, $TeamFirstPhase, 8, $TargetC, 4, 4, 2, 4, 4, 2, 'CJX', 'Compound Junior Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
-				CreateEvent($TourId, $i++, 1, $TeamFirstPhase, 8, $TargetC, 4, 4, 2, 4, 4, 2, 'CCX', 'Compound Cadet Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
-				CreateEvent($TourId, $i++, 1, $TeamFirstPhase, 8, $TargetC, 4, 4, 2, 4, 4, 2, 'CMX', 'Compound Master Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
+				CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetC, 4, 4, 2, 4, 4, 2, 'CX',  'Compound Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
+				CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetC, 4, 4, 2, 4, 4, 2, 'CJX', 'Compound Junior Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
+				CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetC, 4, 4, 2, 4, 4, 2, 'CCX', 'Compound Cadet Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
+				CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetC, 4, 4, 2, 4, 4, 2, 'CMX', 'Compound Master Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			}
-			break;
+            if($allowBB) {
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BM', 'Barebow Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BW', 'Barebow Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BJM', 'Barebow Junior Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BJW', 'Barebow Junior Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BCM', 'Barebow Cadet Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BCW', 'Barebow Cadet Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BMM', 'Barebow Master Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BMW', 'Barebow Master Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                if ($Outdoor) {
+                    CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetB, 4, 4, 2, 4, 4, 2, 'BX', 'Barebow Mixed Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                    CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetB, 4, 4, 2, 4, 4, 2, 'BJX', 'Barebow Junior Mixed Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                    CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetB, 4, 4, 2, 4, 4, 2, 'BCX', 'Barebow Cadet Mixed Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                    CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetB, 4, 4, 2, 4, 4, 2, 'BMX', 'Barebow Master Mixed Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                }
+            }
+            break;
 		case '2':
 		case '5':
 			$i=1;
@@ -123,7 +155,11 @@ function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetR, 5, 3, 1, 5, 3, 1, 'RW',  'Recurve Women', 1, 240, 240, 0, 0, '', '', $TargetSizeR, $DistanceR);
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetC, 5, 3, 1, 5, 3, 1, 'CM',  'Compound Men', 0, 240, 240, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetC, 5, 3, 1, 5, 3, 1, 'CW',  'Compound Women', 0, 240, 240, 0, 0, '', '', $TargetSizeC, $DistanceC);
-			$i=1;
+            if($allowBB) {
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BM', 'Barebow Men', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BW', 'Barebow Women', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+            }
+            $i=1;
 			CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetR, 4, 6, 3, 4, 6, 3, 'RM',  'Recurve Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeR, $DistanceR);
 			CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetR, 4, 6, 3, 4, 6, 3, 'RW',  'Recurve Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeR, $DistanceR);
 			if($Outdoor) {
@@ -134,7 +170,14 @@ function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
 			if($Outdoor) {
 				CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetC, 4, 4, 2, 4, 4, 2, 'CX',  'Compound Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			}
-			break;
+            if($allowBB) {
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BM', 'Barebow Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BW', 'Barebow Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                if ($Outdoor) {
+                    CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetB, 4, 4, 2, 4, 4, 2, 'BX', 'Barebow Mixed Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                }
+            }
+        break;
 		case '3':
 			$i=1;
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetR, 5, 3, 1, 5, 3, 1, 'RM',  'Recurve Men', 1, 240, 240, 0, 0, '', '', $TargetSizeR, $DistanceR);
@@ -145,7 +188,13 @@ function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetC, 5, 3, 1, 5, 3, 1, 'CW',  'Compound Women', 0, 240, 240, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetC, 5, 3, 1, 5, 3, 1, 'CJM', 'Compound Junior Men', 0, 240, 240, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetC, 5, 3, 1, 5, 3, 1, 'CJW', 'Compound Junior Women', 0, 240, 240, 0, 0, '', '', $TargetSizeC, $DistanceC);
-			$i=1;
+            if($allowBB) {
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BM', 'Barebow Men', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BW', 'Barebow Women', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BJM', 'Barebow Junior Men', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BJW', 'Barebow Junior Women', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+            }
+            $i=1;
 			CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetR, 4, 6, 3, 4, 6, 3, 'RM',  'Recurve Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeR, $DistanceR);
 			CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetR, 4, 6, 3, 4, 6, 3, 'RW',  'Recurve Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeR, $DistanceR);
 			CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetR, 4, 6, 3, 4, 6, 3, 'RJM', 'Recurve Junior Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeR, $DistanceR);
@@ -162,6 +211,16 @@ function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
 				CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetC, 4, 4, 2, 4, 4, 2, 'CX',  'Compound Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
 				CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetC, 4, 4, 2, 4, 4, 2, 'CJX', 'Compound Junior Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			}
+            if($allowBB) {
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BM', 'Barebow Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BW', 'Barebow Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BJM', 'Barebow Junior Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BJW', 'Barebow Junior Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                if ($Outdoor) {
+                    CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetB, 4, 4, 2, 4, 4, 2, 'BX', 'Barebow Mixed Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                    CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetB, 4, 4, 2, 4, 4, 2, 'BJX', 'Barebow Junior Mixed Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                }
+            }
 			break;
 		case '4':
 			$i=1;
@@ -173,7 +232,13 @@ function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetC, 5, 3, 1, 5, 3, 1, 'CJW', 'Compound Junior Women', 0, 240, 240, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetC, 5, 3, 1, 5, 3, 1, 'CCM', 'Compound Cadet Men', 0, 240, 240, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetC, 5, 3, 1, 5, 3, 1, 'CCW', 'Compound Cadet Women', 0, 240, 240, 0, 0, '', '', $TargetSizeC, $DistanceC);
-			$i=1;
+            if($allowBB) {
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BJM', 'Barebow Junior Men', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BJW', 'Barebow Junior Women', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BCM', 'Barebow Cadet Men', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 0, 0, $FirstPhase, $TargetB, 5, 3, 1, 5, 3, 1, 'BCW', 'Barebow Cadet Women', 1, 240, 240, 0, 0, '', '', $TargetSizeB, $DistanceB);
+            }
+            $i=1;
 			CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetR, 4, 6, 3, 4, 6, 3, 'RJM', 'Recurve Junior Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeR, $DistanceR);
 			CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetR, 4, 6, 3, 4, 6, 3, 'RJW', 'Recurve Junior Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeR, $DistanceR);
 			CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetR, 4, 6, 3, 4, 6, 3, 'RCM', 'Recurve Cadet Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeR, $DistanceRcm);
@@ -190,6 +255,16 @@ function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
 				CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetC, 4, 4, 2, 4, 4, 2, 'CJX', 'Compound Junior Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
 				CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetC, 4, 4, 2, 4, 4, 2, 'CCX', 'Compound Cadet Mixed Team', 0, 0, 0, 0, 0, '', '', $TargetSizeC, $DistanceC);
 			}
+            if($allowBB) {
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BJM', 'Barebow Junior Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BJW', 'Barebow Junior Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BCM', 'Barebow Cadet Men Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                CreateEvent($TourId, $i++, 1, 0, $TeamFirstPhase, $TargetB, 4, 6, 3, 4, 6, 3, 'BCW', 'Barebow Cadet Women Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                if ($Outdoor) {
+                    CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetB, 4, 4, 2, 4, 4, 2, 'BJX', 'Barebow Junior Mixed Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                    CreateEvent($TourId, $i++, 1, 1, $TeamFirstPhase, $TargetB, 4, 4, 2, 4, 4, 2, 'BCX', 'Barebow Cadet Mixed Team', 1, 0, 0, 0, 0, '', '', $TargetSizeB, $DistanceB);
+                }
+            }
 			break;
 	}
 }
@@ -197,22 +272,30 @@ function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
 function InsertStandardEvents($TourId, $SubRule) {
 	switch($SubRule) {
 		case '1':
-			InsertClassEvent($TourId, 0, 1, 'RM',  'R',  'M');
+			InsertClassEvent($TourId, 0, 1, 'RM', 'R', 'M');
 			InsertClassEvent($TourId, 0, 1, 'RJM', 'R', 'JM');
 			InsertClassEvent($TourId, 0, 1, 'RCM', 'R', 'CM');
 			InsertClassEvent($TourId, 0, 1, 'RMM', 'R', 'MM');
-			InsertClassEvent($TourId, 0, 1, 'RW',  'R',  'W');
+			InsertClassEvent($TourId, 0, 1, 'RW', 'R', 'W');
 			InsertClassEvent($TourId, 0, 1, 'RJW', 'R', 'JW');
 			InsertClassEvent($TourId, 0, 1, 'RCW', 'R', 'CW');
 			InsertClassEvent($TourId, 0, 1, 'RMW', 'R', 'MW');
-			InsertClassEvent($TourId, 0, 1, 'CM',  'C',  'M');
+			InsertClassEvent($TourId, 0, 1, 'CM', 'C', 'M');
 			InsertClassEvent($TourId, 0, 1, 'CJM', 'C', 'JM');
 			InsertClassEvent($TourId, 0, 1, 'CCM', 'C', 'CM');
 			InsertClassEvent($TourId, 0, 1, 'CMM', 'C', 'MM');
-			InsertClassEvent($TourId, 0, 1, 'CW',  'C',  'W');
+			InsertClassEvent($TourId, 0, 1, 'CW', 'C', 'W');
 			InsertClassEvent($TourId, 0, 1, 'CJW', 'C', 'JW');
 			InsertClassEvent($TourId, 0, 1, 'CCW', 'C', 'CW');
 			InsertClassEvent($TourId, 0, 1, 'CMW', 'C', 'MW');
+            InsertClassEvent($TourId, 0, 1, 'BM', 'B', 'M');
+            InsertClassEvent($TourId, 0, 1, 'BJM', 'B', 'JM');
+            InsertClassEvent($TourId, 0, 1, 'BCM', 'B', 'CM');
+            InsertClassEvent($TourId, 0, 1, 'BMM', 'B', 'MM');
+            InsertClassEvent($TourId, 0, 1, 'BW', 'B', 'W');
+            InsertClassEvent($TourId, 0, 1, 'BJW', 'B', 'JW');
+            InsertClassEvent($TourId, 0, 1, 'BCW', 'B', 'CW');
+            InsertClassEvent($TourId, 0, 1, 'BMW', 'B', 'MW');
 
 			InsertClassEvent($TourId, 1, 3, 'RM',  'R',  'M');
 			InsertClassEvent($TourId, 1, 3, 'RJM', 'R', 'JM');
@@ -246,6 +329,22 @@ function InsertStandardEvents($TourId, $SubRule) {
 			InsertClassEvent($TourId, 2, 1, 'CCX', 'C', 'CM');
 			InsertClassEvent($TourId, 1, 1, 'CMX', 'C', 'MW');
 			InsertClassEvent($TourId, 2, 1, 'CMX', 'C', 'MM');
+            InsertClassEvent($TourId, 1, 3, 'BM',  'B',  'M');
+            InsertClassEvent($TourId, 1, 3, 'BMM',  'B',  'MM');
+            InsertClassEvent($TourId, 1, 3, 'BJM', 'B', 'JM');
+            InsertClassEvent($TourId, 1, 3, 'BCM', 'B', 'CM');
+            InsertClassEvent($TourId, 1, 3, 'BW',  'B',  'W');
+            InsertClassEvent($TourId, 1, 3, 'BMW',  'B',  'MW');
+            InsertClassEvent($TourId, 1, 3, 'BJW', 'B', 'JW');
+            InsertClassEvent($TourId, 1, 3, 'BCW', 'B', 'CW');
+            InsertClassEvent($TourId, 1, 1, 'BX',  'B',  'W');
+            InsertClassEvent($TourId, 2, 1, 'BX',  'B',  'M');
+            InsertClassEvent($TourId, 1, 1, 'BMX',  'B',  'MW');
+            InsertClassEvent($TourId, 2, 1, 'BMX',  'B',  'MM');
+            InsertClassEvent($TourId, 1, 1, 'BJX', 'B', 'JW');
+            InsertClassEvent($TourId, 2, 1, 'BJX', 'B', 'JM');
+            InsertClassEvent($TourId, 1, 1, 'BCX', 'B', 'CW');
+            InsertClassEvent($TourId, 2, 1, 'BCX', 'B', 'CM');
 			break;
 		case '2':
 		case '5':
@@ -253,6 +352,8 @@ function InsertStandardEvents($TourId, $SubRule) {
 			InsertClassEvent($TourId, 0, 1, 'RW',  'R',  'W');
 			InsertClassEvent($TourId, 0, 1, 'CM',  'C',  'M');
 			InsertClassEvent($TourId, 0, 1, 'CW',  'C',  'W');
+            InsertClassEvent($TourId, 0, 1, 'BM',  'B',  'M');
+            InsertClassEvent($TourId, 0, 1, 'BW',  'B',  'W');
 
 			InsertClassEvent($TourId, 1, 3, 'RM',  'R',  'M');
 			InsertClassEvent($TourId, 1, 3, 'RW',  'R',  'W');
@@ -262,6 +363,10 @@ function InsertStandardEvents($TourId, $SubRule) {
 			InsertClassEvent($TourId, 1, 3, 'CW',  'C',  'W');
 			InsertClassEvent($TourId, 1, 1, 'CX',  'C',  'W');
 			InsertClassEvent($TourId, 2, 1, 'CX',  'C',  'M');
+            InsertClassEvent($TourId, 1, 3, 'BM',  'B',  'M');
+            InsertClassEvent($TourId, 1, 3, 'BW',  'B',  'W');
+            InsertClassEvent($TourId, 1, 1, 'BX',  'B',  'W');
+            InsertClassEvent($TourId, 2, 1, 'BX',  'B',  'M');
 			break;
 		case '3':
 			InsertClassEvent($TourId, 0, 1, 'RM',  'R',  'M');
@@ -272,6 +377,10 @@ function InsertStandardEvents($TourId, $SubRule) {
 			InsertClassEvent($TourId, 0, 1, 'CJM', 'C', 'JM');
 			InsertClassEvent($TourId, 0, 1, 'CW',  'C',  'W');
 			InsertClassEvent($TourId, 0, 1, 'CJW', 'C', 'JW');
+            InsertClassEvent($TourId, 0, 1, 'BM',  'B',  'M');
+            InsertClassEvent($TourId, 0, 1, 'BJM', 'B', 'JM');
+            InsertClassEvent($TourId, 0, 1, 'BW',  'B',  'W');
+            InsertClassEvent($TourId, 0, 1, 'BJW', 'B', 'JW');
 
 			InsertClassEvent($TourId, 1, 3, 'RM',  'R',  'M');
 			InsertClassEvent($TourId, 1, 3, 'RJM', 'R', 'JM');
@@ -289,6 +398,14 @@ function InsertStandardEvents($TourId, $SubRule) {
 			InsertClassEvent($TourId, 2, 1, 'CX',  'C',  'M');
 			InsertClassEvent($TourId, 1, 1, 'CJX', 'C', 'JW');
 			InsertClassEvent($TourId, 2, 1, 'CJX', 'C', 'JM');
+            InsertClassEvent($TourId, 1, 3, 'BM',  'B',  'M');
+            InsertClassEvent($TourId, 1, 3, 'BJM', 'B', 'JM');
+            InsertClassEvent($TourId, 1, 3, 'BW',  'B',  'W');
+            InsertClassEvent($TourId, 1, 3, 'BJW', 'B', 'JW');
+            InsertClassEvent($TourId, 1, 1, 'BX',  'B',  'W');
+            InsertClassEvent($TourId, 2, 1, 'BX',  'B',  'M');
+            InsertClassEvent($TourId, 1, 1, 'BJX', 'B', 'JW');
+            InsertClassEvent($TourId, 2, 1, 'BJX', 'B', 'JM');
 			break;
 		case '4':
 			InsertClassEvent($TourId, 0, 1, 'RJM', 'R', 'JM');
@@ -299,6 +416,10 @@ function InsertStandardEvents($TourId, $SubRule) {
 			InsertClassEvent($TourId, 0, 1, 'CCM', 'C', 'CM');
 			InsertClassEvent($TourId, 0, 1, 'CJW', 'C', 'JW');
 			InsertClassEvent($TourId, 0, 1, 'CCW', 'C', 'CW');
+            InsertClassEvent($TourId, 0, 1, 'BJM', 'B', 'JM');
+            InsertClassEvent($TourId, 0, 1, 'BCM', 'B', 'CM');
+            InsertClassEvent($TourId, 0, 1, 'BJW', 'B', 'JW');
+            InsertClassEvent($TourId, 0, 1, 'BCW', 'B', 'CW');
 
 			InsertClassEvent($TourId, 1, 3, 'RJM', 'R', 'JM');
 			InsertClassEvent($TourId, 1, 3, 'RCM', 'R', 'CM');
@@ -316,6 +437,14 @@ function InsertStandardEvents($TourId, $SubRule) {
 			InsertClassEvent($TourId, 2, 1, 'CJX', 'C', 'JM');
 			InsertClassEvent($TourId, 1, 1, 'CCX', 'C', 'CW');
 			InsertClassEvent($TourId, 2, 1, 'CCX', 'C', 'CM');
+            InsertClassEvent($TourId, 1, 3, 'BJM', 'B', 'JM');
+            InsertClassEvent($TourId, 1, 3, 'BCM', 'B', 'CM');
+            InsertClassEvent($TourId, 1, 3, 'BJW', 'B', 'JW');
+            InsertClassEvent($TourId, 1, 3, 'BCW', 'B', 'CW');
+            InsertClassEvent($TourId, 1, 1, 'BJX', 'B', 'JW');
+            InsertClassEvent($TourId, 2, 1, 'BJX', 'B', 'JM');
+            InsertClassEvent($TourId, 1, 1, 'BCX', 'B', 'CW');
+            InsertClassEvent($TourId, 2, 1, 'BCX', 'B', 'CM');
 			break;
 	}
 }

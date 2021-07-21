@@ -1,16 +1,13 @@
 <?php
 
 if(!defined('INSTALL')) define('INSTALL', false);
-$newversion='2019-06-30 13:50:00';
+$newversion='2021-03-07 19:15:00';
 
 // mod to force rebuild of release online: change this line to something else if only git submodules are involved
 // 2018-03-02
 
 // definition of the CONFIG object
 $CFG = new StdClass();
-
-// to remove when stable!!!
-$CFG->ISK_PRO_DEBUG = '';
 
 // debug utility, set to false in production
 $CFG->TRACE_QUERRIES = false;
@@ -20,14 +17,23 @@ $CFG->INCLUDE_PATH = dirname(__FILE__);
 ini_set("include_path", get_include_path() . PATH_SEPARATOR . $CFG->INCLUDE_PATH );
 
 $CFG->DOCUMENT_PATH = $CFG->INCLUDE_PATH . DIRECTORY_SEPARATOR;
+$CFG->FONT_PATH = $CFG->DOCUMENT_PATH.'Common/tcpdf/fonts/';
 
 // some paths
 $CFG->IanseoServer='https://www.ianseo.net/';
-$CFG->WaWrapper='https://api.worldarchery.org/';
-$CFG->ExtranetWrapper='https://extranet.worldarchery.org/';
+$CFG->WaWrapper='https://api.worldarchery.sport/';
+$CFG->ExtranetWrapper='https://extranet.worldarchery.sport/';
+
+$CFG->USERAUTH=false;
 
 $CFG->ODF='';
 $CFG->ODF_VERSION='2.10'; // TOKYO 2020 OG as of 22/02/2019
+
+// Defines the rank to assign to DeRanking IRMs (DSQ and DQB)
+$CFG->DERANKING=32000;
+$CFG->DISQUALIFIED=31000;
+$CFG->DIDNOTSTART=30000;
+$CFG->DIDNOTFINISH=29999;
 
 //Definition of the INFO object
 $INFO = new StdClass();
@@ -100,7 +106,7 @@ if(isset($_GET['Ianseo-debug-mode'])) {
 $ERROR_REPORT = ($ERROR_REPORT and $_SESSION['debug']);
 
 if($ERROR_REPORT) {
-	error_reporting(E_ALL);
+	//error_reporting(E_ALL);
 	ini_set('display_errors','On');
 } else {
 	error_reporting(0);
@@ -118,3 +124,7 @@ if(!empty($CFG->ROOT_DIR) and dirname($_SERVER['PHP_SELF'])!=$CFG->ROOT_DIR.'Mod
 	die();
 }
 
+//User Authentication
+if($CFG->USERAUTH AND empty($SKIP_AUTH) AND is_file($CFG->DOCUMENT_PATH .'Modules/Authentication/AuthFunctions.php')) {
+    include_once($CFG->DOCUMENT_PATH.'Modules/Authentication/AuthFunctions.php');
+}

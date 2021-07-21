@@ -15,6 +15,7 @@ $Winners=array();
 $Ranking=array();
 $Teams=array();
 
+
 $q=safe_r_sql("select EvCode, EvNumQualified
 	from Events 
 	where EvTeamEvent=1 and EvTournament={$_SESSION['TourId']} 
@@ -29,6 +30,12 @@ while($r=safe_fetch($q)) {
 
 $SavedBonus=getModuleParameter('FFTA', 'D1Bonus', $Winners);
 $SavedWinners=getModuleParameter('FFTA', 'D1Winners', $Winners);
+if(!$SavedBonus) {
+	$SavedBonus=$Winners;
+}
+if(!$SavedWinners) {
+	$SavedWinners=$Winners;
+}
 setModuleParameter('FFTA', 'D1Bonus', $SavedBonus);
 setModuleParameter('FFTA', 'D1Winners', $SavedWinners);
 

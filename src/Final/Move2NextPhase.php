@@ -12,6 +12,7 @@
 	$event=isset($_REQUEST['event']) ? $_REQUEST['event'] : null;
 	$team=isset($_REQUEST['team']) ? $_REQUEST['team'] : null;
 	$match=isset($_REQUEST['match']) ? $_REQUEST['match'] : null;
+	$pool=empty($_REQUEST['pool']) ? '' : $_REQUEST['pool'];
 
     checkACL(($team ? AclTeams : AclIndividuals), AclReadWrite);
 
@@ -31,7 +32,7 @@
 	{
 		if ($team==0)
 		{
-			$ok=move2NextPhase(null,$event,$match);
+			$ok=move2NextPhase(null, $event, $match,0,false, $pool);
 		}
 		else
 		{

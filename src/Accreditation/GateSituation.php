@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 09/05/17
- * Time: 18.51
- */
 
 require_once(dirname(dirname(__FILE__)).'/config.php');
 checkACL(AclRoot, AclReadWrite);
@@ -16,7 +10,7 @@ $Options=GetParameter('AccessApp', '', array(), true);
 $PAGE_TITLE=get_text('MenuLM_GateSituation');
 
 $JS_SCRIPT=array(
-	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 	'<script type="text/javascript" src="./GateSituation.js"></script>',
 );
 

@@ -62,7 +62,7 @@ require_once('Common/Rank/Obj_Rank_GridInd.php');
 				. " EvFinalPrintHead, "
 				. " 63 as Phase,"
 				. " truncate((FinMatchNo-128)/16,0)+1 as GameNumber,"
-				. " pow(2, ceil(log2(GrPhase))+1) & EvMatchArrowsNo!=0 as FinElimChooser,"
+				. " if(GrPhase=0, 1, pow(2, ceil(log2(GrPhase))+1)) & EvMatchArrowsNo!=0 as FinElimChooser,"
 				. " greatest(PhId, PhLevel) as FullPhase,"
 				. " EvShootOff,"
 				. " EvCodeParent,"

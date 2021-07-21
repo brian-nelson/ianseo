@@ -52,6 +52,7 @@ $lang['ErrPassToSet']='geef nieuw wachtwoord';
 $lang['ErrSubClass']='foutieve sub klasse';
 $lang['ErrSubClassNotFound']='Sub klasse niet gevonden';
 $lang['ErrWronglevel']='Club schutter verkeerd niveau';
+$lang['InvalidData']='Onjuiste data';
 $lang['LoginTooManyArchers']='Meer dan 1 sporter heeft dit email adres. Gebruik de unieke ID.';
 $lang['WrongType']='Fout type';
 ?>

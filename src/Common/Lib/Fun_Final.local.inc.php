@@ -356,8 +356,22 @@ require_once('Common/Lib/CommonLib.php');
 				{
 					$query.="
 						,ev1.EvMatchMode AS matchMode,ev1.EvMatchArrowsNo AS matchArrowsNo,
-						f1.FinScore AS score1,f1.FinSetScore AS setScore1,f1.FinSetPoints AS setPoints1,f1.FinSetPointsByEnd AS setPointsByEnd1,f1.FinTie AS tie1,f1.FinArrowstring AS arrowString1,f1.FinTiebreak AS tiebreak1,
-						f2.FinScore AS score2,f2.FinSetScore AS setScore2,f2.FinSetPoints AS setPoints2,f2.FinSetPointsByEnd AS setPointsByEnd2,f2.FinTie AS tie2,f2.FinArrowstring AS arrowString2,f2.FinTiebreak AS tiebreak2
+						f1.FinScore AS score1,
+						f1.FinSetScore AS setScore1,
+						f1.FinSetPoints AS setPoints1,
+						f1.FinSetPointsByEnd AS setPointsByEnd1,
+						f1.FinTie AS tie1,
+						f1.FinArrowstring AS arrowString1,
+						f1.FinTiebreak AS tiebreak1,
+						f1.FinTbClosest AS closest1,
+						f2.FinScore AS score2,
+						f2.FinSetScore AS setScore2,
+						f2.FinSetPoints AS setPoints2,
+						f2.FinSetPointsByEnd AS setPointsByEnd2,
+						f2.FinTie AS tie2,
+						f2.FinArrowstring AS arrowString2,
+						f2.FinTiebreak AS tiebreak2,
+						f2.FinTbClosest AS closest2
 					";
 				}
 
@@ -450,8 +464,8 @@ require_once('Common/Lib/CommonLib.php');
 				{
 					$query.="
 						,ev1.EvMatchMode AS matchMode,ev1.EvMatchArrowsNo AS matchArrowsNo,
-						tf1.TfScore AS score1,tf1.TfSetScore AS setScore1,tf1.TfSetPoints AS setPoints1,tf1.TfTie AS tie1,tf1.TfArrowstring AS arrowString1,tf1.TfTiebreak AS tiebreak1,
-						tf2.TfScore AS score2,tf2.TfSetScore AS setScore2,tf2.TfSetPoints AS setPoints2,tf2.TfTie AS tie2,tf2.TfArrowstring AS arrowString2,tf2.TfTiebreak AS tiebreak2
+						tf1.TfScore AS score1,tf1.TfSetScore AS setScore1,tf1.TfSetPoints AS setPoints1,tf1.TfTie AS tie1,tf1.TfArrowstring AS arrowString1,tf1.TfTiebreak AS tiebreak1,tf1.TfTbClosest AS closest1,
+						tf2.TfScore AS score2,tf2.TfSetScore AS setScore2,tf2.TfSetPoints AS setPoints2,tf2.TfTie AS tie2,tf2.TfArrowstring AS arrowString2,tf2.TfTiebreak AS tiebreak2,tf2.TfTbClosest AS closest2
 					";
 				}
 
@@ -544,11 +558,10 @@ require_once('Common/Lib/CommonLib.php');
 					UNIX_TIMESTAMP(IF(f1.FinDateTime>=f2.FinDateTime,f1.FinDateTime,f2.FinDateTime)) AS lastUpdate
 			";
 
-				if ($OnlyNames==false)
-				{
+				if ($OnlyNames==false) {
 					$query.="
-						, f1.FinScore AS score1,f1.FinSetScore AS setScore1,f1.FinSetPoints AS setPoints1,f1.FinTie AS tie1,f1.FinArrowstring AS arrowString1,f1.FinTiebreak AS tiebreak1,
-						f2.FinScore AS score2,f2.FinSetScore AS setScore2,f2.FinSetPoints AS setPoints2,f2.FinTie AS tie2,f2.FinArrowstring AS arrowString2,f2.FinTiebreak AS tiebreak2,
+						, f1.FinScore AS score1,f1.FinSetScore AS setScore1,f1.FinSetPoints AS setPoints1,f1.FinTie AS tie1,f1.FinArrowstring AS arrowString1,f1.FinTiebreak AS tiebreak1,f1.FinTbClosest AS tieclosest1,
+						f2.FinScore AS score2,f2.FinSetScore AS setScore2,f2.FinSetPoints AS setPoints2,f2.FinTie AS tie2,f2.FinArrowstring AS arrowString2,f2.FinTiebreak AS tiebreak2,f2.FinTbClosest AS tieclosest2,
 						f1.FinTie AS tie1,f2.FinTie AS tie2
 					";
 				}
@@ -649,8 +662,8 @@ require_once('Common/Lib/CommonLib.php');
 				if ($OnlyNames==false)
 				{
 					$query.="
-						,tf1.TfScore AS score1,tf1.TfSetScore AS setScore1,tf1.TfSetPoints AS setPoints1,tf1.TfTie AS tie1,tf1.TfArrowstring AS arrowString1,tf1.TfTiebreak AS tiebreak1,
-						tf2.TfScore AS score2,tf2.TfSetScore AS setScore2,tf2.TfSetPoints AS setPoints2,tf2.TfTie AS tie2,tf2.TfArrowstring AS arrowString2,tf2.TfTiebreak AS tiebreak2,
+						,tf1.TfScore AS score1,tf1.TfSetScore AS setScore1,tf1.TfSetPoints AS setPoints1,tf1.TfTie AS tie1,tf1.TfArrowstring AS arrowString1,tf1.TfTiebreak AS tiebreak1,tf1.TfTbClosest AS tieclosest1,
+						tf2.TfScore AS score2,tf2.TfSetScore AS setScore2,tf2.TfSetPoints AS setPoints2,tf2.TfTie AS tie2,tf2.TfArrowstring AS arrowString2,tf2.TfTiebreak AS tiebreak2,tf2.TfTbClosest AS tieclosest2,
 						tf1.TfTie AS tie1,tf2.TfTie AS tie2
 					";
 				}

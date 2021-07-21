@@ -114,10 +114,11 @@ function CreateStandardClasses($TourId, $SubRule, $Type) {
 			// BueJager has only 1
 			if($Type==11 or $Type==17) CreateClass($TourId, $i++, 11, 100, -1, '1u', '1u', '1', 1, 'BU');
 		} else {
+            $IncludeB3 = !($Type==6 OR $Type==7 OR $Type==8 OR $Type==22);
 			CreateClass($TourId, $i++, 11, 13, -1, '5', '1,2,3,4,5', '5', 1, 'B,C,IN,LB,R');
 			CreateClass($TourId, $i++, 14, 15, -1, '4', '1,2,3,4', '4', 1, 'B,C,IN,LB,R');
-			CreateClass($TourId, $i++, 16, 100, -1, '3', '1,2,3', '3', 1, 'C,R');
-			CreateClass($TourId, $i++, 16, 100, -1, '2', '1,2', '2', 1, 'B,C,R');
+			CreateClass($TourId, $i++, 16, 100, -1, '3', '1,2,3', '3', 1, ($IncludeB3 ? 'B,' :'') . 'C,R');
+			CreateClass($TourId, $i++, 16, 100, -1, '2', '1,2', '2', 1, 'B,C,IN,LB,R');
 			CreateClass($TourId, $i++, 16, 100, -1, '1', '1', '1', 1, 'B,C,IN,LB,R');
 		}
 	}
@@ -223,14 +224,17 @@ function CreateStandardEvents($TourId, $TourType, $SubRule, $Outdoor=true) {
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetC, 5, 3, 1, 5, 3, 1, 'C4', 'Compound 4', 0, 240, 255, 0, 0, '', '', $TargetSizeC, $DistanceT);
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'R4', 'Recurve 4', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceB);
 
+            CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'B3', 'Barebow 3', 1, 240, 255, 0, 0, '', '', $TargetSizeB, $DistanceF);
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetC, 5, 3, 1, 5, 3, 1, 'C3', 'Compound 3', 0, 240, 255, 0, 0, '', '', $TargetSizeC, $DistanceC);
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'R3', 'Recurve 3', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceC);
 
-            CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'B2', 'Barebow 2', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceF);
+            CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'B2', 'Barebow 2', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceB);
+            CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'IN2', 'Instinktiv 2', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceF);
+            CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'LB2', 'Langbue 2', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceF);
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetC, 5, 3, 1, 5, 3, 1, 'C2', 'Compound 2', 0, 240, 255, 0, 0, '', '', $TargetSizeC, $DistanceC);
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'R2', 'Recurve 2', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceRW);
 
-            CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'B1', 'Barebow 1', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceB);
+            CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'B1', 'Barebow 1', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceC);
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'IN1', 'Instinktiv 1', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceT);
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'LB1', 'Langbue 1', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceT);
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetC, 5, 3, 1, 5, 3, 1, 'C1', 'Compound 1', 0, 240, 255, 0, 0, '', '', $TargetSizeC, $DistanceC);
@@ -257,6 +261,8 @@ function CreateStandardEvents($TourId, $TourType, $SubRule, $Outdoor=true) {
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetRY, 5, 3, 1, 5, 3, 1, 'R3', 'Recurve 3', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceR);
 
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetRY, 5, 3, 1, 5, 3, 1, 'B2', 'Barebow 2', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceR);
+            CreateEvent($TourId, $i++, 0, 0, 8, $TargetRY, 5, 3, 1, 5, 3, 1, 'IN2', 'Instinktiv 2', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceR);
+            CreateEvent($TourId, $i++, 0, 0, 8, $TargetRY, 5, 3, 1, 5, 3, 1, 'LB2', 'Langbue 2', 1, 240, 255, 0, 0, '', '', $TargetSizeR, $DistanceR);
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetC, 5, 3, 1, 5, 3, 1, 'C2', 'Compound 2', 0, 240, 255, 0, 0, '', '', $TargetSizeC, $DistanceR);
             CreateEvent($TourId, $i++, 0, 0, 8, $TargetRY, 5, 3, 1, 5, 3, 1, 'R2', 'Recurve 2', 1, 240, 255, 0, 0, '', '', $TargetSizeC, $DistanceR);
 
@@ -348,9 +354,12 @@ function InsertStandardEvents($TourId, $TourType, $SubRule, $Outdoor=true) {
 		InsertClassEvent($TourId, 0, 1, 'B4', 'B', '4');
         InsertClassEvent($TourId, 0, 1, 'IN4', 'IN', '4');
         InsertClassEvent($TourId, 0, 1, 'LB4', 'LB', '4');
-		InsertClassEvent($TourId, 0, 1, 'C3', 'C', '3');
+        InsertClassEvent($TourId, 0, 1, 'B3', 'B', '3');
+        InsertClassEvent($TourId, 0, 1, 'C3', 'C', '3');
 		InsertClassEvent($TourId, 0, 1, 'R3', 'R', '3');
         InsertClassEvent($TourId, 0, 1, 'B2', 'B', '2');
+        InsertClassEvent($TourId, 0, 1, 'IN2', 'IN', '2');
+        InsertClassEvent($TourId, 0, 1, 'LB2', 'LB', '2');
 		InsertClassEvent($TourId, 0, 1, 'C2', 'C', '2');
 		InsertClassEvent($TourId, 0, 1, 'R2', 'R', '2');
 		InsertClassEvent($TourId, 0, 1, 'B1', 'B', '1');
@@ -495,7 +504,7 @@ function InsertStandardFieldEvents($TourId, $SubRule) {
 			InsertClassEvent($TourId, 2, 1, 'Lag', $d, $c);
 		}
 	}
-	foreach(array('B' => array('K', 'Di','Hi'), 'IN' => array('K','Di','Hi')) as $d => $cs) {
+	foreach(array('B' => array('K', 'Di','Hi'), 'IN' => array('K','Di','Hi'), 'LB' => array('K', 'Di','Hi'),) as $d => $cs) {
 		foreach($cs as $c) {
 			InsertClassEvent($TourId, 3, 1, 'Lag', $d, $c);
 		}

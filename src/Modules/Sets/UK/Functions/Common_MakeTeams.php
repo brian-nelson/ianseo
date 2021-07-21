@@ -40,7 +40,8 @@ foreach($divisions as $div)
 			(SELECT " . ($level==0 ? "CoId" : "CoParent".$level) . " AS Country, 1 as CheQuery, EnId, QuScore, QuGold, QuXnine
 			FROM Entries
 			INNER JOIN Countries ON EnCountry=CoId
-			INNER JOIN Qualifications ON EnId=QuId
+			INNER JOIN Qualifications ON EnId=QuId 
+			inner join IrmTypes on IrmId=QuIrmType and IrmShowRank=1
 			WHERE EnAthlete=1 AND EnCountry<>0  AND EnTeamClEvent=1 AND EnStatus<=1 AND QuScore<>0 AND CoCode<>'0'
 			" . (!is_null($Societa) ? "AND EnCountry=" . StrSafe_DB($Societa) : "") . "
 			AND EnTournament=" . StrSafe_DB($ToId) . " AND CONCAT(IF(EnDivision='B','R',EnDivision), EnClass) IN (" . implode(",",$clMen) . "))
@@ -48,7 +49,8 @@ foreach($divisions as $div)
 			(SELECT " . ($level==0 ? "CoId" : "CoParent".$level) . " AS Country, 2 as CheQuery, EnId, QuScore, QuGold, QuXnine
 			FROM Entries
 			INNER JOIN Countries ON EnCountry=CoId
-			INNER JOIN Qualifications ON EnId=QuId
+			INNER JOIN Qualifications ON EnId=QuId 
+			inner join IrmTypes on IrmId=QuIrmType and IrmShowRank=1
 			WHERE EnAthlete=1 AND EnCountry<>0  AND EnTeamClEvent=1 AND EnStatus<=1 AND QuScore<>0 AND CoCode<>'0'
 			" . (!is_null($Societa) ? "AND EnCountry=" . StrSafe_DB($Societa) : "") . "
 			AND EnTournament=" . StrSafe_DB($ToId) . " AND CONCAT(IF(EnDivision='B','R',EnDivision), EnClass) IN (" . implode(",",$clWomen) . "))
@@ -56,7 +58,8 @@ foreach($divisions as $div)
 			(SELECT " . ($level==0 ? "CoId" : "CoParent".$level) . " AS Country, 3 as CheQuery, EnId, QuScore, QuGold, QuXnine
 			FROM Entries
 			INNER JOIN Countries ON EnCountry=CoId
-			INNER JOIN Qualifications ON EnId=QuId
+			INNER JOIN Qualifications ON EnId=QuId 
+			inner join IrmTypes on IrmId=QuIrmType and IrmShowRank=1
 			WHERE EnAthlete=1 AND EnCountry<>0  AND EnTeamClEvent=1 AND EnStatus<=1 AND QuScore<>0 AND CoCode<>'0'
 			" . (!is_null($Societa) ? "AND EnCountry=" . StrSafe_DB($Societa) : "") . "
 			AND EnTournament=" . StrSafe_DB($ToId) . " AND CONCAT(IF(EnDivision='B','R',EnDivision), EnClass) IN (" . implode(",",array_merge($clMen,$clWomen)) . "))

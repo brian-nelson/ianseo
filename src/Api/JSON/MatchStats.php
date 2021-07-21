@@ -18,6 +18,11 @@ $EvCode = '....';
 if(isset($_REQUEST['Event']) && preg_match("/^[a-z0-9_-]+$/i", $_REQUEST['Event'])) {
 	$EvCode = $_REQUEST['Event'];
 }
+$WaEvCode=$EvCode;
+$q = safe_r_SQL("SELECT EvWaCategory from Events WHERE EvCode='{$EvCode}' AND EvTeamEvent={$EvType} AND EvTournament={$TourId}");
+if($r = safe_fetch($q) AND !empty($r->EvWaCategory)) {
+    $WaEvCode = $r->EvWaCategory;
+}
 
 $MatchId = -1;
 if(isset($_REQUEST['MatchId']) && preg_match("/^[0-9]+$/", $_REQUEST['MatchId'])) {
@@ -92,12 +97,12 @@ foreach($Data['sections'] as $kSec=>$vSec) {
                 $bioR=null;
                 if($EvType) {
 //Get the biographies for the two teams
-                    $bioL = json_decode(file_get_contents($CFG->WaWrapper . "/v3/TEAMBIOGRAPHY/?Noc=" . $vItem["countryCode"] . "&CatCode=" . $EvCode . "&Detailed=1&RBP=-1"));
-                    $bioR = json_decode(file_get_contents($CFG->WaWrapper . "/v3/TEAMBIOGRAPHY/?Noc=" . $vItem["oppCountryCode"] . "&CatCode=" . $EvCode . "&Detailed=1&RBP=-1"));
+                    $bioL = json_decode(file_get_contents($CFG->WaWrapper . "/v3/TEAMBIOGRAPHY/?Noc=" . $vItem["countryCode"] . "&CatCode=" . $WaEvCode . "&Detailed=1&RBP=-1"));
+                    $bioR = json_decode(file_get_contents($CFG->WaWrapper . "/v3/TEAMBIOGRAPHY/?Noc=" . $vItem["oppCountryCode"] . "&CatCode=" . $WaEvCode . "&Detailed=1&RBP=-1"));
                 } else {
 //Get the biographies for the two individuals
-                    $bioL = json_decode(file_get_contents($CFG->WaWrapper . "/v3/ATHLETEBIOGRAPHY/?Id=" . $vItem["bib"] . "&CatCode=" . $EvCode . "&Detailed=1&RBP=-1"));
-                    $bioR = json_decode(file_get_contents($CFG->WaWrapper . "/v3/ATHLETEBIOGRAPHY/?Id=" . $vItem["oppBib"] . "&CatCode=" . $EvCode . "&Detailed=1&RBP=-1"));
+                    $bioL = json_decode(file_get_contents($CFG->WaWrapper . "/v3/ATHLETEBIOGRAPHY/?Id=" . $vItem["bib"] . "&CatCode=" . $WaEvCode . "&Detailed=1&RBP=-1"));
+                    $bioR = json_decode(file_get_contents($CFG->WaWrapper . "/v3/ATHLETEBIOGRAPHY/?Id=" . $vItem["oppBib"] . "&CatCode=" . $WaEvCode . "&Detailed=1&RBP=-1"));
                 }
 //Career
                 if(!empty($bioL->items[0]->Stats->Career[0]->AverageArr)) {
@@ -237,9 +242,9 @@ foreach($Data['sections'] as $kSec=>$vSec) {
 //Get the Head2Head History
                 $H2Hbio = null;
                 if($EvType) {
-                    $H2Hbio = json_decode(file_get_contents($CFG->WaWrapper . "/v3/COUNTRYMATCHES/?Noc=" . $vItem["countryCode"] . "&Noc2=" . $vItem["oppCountryCode"] . "&CatCode=" . $EvCode . "&RBP=-1"));
+                    $H2Hbio = json_decode(file_get_contents($CFG->WaWrapper . "/v3/COUNTRYMATCHES/?Noc=" . $vItem["countryCode"] . "&Noc2=" . $vItem["oppCountryCode"] . "&CatCode=" . $WaEvCode . "&IndividualTeam=2&RBP=-1"));
                 } else {
-                    $H2Hbio = json_decode(file_get_contents($CFG->WaWrapper . "/v3/ATHLETEMATCHES/?Id=" . $vItem["bib"] . "&Id2=" . $vItem["oppBib"] . "&RBP=-1"));
+                    $H2Hbio = json_decode(file_get_contents($CFG->WaWrapper . "/v3/ATHLETEMATCHES/?Id=" . $vItem["bib"] . "&Id2=" . $vItem["oppBib"] . "&IndividualTeam=1&RBP=-1"));
                 }
                 $LSum=0;
                 $LCnt=0;
@@ -319,7 +324,7 @@ foreach($Data['sections'] as $kSec=>$vSec) {
                                 $tmpMatch["FamilyName"] = $vPh['items'][0][(($vPh['items'][0][$id] == $vItem[$id]) ? 'oppCountryName' : 'countryName')];
                             }
                             $tmpMatch["NOC"] = $vPh['items'][0][(($vPh['items'][0][$id] == $vItem[$id]) ? 'oppCountryCode' : 'countryCode')];
-                            $tmpMatch["OppScore"] = $vPh['items'][0][(($vPh['items'][0][$id] == $vItem[$id]) ? 'oppNotes' : 'notes')];
+                            $tmpMatch["OppScore"] = $vPh['items'][0][(($vPh['items'][0][$id] == $vItem[$id]) ? 'oppIrmText' : 'irmText')];
                         }
                     } else {
                         if($EvType==0) {
@@ -380,7 +385,7 @@ foreach($Data['sections'] as $kSec=>$vSec) {
                                 $tmpMatch["FamilyName"] = $vPh['items'][0][(($vPh['items'][0][$id] == $vItem[$oppId]) ? 'oppCountryName' : 'countryName')];
                             }
                             $tmpMatch["NOC"] = $vPh['items'][0][(($vPh['items'][0][$id] == $vItem[$oppId]) ? 'oppCountryCode' : 'countryCode')];
-                            $tmpMatch["OppScore"] = $vPh['items'][0][(($vPh['items'][0][$id] == $vItem[$oppId]) ? 'oppNotes' : 'notes')];
+                            $tmpMatch["OppScore"] = $vPh['items'][0][(($vPh['items'][0][$id] == $vItem[$oppId]) ? 'oppIrmText' : 'irmText')];
                         }
                     } else {
                         if($EvType==0) {

@@ -3,6 +3,10 @@
 require_once(dirname(dirname(__FILE__)) . '/config.php');
 require_once('Common/pdf/LabelPDF.inc.php');
 
+if(!empty($_REQUEST['ToId'])) {
+	CreateTourSession(intval($_REQUEST['ToId']));
+}
+
 if($Mem=getSystemMemInfo() and !empty($Mem['MemFree'])) {
 	$Free=ceil(intval($Mem['MemFree'])/1500000);
 	if($Free>3) {
@@ -41,7 +45,7 @@ require_once('CommonCard.php');
 $Rs=safe_r_sql($MyQuery);
 if (!safe_num_rows($Rs)) {
 	include('Common/Templates/head-popup.php');
-	echo '<table height="'.($_SESSION['WINHEIGHT']-50).'" width="100%"><tr><td>';
+	echo '<table style="margin-top:20vh" width="100%"><tr><td>';
 	echo '<div align="center">' . get_text('BadgeNoData', 'Tournament') . '';
 	echo '<br/><br/><input type="button" onclick="window.close();" value="' . get_text('Close') . '">';
 	echo '</td></tr></table>';
@@ -80,15 +84,10 @@ $pdf->SetCellPadding(0);
 
 // COMMENT when done!!
 // Adds some more fonts
-//$Path='/PATH/TO/FONT/';
-//$pdf->addTTFfont($Path.'helveticaneueltpro.ttf');
-//$pdf->addTTFfont($Path.'helveticaneueltprob.ttf');
-//$pdf->addTTFfont($Path.'helveticaneueltproi.ttf');
-//$pdf->addTTFfont($Path.'helveticaneueltprobi.ttf');
-//$pdf->addTTFfont($Path.'helveticaneueltprocn.ttf');
-//$pdf->addTTFfont($Path.'helveticaneueltprocnb.ttf');
-//$pdf->addTTFfont($Path.'helveticaneueltprocni.ttf');
-//$pdf->addTTFfont($Path.'helveticaneueltprocnbi.ttf');
+//$Path=$CFG->DOCUMENT_PATH.'/Common/tcpdf/fonts/';
+//TCPDF_FONTS::addTTFfont($Path.'timesbi.ttf');
+//TCPDF_FONTS::addTTFfont($Path.'timesi.ttf');
+//TCPDF_FONTS::addTTFfont($Path.'times.ttf');
 
 
 
@@ -137,10 +136,20 @@ while ($MyRow=safe_fetch($Rs)) {
 		while($r=safe_fetch($q)) {
 			$r->Options=unserialize($r->IceOptions);
 			if(!empty($r->Options['Font'])) {
-                $r->Options['FontFamily'] = $pdf->addTTFfont(K_PATH_FONTS . $r->Options['Font'] . '.ttf');
+				$r->Options['FontStyle']='';
+                $r->Options['FontFamily'] = TCPDF_FONTS::addTTFfont(K_PATH_FONTS . $r->Options['Font'] . '.ttf');
+				if(substr($r->Options['Font'],-1)=='i') {
+					$r->Options['FontStyle']='I';
+					$r->Options['FontFamily']=substr($r->Options['Font'],0,-1);
+				}
+				if(substr($r->Options['Font'],-1)=='b') {
+					$r->Options['FontStyle']='B';
+					$r->Options['FontFamily']=substr($r->Options['Font'],0,-1);
+				}
+
 		// 		$r->Options['FontFamily']=$pdf->addTTFfont(K_PATH_FONTS.'HelveticaCondensed.ttf');
-				$r->Options['FontStyle']=(substr($r->Options['Font'], -2, 1)=='b' ? 'B' : '')
-					.(substr($r->Options['Font'], -1, 1)=='i' ? 'I' : '');
+		//		$r->Options['FontStyle']=(substr($r->Options['Font'], -2, 1)=='b' ? 'B' : '')
+		//			.(substr($r->Options['Font'], -1, 1)=='i' ? 'I' : '');
 			}
 			$Elements[]=$r;
 		}
@@ -302,7 +311,13 @@ while ($MyRow=safe_fetch($Rs)) {
 	                    //$Element->Options['BackCol']='';
 	                    //$Element->Options['Col']='#bfbfbf';
 	                    //$Element->Options['Just']='1';
-
+                        if(strpos($Element->Options['Size'],'-')!==false) {
+                            list($fSize,$fSpace) = explode('-',$Element->Options['Size']);
+                            $Element->Options['Size'] = $fSize;
+                            $pdf->setFontSpacing($fSpace);
+                        } else {
+                            $pdf->setFontSpacing(0);
+                        }
 	                    $pdf->SetFont($Element->Options['FontFamily'], $Element->Options['FontStyle'], $Element->Options['Size']);
 	                    $Fill=false;
 	                    $ReverseText=false;
@@ -435,8 +450,24 @@ while ($MyRow=safe_fetch($Rs)) {
 							$Text=array($T);
 					}
 				}
+            case 'QRScore':
+                if(!isset($Text)) {
+                    $Text=array($MyRow->QRScore);
+                }
 			case 'Ranking':
-				if(!isset($Text)) $Text=array($MyRow->Rank);
+				if(!isset($Text)) {
+                    switch($Element->IceContent) {
+                        case 'Cardinal':  $Text=array($MyRow->Rank); break;
+                        case 'Ordinal':  $Text=array(ordinal($MyRow->Rank)); break;
+                    }
+                }
+			case 'FinalRanking':
+                if(!isset($Text)) {
+                    switch($Element->IceContent) {
+                        case 'Cardinal':  $Text=array($MyRow->RankFinal); break;
+                        case 'Ordinal':  $Text=array(ordinal($MyRow->RankFinal)); break;
+                    }
+                }
 			case 'Event':
 				if(!isset($Text)) {
 					$Text=array($MyRow->EvCode);
@@ -499,6 +530,13 @@ while ($MyRow=safe_fetch($Rs)) {
 					$Text=array(trim($txt));
 				}
 
+                if(strpos($Element->Options['Size'],'-')!==false) {
+                    list($fSize,$fSpace) = explode('-',$Element->Options['Size']);
+                    $Element->Options['Size'] = $fSize;
+                    $pdf->setFontSpacing($fSpace);
+                } else {
+                    $pdf->setFontSpacing(0);
+                }
 				$pdf->SetFont($Element->Options['FontFamily'], $Element->Options['FontStyle'], $Element->Options['Size']);
 				$Fill=false;
 				$WhiteText=false;
@@ -507,10 +545,10 @@ while ($MyRow=safe_fetch($Rs)) {
 					$R=hexdec(substr($MyRow->AcColor, 0, 2));
 					$G=hexdec(substr($MyRow->AcColor, 2, 2));
 					$B=hexdec(substr($MyRow->AcColor, 4, 2));
-					if($Element->IceType=='ColoredArea') {
+					//if($Element->IceType=='ColoredArea') {
 						$pdf->SetFillColor($R, $G, $B);
 						$Fill=true;
-					}
+					//}
 					if(IsDarkBackground(array($R, $G, $B))) {
 						$WhiteText=true;
 					} else {
@@ -520,10 +558,10 @@ while ($MyRow=safe_fetch($Rs)) {
 					$R=hexdec(substr($Element->Options['BackCol'], 1, 2));
 					$G=hexdec(substr($Element->Options['BackCol'], 3, 2));
 					$B=hexdec(substr($Element->Options['BackCol'], 5, 2));
-					if($Element->IceType=='ColoredArea') {
+					//if($Element->IceType=='ColoredArea') {
 						$pdf->SetFillColor($R, $G, $B);
 						$Fill=true;
-					}
+					//}
 					if(IsDarkBackground(array($R, $G, $B))) {
 						$WhiteText=true;
 					}
@@ -676,7 +714,7 @@ while ($MyRow=safe_fetch($Rs)) {
 				$TgtQuery = 'SELECT
 						EvCode, EvEventName, EvFinalFirstPhase, GrPhase,
 						GrMatchNo, EnId, Concat(EnFirstName, " ", LEFT(EnName,1), ".") as Athlete,
-						CoCode, CoName, IndRank as Rank,
+						CoCode, CoName, IndRank as `Rank`,
 						NULLIF(s64.FSLetter,\'\') s64, NULLIF(s32.FSLetter,\'\') s32, NULLIF(s16.FSLetter,\'\') s16, NULLIF(s8.FSLetter,\'\') s8, NULLIF(s4.FSLetter,\'\') s4, NULLIF(s2.FSLetter,\'\') s2, NULLIF(sb.FSLetter,\'\') sBr, NULLIF(sg.FSLetter,\'\') sGo
 					FROM Events
 					INNER JOIN Phases on PhId=EvFinalFirstPhase and (PhIndTeam & pow(2,EvTeamEvent))>0
@@ -694,7 +732,7 @@ while ($MyRow=safe_fetch($Rs)) {
 					LEFT JOIN FinSchedule s2 ON EvCode=s2.FSEvent AND EvTeamEvent=s2.FSTeamEvent AND EvTournament=s2.FSTournament AND IF(GrPhase=2,FinMatchNo,FLOOR(s4.FSMatchNo/2))=s2.FSMatchNo
 					LEFT JOIN FinSchedule sb ON EvCode=sb.FSEvent AND EvTeamEvent=sb.FSTeamEvent AND EvTournament=sb.FSTournament AND FLOOR(s2.FSMatchNo/2)=sb.FSMatchNo
 					LEFT JOIN FinSchedule sg ON EvCode=sg.FSEvent AND EvTeamEvent=sg.FSTeamEvent AND EvTournament=sg.FSTournament AND FLOOR(s2.FSMatchNo/2)-2=sg.FSMatchNo
-					WHERE EvTournament=' . StrSafe_DB($MyRow->EnTournament) . ' AND EvTeamEvent=0 and EnId='.$MyRow->EnId.'
+					WHERE EvTournament=' . StrSafe_DB($MyRow->EnTournament) . ' AND EvCode='.StrSafe_DB($MyRow->EvCode).' and EvTeamEvent=0 and EnId='.$MyRow->EnId.'
 					ORDER BY EvCode, GrPhase DESC, FinMatchNo ASC';
 
 				$TgtQ=safe_r_sql($TgtQuery);
@@ -788,7 +826,9 @@ while ($MyRow=safe_fetch($Rs)) {
 
 safe_free_result($Rs);
 
-$pdf->Output();
+if(empty($ReturnAsString)) {
+	$pdf->Output();
+}
 
 
 function getSystemMemInfo() {
@@ -806,4 +846,12 @@ function getSystemMemInfo() {
 		}
 	}
 	return $meminfo;
+}
+
+function ordinal($number) {
+    $ends = array('th','st','nd','rd','th','th','th','th','th','th');
+    if ((($number % 100) >= 11) && (($number%100) <= 13))
+        return $number. 'th';
+    else
+        return $number. $ends[$number % 10];
 }

@@ -5,23 +5,39 @@ $ShowSchedule = (isset($PdfData->ShowSchedule) ? $PdfData->ShowSchedule : true);
 $ShowSetArrows= (isset($PdfData->ShowSetArrows) ? $PdfData->ShowSetArrows : true);
 
 $arrayTitles = array("1/12\nElimin. Round§","1/8\nElimin. Round§", "1/4\nElimin. Round§", "Semifinals§", "Finals§");
+$titArray = array("R. Round\nRank/Score§",'',"NOC","Name");
+$misArray = array(array(7.5, 8.5), 9, 9,26);
+
+
+$FreePageWidth=$pdf->getPageWidth()-20-array_reduce($misArray, function($a,$b) {return $a + (is_array($b) ? array_sum($b) : $b);});
+
+$pdf->NotAwarded = $PdfData->rankData['meta']['notAwarded'];
+$pdf->FinalRank  = $PdfData->rankData['meta']['fields']['finRank'];
+
 
 // Variabile per gestire il cambio di Evento
 $PhaseCounter=-1;
 $MyEventPhase = -1;
 
+$Finalists=array();
+$MaxFinalists=array();
+$CountPhases=array();
 foreach($PdfData->rankData['sections'] as $Event => $section) {
 	// Ho un nuovo Evento
 	// preparation of the pages
-	if(empty($PdfData->Events[$Event]))
+	$Finalists[$Event]=array();
+	$MaxFinalists[$Event]=0;
+	if(empty($PdfData->Events[$Event])) {
 		$PdfData->Events[$Event] = new stdClass();
+	}
 	$PdfData->Events[$Event]->Event = $section['meta']['eventName'];
 	$PdfData->Events[$Event]->FirstPhase = $section['meta']['firstPhase'];
 	$PdfData->Events[$Event]->PrintHead = $section['meta']['printHead'];
 	$PdfData->Events[$Event]->Medals = array("Gold"=>'-', "Silver"=>'-',"Bronze"=>'-');
     $arrayTitles[0]="1/".$section['meta']['firstPhase']."\nElimin. Round§";
-	$PdfData->Events[$Event]->Header = array_merge(array("RR Rank /\nScore#","Bk\nNo#","NOC - Name"),array_slice($arrayTitles,(4-ceil(log($section['meta']['firstPhase'],2)))));
-	$PdfData->Events[$Event]->HeaderWidth = array_merge(array(array(7,11),10,37),array_fill(0,(ceil(log($section['meta']['firstPhase'],2))+2),125/ceil((log($section['meta']['firstPhase'],2))+2)));
+	$PdfData->Events[$Event]->Header = array_merge($titArray, array_slice($arrayTitles,(4-ceil(log($section['meta']['firstPhase'],2)))));
+	$CountPhases[$Event]=count($PdfData->Events[$Event]->Header)-count($misArray);
+	$PdfData->Events[$Event]->HeaderWidth = array_merge($misArray, array_fill(0, $CountPhases[$Event]+1,$FreePageWidth/($CountPhases[$Event]+1)));
 	$PdfData->Events[$Event]->NumComponenti = ($section['meta']['firstPhase'] <= 8 ? $section['meta']['maxTeamPerson'] : 1);
 	$PdfData->Events[$Event]->Records = (empty($section['records']) ? array() : $section['records']);
 
@@ -39,13 +55,20 @@ foreach($PdfData->rankData['sections'] as $Event => $section) {
 			$Obj1->Team = $Match['countryName'];
 			$Obj1->TeRank = $Match['qualRank'];
 			$Obj1->FinRank = $Match['finRank'];
+			$Obj1->ShowRank = $Match['showRank'];
+			$Obj1->IrmText = $Match['finIrmText'];
 			$Obj1->TeScore = $Match['qualScore']; //
+			$Obj1->TeNotes = $Match['qualNotes']; //
 			$Obj1->GrPosition = $Match['position'];
 			$Obj1->Score = ($section['meta']['matchMode'] ? $Match['setScore'] : $Match['score']);
+			$Obj1->ScoreDetails = '';
+			$Obj1->ScoreMatch = $Match['score'];
+			$Obj1->ScoreCell = 6;
 			//DOC $Obj1->Score = ($Match['status']==1 ? 'DSQ-':'') . ($section['meta']['matchMode'] ? $Match['setScore'] : $Match['score']);
 			$Obj1->TfTie = $Match['tie'];
 			$Obj1->TfTieBreak = $Match['tiebreak'];
 			$Obj1->TfTieBreakDecoded = $Match['tiebreakDecoded'];
+			$Obj1->Bold = $Match['winner'] and !$Match['irm'];
 			$Obj1->SetPoints = $Match['setPoints'];
 			$Obj1->OppScore = ($section['meta']['matchMode'] ? $Match['oppSetScore'] : $Match['oppScore']);//$Match['oppScore'];
 			$Obj1->OppTie = $Match['oppTie'];
@@ -62,13 +85,20 @@ foreach($PdfData->rankData['sections'] as $Event => $section) {
 			$Obj2->Team = $Match['oppCountryName'];
 			$Obj2->TeRank = $Match['oppQualRank'];
 			$Obj2->FinRank = $Match['oppFinRank'];
+			$Obj2->ShowRank = $Match['oppShowRank'];
+			$Obj2->IrmText = $Match['oppFinIrmText'];
 			$Obj2->TeScore = $Match['oppQualScore']; //
+			$Obj2->TeNotes = $Match['oppQualNotes']; //
 			$Obj2->GrPosition = $Match['oppPosition'];
 			$Obj2->Score = ($section['meta']['matchMode'] ? $Match['oppSetScore'] : $Match['oppScore']);
+			$Obj2->ScoreDetails = '';
+			$Obj2->ScoreMatch = $Match['oppScore'];
+			$Obj2->ScoreCell = 6;
 			//DOC $Obj2->Score = ($Match['oppStatus']==1 ? 'DSQ-':'') . ($section['meta']['matchMode'] ? $Match['oppSetScore'] : $Match['oppScore']);
 			$Obj2->TfTie = $Match['oppTie'];
 			$Obj2->TfTieBreak = $Match['oppTiebreak'];
 			$Obj2->TfTieBreakDecoded = $Match['oppTiebreakDecoded'];
+			$Obj2->Bold = $Match['oppWinner'] and !$Match['oppIrm'];
 			$Obj2->SetPoints = $Match['oppSetPoints'];
 			$Obj2->OppScore = ($section['meta']['matchMode'] ? $Match['setScore'] : $Match['score']);//$Match['score'];
 			$Obj2->OppTie = $Match['tie'];
@@ -79,82 +109,107 @@ foreach($PdfData->rankData['sections'] as $Event => $section) {
 			$Obj2->Componenti = $Comp2;
 
 			// what exactly has to print as "score" for side A...
+			// what exactly has to print as "score" for side A...
+			$Obj1->strike=($Match['irm']==20);
+			$Obj2->strike=($Match['oppIrm']==20);
 			$RealScore1=$Obj1->Score;
 			$RealScore2=$Obj2->Score;
-			if($Match['notes']) {
-				if(!$Obj1->Score) $Obj1->Score='';
-				$Obj1->Score.=' '.$Match['notes'];
-			} elseif(!$Match['oppNotes'] and $Match['oppCountryCode'] and $Match['countryCode'] and $Match['tie']==2) {
-				// A DNS issue
-				$Obj2->Score='DNS';
-				$Obj1->Score='';
-			} elseif($RealScore1==0 and $RealScore2==0) {
-				$Obj1->Score='';
-				if($Match['oppTie']!=2 and $Match['tie']!=2 and $Obj1->FSTarget) {
-					$Obj1->Score='T# '.$Obj1->FSTarget;
-				}
-			}
+			$tmpSetPoint1 = "";
+			$tmpSetPoint2 = "";
 
-			if($Match['oppNotes']) {
-				if(!$Obj2->Score) $Obj2->Score='';
-				$Obj2->Score.=' '.$Match['oppNotes'];
-			} elseif(!$Match['notes'] and $Match['oppCountryCode'] and $Match['countryCode'] and $Match['oppTie']==2) {
-				// A DNS issue
-				$Obj1->Score='DNS';
-				if(!$Match['oppNotes'] and $Match['tie']!=2) $Obj2->Score='';
-			} elseif($RealScore1==0 and $RealScore2==0) {
-				$Obj2->Score='';
-				if($Match['oppTie']!=2 and $Match['tie']!=2 and $Obj2->FSTarget) {
-					$Obj2->Score='T# '.$Obj2->FSTarget;
+			// setpoints
+			if($section['meta']['matchMode']) {
+				$Obj1->ScoreCell = 3.5;
+				$Obj2->ScoreCell = 3.5;
+				$numSetShot=intval(($RealScore1+$RealScore2)/2);
+				$cntSetPoint=0;
+				$Obj1Sets=array();
+				$Obj2Sets=array();
+
+				if(!empty($Obj1->SetPoints)) {
+					$Obj1Sets=explode("|",$Obj1->SetPoints);
+				}
+				if(!empty($Obj2->SetPoints)) {
+					$Obj2Sets=explode("|",$Obj2->SetPoints);
+				}
+				for($n=0;$n<$numSetShot;$n++) {
+					$pt1=isset($Obj1Sets[$n]) ? $Obj1Sets[$n] : '0';
+					$pt2=isset($Obj2Sets[$n]) ? $Obj2Sets[$n] : '0';
+					if($pt1!=='') {
+						$tmpSetPoint1.="$pt1,";
+						$tmpSetPoint2.="$pt2,";
+					}
+				}
+				if($tmpSetPoint1) {
+					$tmpSetPoint1=substr($tmpSetPoint1, 0, -1);
+					$tmpSetPoint2=substr($tmpSetPoint2, 0, -1);
 				}
 			}
 
 			// manage the tiebreaks
-			if(strlen(trim($Obj1->TfTieBreak)) > 0) {
-				 $Obj1->Score.=" T." . $Obj1->TfTieBreakDecoded;
-			} elseif($Obj1->TfTie==1) {
-				$Obj1->Score.=" *";
-			}
-
-			if(strlen(trim($Obj2->TfTieBreak)) > 0) {
-				 $Obj2->Score.=" T." . $Obj2->TfTieBreakDecoded;
-			} elseif($Obj2->TfTie==1) {
-				$Obj2->Score.=" *";
-			}
-
-			// setpoints
-			if($section['meta']['matchMode']) {
-
-				if(!empty($Obj1->SetPoints)) {
-					$numSetShot=($RealScore1+$RealScore2)/2;
-					$cntSetPoint=0;
-					$tmpSetPoint = "";
-					foreach(explode("|",$Obj1->SetPoints) as $spValue)
-					{
-						if($cntSetPoint++ < $numSetShot || $spValue!=0)
-							$tmpSetPoint .= $spValue.",";
-					}
-
-					if(strlen($tmpSetPoint)>0)
-						$Obj1->Score .= ' (' . substr($tmpSetPoint,0,-1) . ')';
+			if($TieArrows = max(strlen(trim($Obj1->TfTieBreak)), strlen(trim($Obj2->TfTieBreak)))) {
+				if($tmpSetPoint1) {
+					$tmpSetPoint1.='-';
+					$tmpSetPoint2.='-';
 				}
-				if(!empty($Obj2->SetPoints)) {
-					$numSetShot=($RealScore1+$RealScore2)/2;
-					$cntSetPoint=0;
-					$tmpSetPoint = "";
-					foreach(explode("|",$Obj2->SetPoints) as $spValue)
-					{
-						if($cntSetPoint++ < $numSetShot || $spValue!=0)
-							$tmpSetPoint .= $spValue.",";
-					}
+				$tmpSetPoint1.='T';
+				$tmpSetPoint2.='T';
 
-					if(strlen($tmpSetPoint)>0)
-						$Obj2->Score .= ' (' . substr($tmpSetPoint,0,-1) . ')';
+				if(strlen(trim($Obj1->TfTieBreak)) > 0) {
+					$tmpSetPoint1.=str_replace('*','+',$Obj1->TfTieBreakDecoded);
+				} elseif($Obj1->TfTie==1) {
+					$tmpSetPoint1.=" +";
+				}
+
+				if(strlen(trim($Obj2->TfTieBreak)) > 0) {
+					$tmpSetPoint2.=str_replace('*','+',$Obj2->TfTieBreakDecoded);
+				} elseif($Obj2->TfTie==1) {
+					$tmpSetPoint2.=" +";
 				}
 			}
 
-			$Obj1->Score=trim($Obj1->Score);
-			$Obj2->Score=trim($Obj2->Score);
+			if($tmpSetPoint1) {
+				$Obj1->ScoreDetails .= "($tmpSetPoint1)";
+				$Obj2->ScoreDetails .= "($tmpSetPoint2)";
+			}
+
+			if($Match['irm']) {
+				$Obj1->ScoreDetails.=' '.$Match['irmText'];
+			}
+			if($Match['oppIrm']) {
+				$Obj2->ScoreDetails.=' '.$Match['oppIrmText'];
+			}
+
+			if($Match['record']) {
+				$Obj1->ScoreDetails.=' '.$Match['record'];
+			} elseif($Match['notes']) {
+				$Obj1->ScoreDetails.=' '.$Match['notes'];
+			} elseif($Match['tie']==2) {
+				$Obj1->Score='';
+			} elseif($RealScore1==0 and $RealScore2==0) {
+				$Obj1->Score='';
+				//$Obj1->ScoreDetails='';
+				if($Match['oppTie']!=2 and $Match['tie']!=2 and $Obj1->FSTarget) {
+					$Obj1->ScoreDetails='T# '.$Obj1->FSTarget;
+				}
+			}
+
+			if($Match['oppRecord']) {
+				$Obj2->ScoreDetails.=' '.$Match['oppRecord'];
+			} elseif($Match['oppNotes']) {
+				$Obj2->ScoreDetails.=' '.$Match['oppNotes'];
+			} elseif($Match['oppTie']==2) {
+				$Obj2->Score='';
+			} elseif($RealScore1==0 and $RealScore2==0) {
+				$Obj2->Score='';
+				//$Obj2->ScoreDetails='';
+				if($Match['oppTie']!=2 and $Match['tie']!=2 and $Obj2->FSTarget) {
+					$Obj2->ScoreDetails='T# '.$Obj2->FSTarget;
+				}
+			}
+
+			$Obj1->ScoreDetails=trim($Obj1->ScoreDetails);
+			$Obj2->ScoreDetails=trim($Obj2->ScoreDetails);
 
 			//Valuto cosa fare se è la prima colonna
 			if($FirstPhase) {
@@ -204,6 +259,40 @@ foreach($PdfData->rankData['sections'] as $Event => $section) {
 				}
 			}
 
+			if($Match['matchNo']<16) {
+				if($Obj1->FinRank and is_numeric($Obj1->FinRank)) {
+					if($Obj1->IrmText!='DQB') {
+						if($Obj1->FinRank<=4) {
+							if(empty($Finalists[$Event][$Obj1->FinRank][0])) {
+								$Finalists[$Event][$Obj1->FinRank][0]=$Obj1;
+								$MaxFinalists[$Event]++;
+							}
+						} elseif($Obj1->FinRank<=8) {
+							$Finalists[$Event][$Obj1->FinRank][]=$Obj1;
+							$MaxFinalists[$Event]++;
+						}
+						//$MaxFinalists[$Event]=max($MaxFinalists[$Event], $Obj1->FinRank+count($Finalists[$Event][$Obj1->FinRank])-1);
+					} else {
+						$MaxFinalists[$Event]++;
+					}
+				}
+				if($Obj2->FinRank and is_numeric($Obj2->FinRank)) {
+					if($Obj2->IrmText!='DQB') {
+						if($Obj2->FinRank<=4) {
+							if(empty($Finalists[$Event][$Obj2->FinRank][0])) {
+								$Finalists[$Event][$Obj2->FinRank][0]=$Obj2;
+								$MaxFinalists[$Event]++;
+							}
+						} elseif($Obj2->FinRank<=8) {
+							$Finalists[$Event][$Obj2->FinRank][]=$Obj2;
+							$MaxFinalists[$Event]++;
+						}
+						//$MaxFinalists[$Event]=max($MaxFinalists[$Event], $Obj2->FinRank+count($Finalists[$Event][$Obj2->FinRank])-1);
+					} else {
+						$MaxFinalists[$Event]++;
+					}
+				}
+			}
 
 			if($Phase<=1) {
 				if($Obj1->FinRank==1)
@@ -226,15 +315,13 @@ foreach($PdfData->rankData['sections'] as $Event => $section) {
 
 $First=true;
 foreach($PdfData->Events as $Event => $Pages) {
-
 	$pdf->setEvent($Pages->Event);
 	$pdf->setPhase($PdfData->Description);
 	$pdf->Records=$Pages->Records;
 
-	$pdf->CellHSp = 125/(ceil(log($Pages->FirstPhase,2))+2);
+	$pdf->CellHSp = $FreePageWidth/($CountPhases[$Event]+1);
 
 	$pdf->SetDataHeader($Pages->Header, $Pages->HeaderWidth);
-	$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 
 	if($PdfData->rankData['sections'][$Event]['meta']['version']) {
 		$pdf->setComment(trim("Vers. {$PdfData->rankData['sections'][$Event]['meta']['version']} ({$PdfData->rankData['sections'][$Event]['meta']['versionDate']}) {$PdfData->rankData['sections'][$Event]['meta']['versionNotes']}"));
@@ -242,6 +329,7 @@ foreach($PdfData->Events as $Event => $Pages) {
 		$pdf->setComment($Pages->PrintHead);
 	}
 	$pdf->AddPage();
+	$pdf->setOrisCode($section['meta']['OrisCode'], $PdfData->Description);
 	if($First and (empty($pdf->CompleteBookTitle) or $pdf->CompleteBookTitle!=$PdfData->IndexName)) {
 		$pdf->Bookmark($PdfData->IndexName, 0);
 		$pdf->CompleteBookTitle=$PdfData->IndexName;
@@ -265,7 +353,7 @@ foreach($PdfData->Events as $Event => $Pages) {
 	$pdf->SetFont('','',8);
 
 	foreach($Pages->FirstColumn as $item) {
-		$pdf->FirstColumnTeam($item->TfMatchNo, $item->Country, $item->Team, $item->TeRank, $item->TeScore, $item->GrPosition, $item->Score, $item->TfTie, $item->TfTieBreakDecoded, $item->SetPoints, $item->OppScore, $item->OppTie, $item->FSTarget, $item->ScheduledDate, $item->ScheduledTime, '', $item->Componenti, $item->Saved);
+		$pdf->FirstColumnTeam($item);
 	}
 
 	foreach($Pages->OtherColumn as $Column) {
@@ -279,17 +367,16 @@ foreach($PdfData->Events as $Event => $Pages) {
 		$pdf->lastY = $TopY + ($PhaseCounter==0 ? 1:($PhaseCounter==1 ? (2+$Pages->NumComponenti-1):($PhaseCounter==2 ? (4+2*$Pages->NumComponenti-1):($PhaseCounter==3 ? (8+4*$Pages->NumComponenti-1):(16+8*$Pages->NumComponenti-1))))) * $pdf->CellVSp;
 
 		foreach($Column as $item) {
-			$pdf->OtherColumnsTeam($PhaseCounter,
-				$item->TfMatchNo,
-				$item->Team,
-				$item->Score,
-				$item->TfTie, $item->TfTieBreakDecoded, $item->SetPoints, $item->OppScore,
-				$item->OppTie, $item->FSTarget, $item->ScheduledDate, $item->ScheduledTime, '', $Pages->NumComponenti, $Pages->NumComponenti);
+			$pdf->OtherColumnsTeam($PhaseCounter, $item, $Pages->NumComponenti);
 		}
 	}
 
 	$PhaseCounter++;
 	$pdf->PrintMedalsTeam($PhaseCounter, $Pages->Medals["Gold"], $Pages->Medals["Silver"], $Pages->Medals["Bronze"], $Pages->NumComponenti);
+
+	$pdf->Finalists=$Finalists[$Event];
+	$pdf->MaxFinalists=$MaxFinalists[$Event];
+	$pdf->PrintFinalistsTeam($Pages->FirstPhase>4);
 }
 
 $pdf->Records=array();

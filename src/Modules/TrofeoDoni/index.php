@@ -10,8 +10,6 @@
 	$OnlineAuth = $_SESSION['OnlineAuth'];
 	$OnlineServices = $_SESSION['OnlineServices'];
 
-
-
 	$TeamResults = array();
 	$TeamPrint = null;
 	$TeamSepResults = array();
@@ -19,7 +17,8 @@
 
 	$TeamNames = getTeamList();
 	$ResultsSq = getTeamsValue();
-	$ResultsInd = getIndValue();
+	$ResultsInd = getIndMatchesValue();
+    $ResultsTeam = getTeamMatchesValue();
 
 	//Carico i punteggi delle squadre
 	foreach($ResultsSq as $keyGara=>$tmpGara) {
@@ -40,7 +39,7 @@
 		}
 	}
 
-	//Carico i Puntegig degli individuali
+	//Carico i Punteggi degli individuali
 	foreach($ResultsInd as $keyGara=>$tmpGara) {
 		// initialize $TeamSepPrint
 		foreach($TeamNames as $CoCode => $CoName) {
@@ -65,6 +64,31 @@
 		}
 	}
 
+    //Carico i Punteggi delle squadre
+    foreach($ResultsTeam as $keyGara=>$tmpGara) {
+        // initialize $TeamSepPrint
+        foreach($TeamNames as $CoCode => $CoName) {
+            if(empty($TeamSepPrint[$keyGara][$CoCode][0])) {
+                $TeamSepPrint[$keyGara][$CoCode][0]=0;
+                if(empty($TeamPrint[$CoCode][$keyGara*2])) $TeamPrint[$CoCode][$keyGara*2] = 0;
+            }
+        }
+        foreach($tmpGara as $tmpEvento) {
+            foreach($tmpEvento as $tmpLista) {
+                if(!array_key_exists($tmpLista[2],$TeamResults)) {
+                    $TeamResults[$tmpLista[2]]=0;
+                    $TeamPrint[$tmpLista[2]]=array(0,0,0,0,0,0);
+                    $TeamSepResults[$keyGara][$tmpLista[2]]=0;
+                    $TeamSepPrint[$keyGara][$tmpLista[2]]=array(0,0,0,0,0,0);
+                }
+                $TeamResults[$tmpLista[2]] += $Bonus[$BonusDecode[$keyGara]][abs($tmpLista[0])];
+                $TeamPrint[$tmpLista[2]][($keyGara*2)+1] += $Bonus[$BonusDecode[$keyGara]][abs($tmpLista[0])];
+                $TeamSepResults[$keyGara][$tmpLista[2]] += $Bonus[$BonusDecode[$keyGara]][abs($tmpLista[0])];
+                $TeamSepPrint[$keyGara][$tmpLista[2]][1] += $Bonus[$BonusDecode[$keyGara]][abs($tmpLista[0])];
+            }
+        }
+    }
+
 	arsort($TeamResults,SORT_NUMERIC);
 
 	CreateTourSession(getIdFromCode($headerCompetition));
@@ -78,8 +102,7 @@
 	$pdf->SetXY(10,$pdf->GetY()+5);
 	$pdf->Cell(8, 17,  "Pos", 1, 0, 'C', 1);
 	$pdf->Cell(50, 17,  "Regione", 1, 0, 'C', 1);
-	foreach ($competitions as $keygara=>$gara)
-	{
+	foreach ($competitions as $keygara=>$gara)	{
 		$Select
 			= "SELECT ".DoniField." Name, ToWhenFrom, ToWhenTo FROM Tournament WHERE ToId=" . StrSafe_DB(getIdFromCode($gara)) . " ";
 		$Rs=safe_r_sql($Select);
@@ -112,8 +135,7 @@
 	$n=0;
 	$rank=1;
 	$OldTotale=-1;
-	foreach($TeamResults as $Regione=>$Totale)
-	{
+	foreach($TeamResults as $Regione=>$Totale) {
 		$n++;
 		if($Totale!=$OldTotale) $rank=$n;
 		$OldTotale=$Totale;
@@ -126,9 +148,8 @@
 			$pdf->Cell($fieldW/2, 6.5,  number_format($TeamPrint[$Regione][$i],0,",","."), 1, 0, 'R', 0);
 		$pdf->SetFont($pdf->FontStd,'B',12);
 		$pdf->Cell(39, 6.5,  number_format($Totale,0,",","."), 1, 1, 'R', 0);
-
 	}
-
+/*
 	if(DoniSperateRank) {
 		// TABELLE SEPARATE DI CLASSIFICA PER OGNI GARA
 		$pdf->addpage();
@@ -143,14 +164,6 @@
 		$ColRegi=$ColWidth*55/125;
 		$ColTeam=$ColWidth*20/125;
 
-		/*
-		 * 10 rank
-		 * 40 regione
-		 * 25 squadra
-		 * 25 bonus
-		 * 25 totale
-		 *
-		 */
 		foreach ($competitions as $keygara=>$gara) {
 			$Select = "SELECT ".DoniField." Name, ToWhenFrom, ToWhenTo FROM Tournament WHERE ToId=" . StrSafe_DB(getIdFromCode($gara)) . " ";
 			$Rs=safe_r_sql($Select);
@@ -202,29 +215,25 @@
 			$OrgX+=$ColGap+$ColWidth;
 		}
 	}
-
+*/
 	$pdf->SetLeftMargin(10);
 
 //Tabella Gara a Gara dei Bonus
-	foreach ($competitions as $keygara=>$gara)
-	{
+	foreach ($competitions as $keygara=>$gara) {
 		$pdf->AddPage("P");
 		$pdf->SetFont($pdf->FontStd,'BI',14);
 		$pdf->SetXY(10,$pdf->GetY()+5);
 
-		$Select
-			= "SELECT ToName FROM Tournament WHERE ToId=" . StrSafe_DB(getIdFromCode($gara)) . " ";
+		$Select = "SELECT ToName FROM Tournament WHERE ToId=" . StrSafe_DB(getIdFromCode($gara));
 		$Rs=safe_r_sql($Select);
-		if (safe_num_rows($Rs)==1)
-		{
+		if (safe_num_rows($Rs)==1) {
 			$pdf->Cell(190, 10,   safe_fetch($Rs)->ToName, 1, 1, 'L', 1);
 		}
 		$TopY=$pdf->GetY()+1;
 		$EventCount=0;
 		$MaxY=$TopY;
 
-		foreach($ResultsInd[$keygara] as $keyEvento=>$tmpEvento)
-		{
+		foreach($ResultsInd[$keygara] as $keyEvento=>$tmpEvento) {
 			$pdf->SetFont($pdf->FontStd,'B',10);
 			$pdf->SetXY($pdf->GetX()+(95.5*($EventCount%2)),$TopY);
 			$pdf->Cell(94.5, 6, $keyEvento, 1, 1, 'C', 1);
@@ -236,8 +245,7 @@
 			$pdf->Cell(10.5, 4, "Punti", 1, 1, 'R', 1);
 
 			$n=1;
-			foreach($tmpEvento as $tmpLista)
-			{
+			foreach($tmpEvento as $tmpLista) {
 				if(DoniLimit and $n++ > DoniLimit) continue;
 				$pdf->SetFont($pdf->FontStd,'B',8);
 				$pdf->SetXY($pdf->GetX()+(95.5*($EventCount%2)),$pdf->GetY());
@@ -258,9 +266,43 @@
 			$MaxY=$pdf->GetY();
 		}
 
-//		$pdf->SetFont($pdf->FontStd,'BI',8);
-//		$pdf->Cell(190, 10,   "*##* Indica la posizione MINIMA acquisibile alla fase attuale. I bonus sono calcolati sulla base di questa posizione", 0, 0, 'L', 0);
+        foreach($ResultsTeam[$keygara] as $keyEvento=>$tmpEvento) {
+            $pdf->SetFont($pdf->FontStd,'B',10);
+            $pdf->SetXY($pdf->GetX()+(95.5*($EventCount%2)),$TopY);
+            $pdf->Cell(94.5, 6, $keyEvento, 1, 1, 'C', 1);
+            $pdf->SetFont($pdf->FontStd,'B',8);
+            $pdf->SetXY($pdf->GetX()+(95.5*($EventCount%2)),$pdf->GetY());
+            $pdf->Cell(10, 4, "Pos.", 1, 0, 'C', 1);
+            $pdf->Cell(30, 4, "Regione", 1, 0, 'L', 1);
+            $pdf->Cell(35, 4, "Nomi", 1, 0, 'L', 1);
+            $pdf->Cell(9.5, 4, "Qual.", 1, 0, 'R', 1);
+            $pdf->Cell(10, 4, "Bonus", 1, 1, 'R', 1);
 
+            $n=1;
+            foreach($tmpEvento as $tmpLista) {
+                if(DoniLimit and $n++ > DoniLimit) continue;
+                $pdf->SetFont($pdf->FontStd,'B',8);
+                $pdf->SetXY($pdf->GetX()+(95.5*($EventCount%2)),$pdf->GetY());
+                $pdf->Cell(10, 4, ($tmpLista[0]<0 ? '*':'') . abs($tmpLista[0]) . ($tmpLista[0]<0 ? '*':''), 1, 0, 'C', 0);
+                $pdf->SetFont($pdf->FontStd,'',8);
+                $pdf->Cell(30, 4, substr($tmpLista[2],0,2) . ". " . $TeamNames[$tmpLista[2]], 1, 0, 'L', 0);
+                $pdf->SetFont($pdf->FontStd,'',8);
+                $pdf->Cell(35, 4, $tmpLista[1], 1, 0, 'L', 0);
+                $pdf->SetFont($pdf->FontStd,'',8);
+                $pdf->Cell(9.5, 4, $tmpLista[3], 1, 0, 'R', 0);
+                $pdf->SetFont($pdf->FontStd,'',8);
+                $pdf->Cell(10, 4, $Bonus[$BonusDecode[$keygara]][abs($tmpLista[0])], 1, 1, 'R', 0);
+
+            }
+
+            $EventCount++;
+            if($EventCount==2 || $EventCount==4 ) {
+                $TopY=max($pdf->GetY(),$MaxY)+1;
+            }
+            $MaxY=$pdf->GetY();
+        }
+		$pdf->SetFont($pdf->FontStd,'BI',8);
+		$pdf->Cell(190, 10,   "*##* Indica la posizione MINIMA acquisibile alla fase attuale. I bonus sono calcolati sulla base di questa posizione", 0, 0, 'L', 0);
 	}
 
 	$pdf->Output();
@@ -269,5 +311,3 @@
 	$_SESSION['OnlineEventCode'] = $OldOnlineEventCode;
 	$_SESSION['OnlineAuth'] = $OnlineAuth;
 	$_SESSION['OnlineServices'] = $OnlineServices;
-
-?>

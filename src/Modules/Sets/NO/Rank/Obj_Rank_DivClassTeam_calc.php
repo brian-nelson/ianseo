@@ -113,9 +113,8 @@
 					TeScore, TeGold, TeXnine
 				FROM
 					Tournament
-					INNER JOIN
-						Teams
-					ON ToId=TeTournament AND TeFinEvent=0
+					INNER JOIN Teams ON ToId=TeTournament AND TeFinEvent=0 
+				    inner join IrmTypes on IrmId=TeIrmType and IrmShowRank=1
 					left JOIN
 						(
 							SELECT CONCAT(DivId, ClId) DivClass, Divisions.*, Classes.*
@@ -217,9 +216,8 @@
 					GROUP_CONCAT(CAST(QuScore AS CHAR(10)) ORDER BY QuScore DESC SEPARATOR '|') AS `_Tupla`
 				FROM
 					Tournament
-					INNER JOIN
-						Teams
-					ON ToId=TeTournament AND TeFinEvent=0
+					INNER JOIN Teams ON ToId=TeTournament AND TeFinEvent=0
+				    inner join IrmTypes on IrmId=TeIrmType and IrmShowRank=1
 					INNER JOIN
 						TeamComponent
 					ON TeCoId=TcCoId AND TeSubTeam=TcSubTeam AND TeEvent=TcEvent AND TeTournament=TcTournament AND TeFinEvent=TcFinEvent

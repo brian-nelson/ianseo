@@ -29,7 +29,7 @@ if(getModuleParameter('Awards', 'SecondLanguage')) {
     }
 }
 
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 
 $idList=array();
 //Lista Premiazione in Ordine
@@ -70,7 +70,7 @@ while($rowOrder=safe_fetch($rsOrder)) {
 		$sql="";
 		if($rowOrder->AwFinEvent==0 && $rowOrder->AwTeam==0) {
 			$sql = "SELECT AwAwarderGrouping, EnId, concat(EnDivision,EnClass) EvCode, concat(EnDivision,EnClass) EventTranslation, CoCode, $ReversedCountries AS Athlete, CONCAT(" . ($_SESSION["ISORIS"] ? '' : "CoCode, ' ', ") . "if(CoNameComplete>'', CoNameComplete, CoName)) AS Country, CONCAT(DivDescription, ' - ', ClDescription) as Category, 1 as Counter,
-				QuClRank AS Rank, QuScore AS Score, QuGold AS Gold,QuXnine AS XNine, AwDescription, AwAwarders
+				QuClRank AS `Rank`, QuScore AS Score, QuGold AS Gold,QuXnine AS XNine, AwDescription, AwAwarders
 				FROM Tournament
 				INNER JOIN Entries ON ToId=EnTournament
 				INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament AND EnTournament=" . StrSafe_DB($_SESSION['TourId']) . "
@@ -85,7 +85,7 @@ while($rowOrder=safe_fetch($rsOrder)) {
 		else if($rowOrder->AwFinEvent==1 && $rowOrder->AwTeam==0)
 		{
 			$sql = "SELECT AwAwarderGrouping, EnId, concat(EvTeamEvent,EvCode) EvCode, concat(EvCode,EvTeamEvent) EventTranslation, CoCode, $ReversedCountries AS Athlete, CONCAT(" . ($_SESSION["ISORIS"] ? '' : "CoCode, ' ', ") . "if(CoNameComplete>'', CoNameComplete, CoName)) AS Country, EvEventName as Category, 1 as Counter,
-				IF(EvFinalFirstPhase=0,IndRank,ABS(IndRankFinal)) as Rank, QuScore AS Score, QuGold AS Gold,QuXnine AS XNine, AwDescription, AwAwarders
+				IF(EvFinalFirstPhase=0,IndRank,ABS(IndRankFinal)) as `Rank`, QuScore AS Score, QuGold AS Gold,QuXnine AS XNine, AwDescription, AwAwarders
 				FROM Tournament
 				INNER JOIN Entries ON ToId=EnTournament
 				INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament AND EnTournament=" . StrSafe_DB($_SESSION['TourId']) . "
@@ -101,7 +101,7 @@ while($rowOrder=safe_fetch($rsOrder)) {
 		{
 			$sql=" SELECT AwAwarderGrouping, CoCode, '' EvCode, '' EventTranslation, CONCAT(" . ($_SESSION["ISORIS"] ? '' : "CoCode, ' ', ") . "if(CoNameComplete>'', CoNameComplete, CoName), IF(TeSubTeam=0,'',CONCAT(' (',TeSubTeam,')'))) as Country, CONCAT(DivDescription, ' - ', ClDescription) as Category,
 				EnId, group_concat($ReversedCountries order by EnSex DESC, EnFirstName, EnName separator '|') AS Athlete, Q as Counter,
-				TeRank as Rank, TeScore as Score, TeGold as Gold, TeXnine AS XNine, AwDescription, AwAwarders
+				TeRank as `Rank`, TeScore as Score, TeGold as Gold, TeXnine AS XNine, AwDescription, AwAwarders
 				FROM Tournament
 				INNER JOIN Teams ON ToId=TeTournament AND TeFinEvent=0
 				INNER JOIN Countries ON TeCoId=CoId AND TeTournament=CoTournament
@@ -128,7 +128,7 @@ while($rowOrder=safe_fetch($rsOrder)) {
 		{
 			$sql = " SELECT AwAwarderGrouping, CoCode, concat(EvTeamEvent,EvCode) EvCode, concat(EvCode, EvTeamEvent) EventTranslation, CoId, CONCAT(" . ($_SESSION["ISORIS"] ? '' : "CoCode, ' ', ") . "if(CoNameComplete>'', CoNameComplete, CoName), IF(TeSubTeam=0,'',CONCAT(' (',TeSubTeam,')'))) as Country, EvEventName as Category,
 				EnId, group_concat($ReversedCountries order by EnSex DESC, EnFirstName, EnName separator '|') AS Athlete, Q as Counter,
-				IF(EvFinalFirstPhase=0,TeRank,TeRankFinal) as Rank, IF(EvFinalFirstPhase=0,TeScore,IFNULL(TfScore,'')) as Score, IF(EvFinalFirstPhase=0,TeGold,'') as Gold, IF(EvFinalFirstPhase=0,TeXnine,'') AS XNine, AwDescription, AwAwarders
+				IF(EvFinalFirstPhase=0,TeRank,TeRankFinal) as `Rank`, IF(EvFinalFirstPhase=0,TeScore,IFNULL(TfScore,'')) as Score, IF(EvFinalFirstPhase=0,TeGold,'') as Gold, IF(EvFinalFirstPhase=0,TeXnine,'') AS XNine, AwDescription, AwAwarders
 				FROM Tournament
 				INNER JOIN Teams ON ToId=TeTournament AND TeFinEvent=1
 				INNER JOIN Countries ON TeCoId=CoId AND TeTournament=CoTournament

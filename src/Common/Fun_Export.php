@@ -28,6 +28,11 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 		$Gara['Entries'][$MyRow['EnId']]=$MyRow;
 	}
 
+	// define which keys are not to be exported!
+	$NotExportableKeys=array();
+	$NotExportableKeys['ModulesParameters'][]="!(MpModule='Mailing' and MpParameter='SmtpServer')";
+	$NotExportableKeys['ModulesParameters'][]="!(MpModule='SendToIanseo' and MpParameter='Credentials')";
+
 	$tabs=array(
 		'AccColors' => 'Ac',
 		'AccEntries' => 'AE',
@@ -72,6 +77,7 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 		'Images' => 'Im',
 		'IskDevices' => 'IskDv',
 		'Individuals' => 'Ind',
+		'Logs' => 'Log',
 		'ModulesParameters' => 'Mp',
 // 		'OnLineIds' => 'Oli', // This table is rewritten everytime so no need to export/import it
 		'OdfDocuments' => 'OdfDoc',
@@ -79,6 +85,7 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 		'OdfMessageStatus' => 'Oms',
 		'PrintOutsRules' => 'Por',
 		'Rankings' => 'Rank',
+		'RecBroken' => 'RecBro',
 		'RecTournament' => 'Rt',
 		'Reviews' => 'Rev',
 		'Scheduler'=>'Sch',
@@ -101,9 +108,9 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 		'VegasAwards'=>'Va',
 	);
 
-	if(!$InfoSystem) {
+	//if(!$InfoSystem) {
 // 		$tabs['']='';
-	}
+//	}
 
 	// Tabs where there is an EnID
 	$tabsEnId=array(
@@ -112,7 +119,6 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 			'ElabQualifications' => 'EqId',
 			'Eliminations' => 'ElId',
 			'ExtraData' => 'EdId',
-			'Qualifications' => 'QuId',
 			'F2FEntries' => 'F2FEnId',
 			'F2FFinal' => 'F2FEnId',
 			'Finals' => 'FinAthlete',
@@ -120,8 +126,10 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 			'GuessWhoData'=>array('GwdAthlete1','GwdAthlete2'),
 			'HhtData' => 'HdEnId',
 			'Individuals' => 'IndId',
+			'Logs' => 'LogEntry',
 			'Photos' => 'PhEnId',
 			'Qualifications' => 'QuId',
+			'RecBroken' => 'RecBroAthlete',
 			'TeamComponent' => 'TcId',
 			'TeamFinComponent' => 'TfcId',
 			'Vegas'=>'VeId',
@@ -132,6 +140,7 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 			'CasTeam' => 'CaTeam',
 			'ClubTeam' => 'CTTeam',
 			'ExtraDataCountries' => 'EdcId',
+			'RecBroken' => 'RecBroTeam',
 			'TeamComponent' => 'TcCoId',
 			'TeamFinComponent' => 'TfcCoId',
 			'TeamFinals' => 'TfTeam',
@@ -147,7 +156,7 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 					inner join Countries on EnCountry=CoId
 					inner join Flags on CoCode=FlCode and FlTournament = {$TourId}
 					WHERE EnTournament={$TourId}
-					ORDER BY FlCode ASC, FlTournament DESC";
+					ORDER BY FlCode, FlTournament DESC";
 		$Rs=safe_r_sql($Select);
 		$oldCode='';
 		while($MyRow=safe_fetch_assoc($Rs)){
@@ -173,8 +182,10 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 	// prendo le Tabelle definite nell'array che si estraggono sul Tournament
 	foreach($tabs as $tab=>$code) {
 		$Gara[$tab]=array();
-		$Select
-			= "SELECT * FROM $tab WHERE {$code}Tournament=" . StrSafe_DB($TourId) . " ";
+		$Select = "SELECT * FROM $tab WHERE {$code}Tournament=" . StrSafe_DB($TourId) . " ";
+		if(!empty($NotExportableKeys[$tab])) {
+			$Select.= " and ".implode(' AND ', $NotExportableKeys[$tab]);
+		}
 		$Rs=safe_r_sql($Select);
 		while($MyRow=safe_fetch_assoc($Rs)){
 			if(isset($noIds[$tab])) unset($MyRow[$noIds[$tab]]);

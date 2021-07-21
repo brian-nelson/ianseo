@@ -123,6 +123,19 @@ function bitwisePhaseId($phase) {
     return $phase;
 }
 
+function getJumpLines($phase) {
+	switch($phase) {
+		case 64: return array(5,9,17,33,65); break;
+		case 48: return array(5,9,17,33,57); break;
+		case 32:
+		case 24: return array(5,9,17,33); break;
+		case 16:
+		case 14:
+		case 12: return array(5,9,17); break;
+	}
+    return array(5,9);
+}
+
 function SavedInPhase($phase) {
 	switch($phase) {
 		case 48: return 8; break;
@@ -214,12 +227,21 @@ function getFirstPhase($evCode, $isTeamEvent){
  * 		StdClass::so: numero di frecce tie,
  * 		StdClass::winAt: numero di set x vincere (se cumulativo vale 0)
  */
-function getEventArrowsParams($event,$phase,$team, $TourId=0) {
+function getEventArrowsParams($event, $phase, $team, $TourId=0) {
+	static $results;
+
+	$tour = $TourId;
+	if(empty($tour) && !empty($_SESSION['TourId'])) {
+		$tour =	StrSafe_DB($_SESSION['TourId']);
+	}
+
+	$resKey=$event.'|'.$phase.'|'.$team.'|'.$tour;
+	if(!empty($results[$resKey])) {
+		return $results[$resKey];
+	}
+
 	$ee=StrSafe_DB($event);
 	$tt=StrSafe_DB($team);
-	$tour = $TourId;
-	if(empty($tour) && !empty($_SESSION['TourId']))
-		$tour =	StrSafe_DB($_SESSION['TourId']);
 
 	$phase=($phase==12 ? 16: $phase);
 
@@ -240,18 +262,19 @@ function getEventArrowsParams($event,$phase,$team, $TourId=0) {
 	$rs=safe_r_sql($q);
 
 	if (safe_num_rows($rs)==1) {
-		return safe_fetch($rs);
+		$results[$resKey]=safe_fetch($rs);
+		return $results[$resKey];
 	}
 
-	$r=new StdClass();
-	$r->ends=0;
-	$r->arrows=0;
-	$r->so=0;
-	$r->winAt=0;
-	$r->MaxTeam=0;
-	$r->MatchMode=0;
+	$results[$resKey]=new StdClass();
+	$results[$resKey]->ends=0;
+	$results[$resKey]->arrows=0;
+	$results[$resKey]->so=0;
+	$results[$resKey]->winAt=0;
+	$results[$resKey]->MaxTeam=0;
+	$results[$resKey]->EvMatchMode=0;
 
-	return $r;
+	return $results[$resKey];
 }
 
 function get_already_scheduled_events($CurPhase, $CurEvent, $TeamEvent=0) {
@@ -299,7 +322,8 @@ function get_already_scheduled_events($CurPhase, $CurEvent, $TeamEvent=0) {
 		. ' FsScheduledDate, '
 		. ' FsScheduledTime, '
 		. ' FsEvent '
-		. 'HAVING CalcArrows='.$PhaseDesc->arrows;
+        . ' HAVING CalcArrows='.$PhaseDesc->arrows
+        . ' ORDER BY CalcArrows, FsScheduledDate, FsScheduledTime, FsEvent ';
 	$q=safe_r_sql($MyQuery);
 	$tmp=array();
 	while($r=safe_fetch($q)) {
@@ -506,11 +530,16 @@ function moveToNextPhaseLoosers($coppie, $TourId) {
 
 		if(count($subEv)) {
 			//GetMatchNo of winners
-			$Sql = "SELECT fl.FinMatchNo as Looser, fl.FinAthlete as Athlete
-				FROM Finals fl
-				INNER JOIN Finals fw ON fl.FinEvent=fw.FinEvent AND fl.FinMatchNo=fw.FinMatchNo + IF(fl.FinMatchNo % 2,+1,-1) AND fl.FinTournament=fw.FinTournament
-				INNER JOIN Grids on fl.FinMatchNo=GrMatchNo 
-				WHERE fl.FinEvent='{$ev}' AND GrPhase='{$ph}' AND fl.FinTournament={$TourId} AND fw.FinWinLose=1";
+			$Sql = "SELECT if(f1.FinWinLose=1, f2.FinMatchNo, f1.FinMatchNo) as Looser, if(f1.FinWinLose=1, f2.FinAthlete, f1.FinAthlete) as Athlete
+				FROM Finals as f1
+				INNER JOIN Finals as f2 ON f2.FinEvent=f1.FinEvent AND f2.FinMatchNo=f1.FinMatchNo + 1 AND f2.FinTournament=f1.FinTournament
+				INNER JOIN Grids on f1.FinMatchNo=GrMatchNo 
+				WHERE f1.FinEvent='{$ev}' AND GrPhase='{$ph}' AND f1.FinTournament={$TourId} and f1.FinMatchNo%2=0
+					AND (
+						(f1.FinWinLose=1 and f2.FinIrmType!=20)
+						or
+						(f2.FinWinLose=1 and f1.FinIrmType!=20)
+					)";
 //			echo $Sql . "<br>";
 			$q=safe_r_SQL($Sql);
 			while($r=safe_fetch($q)) {
@@ -559,11 +588,16 @@ function moveToNextPhaseLoosersTeam($coppie, $TourId) {
 
 		if(count($subEv)) {
 			//GetMatchNo of winners
-			$Sql = "SELECT fl.TfMatchNo as Looser, fl.TfTeam as Team, fl.TfSubTeam as SubTeam
-				FROM TeamFinals fl
-				INNER JOIN TeamFinals fw ON fl.TfEvent=fw.TfEvent AND fl.TfMatchNo=IF(fl.TfMatchNo % 2, fw.TfMatchNo+1, fw.TfMatchNo-1) AND fl.TfTournament=fw.TfTournament
-				INNER JOIN Grids on fl.TfMatchNo=GrMatchNo 
-				WHERE fl.TfEvent='{$ev}' AND GrPhase='{$ph}' AND fl.TfTournament={$TourId} AND fw.TfWinLose=1";
+			$Sql = "SELECT if(f1.TfWinLose=1, f2.TfMatchNo, f1.TfMatchNo) as Looser, if(f1.TfWinLose=1, f2.TfTeam, f1.TfTeam) as Team, if(f1.TfWinLose=1, f2.TfSubTeam, f1.TfSubTeam) as SubTeam
+				FROM TeamFinals as f1
+				INNER JOIN TeamFinals as f2 ON f2.TfEvent=f1.TfEvent AND f2.TfMatchNo=f1.TfMatchNo + 1 AND f2.TfTournament=f1.TfTournament
+				INNER JOIN Grids on f1.TfMatchNo=GrMatchNo 
+				WHERE f1.TfEvent='{$ev}' AND GrPhase='{$ph}' AND f1.TfTournament={$TourId} and f1.TfMatchNo%2=0
+					AND (
+						(f1.TfWinLose=1 and f2.TfIrmType!=20)
+						or
+						(f2.TfWinLose=1 and f1.TfIrmType!=20)
+					)";
 			$q=safe_r_SQL($Sql);
 			while($r=safe_fetch($q)) {
 				foreach ($subEv as $subEvent => $LoosersHaveBye) {

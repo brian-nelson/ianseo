@@ -19,7 +19,7 @@ CreateStandardStudClasses($TourId, $TourType);
 
 // default Distances
 if($TourType==33) {
-	CreateDistance($TourId, $TourType, '%', '25m');
+	CreateDistanceNew($TourId, $TourType, '%', array(array('25m',25)));
 
 	// Default Target
 	CreateTargetFace($TourId, 1, '~Default', '%', '1', 5, 60);
@@ -35,8 +35,8 @@ if($TourType==33) {
 	InsertClassEvent($TourId, 1, 2, 'FT', 'OL', 'F');
 
 } else {
-	CreateDistance($TourId, $TourType, '__C_', '10m');
-	CreateDistance($TourId, $TourType, '__A_', '20m');
+	CreateDistanceNew($TourId, $TourType, '__C_', array(array('10m',10)));
+	CreateDistanceNew($TourId, $TourType, '__A_', array(array('20m',20)));
 
 	// Default Target
 	CreateTargetFace($TourId, 1, '~Default', '%', '1', 5, 80);

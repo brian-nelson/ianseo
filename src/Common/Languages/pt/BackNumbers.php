@@ -7,7 +7,6 @@ $lang['BackNoEdit']='Mudar cenário';
 $lang['BgImage']='Imagem de fundo';
 $lang['Bold']='Negrito';
 $lang['CharColor']='Cor da letra';
-$lang['CharSize']='Tamanho da letra';
 $lang['CharType']='Tipo de letra';
 $lang['Heigh']='Altura';
 $lang['Italic']='Itálico';

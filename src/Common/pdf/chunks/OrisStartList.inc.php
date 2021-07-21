@@ -20,8 +20,8 @@ if(!empty($PdfData->Data['Items'])) {
 					$Version=trim('Vers. '.$MyRow->DocVersion . " ($MyRow->DocVersionDate) $MyRow->DocNotes");
 				}
 				$pdf->setComment($Version);
-				$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 				$pdf->AddPage();
+				$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 				if($First and (empty($pdf->CompleteBookTitle) or $pdf->CompleteBookTitle!=$PdfData->IndexName)) {
 					$pdf->Bookmark($PdfData->IndexName, 0);
 					$pdf->CompleteBookTitle=$PdfData->IndexName;

@@ -1,6 +1,11 @@
 <?php
 $lang['Anomalies']='Anomalías';
+$lang['ClassFromToError']='"Desde" y "Hasta" deben ser valores numéricos';
 $lang['DirectoryNotWriteable']='No se puede modificar el directorio $a desde el servidor web. Por favor, cambie los permisos para que se pueda modificar por cualquiera.';
+$lang['EmptyBody']='Campo vacio: ¡este campo es obligatorio!';
+$lang['EmptyFrom']='Email vacio: ¡este campo es obligatorio!';
+$lang['EmptySubject']='Sujeto vacio: ¡este campo es obligatorio!';
+$lang['EmptyTitle']='Título vacio:¡este campo es obligatorio!';
 $lang['ErrCodeExists']='¡Ya existe un código!';
 $lang['ErrCommitteeError']='Código del Comité o descripción inválida';
 $lang['ErrConnection']='No hay conexión con el servidor $a';
@@ -19,6 +24,16 @@ $lang['ErrRedCard']='El comité le ha mostrado tarjeta roja y no podrá solicita
 $lang['ErrUnknownNation']='País desconocido';
 $lang['ErrYellowCard']='El comité le la mostrado tarjeta amarilla porque no se han publicado los resultados de la competición. Contacte con codes@ianseo.net para solicitar aclaraciones.';
 $lang['LockedProcedure']='Este Procedimiento está cerrado';
+$lang['MailingAlreadyExists']='Ya existe un Email con el mismo título ({$a}), por favor cambie el título o seleccione el email para modificar desde el selector.';
+$lang['MailingError']='¡No se ha realizado ningún cambio!';
+$lang['MalformedMail']='El mail no es correcto, por favor, introduzca un email válido ({$a})';
+$lang['MissingPhpIntlModule']='Se puede realizar la transliteración instalando o activando el módulo php-intl';
+$lang['NoDNSRecord']='El nombre del Servidor no es correcto o no está en línea: por favor, debe estar conectado a Internet para configurar esta opción.';
+$lang['NoMailingTemplate']='¡No se ha seleccionado/disponible ningún formato de Email!';
+$lang['NoSmtpServerSet']='¡Por favor, configure SMTP antes de enviar emails!';
+$lang['SpecialFilterDiscrepancy']='Se ha configurado un filtro especial, pero no está activo';
+$lang['TextSmtpDelete']='Por favor, confirme que quiere quitar los ajustes de SMTP en esta instalación de Ianseo';
 $lang['TooManyArrows']='Demasiadas flechas totales: el máximo es $a';
 $lang['TooManyElimQualified']='Las Series del tipo $a[0] pueden aceptar solamente hasta $a[1] arqueros';
+$lang['WrongPort']='¡Este puerto no está soportado!';
 ?>

@@ -19,6 +19,7 @@ $lang['BRA']='ブラジル';
 $lang['CAM']='カンボジア';
 $lang['CHN']='中国';
 $lang['JPN']='日本';
+$lang['MDA']='モルドバ';
 $lang['Medal-1']='金メダル';
 $lang['Medal-2']='銀メダル';
 $lang['Medal-3']='銅メダル';

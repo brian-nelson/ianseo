@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 01/04/17
- * Time: 15.25
- */
 
 /* Wiky.php - A tiny PHP "library" to convert Wiki Markup language to HTML
  * Author: Toni Lähdekorpi <toni@lygon.net>

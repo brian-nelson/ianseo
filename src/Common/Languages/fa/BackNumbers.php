@@ -41,7 +41,6 @@ $lang['BgImage']='تصوير زمينه';
 $lang['Bold']='پررنگ';
 $lang['Category']='رده';
 $lang['CharColor']='رنگ حروف';
-$lang['CharSize']='اندازه حروف';
 $lang['CharType']='نوع حروف';
 $lang['CheckBarcodeSeparator']='بررسی جداساز بارکد';
 $lang['Club']='جزییات کشور-باشگاه';

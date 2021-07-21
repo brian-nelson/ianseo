@@ -1,0 +1,30 @@
+
+
+.opp-badge1, .opp-badge2 {font-size: 10px;display:inline-block;width:2em;height:2em;border-radius: 1em;border:solid 1px #bbb;text-align:center;color:black;background-color:#D0D0D0;line-height: 2em;font-weight: bold; margin:0 0.25em;}
+.opp-badge2.active {background-color:#00A000;border-color:#00A000; color:white}
+.opp-badge1.active {background-color: #00FF00;border-color:#00A000; color:black}
+.opp-multimatch {font-size: 10px;display:inline-block;width:2em;height:2em;border-radius: 1.1em;border:solid 1px #00A0F0;text-align:center;color:#bbb;background-color:#fff;line-height: 2em;font-weight: bold;margin:0 0.25em;}
+.opp-multimatch::before {content:"1x"}
+.opp-multimatch.active {background-color:#00A0F0;color:white;}
+.opp-multimatch.active::before {content:"2x"}
+
+.inactive {background-color:#ccc;}
+i.active {background-color:unset;color:#00A000;}
+.topRow i.active {background-color:unset;color:#00A0F0;}
+i.inactive {background-color:unset;color:#ddd;}
+
+[name="eEnds"],
+[name="eArrows"],
+[name="eSO"],
+[name="fEnds"],
+[name="fArrows"],
+[name="fSO"] {width:4em;text-align:right;}
+
+.topRow, .topRow td, .topRow th {border-top:1px solid black;}
+
+.updated {background-color: #a0ffa0;}
+.Tabella th.Title.PhaseLegend  {padding-left:3em;}
+.PhaseLegend > div {text-align: left;line-height: 1.5rem;}
+.mr-2 {margin-right:0.25em;}
+
+th i {font-size:20px;}

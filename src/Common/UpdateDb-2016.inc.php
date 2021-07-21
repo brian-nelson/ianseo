@@ -128,7 +128,7 @@ if($version<'2016-03-22 08:30:01') {
 }
 
 if($version<'2016-03-22 11:00:00') {
-	$q="update LookUpPaths set LupFlagsPath='https://extranet.worldarchery.org/Api/GetFlags.php' where LupIocCode='FITA'";
+	$q="update LookUpPaths set LupFlagsPath='https://extranet.worldarchery.sport/Api/GetFlags.php' where LupIocCode='FITA'";
 	$r=safe_w_sql($q,false,array(1060));
 
 	db_save_version('2016-03-22 11:00:00');

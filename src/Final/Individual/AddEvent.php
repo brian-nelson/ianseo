@@ -1,6 +1,5 @@
 <?php
 /*
-													- UpdateFieldEventList.php -
 	Aggiorna il campo di Events passato in querystring.
 */
 
@@ -38,6 +37,7 @@ if (IsBlocked(BIT_BLOCK_TOURDATA)) {
 // Aggiungo la nuova riga
 $Insert = "INSERT INTO Events SET 
 	EvCode=" . StrSafe_DB($_REQUEST['New_EvCode']) . ",
+	EvIsPara=" . (empty($_REQUEST['New_EvIsPara']) ? 0 : 1) . ",
 	EvTeamEvent=0,
 	EvEventName=" . StrSafe_DB($_REQUEST['New_EvEventName']) . ",
 	EvProgr=" . intval($_REQUEST['New_EvProgr']) . ",

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 09/08/18
- * Time: 8.47
- */
 
 $JSON=array('error' => 1, 'reload' => false);
 
@@ -31,6 +25,12 @@ if(!empty($_REQUEST["Content"])) {
 		if (!empty($Options['Event'])) {
 			$SQL[] = 'IceContent=' . StrSafe_DB($Options['Event']);
 		}
+        if (!empty($Options['Ranking'])) {
+            $SQL[] = 'IceContent=' . StrSafe_DB($Options['Ranking']);
+        }
+        if (!empty($Options['FinalRanking'])) {
+            $SQL[] = 'IceContent=' . StrSafe_DB($Options['FinalRanking']);
+        }
 		if (!empty($Options['Category'])) {
 			$SQL[] = 'IceContent=' . StrSafe_DB($Options['Category']);
 		}
@@ -42,6 +42,9 @@ if(!empty($_REQUEST["Content"])) {
 		}
 		if (!empty($Options['AthQrCode'])) {
 			$SQL[] = 'IceContent=' . StrSafe_DB($Options['AthQrCode']);
+		}
+		if (!empty($Options['AthBarCode'])) {
+			$SQL[] = 'IceContent=' . StrSafe_DB($Options['AthBarCode']);
 		}
 		if (!empty($Options['TgtSequence'])) {
 			$SQL[] = 'IceContent=' . StrSafe_DB($Options['TgtSequence']);

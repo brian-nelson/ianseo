@@ -10,7 +10,7 @@ require_once('Common/Lib/CommonLib.php');
 
 $JS_SCRIPT=array(
 	phpVars2js(array('RootDir'=>$CFG->ROOT_DIR.'Elimination/')),
-	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Elimination/WriteArrows.js"></script>',
 	);
 

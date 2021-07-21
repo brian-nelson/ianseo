@@ -1,6 +1,7 @@
 var dwData;
 var keyPressedActive=false;
 var KeyListener=null;
+var Preparation=true;
 
 $(document).ready(function() {
     getMatchesData();
@@ -30,6 +31,11 @@ function updateComboEvents() {
     if(PreEvent!='') {
         updateComboPhases();
     }
+
+	if (history.pushState) {
+		var newurl = window.location.origin + window.location.pathname + '?Team='+(spType=='Team' ? 1 : 0);
+		window.history.pushState({path:newurl},'',newurl);
+	}
 }
 
 function updateComboPhases() {
@@ -89,7 +95,7 @@ function toggleTarget() {
 }
 
 function toggleAlternate() {
-    if($('.Alternate:hidden').length>0) {
+    if($('.Alternate:hidden').length>4) {
         $('.Alternate').show();
         var Ends=$('table.Scorecard').attr('ends');
         var Arrows=$('table.Scorecard').attr('arrows');
@@ -119,6 +125,7 @@ function buildScorecard() {
     var spEvent = $('#spotCode').val();
     var spMatch = $('#spotMatch').val();
     var spTarget = $('#spotTarget:checked').length>0;
+	Preparation=true;
     $.getJSON(WebDir+'Final/Spotting-getScorecards.php?Team='+spTeam+'&Event='+spEvent+'&MatchId='+spMatch+(spTarget ? '&ArrowPosition=1' : ''), function (data) {
         if(data.error!=0) {
             return;
@@ -128,6 +135,14 @@ function buildScorecard() {
         $('#OpponentNameR').html(data.nameR);
         $('#ScorecardL').html(data.scoreL);
         $('#ScorecardR').html(data.scoreR);
+        $('#IrmSelectL').val(data.irmL);
+        $('#IrmSelectL').attr('initial', data.irmL);
+        $('#IrmSelectL').attr('ref', data.matchnoL);
+        $('#IrmSelectR').val(data.irmR);
+        $('#IrmSelectR').attr('initial', data.irmR);
+        $('#IrmSelectR').attr('ref', data.matchnoR);
+
+        $('#buttonMove2Next').html(data.move2next);
 
         $('#MatchAlternate').prop('checked', data.isAlternate);
         if(data.isAlternate) {
@@ -185,9 +200,9 @@ function buildScorecard() {
                         var w = parseInt(TgtOrgSize / zoom);
                         var x = (parseInt(e.offsetX) * ratio - TgtOrgSize/2)*convert;
                         var y = (parseInt(e.offsetY) * ratio - TgtOrgSize/2)*convert;
-                        var position='&x='+x+'&y='+y;
+                        var position={'x':x, 'y':y };
                         if(e.which==3) {
-                            position+='&noValue=1';
+                            position.noValue=1;
                         }
                         updateArrow(activeArrow[0], position);
                         SvgCursor.hide();
@@ -203,8 +218,7 @@ function buildScorecard() {
                         var w = parseInt(TgtOrgSize / zoom);
                         var x = (parseInt(e.offsetX) * ratio - TgtOrgSize/2)*convert;
                         var y = (parseInt(e.offsetY) * ratio - TgtOrgSize/2)*convert;
-                        var position='&x='+x+'&y='+y;
-                        position+='&noValue=1';
+                        var position={'x':x, 'y':y, 'noValue':1};
                         updateArrow(activeArrow[0], position);
                         SvgCursor.hide();
                         return false;
@@ -256,6 +270,10 @@ function buildScorecard() {
 	        });
 	        $('#Spotting input[type="text"]').prop('disabled', true);
         }
+
+        // simulate call on the first arrow of each match to check the stars if any on loading the scorecard
+	    updateArrow($('[id^="Arrow["]')[0], null);
+	    Preparation=false;
     });
 }
 
@@ -264,12 +282,34 @@ function updateArrow(obj, position) {
     var spEvent = $('#spotCode').val();
     var spMatch = $('#spotMatch').val();
     var spTarget = $('#spotTarget:checked').length>0;
-    var valChanged = (obj.value!=obj.defaultValue);
+    var valChanged = (position || (obj && obj.value!=obj.defaultValue));
 
-    $.getJSON(WebDir+'Final/Spotting-setArrow.php?Changed='+(valChanged ? 1 : 0)+'&Team='+spType+'&Event='+spEvent+'&MatchId='+spMatch+'&'+obj.id+'='+obj.value+(spTarget ? '&ArrowPosition=1' : '')+(position ? position : ''), function (data) {
+    var GetDataJSON={};
+	GetDataJSON.Changed=(valChanged ? 1 : 0);
+	GetDataJSON.Team=spType;
+	GetDataJSON.Event=spEvent;
+	GetDataJSON.MatchId=spMatch;
+	GetDataJSON[obj.id]=obj.value;
+	$('input[type="checkbox"].Closest:checked').each(function() {
+		GetDataJSON.Closest=this.value;
+	})
+	if(spTarget) {
+		GetDataJSON.ArrowPosition=1;
+	}
+	if(Preparation) {
+		GetDataJSON.noUpdate=1;
+	}
+	if(position) {
+		$.each(position, function(idx) {
+			GetDataJSON[idx]=this;
+		});
+	}
+
+    $.getJSON(WebDir+'Final/Spotting-setArrow.php', GetDataJSON, function (data) {
         if(data.error!=0) {
             return;
         }
+	    obj.defaultValue=obj.value;
         $('#OpponentNameL').toggleClass('Winner', data.winner=='L');
         $('#OpponentNameR').toggleClass('Winner', data.winner=='R');
         $('#ScorecardL').toggleClass('Winner', data.winner=='L');
@@ -302,6 +342,49 @@ function updateArrow(obj, position) {
             $('.newSoNeeded').show();
         } else {
             $('.newSoNeeded').hide();
+        }
+
+        $.each(data.stars, function() {
+	        if(this.isStar) {
+	            $('#'+this.id).attr('ref', this.ref).attr('next', this.nextValue).show();
+	        } else {
+	            $('#'+this.id).attr('ref','').attr('next', '').hide();
+	        }
+        });
+
+        $('#ClosestL').prop('checked', data.ClosestL==1);
+        $('#ClosestR').prop('checked', data.ClosestR==1);
+
+        if(data.ShootOff) {
+            $('.StarRaiserSO').show();
+            $('.StarRaiserArrows').hide();
+        } else {
+            $('.StarRaiserSO').hide();
+            $('.StarRaiserArrows').show();
+        }
+        if(data.starsL) {
+	        $('[ref="ScorecardL"]').show();
+	        $('[ref="ConfirmL"]').prop('disabled', true);
+        } else {
+	        $('[ref="ScorecardL"]').hide();
+	        $('[ref="ConfirmL"]').prop('disabled', false);
+        }
+        if(data.starsR) {
+	        $('[ref="ScorecardR"]').show();
+	        $('[ref="ConfirmR"]').prop('disabled', true);
+        } else {
+	        $('[ref="ScorecardR"]').hide();
+	        $('[ref="ConfirmR"]').prop('disabled', false);
+        }
+
+        if(data.showClosest) {
+	        $('.ClosestSpan').show();
+        } else {
+	        $('.ClosestSpan').hide();
+        }
+
+        if(data.DontMove) {
+        	obj.focus();
         }
     });
 }
@@ -462,12 +545,12 @@ function addPoint (id) {
     }
 }
 
-function moveToNextPhase() {
+function moveToNextPhase(obj) {
     var spType = ($('#spotType').val()=='Team' ? '1' : '0');
     var spEvent = $('#spotCode').val();
     var spMatch = $('#spotMatch').val();
 
-    $.getJSON(WebDir + 'Final/Spotting-nextPhase.php?event='+spEvent+'&team='+spType+'&matchno='+spMatch, function(data) {
+    $.getJSON(WebDir + 'Final/Spotting-nextPhase.php?event='+spEvent+'&team='+spType+'&matchno='+spMatch+(obj ? '&pool='+obj : ''), function(data) {
         if(data.error==0) {
             updateComboMatches(spMatch);
             alert(data.msg);
@@ -703,6 +786,14 @@ function toggleKeypress() {
             setValue('10');
         });
 
+		KeyListener.simple_combo("shift e", function() {
+			setValue('11');
+		});
+
+        KeyListener.simple_combo("e", function() {
+            setValue('11');
+        });
+
 		KeyListener.simple_combo("num_add", function() {
 			setValue('X');
 		});
@@ -864,3 +955,72 @@ function toggleStar() {
 // 	}
 // });
 
+function updateIrm(obj) {
+	if(!confirm(ConfirmIrmMsg)) {
+		$(obj).val($(obj).attr('initial'));
+		return;
+	}
+	var spType = ($('#spotType').val()=='Team' ? '1' : '0');
+	var spEvent = $('#spotCode').val();
+
+	$.getJSON(WebDir + 'Final/Spotting-updateIRM.php?event='+spEvent+'&team='+spType+'&matchno='+$('#'+obj.id).attr('ref')+'&value='+obj.value, function(data) {
+		if(data.error==0) {
+			$(obj).attr('initial', obj.value);
+			alert(data.msg);
+		}
+	});
+}
+
+function raiseStar(obj) {
+	$('[id="'+$(obj).attr('ref')+'"]').val($(obj).attr('next')).trigger('blur');
+	$(obj).hide();
+}
+
+function removeStars(obj) {
+	$(obj).closest('#'+$(obj).attr('ref')).find('[id^="Star-"]:visible').each(function() {
+		var arrow=$('[id="'+$(this).attr('ref')+'"]');
+		arrow.val(arrow.val().replace('*',''));
+		arrow[0].onblur();
+	})
+	$(obj).closest('#'+$(obj).attr('ref')).find('[id^="StarSO-"]:visible').each(function() {
+		var arrow=$('[id="'+$(this).attr('ref')+'"]');
+		arrow.val(arrow.val().replace('*',''));
+		arrow[0].onblur();
+	})
+}
+
+function toggleClosest(obj) {
+	var spType = ($('#spotType').val()=='Team' ? '1' : '0');
+	var spEvent = $('#spotCode').val();
+	var spMatch = $('#spotMatch').val();
+
+	// execute the toggle
+	$.getJSON(WebDir+'Final/Spotting-SetClosest.php?team=' + spType + '&event=' + spEvent + '&match=' + spMatch + '&closest='+(obj.checked ? obj.value : ''), function(data) {
+		if(data.error==0) {
+			$('#OpponentNameL').toggleClass('Winner', data.winner=='L');
+			$('#OpponentNameR').toggleClass('Winner', data.winner=='R');
+			$('#ScorecardL').toggleClass('Winner', data.winner=='L');
+			$('#ScorecardR').toggleClass('Winner', data.winner=='R');
+			$('.Confirmed').toggleClass('Confirmed', false);
+
+			$(data.t).each(function() {
+				$('[id="'+this.id+'"]').html(this.val);
+			});
+
+			if(data.newSOPossible) {
+				$('.newSoNeeded').show();
+			} else {
+				$('.newSoNeeded').hide();
+			}
+
+			$('#ClosestL').prop('checked', data.ClosestL==1);
+			$('#ClosestR').prop('checked', data.ClosestR==1);
+
+			if(data.showClosest) {
+				$('.ClosestSpan').show();
+			} else {
+				$('.ClosestSpan').hide();
+			}
+		}
+	});
+}

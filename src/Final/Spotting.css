@@ -1,3 +1,13 @@
+#IrmSelectL,
+#IrmSelectR {
+    max-width:7em;
+    float: right;
+    font-size: 80%;
+}
+#IrmSelectR {
+    float: left;
+}
+
 .OpponentL {background-color:#00e0e0;}
 .OpponentR {background-color:#ffff40;}
 
@@ -6,7 +16,8 @@
 .Hidden {display:none;}
 
 .Scorecard, .CmdRow {font-size:2vmin;width:100%;}
-.Scorecard input, .CmdRow input {font-size:2vmin;}
+.Scorecard input, .CmdRow input,
+.Scorecard select, .CmdRow select {font-size:2vmin;}
 .Scorecard input[onfocus] {width:4ch;}
 
 .Target {text-align: center; border:1vmin solid white;cursor: crosshair;}
@@ -56,3 +67,10 @@ g[id^="SvgEndR_SO_"] {display:none;}
 
 .Legenda {padding: 5px; }
 .value {min-width: 5vh; display: inline-block; font-weight: bold; text-align: right}
+
+tr.SoRaiser {height:2.5em;}
+.SoRaiser input {background-color:black; color:white;padding:0.25em 0.75em;}
+
+.StarRaiserSO {display:none;}
+
+.Scorecard input[type="checkbox"] {transform:scale(1.5);margin-right:0.5em;}

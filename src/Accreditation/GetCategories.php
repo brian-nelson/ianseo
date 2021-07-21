@@ -8,33 +8,29 @@ $CardNumber=(empty($_REQUEST['CardNumber']) ? 0 : intval($_REQUEST['CardNumber']
 $FIELDS='distinct EnDivision, EnClass';
 $SORTSTRICT='EnDivision, EnClass';
 
+foreach(array('PrintNotPrinted','PrintAccredited','PrintPhoto') as $tmp) {
+	if(isset($_REQUEST[$tmp])) {
+		unset($_REQUEST[$tmp]);
+	}
+}
+
 require_once('CommonCard.php');
 
-$xmlDoc=new DOMDocument('1.0','UTF-8');
-$xmlRoot=$xmlDoc->createElement('response');
-$xmlDoc->appendChild($xmlRoot);
+$JSON=array(
+	'error' =>0,
+	'Divisions' => array(),
+	'Classes' => array(),
+);
 
 $Divs=array();
 $Clas=array();
 $q=safe_r_sql($MyQuery);
 while($r=safe_fetch($q)) {
-	if(!in_array($r->EnDivision, $Divs)) {
-		$xmlRule=$xmlDoc->createElement('div');
-		$xmlRule->setAttribute('id', $r->EnDivision);
-		$xmlRule->setAttribute('option', $r->EnDivision);
-		$xmlRoot->appendChild($xmlRule);
-		$Divs[]=$r->EnDivision;
-	}
-	if(!in_array($r->EnClass, $Clas)) {
-		$xmlRule=$xmlDoc->createElement('class');
-		$xmlRule->setAttribute('id', $r->EnClass);
-		$xmlRule->setAttribute('option', $r->EnClass);
-		$xmlRoot->appendChild($xmlRule);
-		$Clas[]=$r->EnClass;
-	}
+	$Divs[$r->EnDivision]=array('id'=>$r->EnDivision, 'txt'=>$r->EnDivision);
+	$Clas[$r->EnClass]=array('id'=>$r->EnClass, 'txt'=>$r->EnClass);
 }
 
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Content-type: text/xml; charset=' . PageEncode);
+$JSON['Divisions']=array_values($Divs);
+$JSON['Classes']=array_values($Clas);
 
-print $xmlDoc->saveXML();
+JsonOut($JSON);

@@ -26,24 +26,40 @@
 			. '<td class="Title" width="30%"><a class="LinkRevert" href="' . $_SERVER['PHP_SELF'] . '?ordNationComplete=' . (isset($_REQUEST['ordNationComplete']) && $_REQUEST['ordNationComplete']=='ASC' ? 'DESC' : 'ASC') . '">' . get_text('CompleteCountryName') . '</a></td>'
 			. '<td class="Title" width="20%"><a class="LinkRevert" href="' . $_SERVER['PHP_SELF'] . '?ordParent1=' . (isset($_REQUEST['ordParent1']) && $_REQUEST['ordParent1']=='ASC' ? 'DESC' : 'ASC') . '">' . get_text('CountryNameParent1') . '</a></td>'
 			. '<td class="Title" width="20%"><a class="LinkRevert" href="' . $_SERVER['PHP_SELF'] . '?ordParent2=' . (isset($_REQUEST['ordParent2']) && $_REQUEST['ordParent2']=='ASC' ? 'DESC' : 'ASC') . '">' . get_text('CountryNameParent2') . '</a></td>'
+			. '<td class="Title" width="20%"><a class="LinkRevert" href="' . $_SERVER['PHP_SELF'] . '?ordMaName=' . (isset($_REQUEST['ordMaName']) && $_REQUEST['ordMaName']=='ASC' ? 'DESC' : 'ASC') . '">' . get_text('MaCode','Records') . '</a></td>'
+			. '<td class="Title" width="20%"><a class="LinkRevert" href="' . $_SERVER['PHP_SELF'] . '?ordCaName=' . (isset($_REQUEST['ordCaName']) && $_REQUEST['ordCaName']=='ASC' ? 'DESC' : 'ASC') . '">' . get_text('CaCode','Records') . '</a></td>'
+			. '<td class="Title" ></td>'
 	. '</tr>';
 
 	$OrderBy='c.CoCode ASC ';
 
-	if (isset($_REQUEST['ordCountry']) && ($_REQUEST['ordCountry']=='ASC' || $_REQUEST['ordCountry']=='DESC'))
-		$OrderBy = "c.CoCode " . $_REQUEST['ordCountry'] . " ";
+	if (isset($_REQUEST['ordCountry']) && ($_REQUEST['ordCountry']=='ASC' || $_REQUEST['ordCountry']=='DESC')) {
+	    $OrderBy = "c.CoCode " . $_REQUEST['ordCountry'] . " ";
+	}
 
-	if (isset($_REQUEST['ordNation']) && ($_REQUEST['ordNation']=='ASC' || $_REQUEST['ordNation']=='DESC'))
-		$OrderBy = "c.CoName " . $_REQUEST['ordNation'] . " ";
+	if (isset($_REQUEST['ordNation']) && ($_REQUEST['ordNation']=='ASC' || $_REQUEST['ordNation']=='DESC')) {
+	    $OrderBy = "c.CoName " . $_REQUEST['ordNation'] . " ";
+	}
 
-	if (isset($_REQUEST['ordNationComplete']) && ($_REQUEST['ordNationComplete']=='ASC' || $_REQUEST['ordNationComplete']=='DESC'))
-		$OrderBy = "c.CoNameComplete " . $_REQUEST['ordNationComplete'] . " ";
+	if (isset($_REQUEST['ordNationComplete']) && ($_REQUEST['ordNationComplete']=='ASC' || $_REQUEST['ordNationComplete']=='DESC')) {
+	    $OrderBy = "c.CoNameComplete " . $_REQUEST['ordNationComplete'] . " ";
+	}
 
-	if (isset($_REQUEST['ordParent1']) && ($_REQUEST['ordParent1']=='ASC' || $_REQUEST['ordParent1']=='DESC'))
-	$OrderBy = "p1Code " . $_REQUEST['ordParent1'] . " ";
+	if (isset($_REQUEST['ordParent1']) && ($_REQUEST['ordParent1']=='ASC' || $_REQUEST['ordParent1']=='DESC')) {
+	    $OrderBy = "p1Code " . $_REQUEST['ordParent1'] . " ";
+	}
 
-	if (isset($_REQUEST['ordParent2']) && ($_REQUEST['ordParent2']=='ASC' || $_REQUEST['ordParent2']=='DESC'))
-	$OrderBy = "p2Code " . $_REQUEST['ordParent2'] . " ";
+	if (isset($_REQUEST['ordParent2']) && ($_REQUEST['ordParent2']=='ASC' || $_REQUEST['ordParent2']=='DESC')) {
+	    $OrderBy = "p2Code " . $_REQUEST['ordParent2'] . " ";
+	}
+
+	if (isset($_REQUEST['ordMaName']) && ($_REQUEST['ordMaName']=='ASC' || $_REQUEST['ordMaName']=='DESC')) {
+	    $OrderBy = "c.CoMaCode " . $_REQUEST['ordMaName'] . " ";
+	}
+
+	if (isset($_REQUEST['ordCaName']) && ($_REQUEST['ordCaName']=='ASC' || $_REQUEST['ordCaName']=='DESC')) {
+	    $OrderBy = "c.CoCaCode " . $_REQUEST['ordCaName'] . " ";
+	}
 
 
 	$filter="c.CoTournament={$tour} ";
@@ -71,6 +87,7 @@
 			c.CoId, c.CoTournament, c.CoCode, c.CoName, c.CoNameComplete,
 			IFNULL(p1.CoCode,'') as p1Code, IFNULL(p1.CoName,'') as p1Name,
 			IFNULL(p2.CoCode,'') as p2Code, IFNULL(p2.CoName,'') as p2Name,
+		    c.CoMaCode, c.CoCaCode,
 			EnId is null as CanDelete
 		FROM Countries as c
 		LEFT JOIN Countries AS p1 ON c.CoParent1=p1.CoId AND c.CoTournament=p1.CoTournament
@@ -121,6 +138,9 @@
 				<input type="text" name="fCoCode" size="5" value="<?php print isset($_REQUEST['CoParent2']) ? $_REQUEST['CoParent2'] : '';?>" />
 				<input type="submit" name="SetFilter" value="<?php print get_text('Search','Tournament');?>"/>
 			</td>
+			<td></td>
+			<td></td>
+			<td></td>
 		</tr>
 
 		<?php while ($row=safe_fetch($rs)) { ?>
@@ -130,6 +150,8 @@
 				<td><input type="text" id="d_c_CoNameComplete_<?php print $row->CoId;?>" size="50" maxlength="80" value="<?php print $row->CoNameComplete;?>"  onblur="UpdateField('d_c_CoNameComplete_<?php print $row->CoId;?>');" /></td>
 				<td><input type="text" id="d_c_CoParent1_<?php print $row->CoId;?>" size="5" maxlength="5" value="<?php print $row->p1Code;?>"  onblur="UpdateField('d_c_CoParent1_<?php print $row->CoId;?>');" />&nbsp;<?php print $row->p1Name;?></td>
 				<td><input type="text" id="d_c_CoParent2_<?php print $row->CoId;?>" size="5" maxlength="5" value="<?php print $row->p2Code;?>"  onblur="UpdateField('d_c_CoParent2_<?php print $row->CoId;?>');" />&nbsp;<?php print $row->p2Name;?></td>
+				<td><input type="text" id="d_c_CoMaCode_<?php print $row->CoId;?>" size="5" maxlength="5" value="<?php print $row->CoMaCode;?>"  onblur="UpdateField('d_c_CoMaCode_<?php print $row->CoId;?>');" /></td>
+				<td><input type="text" id="d_c_CoCaCode_<?php print $row->CoId;?>" size="5" maxlength="5" value="<?php print $row->CoCaCode;?>"  onblur="UpdateField('d_c_CoCaCode_<?php print $row->CoId;?>');" /></td>
 				<td><img src="<?php echo $CFG->ROOT_DIR."Common/Images/status-".($row->CanDelete ? 'noshoot' : 'ok').".gif" ;?>" <?php if($row->CanDelete) {echo 'onclick="location.href=\''.go_get(array('delete'=>$row->CoId)).'\'"';} ?>></td>
 				</tr>
 		<?php }?>

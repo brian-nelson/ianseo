@@ -15,9 +15,13 @@ if (IsBlocked(BIT_BLOCK_TOURDATA)) {
 	JsonOut($JSON);
 }
 
+$NewPhase=intval($_REQUEST['NewPhase']);
+$NumQualified=numQualifiedByPhase($NewPhase);
+$GridPhase=valueFirstPhase($NewPhase);
+
 // aggiorno la fase
 $Update = "UPDATE Events SET 
-	EvFinalFirstPhase=" . StrSafe_DB($_REQUEST['NewPhase']) . ", EvNumQualified=" . numQualifiedByPhase($_REQUEST['NewPhase']) . " 
+	EvFinalFirstPhase=$NewPhase, EvNumQualified=$NumQualified 
 	WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode']) . " AND EvTeamEvent='0' AND EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " ";
 $Rs=safe_w_sql($Update);
 
@@ -28,35 +32,43 @@ if (safe_w_affected_rows()) {
 	$Delete = "DELETE FROM Finals WHERE FinEvent=" . StrSafe_DB($_REQUEST['EvCode']) . " AND FinTournament=" . StrSafe_DB($_SESSION['TourId']) . " ";
 	$Rs=safe_w_sql($Delete);
 
-    // Deletes unused warmups
-    $delSchedule = "DELETE FROM FinWarmup USING
-        Events
-        INNER JOIN FinSchedule ON EvCode = FsEvent AND EvTeamEvent = FsTeamEvent AND EvTournament = FsTournament
-        INNER JOIN Grids ON GrMatchNo = FsMatchNo
-        INNER JOIN FinWarmup on FsEvent=FwEvent and FsTeamEvent=FwTeamEvent and FsTournament=FwTournament and FsScheduledDate=FwDay and FsScheduledTime=FwMatchTime
-        WHERE EvFinalFirstPhase < GrPhase
-        AND EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' AND EvCode=" . StrSafe_DB($_REQUEST['EvCode']);
-    $RsDel=safe_w_sql($delSchedule);
+	if($GridPhase) {
+		// Deletes unused warmups
+		$delSchedule = "DELETE FROM FinWarmup USING
+	        Events
+	        INNER JOIN FinSchedule ON EvCode = FsEvent AND EvTeamEvent = FsTeamEvent AND EvTournament = FsTournament
+	        INNER JOIN Grids ON GrMatchNo = FsMatchNo
+	        INNER JOIN FinWarmup on FsEvent=FwEvent and FsTeamEvent=FwTeamEvent and FsTournament=FwTournament and FsScheduledDate=FwDay and FsScheduledTime=FwMatchTime
+	        WHERE GrPhase > $GridPhase
+	        AND EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' AND EvCode=" . StrSafe_DB($_REQUEST['EvCode']);
+		$RsDel=safe_w_sql($delSchedule);
 
-    //Cancello lo schedule non in uso
-    $delSchedule = "DELETE FROM FinSchedule USING
-        Events
-        INNER JOIN FinSchedule ON EvCode = FsEvent AND EvTeamEvent = FsTeamEvent AND EvTournament = FsTournament
-        INNER JOIN Grids ON GrMatchNo = FsMatchNo
-        WHERE EvFinalFirstPhase < GrPhase
-        AND EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' AND EvCode=" . StrSafe_DB($_REQUEST['EvCode']);
-    $RsDel=safe_w_sql($delSchedule);
+		// deletes schedule
+		$delSchedule = "DELETE FROM FinSchedule USING
+	        Events
+	        INNER JOIN FinSchedule ON EvCode = FsEvent AND EvTeamEvent = FsTeamEvent AND EvTournament = FsTournament
+	        INNER JOIN Grids ON GrMatchNo = FsMatchNo
+	        WHERE GrPhase > $GridPhase
+	        AND EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' AND EvCode=" . StrSafe_DB($_REQUEST['EvCode']);
+		$RsDel=safe_w_sql($delSchedule);
 
-    // Creo la griglia
-    $Insert = "INSERT INTO Finals (FinEvent,FinMatchNo,FinTournament,FinDateTime) 
-        SELECT EvCode,GrMatchNo," . StrSafe_DB($_SESSION['TourId']) . "," . StrSafe_DB(date('Y-m-d H:i:s')) . " 
-        FROM Events 
-        INNER JOIN Phases on PhId=EvFinalFirstPhase and (PhIndTeam & pow(2,EvTeamEvent))>0
-        INNER JOIN Grids ON GrPhase<=greatest(PhId, PhLevel) AND EvTeamEvent='0' AND EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " 
-        WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode']) . " ";
+		// Re-create the brackets
+		$Insert = "INSERT INTO Finals (FinEvent,FinMatchNo,FinTournament,FinDateTime) 
+	        SELECT EvCode,GrMatchNo," . StrSafe_DB($_SESSION['TourId']) . "," . StrSafe_DB(date('Y-m-d H:i:s')) . " 
+	        FROM Events 
+	        INNER JOIN Phases on PhId=EvFinalFirstPhase and (PhIndTeam & pow(2,EvTeamEvent))>0
+	        INNER JOIN Grids ON GrPhase<=greatest(PhId, PhLevel) AND EvTeamEvent='0' AND EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " 
+	        WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode']) . " ";
+		$RsDel=safe_w_sql($Insert);
+	} else {
+		// deletes warmups
+		$delSchedule = "DELETE FROM FinWarmup WHERE FwTournament={$_SESSION['TourId']} AND FwTeamEvent=0 AND FwEvent=" . StrSafe_DB($_REQUEST['EvCode']);
+		$RsDel=safe_w_sql($delSchedule);
 
-    if($_REQUEST['NewPhase']!=0)
-        $RsIns=safe_w_sql($Insert);
+		// deletes schedule
+		$delSchedule = "DELETE FROM FinSchedule WHERE FsTournament={$_SESSION['TourId']} AND FsTeamEvent=0 AND FsEvent=" . StrSafe_DB($_REQUEST['EvCode']);
+		$RsDel=safe_w_sql($delSchedule);
+	}
 
     // Azzero il flag di spareggio
     ResetShootoff($_REQUEST['EvCode'],0,3);

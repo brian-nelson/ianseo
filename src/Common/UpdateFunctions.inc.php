@@ -698,3 +698,58 @@ function updateArrowTimestamp_20180624($ToId=0)  {
 		}
 	}
 }
+
+function updateTbClosest_20200404($ToId=0)  {
+    $q=safe_r_SQL("SELECT IndId, IndEvent, IndTournament, IndTieBreak FROM Individuals WHERE ".($ToId ? "IndTournament={$ToId} AND" : "")." BINARY IndTieBreak!=UPPER(IndTieBreak)");
+    while($r=safe_fetch($q)) {
+        safe_w_SQL("UPDATE Individuals SET IndTieBreak=UPPER(IndTieBreak), IndTbClosest=1 WHERE IndId={$r->IndId} AND IndEvent='{$r->IndEvent}' AND IndTournament={$r->IndTournament}");
+    }
+
+    $q=safe_r_SQL("SELECT TeCoId, TeSubTeam, TeEvent, TeTournament, TeFinEvent, TeTieBreak FROM Teams WHERE ".($ToId ? "TeTournament={$ToId} AND" : "")." BINARY TeTieBreak!=UPPER(TeTieBreak)");
+    while($r=safe_fetch($q)) {
+        safe_w_SQL("UPDATE Teams SET TeTieBreak=UPPER(TeTieBreak), TeTbClosest=1 WHERE TeCoId={$r->TeCoId} AND TeSubTeam={$r->TeSubTeam} AND TeEvent='{$r->TeEvent}' AND TeTournament={$r->TeTournament} AND TeFinEvent={$r->TeFinEvent}");
+    }
+
+    $q=safe_r_SQL("SELECT FinEvent, FinMatchNo, FinTournament, FinTieBreak FROM Finals WHERE ".($ToId ? "FinTournament={$ToId} AND" : "")." BINARY FinTieBreak!=UPPER(FinTieBreak)");
+    while($r=safe_fetch($q)) {
+        safe_w_SQL("UPDATE Finals SET FinTieBreak=UPPER(FinTieBreak), FinTbClosest=1 WHERE FinEvent='{$r->FinEvent}' AND FinMatchNo={$r->FinMatchNo} AND FinTournament={$r->FinTournament}");
+    }
+
+    $q=safe_r_SQL("SELECT TfEvent, TfMatchNo, TfTournament, TfTieBreak FROM TeamFinals WHERE ".($ToId ? "TfTournament={$ToId} AND" : "")." BINARY TfTieBreak!=UPPER(TfTieBreak)");
+    while($r=safe_fetch($q)) {
+        safe_w_SQL("UPDATE TeamFinals SET TfTieBreak=UPPER(TfTieBreak), TfTbClosest=1 WHERE TfEvent='{$r->TfEvent}' AND TfMatchNo={$r->TfMatchNo} AND TfTournament={$r->TfTournament}");
+    }
+
+    $q=safe_r_SQL("SELECT ElElimPhase, ElEventCode, ElTournament, ElQualRank, ElTieBreak FROM Eliminations WHERE ".($ToId ? "ElTournament={$ToId} AND" : "")." BINARY ElTieBreak!=UPPER(ElTieBreak)");
+    while($r=safe_fetch($q)) {
+        safe_w_SQL("UPDATE Eliminations SET ElTieBreak=UPPER(ElTieBreak), ElTbClosest=1 WHERE  ElElimPhase={$r->ElElimPhase} AND ElEventCode='{$r->ElEventCode}' AND ElTournament={$r->ElTournament} AND ElQualRank={$r->ElQualRank}");
+    }
+}
+
+function updateTbDecoded_20200519($ToId=0)  {
+    $q=safe_r_SQL("SELECT IndId, IndEvent, IndTournament, trim(IndTieBreak) as TieString, IndTbClosest as Closest, ifnull(EvElimSO,1) as ElimSO FROM Individuals left join Events on IndEvent=EvCode and EvTeamEvent=0 and EvTournament=IndTournament WHERE ".($ToId ? "IndTournament={$ToId} AND" : "")." trim(IndTieBreak)!=''");
+    while($r=safe_fetch($q)) {
+        safe_w_SQL("UPDATE Individuals SET IndTbDecoded=".StrSafe_DB(decodeTie($r->TieString, $r->ElimSO, $r->Closest))." WHERE IndId={$r->IndId} AND IndEvent='{$r->IndEvent}' AND IndTournament={$r->IndTournament}");
+    }
+
+    $q=safe_r_SQL("SELECT TeCoId, TeSubTeam, TeEvent, TeTournament, TeFinEvent, trim(TeTieBreak) as TieString, TeTbClosest as Closest, ifnull(EvElimSO,3) as ElimSO FROM Teams inner join Events on EvTournament=TeTournament and EvTeamEvent=1 and EvCode=TeEvent WHERE ".($ToId ? "TeTournament={$ToId} AND" : "")." trim(TeTieBreak)!=''");
+    while($r=safe_fetch($q)) {
+        safe_w_SQL("UPDATE Teams SET TeTbDecoded=".StrSafe_DB(decodeTie($r->TieString, $r->ElimSO, $r->Closest))." WHERE TeCoId={$r->TeCoId} AND TeSubTeam={$r->TeSubTeam} AND TeEvent='{$r->TeEvent}' AND TeTournament={$r->TeTournament} AND TeFinEvent={$r->TeFinEvent}");
+    }
+
+    $q=safe_r_SQL("SELECT FinEvent, FinMatchNo, FinTournament, trim(FinTieBreak) as TieString, FinTbClosest as Closest, ifnull(EvElimSO,1) as ElimSO FROM Finals inner join Events on EvTournament=FinTournament and EvTeamEvent=0 and EvCode=FinEvent WHERE ".($ToId ? "FinTournament={$ToId} AND" : "")." trim(FinTieBreak)!=''");
+    while($r=safe_fetch($q)) {
+        safe_w_SQL("UPDATE Finals SET FinTbDecoded=".StrSafe_DB(decodeTie($r->TieString, $r->ElimSO, $r->Closest))." WHERE FinEvent='{$r->FinEvent}' AND FinMatchNo={$r->FinMatchNo} AND FinTournament={$r->FinTournament}");
+    }
+
+    $q=safe_r_SQL("SELECT TfEvent, TfMatchNo, TfTournament, trim(TfTieBreak) as TieString, TfTbClosest as Closest, ifnull(EvElimSO,3) as ElimSO FROM TeamFinals inner join Events on EvTournament=TfTournament and EvTeamEvent=1 and EvCode=TfEvent WHERE ".($ToId ? "TfTournament={$ToId} AND" : "")." trim(TfTieBreak)!=''");
+    while($r=safe_fetch($q)) {
+        safe_w_SQL("UPDATE TeamFinals SET TfTbDecoded=".StrSafe_DB(decodeTie($r->TieString, $r->ElimSO, $r->Closest))." WHERE TfEvent='{$r->TfEvent}' AND TfMatchNo={$r->TfMatchNo} AND TfTournament={$r->TfTournament}");
+    }
+
+    $q=safe_r_SQL("SELECT ElElimPhase, ElEventCode, ElTournament, ElQualRank, trim(ElTieBreak) as TieString, ElTbClosest as Closest, ifnull(EvElimSO,1) as ElimSO FROM Eliminations inner join Events on EvTournament=ElTournament and EvTeamEvent=0 and EvCode=ElEventCode WHERE ".($ToId ? "ElTournament={$ToId} AND" : "")." trim(ElTieBreak)!=''");
+    while($r=safe_fetch($q)) {
+        safe_w_SQL("UPDATE Eliminations SET ElTbDecoded=".StrSafe_DB(decodeTie($r->TieString, $r->ElimSO, $r->Closest))." WHERE  ElElimPhase={$r->ElElimPhase} AND ElEventCode='{$r->ElEventCode}' AND ElTournament={$r->ElTournament} AND ElQualRank={$r->ElQualRank}");
+    }
+}
+

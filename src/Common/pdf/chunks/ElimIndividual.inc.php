@@ -5,7 +5,7 @@ $pdf->CoinTossShort=$PdfData->CoinTossShort;
 $pdf->NumberThousandsSeparator=$PdfData->NumberThousandsSeparator;
 $pdf->NumberDecimalSeparator=$PdfData->NumberDecimalSeparator;
 
-if(count($PdfData->rankData['sections'])) {
+if(!empty($PdfData->rankData) and count($PdfData->rankData['sections'])) {
 	$DistSize = 11;
 	$AddSize=0;
 	$pdf->setDocUpdate($PdfData->rankData['meta']['lastUpdate']);
@@ -21,8 +21,7 @@ if(count($PdfData->rankData['sections'])) {
 		{
 			$pdf->writeDataRowElimInd($item, $DistSize, $AddSize,$section['meta']['running'],($EndQualified===false && $item['rank']>$section['meta']['qualifiedNo']));
 			//if (!$pdf->SamePage(4* ($rankData['meta']['double'] ? 2 : 1)))
-			if (!$pdf->SamePage(4))
-			{
+			if (!$pdf->SamePage(4)) {
 				$pdf->AddPage();
 				$pdf->writeGroupHeaderElimInd($section['meta'], $DistSize, $AddSize, $section['meta']['running'], true);
 			}

@@ -2,114 +2,77 @@ function DiUpdate(obj) {
 //		if(obj.value=='') return;
 	var field=encodeURIComponent(obj.name)+'='+encodeURIComponent(obj.value);
 
-	var XMLHttp=CreateXMLHttpRequestObject();
-	if (XMLHttp) {
-		try {
-			if ((XMLHttp.readyState==XHS_COMPLETE || XMLHttp.readyState==XHS_UNINIT)) {
-				XMLHttp.open("GET","AjaxUpdate.php?"+field,true);
-				XMLHttp.onreadystatechange=function() {
-					if (XMLHttp.readyState!=XHS_COMPLETE) return;
-					if (XMLHttp.status!=200) return;
-					try {
-						var XMLResp=XMLHttp.responseXML;
-						// intercetto gli errori di IE e Opera
-						if (!XMLResp || !XMLResp.documentElement) throw(XMLResp.responseText);
-
-						// Intercetto gli errori di Firefox
-						var XMLRoot;
-						if ((XMLRoot = XMLResp.documentElement.nodeName)=="parsererror") throw("ParseError");
-
-						XMLRoot = XMLResp.documentElement;
-
-						var Error = XMLRoot.getElementsByTagName('error').item(0).firstChild.data;
-
-						if (Error==0) {
-							var Old=XMLRoot.getElementsByTagName('old');
-							var New=XMLRoot.getElementsByTagName('new');
-							var oldTimName = XMLRoot.getElementsByTagName('oldTimName');
-							var oldDurName = XMLRoot.getElementsByTagName('oldDurName');
-							var oldOptName = XMLRoot.getElementsByTagName('oldOptName');
-							var newTimName = XMLRoot.getElementsByTagName('newTimName');
-							var newDurName = XMLRoot.getElementsByTagName('newDurName');
-							var newOptName = XMLRoot.getElementsByTagName('newOptName');
-							if(oldTimName.length>0) {
-								var Fields=obj.parentElement.parentElement.getElementsByTagName('input');
-								for(var n=0; n<Fields.length; n++) {
-									if(Fields.item(n).name==oldTimName.item(0).firstChild.data) {
-										Fields.item(n).name=newTimName.item(0).firstChild.data;
-										var Data=XMLRoot.getElementsByTagName('warmtime').item(0).firstChild.data;
-										if(Data!=Fields.item(n).value) {
-											Fields.item(n).value=Data;
-											Fields.item(n).style.color='green';
-										} else {
-											Fields.item(n).style.color='blue';
-										}
-									}
-									if(Fields.item(n).name==oldDurName.item(0).firstChild.data) {
-										Fields.item(n).name=newDurName.item(0).firstChild.data;
-										var Data=XMLRoot.getElementsByTagName('warmduration').item(0).firstChild.data;
-										if(Data!=Fields.item(n).value) {
-											Fields.item(n).value=Data;
-											Fields.item(n).style.color='green';
-										} else {
-											Fields.item(n).style.color='blue';
-										}
-									}
-									if(Fields.item(n).name==oldOptName.item(0).firstChild.data) {
-										Fields.item(n).name=newOptName.item(0).firstChild.data;
-										var Data=XMLRoot.getElementsByTagName('options').item(0).firstChild.data;
-										if(Data!=Fields.item(n).value) {
-											Fields.item(n).value=Data;
-											Fields.item(n).style.color='green';
-										} else {
-											Fields.item(n).style.color='blue';
-										}
-									}
-								}
-								obj.style.color='green';
-							} else {
-								var Fields=obj.parentElement.parentElement.getElementsByTagName('input');
-								for(var n=0; n<Fields.length; n++) {
-									var FldName=Fields.item(n).name.substring(7, Fields.item(n).name.indexOf(']', 7)).toLowerCase();
-									if(FldName=='') continue;
-									var Data = XMLRoot.getElementsByTagName(FldName).item(0).firstChild.data;
-									if(Data!=Fields.item(n).value) {
-										Fields.item(n).value=Data;
-										Fields.item(n).style.color='green';
-									} else {
-										Fields.item(n).style.color='blue';
-									}
-									if(Old.length>0 && New.length>0) {
-										Fields.item(n).name=Fields.item(n).name.replace(Old.item(0).firstChild.data, New.item(0).firstChild.data);
-									}
-								}
-								obj.style.color='green';
-							}
-							var Scheduler=XMLRoot.getElementsByTagName('sch');
-							if(Scheduler) {
-								document.getElementById('TrueScheduler').innerHTML=Scheduler.item(0).firstChild.data;
-							}
-							var Texts=XMLRoot.getElementsByTagName('txt');
-							if(Texts) {
-								document.getElementById('ScheduleTexts').innerHTML=Texts.item(0).firstChild.data;
-							}
+	$.getJSON("AjaxUpdate.php?"+field, function(data) {
+		if (data.error==0) {
+			var Old=data.old;
+			var New=data.new;
+			var oldTimName = data.oldTimName;
+			var oldDurName = data.oldDurName;
+			var oldOptName = data.oldOptName;
+			var newTimName = data.newTimName;
+			var newDurName = data.newDurName;
+			var newOptName = data.newOptName;
+			if(oldTimName && oldTimName.length>0) {
+				$(obj).closest('tr').find('input').each(function() {
+					if(this.name==oldTimName) {
+						this.name=newTimName;
+						if(data.warmtime!=this.value) {
+							this.value=data.warmtime;
+							this.style.color='green';
 						} else {
-							obj.style.backgroundColor='red';
-							obj.value=obj.defaultValue;
-							// SetStyle(Which,'error');
+							this.style.color='blue';
 						}
-
-					} catch(e) {
-						//document.getElementById('idOutput').innerHTML='Errore: ' + e.toString();
+					}
+					if(this.name==oldDurName) {
+						this.name=newDurName;
+						if(data.warmduration!=this.value) {
+							this.value=data.warmduration;
+							this.style.color='green';
+						} else {
+							this.style.color='blue';
+						}
+					}
+					if(this.name==oldOptName) {
+						this.name=newOptName;
+						if(data.options!=this.value) {
+							this.value=data.options;
+							this.style.color='green';
+						} else {
+							this.style.color='blue';
+						}
+					}
+				});
+				obj.style.color='green';
+			} else {
+				$(obj).closest('tr').find('input').each(function() {
+					var FldName=this.name.substring(7, this.name.indexOf(']', 7)).toLowerCase();
+					if(FldName=='') return;
+					var Data = data[FldName];
+					if(Data && Data!=this.value) {
+						this.value=Data;
+						this.style.color='green';
+					} else {
+						this.style.color='blue';
+					}
+					if(Old && Old.length>0 && New && New.length>0) {
+						this.name=this.name.replace(Old, New);
 					}
 
-				};
-				XMLHttp.send();
+				});
+				obj.style.color='green';
 			}
-		} catch (e) {
-			//document.getElementById('idOutput').innerHTML='Errore: ' + e.toString();
+			if(data.sch) {
+				$('#TrueScheduler').html(data.sch);
+			}
+			if(data.txt) {
+				$('#ScheduleTexts').html(data.txt);
+			}
+		} else {
+			obj.style.backgroundColor='red';
+			obj.value=obj.defaultValue;
+			// SetStyle(Which,'error');
 		}
-	}
+	});
 }
 
 function DiDelete(obj) {

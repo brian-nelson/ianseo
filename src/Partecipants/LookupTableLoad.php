@@ -23,7 +23,7 @@ if(!empty($_REQUEST['PrevWaId']) and !empty($_REQUEST['EnId']) and !empty($_REQU
 	safe_w_sql("update Entries
 			inner join Tournament on EnTournament=ToId and ToId={$_SESSION['TourId']}
 			inner join LookUpEntries on LueIocCode=ToIocCode and LueCode=$WaId
-			set EnCode=LueCode, EnName=LueName, EnFirstName=LueFamilyName
+			set EnCode=LueCode, EnName=LueName, EnFirstName=LueFamilyName, EnClassified=LueClassified
 			where EnId=$EnId");
 	$t=safe_r_sql("select EnFirstName, EnName, EnNameOrder from Entries where EnId={$EnId}");
 	if($u=safe_fetch($t)) {
@@ -93,7 +93,7 @@ if(empty($_REQUEST["Download"])
                 <div><input id="onlyMissing-'.$u->LupIocCode.'" name="OnlyMissingPhoto['.$u->LupIocCode.']" type="checkbox" disabled="disabled" checked="checked">'.get_text('OnlyMissing', 'Tournament').'</div>
                 <div><input id="force-'.$u->LupIocCode.'" name="ForceOldPhoto['.$u->LupIocCode.']" type="checkbox" disabled="disabled">'.get_text('ForceOldPhotos', 'Tournament').'</div>';
         }
-		$LupFlagsPath    =$u->LupFlagsPath && ($u->LupFlagsPath[0]!='%' or file_exists($CFG->DOCUMENT_PATH.substr($u->LupFlagsPath, 1))) ? '<input name="Flags['.$u->LupIocCode.']" type="checkbox">'.($_SESSION['TourLocRule']=='FITA' ? '<input type="checkbox" name="fisu">' : '') : '';
+		$LupFlagsPath    =$u->LupFlagsPath && ($u->LupFlagsPath[0]!='%' or file_exists($CFG->DOCUMENT_PATH.substr($u->LupFlagsPath, 1))) ? '<input name="Flags['.$u->LupIocCode.']" type="checkbox">'.($u->LupIocCode ? '(<input type="checkbox" name="fisu"> FISU)' : '') : '';
 		$LupRankingPath  =$u->LupRankingPath && ($u->LupRankingPath[0]!='%' or file_exists($CFG->DOCUMENT_PATH.substr($u->LupRankingPath, 1))) ? '<input name="Rank['.$u->LupIocCode.']" type="checkbox">' : '';
 		$LupClubNamesPath=$u->LupClubNamesPath && ($u->LupClubNamesPath[0]!='%' or file_exists($CFG->DOCUMENT_PATH.substr($u->LupClubNamesPath, 1))) ? '<input name="Clubs['.$u->LupIocCode.']" type="checkbox">' : '';
 		$LupRecordsPath  =$u->LupRecordsPath && ($u->LupRecordsPath[0]!='%' or file_exists($CFG->DOCUMENT_PATH.substr($u->LupRecordsPath, 1))) ? '<input name="Records['.$u->LupIocCode.']" type="checkbox">' : '';
@@ -319,11 +319,12 @@ function DoLookupEntries($u, $file='') {
 			@ob_flush();
 
 			foreach($Archers as $r) {
-				$Data="LueCode=".StrSafe_DB($r->WaId)."
-					, LueIocCode=".StrSafe_DB($u->LupIocCode)."
+				$Data="LueCode=".StrSafe_DB(isset($r->WaId) ? $r->WaId : $r->Id)."
+					, LueIocCode=".StrSafe_DB(isset($u->LupIocCode) ? $u->LupIocCode : $u->Type)."
 					, LueFamilyName=" . StrSafe_DB($r->FamilyName)."
 					, LueName=" . StrSafe_DB($r->GivenName)."
 					, LueSex=" . ($r->Gender=='M' ? 0 : 1)."
+					, LueClassified=" . (empty($r->Para) ? 0 : 1)."
 					, LueCtrlCode='".ConvertDateLoc($r->BirthDate)."'
 					, LueCountry=".StrSafe_DB($r->CountryCode)."
 					, LueCoDescr=".StrSafe_DB($r->CountryName)."
@@ -630,7 +631,8 @@ function DoLookupClubs($u) {
 function DoLookupEntriesCheck() {
 	/*
 	 * Trasformazione degli stati:
-	 * Le righe con EnStatus=1 e LueStatus=8 con dt buona e le righe con EnStatus=6 o =7 non vengono toccate.
+	 * RIMOSSO: Le righe con EnStatus=1 e LueStatus=8 con dt buona e le righe con EnStatus=6 o =7 non vengono toccate.???
+	 * CD: modificato che se status=1 tira e basta!
 	 * Le altre invece prendono lo status della lookup se la dt gara è precedente alla scandenza della persona altrimenti pigliano 5
 	 *
 	 */
@@ -639,9 +641,10 @@ function DoLookupEntriesCheck() {
 		INNER JOIN LookUpEntries ON EnCode=LueCode and LueIocCode=IF(EnIocCode!='',EnIocCode,ToIocCode)
 		SET EnTimestamp=if(EnStatus!=IF(ToWhenTo>LueStatusValidUntil AND LueStatusValidUntil<>'0000-00-00',5,LueStatus), '".date('Y-m-d H:i:s')."', EnTimestamp),
 		EnStatus=IF(ToWhenTo>LueStatusValidUntil AND LueStatusValidUntil<>'0000-00-00',5,LueStatus),
-		EnNameOrder=LueNameOrder
+		EnNameOrder=LueNameOrder,
+		EnClassified=LueClassified
 		WHERE EnTournament=" . StrSafe_DB($_SESSION['TourId']). "
-		AND  NOT (EnStatus=6 OR EnStatus=7 OR (EnStatus=1 AND LueStatus=8 AND LueStatusValidUntil>=ToWhenTo AND LueStatusValidUntil<>'0000-00-00'))";
+		AND  NOT (EnStatus=6 OR EnStatus=7 OR EnStatus=1)";
 	$Rs=safe_w_sql($Sql);
 
 	$Sql = "UPDATE Entries

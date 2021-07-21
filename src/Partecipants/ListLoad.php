@@ -168,10 +168,16 @@ if($DataSource) {
 						$Data->Address->Province=$tmpString[5];
 						$Data->Address->Country=$tmpString[6];
 						safe_w_sql("insert into ExtraData set EdId=$r->EnId, EdType='E', EdExtra=".StrSafe_DB(serialize($Data))." on duplicate key update EdExtra=".StrSafe_DB(serialize($Data))."");
+						if($up=safe_w_affected_rows()) {
+                            safe_w_sql("update Entries set EnTimestamp='".date('Y-m-d H:i:s')."' where EnId={$r->EnId}");
+                        }
 						$ImportResult['Inserted'][]='<tr><td>Inserted/updated</td><td>'.$tmpString[1].'</td><td>'.$tmpString[2].'</td><td>'.$tmpString[3].'</td><td>'.$tmpString[4].'</td><td>'.$tmpString[5].'</td><td>'.$tmpString[6].'</td></tr>';
 						$ImportResult['Imported']++;
 						if($Where=GetAccBoothEnWhere($r->EnId, true, true)) {
 							LogAccBoothQuerry("insert into ExtraData set EdId=(select EnId from Entries where $Where), EdType='E', EdExtra=".StrSafe_DB(serialize($Data))." on duplicate key update EdExtra=".StrSafe_DB(serialize($Data))."");
+							if($up) {
+							    LogAccBoothQuerry("update Entries set EnTimestamp='".date('Y-m-d H:i:s')."' where EnId=(select EnId from Entries where $Where)");
+							}
 						}
 					}
 				} else {
@@ -232,10 +238,16 @@ if($DataSource) {
 				if(safe_num_rows($q)) {
 					while($r=safe_fetch($q)) {
 						safe_w_sql("insert into ExtraData set EdId=$r->EnId, EdType='E', EdEmail=".StrSafe_DB($tmpString[2])." on duplicate key update EdEmail=".StrSafe_DB($tmpString[2])."");
+						if($up=safe_w_affected_rows()) {
+							safe_w_sql("update Entries set EnTimestamp='".date('Y-m-d H:i:s')."' where EnId={$r->EnId}");
+						}
 						$ImportResult['Inserted'][]='<tr><td>Inserted/updated</td><td>'.$tmpString[1].'</td><td>'.$tmpString[2].'</td></tr>';
 						$ImportResult['Imported']++;
 						if($Where=GetAccBoothEnWhere($r->EnId, true, true)) {
 							LogAccBoothQuerry("insert into ExtraData set EdId=(select EnId from Entries where $Where), EdType='E', EdEmail=".StrSafe_DB($tmpString[2])." on duplicate key update EdEmail=".StrSafe_DB($tmpString[2])."");
+							if($up) {
+								LogAccBoothQuerry("update Entries set EnTimestamp='".date('Y-m-d H:i:s')."' where EnId=(select EnId from Entries where $Where)");
+							}
 						}
 					}
 				} else {
@@ -516,6 +528,7 @@ if($DataSource) {
 			/* Nation 2          */ $SecondNation2Save = (count($tmpString)>=19 ? AdjustCaseTitle($tmpString[18]) : "");
 			/* Country 3         */ $ThirdCountry2Save = (count($tmpString)>=20 ? UpperText($tmpString[19]) : "");
 			/* Nation 3          */ $ThirdNation2Save = (count($tmpString)>=21 ? AdjustCaseTitle($tmpString[20]) : "");
+			/* Para Status       */ $Para2Save = 0;
 
 			$CtrlCode2Save = "";
 			$AgeClass2Save = $Class2Save;
@@ -545,6 +558,9 @@ if($DataSource) {
 			        $OldCountry2Save = $Country2Save;
 			        $OldNation2Save = $Nation2Save;
 			        $OldDoB2Save = $DoB2Save;
+
+			        // Para Classification
+					$Para2Save=$MyRow->LueClassified;
 
 					// campi che non riguardano la nazione
 					$Name2Save = AdjustCaseTitle($MyRow->LueName);
@@ -701,6 +717,7 @@ if($DataSource) {
 				}
 			}
 
+			setlocale(LC_CTYPE, 'en_US.utf8');
             $FamName=iconv('UTF-8', 'ASCII//TRANSLIT', $FirstName2Save);
             $FamNameUpper=strtoupper($FamName);
             $GivName=iconv('UTF-8', 'ASCII//TRANSLIT', $Name2Save);
@@ -726,6 +743,7 @@ if($DataSource) {
 					, EnStatus=$Status2Save
 					, EnDOB=".StrSafe_DB($DoB2Save)."
 					, EnOdfShortname=".StrSafe_DB($TvName)."
+					, EnClassified=".intval($Para2Save)."
 					";
 
 			if($TeamUpdate) {

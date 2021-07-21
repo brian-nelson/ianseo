@@ -1,0 +1,34 @@
+<?php
+$lang['AssignAndSend']='הקצה ושלח';
+$lang['BrokenRecords']='שיאים שנשברו';
+$lang['DocumentCode']='קוד מסמך';
+$lang['DocumentLastSent']='תאריך/זמן שליחה אחרונה';
+$lang['DocumentStatus']='מצב מסמך';
+$lang['DocumentSubcode']='תת-קוד מסמך';
+$lang['DocumentType']='סוג מסמך';
+$lang['DocumentVersion']='גרסה';
+$lang['EndpointNotConfigured']='לא הוגדרה נקודת קצה!';
+$lang['GoodMorning']='בוקר טוב';
+$lang['GoodNight']='לילה טוב';
+$lang['IntEVENT']='שם אירוע';
+$lang['IntMATCH']='התמודדויות';
+$lang['IntQUAL']='סבב דירוג';
+$lang['IntRES']='תוצאות';
+$lang['IntSCHED']='לוח זמנים';
+$lang['SendNewMessage']='שלח הודעה חדשה';
+$lang['SendOldMessage']='שלח שוב הודעה קודמת';
+$lang['SourceCode']='קוד מקור';
+$lang['TestMode']='P = הפקה ; T = מצב בדיקה';
+$lang['Timetable']='לוח זמנים';
+$lang['TMMeeting']='פגישת מנהלי קבוצות';
+$lang['TypCODE']='סיומת קוד מסמך';
+$lang['TypEVENT']='תיאור אירוע';
+$lang['TypNAME']='תיאור';
+$lang['TypPHASE']='תיאור שלב';
+$lang['TypRECORD']='שמות שיאים';
+$lang['TypSCHEDLOC']='תיאור מיקום';
+$lang['TypSCHEDVEN']='תיאור זירת התחרות';
+$lang['TypSTATUS']='מצב';
+$lang['VictoryCeremony']='פרשנות ניצחון עבור $a';
+$lang['WinnerMatchName']='מנצח בהתמודדות $a';
+?>

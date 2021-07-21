@@ -10,15 +10,16 @@
 	if (isset($_REQUEST['Command'])) {
 		if (!IsBlocked(BIT_BLOCK_TOURDATA) && $_REQUEST['Command']=='SAVE') {
 			$BitMask=0;
+			$MatchMask=0;
 			foreach($_REQUEST as $Key => $Value) {
 				if (substr($Key,0,19)=='d_EvFinalAthTarget_') {
 					list(,,$e)=explode('_',$Key);
 					$BitMask+=($Value*pow(2,$e));
-				/*
-				 * Questa parte potrebbe essere risolta tramite una sola query.
-				 * Occorre usare gli operatori bit a bit di mysql per trovare
-				 * le fasi con il Bit=1
-				 */
+                    /*
+                     * Questa parte potrebbe essere risolta tramite una sola query.
+                     * Occorre usare gli operatori bit a bit di mysql per trovare
+                     * le fasi con il Bit=1
+                     */
 					if ($Value==1) {
 						$Phase = floor(pow(2,$e)/2);
 						$Update = "UPDATE FinSchedule AS fs1 
@@ -29,9 +30,12 @@
 							AND fs1.FSMatchNO IN(SELECT GrMatchNo FROM Grids WHERE GrPhase=" . StrSafe_DB($Phase) . ")";
 						$Rs=safe_w_sql($Update);
 					}
+				} elseif (substr($Key,0,25)=='d_EvMatchMultipleMatches_') {
+					list(,,$e)=explode('_',$Key);
+					$MatchMask+=($Value*pow(2,$e));
 				}
 			}
-			$Update = "UPDATE Events SET EvFinalAthTarget=" . StrSafe_DB($BitMask) . " 
+			$Update = "UPDATE Events SET EvFinalAthTarget=" . StrSafe_DB($BitMask) . ", EvMatchMultipleMatches=" . StrSafe_DB($MatchMask) . " 
 				WHERE EvCode=" . StrSafe_DB($_REQUEST['d_Event2Set']) . " AND EvTeamEvent='0' AND EvTournament=" . StrSafe_DB($_SESSION['TourId']);
 			$Rs=safe_w_sql($Update);
 		}
@@ -77,7 +81,7 @@
 
 <?php
 	if (isset($_REQUEST['Command']) && ($_REQUEST['Command']=='OK' || $_REQUEST['Command']=='SAVE')) {
-		$Select	= "SELECT EvFinalFirstPhase AS StartPhase, EvFinalAthTarget AS BitMask 
+		$Select	= "SELECT EvFinalFirstPhase AS StartPhase, EvFinalAthTarget AS BitMask, EvMatchMultipleMatches
 			FROM Events 
 			WHERE EvTournament = " . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' 
 			AND EvCode=" . StrSafe_DB($_REQUEST['d_Event']);
@@ -87,24 +91,31 @@
 			$MyRow=safe_fetch($Rs);
 			print '<input type="hidden" name="d_Event2Set" value="' . $_REQUEST['d_Event'] .'">';
 			print '<table class="Tabella">';
-			print '<tr><th width="50%">' . get_text('Phase') . '</th><th width="50%">' . get_text('Ath4Target', 'Tournament') . '</th></tr>';
+			print '<tr><th width="33%">' . get_text('Phase') . '</th><th width="33%">' . get_text('Ath4Target', 'Tournament') . '</th><th width="33%">' . get_text('Match4Target', 'Tournament') . '</th></tr>';
 
 			for ($CurPhase=$MyRow->StartPhase;$CurPhase>=0;($CurPhase>1 ? $CurPhase = valueFirstPhase($CurPhase)/2 : --$CurPhase)) {
+				$Bit = ($CurPhase>0 ? 2*bitwisePhaseId($CurPhase) : 1);
+				$e=log($Bit,2);  // esponente di 2 per ottenere la fase
 				print '<tr>';
 				print '<td class="Center">' . get_text(namePhase($MyRow->StartPhase, $CurPhase) . '_Phase') . '</td>';
 				print '<td class="Center">';
 			// Estraggo il bit corrispondete alla fase
-				$Bit = ($CurPhase>0 ? 2*bitwisePhaseId($CurPhase) : 1);
 				$Value = (($Bit & $MyRow->BitMask)==$Bit ? 1 : 0);
-				$e=log($Bit,2);  // esponente di 2 per ottenere la fase
 				print '<input type="radio" name="d_EvFinalAthTarget_' . $e . '"' . ($Value==0 ? ' checked="checked"' : '') . ' value="0">1';
 				print '&nbsp;&nbsp;&nbsp;';
 				print '<input type="radio" name="d_EvFinalAthTarget_' . $e . '"' . ($Value==1 ? ' checked="checked"' : '') . ' value="1">2';
 				print '</td>';
+				print '<td class="Center">';
+			// Estraggo il bit corrispondete alla fase
+				$Value = (($Bit & $MyRow->EvMatchMultipleMatches)==$Bit ? 1 : 0);
+				print '<input type="radio" name="d_EvMatchMultipleMatches_' . $e . '"' . ($Value==0 ? ' checked="checked"' : '') . ' value="0">1';
+				print '&nbsp;&nbsp;&nbsp;';
+				print '<input type="radio" name="d_EvMatchMultipleMatches_' . $e . '"' . ($Value==1 ? ' checked="checked"' : '') . ' value="1">2';
+				print '</td>';
 				print '</tr>';
 			}
 
-			print '<tr><td colspan="2" class="Center"><input type="submit" value="' . get_text('CmdSave') . '" onclick="document.Frm.Command.value=\'SAVE\'">&nbsp;<input type="reset" value="' . get_text('CmdCancel') . '">';
+			print '<tr><td colspan="3" class="Center"><input type="submit" value="' . get_text('CmdSave') . '" onclick="document.Frm.Command.value=\'SAVE\'">&nbsp;<input type="reset" value="' . get_text('CmdCancel') . '">';
 			print '</table>';
 		}
 	}

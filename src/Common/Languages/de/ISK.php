@@ -96,7 +96,6 @@ $lang['NoArrowScored']='Ein Pfeil muss zuerst gewertet werden, bevor er als Zent
 $lang['NoAthletes']='Keine Athleten gefunden';
 $lang['NoDist']='Keine Distanzen gefunden';
 $lang['NoLangInfo']='Kann keine Sprachinformationen finden. __TEXT__';
-$lang['NoLanguages']='Englisch ist aktuell die einzige verfügbare Sprache. Bitte verwende die Sprachen-Aktualisieren Funktion im Menü um eine weitere Sprache hinzu zu fügen und versuche es nochmals.';
 $lang['NoServerUrl']='Du musst einen QR-Code scannen oder die Ianseo URL manuell eingeben bevor die Sprachen aktualisiert werden können.';
 $lang['NoTargetTypes']='Keine Scheibentypen gefunden';
 $lang['Number']='Nummer';

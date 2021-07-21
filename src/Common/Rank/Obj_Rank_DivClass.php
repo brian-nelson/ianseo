@@ -220,7 +220,7 @@
 				SELECT
 					EnId, EnCode, EnSex, EnNameOrder, upper(EnIocCode) EnIocCode, EnName AS Name, upper(EnFirstName) AS FirstNameUpper, EnFirstName AS FirstName, SUBSTRING(QuTargetNo,1,1) AS Session,
 					SUBSTRING(QuTargetNo,2) AS TargetNo, FlContAssoc,
-					CoId, CoCode, CoName, EnClass, EnDivision,EnAgeClass, EnSubClass, ClDescription, DivDescription,
+					CoId, CoCode, CoName, CoMaCode, CoCaCode, EnClass, EnDivision,EnAgeClass, EnSubClass, ClDescription, DivDescription,
 					IFNULL(Td1,'.1.') as Td1, IFNULL(Td2,'.2.') as Td2, IFNULL(Td3,'.3.') as Td3, IFNULL(Td4,'.4.') as Td4, IFNULL(Td5,'.5.') as Td5, IFNULL(Td6,'.6.') as Td6, IFNULL(Td7,'.7.') as Td7, IFNULL(Td8,'.8.') as Td8,
 					QuD1Score, QuD1Rank, QuD2Score, QuD2Rank, QuD3Score, QuD3Rank, QuD4Score, QuD4Rank,
 					QuD5Score, QuD5Rank, QuD6Score, QuD6Rank, QuD7Score, QuD7Rank, QuD8Score, QuD8Rank,
@@ -228,7 +228,8 @@
 					QuD1Xnine, QuD2Xnine, QuD3Xnine, QuD4Xnine, QuD5Xnine, QuD6Xnine, QuD7Xnine, QuD8Xnine,
 					QuD1ArrowString, QuD2ArrowString, QuD3ArrowString, QuD4ArrowString, QuD5ArrowString, QuD6ArrowString, QuD7ArrowString, QuD8ArrowString,
 					{$tmp} AS Arrows_Shot, ToNumEnds, DiEnds, DiArrows,
-					{$MyRank} AS Rank, " . (!empty($comparedTo) ? 'IFNULL(QopClRank,0)' : '0') . " as OldRank, Qu{$dd}Score AS Score, Qu{$dd}Gold AS Gold,Qu{$dd}Xnine AS XNine, Qu{$dd}Hits AS Hits, ";
+					QuIrmType, IrmType, IrmShowRank,
+					{$MyRank} AS `Rank`, " . (!empty($comparedTo) ? 'IFNULL(QopClRank,0)' : '0') . " as OldRank, Qu{$dd}Score AS Score, Qu{$dd}Gold AS Gold,Qu{$dd}Xnine AS XNine, Qu{$dd}Hits AS Hits, ";
 
 			if(!empty($this->opts['runningDist']) && $this->opts['runningDist']>0)
 			{
@@ -250,16 +251,17 @@
 				INNER JOIN Entries ON ToId=EnTournament
 				INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament AND EnTournament={$this->tournament}
 				INNER JOIN Qualifications ON EnId=QuId
+				inner join IrmTypes on IrmId=QuIrmType
 				INNER JOIN Classes ON EnClass=ClId AND ClTournament=EnTournament AND ClAthlete=1
 				INNER JOIN Divisions ON EnDivision=DivId AND DivTournament=EnTournament AND DivAthlete=1
 				LEFT JOIN TournamentDistances ON ToType=TdType AND TdTournament=ToId AND CONCAT(TRIM(EnDivision),TRIM(EnClass)) LIKE TdClasses ";
 			if(!empty($comparedTo))
 				$q .= "LEFT JOIN QualOldPositions ON EnId=QopId AND QopHits=" . ($comparedTo>0 ? $comparedTo :  "(SELECT MAX(QopHits) FROM QualOldPositions WHERE QopId=EnId AND QopHits!=QuHits) ") . " ";
-			$q .= "	LEFT JOIN Flags ON FlIocCode='FITA' and FlCode=CoCode and FlTournament=-1
+			$q .= "	LEFT JOIN Flags ON FlIocCode='FITA' and FlCode=CoCode and FlTournament=ToId
 				left join DistanceInformation on EnTournament=DiTournament and DiSession=1 and DiDistance=1 and DiType='Q'
 				WHERE EnAthlete=1 AND EnIndClEvent=1 AND EnStatus <= 1 AND QuScore != 0 AND ToId={$this->tournament}
 					{$filter}
-				ORDER BY DivViewOrder, EnDivision, ClViewOrder, EnClass, ";
+				ORDER BY DivViewOrder, EnDivision, ClViewOrder, EnClass, if(IrmShowRank=1, 0, QuIrmType), ";
 			if(!empty($this->opts['runningDist']) && $this->opts['runningDist']>0)
 				$q .= "OrderScore DESC, OrderGold DESC, OrderXnine DESC, FirstName, Name ";
 			else
@@ -362,8 +364,12 @@
 								'sesArrows'=> array(),
 								'printHeader' => "",
 								'fields' => $fields
-							)
+							),
+							'records' => array()
 						);
+						if(!empty($this->opts['records'])) {
+							$section['records'] = $this->getRecords($curEvent,false,false,false);
+						}
 
 						$oldScore=-1;
 						$oldGold=-1;
@@ -381,12 +387,10 @@
 					$oldGold = $myRow->OrderGold;
 					$oldXnine = $myRow->OrderXnine;
 				// creo un elemento per la sezione
-                    if($myRow->Rank==9999) {
-                        $tmpRank = 'DSQ';
-                    } else if ($myRow->Rank==9998) {
-                        $tmpRank = 'DNS';
-                    } else {
+                    if($myRow->IrmShowRank) {
                         $tmpRank= (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $myRank : $myRow->Rank);
+                    } else {
+                        $tmpRank = $myRow->IrmType;
                     }
 
 
@@ -407,16 +411,20 @@
 						'subclass' => $myRow->EnSubClass,
 						'countryId' => $myRow->CoId,
 						'countryCode' => $myRow->CoCode,
-						'contAssoc' => $myRow->FlContAssoc,
+						'contAssoc' => $myRow->CoCaCode,
+						'memberAssoc' => $myRow->CoMaCode,
 						'countryIocCode' => $myRow->EnIocCode,
 						'countryName' => $myRow->CoName,
-						'rank' => $tmpRank,
+						'rank' => $myRow->IrmShowRank ? $tmpRank : $myRow->IrmType,
 						'oldRank' => $myRow->OldRank,
 						'score' => (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $myRow->OrderScore : $myRow->Score),
 						'gold' => (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $myRow->OrderGold : $myRow->Gold),
 						'xnine' => (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $myRow->OrderXnine : $myRow->XNine),
 						'hits' => $myRow->Hits,
-						'arrowsShot' => $myRow->Arrows_Shot
+						'arrowsShot' => $myRow->Arrows_Shot,
+						'irm' => $myRow->QuIrmType,
+						'irmText' => $myRow->IrmType,
+						'recordGap' => ($myRow->Arrows_Shot*10)-$myRow->Score,
 					);
 
 					$distFields=array();

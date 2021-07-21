@@ -29,7 +29,7 @@ $MSG='';
 $ORIS=$_SESSION['ISORIS'];
 
 if($_POST) {
-	error_reporting(0);
+	//error_reporting(0);
 // 	require_once('Common/OrisFunctions.php');
 	require_once('Common/pdf/OrisPDF.inc.php');
 	require_once('Common/pdf/OrisBracketPDF.inc.php');
@@ -245,7 +245,7 @@ while ($MyRow=safe_fetch($Rs)) {
 }
 
 // select the ACTUAL Team Events
-$Sql = "SELECT distinct EvCode, EvEventName, EvMixedTeam, EvMultiTeam, EvMaxTeamPerson,EvTeamCreationMode,EvFinalFirstPhase 
+$Sql = "SELECT distinct EvCode, EvEventName, EvMixedTeam, EvTeamCreationMode,EvFinalFirstPhase 
   FROM Events 
   WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent=1 
   ORDER BY EvProgr";

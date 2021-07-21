@@ -73,142 +73,73 @@ function loadRecord()
 	manageIndTeamParticipation('1');
 }
 
-function CheckCtrlCode()
-{
-	if (XMLHttp)
-	{
-		try
-		{
-			//var d_e_EnCtrlCode = encodeURIComponent(document.getElementById('d_e_EnCtrlCode_').value);
-			var d_e_EnCtrlCode = document.getElementById('d_e_EnCtrlCode_').value;
-			var d_e_EnSex = document.getElementById('d_e_EnSex_').value;
-			var d_e_EnDiv = document.getElementById('d_e_EnDivision_').value;
-			var d_e_EnAge = document.getElementById('d_e_EnAgeClass_').value;
+function CheckCtrlCode(obj) {
+	var d_e_EnCtrlCode = document.getElementById('d_e_EnCtrlCode_').value;
+	var d_e_EnSex = document.getElementById('d_e_EnSex_').value;
+	var d_e_EnDiv = document.getElementById('d_e_EnDivision_').value;
+	var d_e_EnAge = document.getElementById('d_e_EnAgeClass_').value;
 
-			//if(d_e_EnCtrlCode=='') return;
+	$.getJSON("CheckCtrlCode.php?d_e_EnAgeClass=" + d_e_EnAge + "&d_e_EnCtrlCode=" + d_e_EnCtrlCode + '&d_e_EnSex=' + d_e_EnSex + '&d_e_EnDiv=' + d_e_EnDiv, function(data) {
+		if(data.error==0) {
+			CtrlCode_Error=false;
 
-			if ((XMLHttp.readyState==XHS_COMPLETE || XMLHttp.readyState==XHS_UNINIT) )
-			{
-
-				XMLHttp.open("GET","CheckCtrlCode.php?d_e_EnAgeClass=" + d_e_EnAge + "&d_e_EnCtrlCode=" + d_e_EnCtrlCode + '&d_e_EnSex=' + d_e_EnSex + '&d_e_EnDiv=' + d_e_EnDiv,true);
-				XMLHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-				//document.getElementById('idOutput').innerHTML="CheckCtrlCode_Par.php?d_e_EnCtrlCode=" + d_e_EnCtrlCode;
-				XMLHttp.onreadystatechange=CheckCtrlCode_StateChange;
-				XMLHttp.send(null);
+			if(data.dob!='') {
+				$('#d_e_EnCtrlCode_').val(data.dob);
+				SetStyle('d_e_EnCtrlCode_','');
 			}
-		}
-		catch (e)
-		{
 
-			//alert('Errore1: ' + e.toString());
-		}
-	}
-}
+			// Gestisco le tendine delle classi
+			var Divisions = data.div;
+			var AgeClass = data.age;
+			var Classes = data.clas;
 
-function CheckCtrlCode_StateChange()
-{
-	// se lo stato è Complete vado avanti
-	if (XMLHttp.readyState==XHS_COMPLETE)
-	{
-	// se lo status di HTTP è ok vado avanti
-		if (XMLHttp.status==200)
-		{
-			try
-			{
-				CheckCtrlCode_Response();
+			var oldDiv='';
+			var oldCl='';
+			var oldAgeCl='';
+
+			if (!GetOldsFromFinder) {
+				oldDiv=document.getElementById('d_e_EnDivision_').value;
+				oldCl=document.getElementById('d_e_EnClass_').value;
+				oldAgeCl=document.getElementById('d_e_EnAgeClass_').value;
+			} else {
+				var matr=document.getElementById('d_e_EnCode_').value;
+
+				if (matr!='')
+				{
+					var ioc=document.getElementById('LupSelect').value;
+
+					var ref=matr+'_'+ioc;
+
+					if (document.getElementById('fdiv_'+ref))
+					{
+						oldDiv=document.getElementById('fdiv_'+ref).value;
+					}
+
+					if (document.getElementById('fcl_'+ref))
+					{
+						oldCl=document.getElementById('fcl_'+ref).value;
+						oldAgeCl=oldCl;
+					}
+				}
+
+				GetOldsFromFinder=false;
 			}
-			catch(e)
-			{
 
-				//alert('Errore2: ' + e.toString());
+			var Id = document.getElementById('d_e_EnId_').value;
+
+			// rebuild menus
+			rebuildDivClass('d_e_EnDivision_', Divisions, oldDiv);
+			rebuildDivClass('d_e_EnClass_', Classes, oldCl);
+			rebuildDivClass('d_e_EnAgeClass_', AgeClass, (oldAgeCl ? oldAgeCl : oldCl));
+			if (document.getElementById('fscl_'+ref)) {
+				document.getElementById('d_e_EnSubClass_').value = document.getElementById('fscl_' + ref).value;
 			}
-		}
-		else
-		{
-
-			//alert('Errore3: ' +XMLHttp.statusText);
-		}
-	}
-}
-
-function CheckCtrlCode_Response()
-{
-	// leggo l'xml
-	var XMLResp=XMLHttp.responseXML;
-// intercetto gli errori di IE e Opera
-	if (!XMLResp || !XMLResp.documentElement)
-		throw(XMLResp.responseText);
-
-// Intercetto gli errori di Firefox
-	var XMLRoot;
-	if ((XMLRoot = XMLResp.documentElement.nodeName)=="parsererror")
-		throw("");
-
-	XMLRoot = XMLResp.documentElement;
-
-	var Error = XMLRoot.getElementsByTagName('error').item(0).firstChild.data;
-
-	document.getElementById('d_e_EnAgeClass_').disabled=false;
-
-
-	//alert(Error);
-	if (Error==1) {
-		SetStyle('d_e_EnCtrlCode_','error');
-		CtrlCode_Error=true;
-	} else {
-		CtrlCode_Error=false;
-		var dob = XMLRoot.getElementsByTagName('dob').item(0).firstChild.data;
-		if(dob) document.getElementById('d_e_EnCtrlCode_').value=dob;
-		SetStyle('d_e_EnCtrlCode_','');
-
-	// Gestisco le tendine delle classi
-		var Divisions = XMLRoot.getElementsByTagName('divisions').item(0).firstChild.data;
-		var AgeClass = XMLRoot.getElementsByTagName('ageclass').item(0).firstChild.data;
-		var Classes = XMLRoot.getElementsByTagName('classes').item(0).firstChild.data;
-
-		var oldDiv='';
-		var oldCl='';
-		var oldAgeCl='';
-
-		if (!GetOldsFromFinder) {
-			oldDiv=document.getElementById('d_e_EnDivision_').value;
-			oldCl=document.getElementById('d_e_EnClass_').value;
-			oldAgeCl=document.getElementById('d_e_EnAgeClass_').value;
+			CheckTargetFaces();
 		} else {
-			var matr=document.getElementById('d_e_EnCode_').value;
-
-			if (matr!='')
-			{
-				var ioc=document.getElementById('LupSelect').value;
-
-				var ref=matr+'_'+ioc;
-
-				if (document.getElementById('fdiv_'+ref))
-				{
-					oldDiv=document.getElementById('fdiv_'+ref).value;
-				}
-
-				if (document.getElementById('fcl_'+ref))
-				{
-					oldCl=document.getElementById('fcl_'+ref).value;
-					oldAgeCl=oldCl;
-				}
-			}
-
-			GetOldsFromFinder=false;
+			SetStyle('d_e_EnCtrlCode_','error');
+			CtrlCode_Error=true;
 		}
-
-		var Id = document.getElementById('d_e_EnId_').value;
-
-	// rebuild menus
-		rebuildDivClass('d_e_EnDivision_', Divisions, oldDiv);
-		rebuildDivClass('d_e_EnClass_', Classes, oldCl);
-		rebuildDivClass('d_e_EnAgeClass_', AgeClass, (oldAgeCl ? oldAgeCl : oldCl));
-        if (document.getElementById('fscl_'+ref)) {
-            document.getElementById('d_e_EnSubClass_').value = document.getElementById('fscl_' + ref).value;
-        }
-		CheckTargetFaces();
-	}
+	});
 }
 
 var XMLHttpAgeClass = CreateXMLHttpRequestObject();
@@ -789,7 +720,7 @@ function CheckTargetFaces()
 
 	if (Div!='' && Clas!='')
 	{
-		if(TargetFaces[Div][Clas]) {
+		if(TargetFaces[Div]!==undefined && TargetFaces[Div][Clas]) {
 			var Id = document.getElementById('d_e_EnId_').value;
 			var oldValue= (Id!=0 ? record['targetface'] : '');
 			var chkValue=false;
@@ -1040,30 +971,15 @@ function resetDivCl()
 
 
 function rebuildDivClass(Id, Specs, oldSpec) {
-	var selectSpec=document.getElementById(Id);
-	for (var i=selectSpec.length-1;i>=0;i--) selectSpec.remove(i);
+	$('#'+Id).empty();
+	$('#'+Id).append('<option value="">--</option>');
 
-	var opt = document.createElement('option');
-	opt.text='--';
-	opt.value='';
-	try {
-		selectSpec.add(opt,null); // standard
-	} catch(ex) {
-		selectSpec.add(opt); // IE ....
-	}
-	if (Specs!='')  {
-		var SP = Specs.split(',');
+	$(Specs).each(function() {
+		$('#'+Id).append('<option value="'+this+'">'+this+'</option>');
+	});
 
-		for (var i=0;i<SP.length;++i) {
-			var opt = document.createElement('option');
-			opt.text=SP[i];
-			opt.value=SP[i];
-			if(oldSpec==SP[i] || SP.length == 1) opt.selected=true
-			try {
-				selectSpec.add(opt,null); // standard
-			} catch(ex) {
-				selectSpec.add(opt); // IE ....
-			}
-		}
+	if(Specs.length==1) {
+		oldSpec=Specs[0];
 	}
+	$('#'+Id).val(oldSpec);
 }

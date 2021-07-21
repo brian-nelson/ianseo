@@ -56,7 +56,7 @@ class Obj_Rank_MedalList extends Obj_Rank
 			$queries[]="
 				(
 					SELECT CONCAT_WS('|',DivId,ClId) as EvCode, case ClSex when -1 then 'X' when 0 then 'M' when 1 then 'F' end as EvOdfGender, CONCAT_WS('|',DivDescription,ClDescription) as EvName, 1 as indEvent, 0 as finEvent, 0 as hasFinals,
-					QuClRank as Rank, QuScore, CoCode, CoName, '' as TeSubTeam, CONCAT_WS(',',EnCode,EnFirstName,EnName, EnNameOrder,ifnull(EdExtra,EnCode), CoCode, concat(QuTarget,QuLetter), EnSex, EnDob) as Athlete, ToWhenTo as Date,
+					QuClRank as `Rank`, QuScore, CoCode, CoName, '' as TeSubTeam, CONCAT_WS(',',EnCode,EnFirstName,EnName, EnNameOrder,ifnull(EdExtra,EnCode), CoCode, concat(QuTarget,QuLetter), EnSex, EnDob) as Athlete, ToWhenTo as Date,
 					QuTimestamp as lastUpdate, 3 AS myOrder,(DivViewOrder+ClViewOrder*1000) AS Progr,
 					DivId, DivDescription, ClId, ClDescription,
 					'' as DocMajVersion,
@@ -74,7 +74,7 @@ class Obj_Rank_MedalList extends Obj_Rank
 					INNER JOIN Classes ON EnClass=ClId AND EnTournament=ClTournament
 					left join ExtraData on EdId=EnId and EdType='Z'
 					WHERE EnTournament={$tourId} AND EnStatus<=1 AND QuClRank BETWEEN 1 AND 3
-					ORDER BY Progr ASC, EvCode ASC, Rank ASC, EnFirstName ASC, EnName ASC
+					ORDER BY Progr ASC, EvCode ASC, `Rank` ASC, EnFirstName ASC, EnName ASC
 				)
 			";
 		}
@@ -85,7 +85,7 @@ class Obj_Rank_MedalList extends Obj_Rank
 			$queries[]="
 				(
 					SELECT EvCode, case ClSex when -1 then 'X' when 0 then 'M' when 1 then 'F' end as EvOdfGender, EvName, 0 as indEvent, 0 as finEvent, 0 AS hasFinals,
-					TeRank as Rank, TeScore QuScore, CoCode, CoName, '' as TeSubTeam,
+					TeRank as `Rank`, TeScore QuScore, CoCode, CoName, '' as TeSubTeam,
 					GROUP_CONCAT(CONCAT_WS(',',EnCode,EnFirstName,EnName, EnNameOrder,ifnull(EdExtra,EnCode),CoCode, concat(QuTarget,QuLetter), EnSex, EnDob) ORDER BY EnFirstName SEPARATOR '|') as Athlete, ToWhenTo as Date,
 					TeTimeStamp as lastUpdate, 4 AS myOrder,(DivViewOrder+ClViewOrder*1000) AS Progr,
 					DivId, DivDescription, ClId, ClDescription,
@@ -113,7 +113,7 @@ class Obj_Rank_MedalList extends Obj_Rank
 					left join ExtraData on EdId=EnId and EdType='Z'
 					WHERE TeTournament={$tourId} AND TeFinEvent=0 AND TeRank BETWEEN 1 AND 3
 					GROUP BY EvCode, EvName, indEvent, finEvent, hasFinals, Rank, CoCode, CoName
-					ORDER BY Progr ASC, EvCode ASC, Rank ASC, CoCode ASC, CoName ASC
+					ORDER BY Progr ASC, EvCode ASC, `Rank` ASC, CoCode ASC, CoName ASC
 				)
 			";
 		}
@@ -124,7 +124,7 @@ class Obj_Rank_MedalList extends Obj_Rank
 			$queries[]="
 				(
 					SELECT EvCode, EvOdfGender, EvEventName as EvName, 1 as indEvent, 1 as finEvent, (EvFinalFirstPhase!=0) AS hasFinals,
-					IF(EvFinalFirstPhase!=0, IndRankFinal, IndRank) as Rank, QuScore, CoCode, CoName, '' as TeSubTeam, CONCAT_WS(',',EnCode,EnFirstName,EnName, EnNameOrder,ifnull(EdExtra,EnCode),ifnull(EfCoCode,CoCode), concat(QuTarget,QuLetter), EnSex, EnDob) as Athlete,
+					IF(EvFinalFirstPhase!=0, IndRankFinal, IndRank) as `Rank`, QuScore, CoCode, CoName, '' as TeSubTeam, CONCAT_WS(',',EnCode,EnFirstName,EnName, EnNameOrder,ifnull(EdExtra,EnCode),ifnull(EfCoCode,CoCode), concat(QuTarget,QuLetter), EnSex, EnDob) as Athlete,
 					IFNULL(FSScheduledDate,ToWhenTo) as Date, IF(EvFinalFirstPhase!=0, IndTimestampFinal, IndTimestamp) as lastUpdate, 1 AS myOrder,EvProgr AS Progr,
 					DivId, DivDescription, ClId, ClDescription,
 					ifnull(DV2.DvMajVersion ,DV1.DvMajVersion) as DocMajVersion,
@@ -151,7 +151,7 @@ class Obj_Rank_MedalList extends Obj_Rank
 					left join OdfTranslations nm on nm.OdfTrTournament=ToId and nm.OdfTrInternal='TRANSLATE' and nm.OdfTrLanguage='ENG' and nm.OdfTrType='EVENT' and nm.OdfTrIanseo=concat(EvTeamEvent,EvCode)
 					left join OdfTranslations br on br.OdfTrTournament=ToId and br.OdfTrInternal='MATCH' and br.OdfTrLanguage='ENG' and br.OdfTrType='CODE' and br.OdfTrIanseo=if(IndRankFinal=3,'0_2','0_0')
 					WHERE EvTournament={$tourId} AND EvTeamEvent=0 AND EvMedals!=0 $Filter
-					ORDER BY Progr ASC, EvCode ASC, Rank ASC, EnFirstName ASC, EnName ASC
+					ORDER BY Progr ASC, EvCode ASC, `Rank` ASC, EnFirstName ASC, EnName ASC
 				)
 			";
 		}
@@ -162,8 +162,8 @@ class Obj_Rank_MedalList extends Obj_Rank
 			$queries[]="
 				(
 					SELECT EvCode, EvOdfGender, EvEventName as EvName, 0 as indEvent, 1 as finEvent, (EvFinalFirstPhase!=0) AS hasFinals,
-					IF(EvFinalFirstPhase!=0, TeRankFinal, TeRank) as Rank, 0 QuScore, CoCode, CoName, TeSubTeam,
-					GROUP_CONCAT(IF(EvFinalFirstPhase!=0, CONCAT_WS(',',ef.EnCode,ef.EnFirstName,ef.EnName, ef.EnNameOrder,ifnull(EdExtra,ef.EnCode),ifnull(EfCoCode,CoCode), TargetNo, ef.EnSex, ef.EnDob),CONCAT_WS(',',eq.EnCode,eq.EnFirstName,eq.EnName, eq.EnNameOrder, CoCode, '', eq.EnSex, eq.EnDob)) ORDER BY ef.EnSex desc,ef.EnFirstName,eq.EnSex desc,eq.EnFirstName SEPARATOR '|') as Athlete,
+					IF(EvFinalFirstPhase!=0, TeRankFinal, TeRank) as `Rank`, 0 QuScore, CoCode, CoName, TeSubTeam,
+					GROUP_CONCAT(IF(EvFinalFirstPhase!=0, CONCAT_WS(',',ef.EnCode,ef.EnFirstName,ef.EnName, ef.EnNameOrder,ifnull(EdExtra,ef.EnCode),ifnull(EfCoCode,CoCode), TargetNo, ef.EnSex, ef.EnDob),CONCAT_WS(',',eq.EnCode,eq.EnFirstName,eq.EnName, eq.EnNameOrder, eq.EnCode, CoCode, '', eq.EnSex, eq.EnDob)) ORDER BY ef.EnSex desc,ef.EnFirstName,eq.EnSex desc,eq.EnFirstName SEPARATOR '|') as Athlete,
 					IFNULL(FSScheduledDate,ToWhenTo) as Date, IF(EvFinalFirstPhase!=0, TeTimeStampFinal, TeTimeStamp) as lastUpdate, 2 AS myOrder,EvProgr AS Progr,
 					DivId, DivDescription, ClId, ClDescription,
 					ifnull(DV2.DvMajVersion ,DV1.DvMajVersion) as DocMajVersion,
@@ -193,8 +193,8 @@ class Obj_Rank_MedalList extends Obj_Rank
 					left join OdfTranslations nm on nm.OdfTrTournament=ToId and nm.OdfTrInternal='TRANSLATE' and nm.OdfTrLanguage='ENG' and nm.OdfTrType='EVENT' and nm.OdfTrIanseo=concat(EvTeamEvent,EvCode)
 					left join OdfTranslations br on br.OdfTrTournament=ToId and br.OdfTrInternal='MATCH' and br.OdfTrLanguage='ENG' and br.OdfTrType='CODE' and br.OdfTrIanseo=if(TeRankFinal=3,'0_2','0_0')
 					WHERE EvTournament={$tourId} AND EvTeamEvent=1 AND EvMedals!=0 $Filter
-					GROUP BY EvCode, EvName, indEvent, finEvent, hasFinals, Rank, CoCode, CoName
-					ORDER BY Progr ASC, EvCode ASC, Rank ASC, CoCode ASC, CoName ASC
+					GROUP BY EvCode, EvName, indEvent, finEvent, hasFinals, `Rank`, CoCode, CoName
+					ORDER BY Progr ASC, EvCode ASC, `Rank` ASC, CoCode ASC, CoName ASC
 				)
 			";
 		}
@@ -212,7 +212,7 @@ class Obj_Rank_MedalList extends Obj_Rank
 			$this->data['versionDate']='';
 			$this->data['versionNote']='';
 
-			$q=implode(' UNION ALL ',$queries) . " ORDER BY hasFinals desc, Date ASC, myOrder ASC,Progr ASC, EvCode ASC, Rank ASC";
+			$q=implode(' UNION ALL ',$queries) . " ORDER BY hasFinals desc, Date ASC, myOrder ASC,Progr ASC, EvCode ASC, `Rank` ASC";
 
 			$r=safe_r_sql($q);
 

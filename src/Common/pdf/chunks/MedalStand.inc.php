@@ -1,6 +1,8 @@
 <?php
 
-error_reporting(E_ALL);
+global $CFG; // just in case this file is included from inside a function
+
+//error_reporting(E_ALL);
 $pdf->setDocUpdate($PdfData->LastUpdate);
 
 $pdf->SetFont($pdf->FontStd,'B',10);

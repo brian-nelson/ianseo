@@ -22,6 +22,7 @@ function rotQualc($TVsettings, $RULE) {
 
 	$options=array('tournament' => $RULE->TVRTournament);
 	$options['dist'] = 0;
+	//$options['records'] = 1;
 
 	if(isset($TVsettings->TVPEventInd) && !empty($TVsettings->TVPEventInd))
 		$options['events'] = explode('|',$TVsettings->TVPEventInd);
@@ -58,7 +59,7 @@ function rotQualc($TVsettings, $RULE) {
 	if(count($rankData['sections'])==0) return $Return;
 
 	$Return['SubBlocks']=count($rankData['sections']);
-	$Return['NextSubBlock']=$SubBlock+1;
+	$Return['NextSubBlock']=($SubBlock+1);
 
 	if($SubBlock>count($rankData['sections'])) $SubBlock=1;
 

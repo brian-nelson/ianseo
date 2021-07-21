@@ -76,7 +76,6 @@ $lang['IndFinal']='Finais Individuais';
 $lang['Individual']='Individual';
 $lang['JF']='Junior Mulher';
 $lang['JM']='Junior Homem';
-$lang['JudgeNotes']='Anotacoes do Juiz';
 $lang['LB']='Long Bow';
 $lang['M']='Homem';
 $lang['ManFinAthTargetInd']='Atletas por Alvo da final individual';

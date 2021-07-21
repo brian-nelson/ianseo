@@ -7,6 +7,8 @@ require_once('Fun_MatchTotal.inc.php');
 //require_once('Common/Lib/Fun_Final.local.inc.php');
 //require_once('Common/Lib/Fun_Modules.php');
 
+// TODO: baco da controllare che non cancella la freccia
+
 $Event = isset($_REQUEST['Event']) ? $_REQUEST['Event'] : null;
 $TeamEvent = isset($_REQUEST['Team']) ? $_REQUEST['Team'] : null;
 $Target = isset($_REQUEST['ArrowPosition']);
@@ -21,23 +23,26 @@ if(is_null($Event) or is_null($TeamEvent) or is_null($Arrow) or $isBlocked) {
 	JsonOut($JSON);
 }
 
-//require_once("Common/Obj_Target.php");
-//require_once('Common/Fun_FormatText.inc.php');
-
 foreach($Arrow as $MatchId => $SOs) {
 	$MainMatch=$MatchId%2 ? $MatchId-1 : $MatchId;
 	$JSON['confirm']='confirm['.$MatchId.']';
+	$JSON['DontMove']=false;
 	foreach($SOs as $isSO=>$Ends) {
 		foreach($Ends as $End=>$Arrows) {
 			foreach($Arrows as $ArrowIndex => $ArrowValue) {
-				//This will load the correct target into CurrentTarget
-				$CurrentTarget=array();
 				$validData=GetMaxScores($Event, $MatchId, $TeamEvent);
+				// if spotter sends a "0" it is changed into an "M"
+				if($ArrowValue==="0") {
+					$ArrowValue="M";
+				}
 				// Check the arrow value is OK
-				if(array_key_exists(strtoupper(GetLetterFromPrint($ArrowValue, $CurrentTarget)) , $validData["Arrows"])) {
-					$ArrowLetter = GetLetterFromPrint($ArrowValue, $CurrentTarget);
+				if(array_key_exists(strtoupper(GetLetterFromPrint($ArrowValue)) , $validData["Arrows"])) {
+					$ArrowLetter = GetLetterFromPrint($ArrowValue);
 				} else {
 					$ArrowLetter = ' ';
+					if(strlen($ArrowValue)) {
+						$JSON['DontMove']=true;
+					}
 				}
 				$ArrowValue=trim($ArrowValue) ? DecodeFromLetter($ArrowLetter) : '';
 
@@ -97,14 +102,17 @@ foreach($Arrow as $MatchId => $SOs) {
 					);
 				}
 
-				$IsFinished=UpdateArrowString($MatchId, $Event, $TeamEvent, $ArrowLetter, $Index, $Index);
+				if(empty($_REQUEST['noUpdate'])) {
+					$Closest=(isset($_REQUEST['Closest']) and $_REQUEST['Closest']==$MatchId);
+					$IsFinished=UpdateArrowString($MatchId, $Event, $TeamEvent, $ArrowLetter, $Index, $Index, 0, $Closest);
+				}
 
 				// we need to send back the arrow value, the set total, the winner, etc
 				$options=array();
 				$options['tournament']=$_SESSION['TourId'];
 				$options['events']=$Event;
 				$options['matchno']=($MatchId%2 ? $MatchId-1 : $MatchId);
-				$options['extended']=$Arrows;
+				$options['extended']=isset($_REQUEST['x']);
 
 				if($TeamEvent) {
 					$rank=Obj_RankFactory::create('GridTeam',$options);
@@ -129,6 +137,8 @@ foreach($Arrow as $MatchId => $SOs) {
 				}
 				$Match=end($Phase['items']);
 
+				$JSON['ShootOff']=strlen(trim($Match['tiebreak'].$Match['oppTiebreak']))>0;
+
 				$JSON['arrowID']='Arrow['.$MatchId.']['.intval($isSO).']['.$End.']['.$ArrowIndex.']';
 				$JSON['arrowValue']=$ArrowValue;
 				$JSON['winner']=$Match['winner'] ? 'L' : ($Match['oppWinner'] ? 'R' : '');
@@ -138,6 +148,7 @@ foreach($Arrow as $MatchId => $SOs) {
                     (strlen(trim($Match['oppTiebreak'])) > 0 AND (strlen(trim($Match['oppTiebreak']))%$obj->so == 0)) AND
                     (strlen(trim($Match['tiebreak'])) ==strlen(trim($Match['oppTiebreak'])))
                 );
+				$JSON['showClosest']=(($JSON['ShootOff'] and $Match['tiebreakDecoded']==$Match['oppTiebreakDecoded'] and !$JSON['winner']) or $Match['closest'] or $Match['oppClosest']);
 
                 // Left Side
                 $Match['setPoints']=array_pad(explode('|', $Match['setPoints']), $obj->ends,'');
@@ -148,7 +159,7 @@ foreach($Arrow as $MatchId => $SOs) {
                 $Match['oppSetPointsByEnd']=array_pad(explode('|', $Match['oppSetPointsByEnd']), $obj->ends,'');
                 $Match['oppTiebreakDecoded']=array_pad(explode(',', $Match['oppTiebreakDecoded']), 3,'');
 
-                $soEnds=ceil(min(strlen(trim($Match['tiebreak'])), strlen(trim($Match['oppTiebreak'])))/$obj->so);
+                $soEnds=ceil(max(strlen(trim($Match['tiebreak'])), strlen(trim($Match['oppTiebreak'])))/$obj->so);
                 $TotL=0;
                 $TotR=0;
 //				if($MatchId%2) {
@@ -162,14 +173,14 @@ foreach($Arrow as $MatchId => $SOs) {
 						if(isset($_REQUEST['x'])) {
 							$JSON['p']=array(
 								'id'=>'SvgArrow['.$MatchId.'][1]['.$End.']['.$ArrowIndex.']',
-								'data'=> $Match['oppTiePosition'][$Index - $obj->arrows*$obj->ends -1],
+                                'data'=> (array_key_exists(($Index - $obj->arrows*$obj->ends -1),$Match['oppTiePosition']) ? $Match['oppTiePosition'][$Index - $obj->arrows*$obj->ends -1] : array())
 							);
 						}
 					} else {
 						if(isset($_REQUEST['x'])) {
 							$JSON['p']=array(
 								'id'=>'SvgArrow['.$MatchId.'][0]['.$End.']['.$ArrowIndex.']',
-								'data'=> $Match['oppArrowPosition'][$Index - 1],
+								'data'=> (array_key_exists(($Index - 1),$Match['oppArrowPosition']) ? $Match['oppArrowPosition'][$Index - 1] : array())
 							);
 						}
 					}
@@ -189,14 +200,14 @@ foreach($Arrow as $MatchId => $SOs) {
 						if(isset($_REQUEST['x'])) {
 							$JSON['p']=array(
 								'id'=>'SvgArrow['.$MatchId.'][1]['.$End.']['.$ArrowIndex.']',
-								'data'=> $Match['tiePosition'][$Index - $obj->arrows*$obj->ends -1],
+                                'data'=> (array_key_exists(($Index - $obj->arrows*$obj->ends -1),$Match['tiePosition']) ? $Match['tiePosition'][$Index - $obj->arrows*$obj->ends -1] : array())
 								);
 						}
 					} else {
 						if(isset($_REQUEST['x'])) {
 							$JSON['p']=array(
 								'id'=>'SvgArrow['.$MatchId.'][0]['.$End.']['.$ArrowIndex.']',
-								'data'=> $Match['arrowPosition'][$Index - 1],
+                                'data'=> (array_key_exists(($Index - 1),$Match['arrowPosition']) ? $Match['arrowPosition'][$Index - 1] : array())
 								);
 						}
 					}
@@ -241,7 +252,112 @@ foreach($Arrow as $MatchId => $SOs) {
 
 
                 $JSON['error']=0;
-				//$JSON['winner']=($Match['winner'] or $Match['oppWinner']);
+
+                $JSON['ClosestL']=$Match['closest'];
+                $JSON['ClosestR']=$Match['oppClosest'];
+
+                // evaluates the last valid arrows to check for stars on both sides!
+				$MatchIdR=$MainMatch+1;
+				$JSON['stars']=array();
+				for($i=0;$i<$obj->arrows;$i++) {
+					$JSON['stars']['L'.$i]=array(
+						'id'=>'Star-'.$MainMatch.'-'.$i,
+						'ref' => '',
+						'isStar'=>false,
+						'nextValue'=>'');
+					$JSON['stars']['R'.$i]=array(
+						'id'=>'Star-'.$MatchIdR.'-'.$i,
+						'ref' => '',
+						'isStar'=>false,
+						'nextValue'=>'');
+				}
+				for($i=0;$i<$obj->so;$i++) {
+					$JSON['stars']['LS'.$i]=array(
+						'id'=>'StarSO-'.$MainMatch.'-'.$i,
+						'ref' => '',
+						'isStar'=>false,
+						'nextValue'=>'');
+					$JSON['stars']['RS'.$i]=array(
+						'id'=>'StarSO-'.$MatchIdR.'-'.$i,
+						'ref' => '',
+						'isStar'=>false,
+						'nextValue'=>'');
+				}
+				if($Match['arrowstring']!=strtoupper($Match['arrowstring']) or $Match['oppArrowstring']!=strtoupper($Match['oppArrowstring'])) {
+					$ArrowstringL = rtrim($Match['arrowstring']);
+					$ArrowstringR = rtrim($Match['oppArrowstring']);
+					$EndLength = $obj->arrows;
+					$j=0;
+					while(max(strlen($ArrowstringL), strlen($ArrowstringR))>$EndLength) {
+						$ArrowstringL=substr($ArrowstringL, $EndLength);
+						$ArrowstringR=substr($ArrowstringR, $EndLength);
+						$j++;
+					}
+	                $JSON['starsL']=false;
+					$JSON['starsR']=false;
+					for($i=0;$i<max(strlen($ArrowstringL), strlen($ArrowstringR));$i++) {
+						$ar=substr($ArrowstringL,$i,1);
+						if(strlen($ar)) {
+			                $JSON['stars']['L'.$i]=array(
+			                    'id'=>'Star-'.$MainMatch.'-'.$i,
+				                'ref' => "Arrow[{$MainMatch}][0][{$j}][{$i}]",
+				                'isStar'=>strtolower($ar)==$ar,
+				                'nextValue'=>GetHigerArrowValue($Event, $TeamEvent, ValutaArrowString($ar)));
+			                if(strtolower($ar)==$ar) {
+				                $JSON['starsL']=true;
+			                }
+						}
+
+						$ar=substr($ArrowstringR,$i,1);
+						if(strlen($ar)) {
+			                $JSON['stars']['R'.$i]=array(
+			                    'id'=>'Star-'.$MatchIdR.'-'.$i,
+				                'ref' => "Arrow[{$MatchIdR}][0][{$j}][{$i}]",
+				                'isStar'=>strtolower($ar)==$ar,
+				                'nextValue'=>GetHigerArrowValue($Event, $TeamEvent, ValutaArrowString($ar)));
+							if(strtolower($ar)==$ar) {
+								$JSON['starsR']=true;
+							}
+						}
+					}
+				} elseif ($Match['tiebreak']!=strtoupper($Match['tiebreak']) or $Match['oppTiebreak']!=strtoupper($Match['oppTiebreak'])) {
+					$ArrowstringL = rtrim($Match['tiebreak']);
+					$ArrowstringR = rtrim($Match['oppTiebreak']);
+					$EndLength = $obj->so;
+					$j=0;
+					while(max(strlen($ArrowstringL), strlen($ArrowstringR))>$EndLength) {
+						$ArrowstringL=substr($ArrowstringL, $EndLength);
+						$ArrowstringR=substr($ArrowstringR, $EndLength);
+						$j++;
+					}
+	                $JSON['starsL']=false;
+					$JSON['starsR']=false;
+					for($i=0;$i<max(strlen($ArrowstringL), strlen($ArrowstringR));$i++) {
+						$ar=substr($ArrowstringL,$i,1);
+						if(strlen($ar)) {
+			                $JSON['stars']['LS'.$i]=array(
+			                    'id'=>'StarSO-'.$MainMatch.'-'.$i,
+				                'ref' => "Arrow[{$MainMatch}][1][{$j}][{$i}]",
+				                'isStar'=>strtolower($ar)==$ar,
+				                'nextValue'=>GetHigerArrowValue($Event, $TeamEvent, ValutaArrowString($ar)));
+			                if(strtolower($ar)==$ar) {
+				                $JSON['starsL']=true;
+			                }
+						}
+
+						$ar=substr($ArrowstringR,$i,1);
+						if(strlen($ar)) {
+			                $JSON['stars']['RS'.$i]=array(
+			                    'id'=>'StarSO-'.$MatchIdR.'-'.$i,
+				                'ref' => "Arrow[{$MatchIdR}][1][{$j}][{$i}]",
+				                'isStar'=>strtolower($ar)==$ar,
+				                'nextValue'=>GetHigerArrowValue($Event, $TeamEvent, ValutaArrowString($ar)));
+							if(strtolower($ar)==$ar) {
+								$JSON['starsR']=true;
+							}
+						}
+					}
+				}
 			}
 		}
 	}

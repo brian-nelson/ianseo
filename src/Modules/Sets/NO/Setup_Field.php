@@ -26,30 +26,30 @@ if($SubRule==9) {
 // default Distances
 // default targets
 if($tourDetNumDist==2) {
-	CreateDistance($TourId, $TourType, '%', 'Bane 1', 'Bane 2');
+	CreateDistanceNew($TourId, $TourType, '%', array(array('Bane 1',0), array('Bane 2',0)));
 	CreateTargetFace($TourId, 1, '~Default', '%', '1', 6, 0, 6, 0);
 } else {
 	if($SubRule==9) {
-		CreateDistance($TourId, $TourType, 'RD%', 'Blå');
-		CreateDistance($TourId, $TourType, 'RH%', 'Blå');
-		CreateDistance($TourId, $TourType, 'RK%', 'Blå');
-		CreateDistance($TourId, $TourType, 'RR%', 'Gul');
-		CreateDistance($TourId, $TourType, 'CD%', 'Rød');
-		CreateDistance($TourId, $TourType, 'CH%', 'Rød');
-		CreateDistance($TourId, $TourType, 'CK%', 'Rød');
-		CreateDistance($TourId, $TourType, 'CR%', 'Blå');
-		CreateDistance($TourId, $TourType, 'BUBU', 'Rød');
-		CreateDistance($TourId, $TourType, 'BK', 'Blå');
-		CreateDistance($TourId, $TourType, 'BR', 'Gul');
-		CreateDistance($TourId, $TourType, 'B_i', 'Blå');
-		CreateDistance($TourId, $TourType, 'LBK', 'Blå');
-		CreateDistance($TourId, $TourType, 'LBR', 'Gul');
-		CreateDistance($TourId, $TourType, 'LB_i', 'Blå');
-		CreateDistance($TourId, $TourType, 'INK', 'Blå');
-		CreateDistance($TourId, $TourType, 'INR', 'Gul');
-		CreateDistance($TourId, $TourType, 'IN_i', 'Blå');
+		CreateDistanceNew($TourId, $TourType, 'RD%', array(array('Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'RH%', array(array('Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'RK%', array(array('Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'RR%', array(array('Gul',0)));
+		CreateDistanceNew($TourId, $TourType, 'CD%', array(array('Rød',0)));
+		CreateDistanceNew($TourId, $TourType, 'CH%', array(array('Rød',0)));
+		CreateDistanceNew($TourId, $TourType, 'CK%', array(array('Rød',0)));
+		CreateDistanceNew($TourId, $TourType, 'CR%', array(array('Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'BUBU', array(array('Rød',0)));
+		CreateDistanceNew($TourId, $TourType, 'BK', array(array('Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'BR', array(array('Gul',0)));
+		CreateDistanceNew($TourId, $TourType, 'B_i', array(array('Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'LBK', array(array('Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'LBR', array(array('Gul',0)));
+		CreateDistanceNew($TourId, $TourType, 'LB_i', array(array('Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'INK', array(array('Blå',0)));
+		CreateDistanceNew($TourId, $TourType, 'INR', array(array('Gul',0)));
+		CreateDistanceNew($TourId, $TourType, 'IN_i', array(array('Blå',0)));
 	} else {
-		CreateDistance($TourId, $TourType, '%', 'Bane');
+		CreateDistanceNew($TourId, $TourType, '%', array(array('Bane',0)));
 	}
 	CreateTargetFace($TourId, 1, '~Default', '%', '1', 6, 0);
 }

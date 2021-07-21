@@ -48,10 +48,10 @@ function CreateStandardEvents($TourId, $TourType, $SubRule, $Outdoor=true) {
 	$TargetC=($Outdoor?9:4);
 	$TargetOther=($Outdoor?5:1);
 
-	if($TourType==6  || $TourType==3 || $TourType==1) {
+	if($TourType==6 || $TourType==3 || $TourType==37 || $TourType==1) {
 		$dv = array('R'=>'Recurve','B'=>'Barebow','C'=>'Compound','L'=>'Longbow','I'=>'Instinctive');
 		// Finals created for all classes for outdoor comps, but not indoor
-		if($TourType==3 || $TourType==1) {
+		if($TourType==3 || $TourType==37 || $TourType==1) {
 		       $cl = array('C'=>'Cadet 13','J'=>'Junior 16','E'=>'Elit','S'=>'Senior 21','M'=>'Master 50','V'=>'Veteran 60');
 		} else {
 			$cl = array('C'=>'Cadet 13','J'=>'Junior 16','E'=>'Elit');
@@ -89,7 +89,7 @@ function InsertStandardEvents($TourId, $TourType, $SubRule, $Outdoor=true) {
 	$dv = array('R','B','C','L','I');
 	$cl = array('K'=>array('KH','KD'), 'C'=>array('CH','CD'), 'J'=>array('JH','JD'), 'S'=>array('SH','MH','VH','EH','ED', 'SD','MD','VD'));
 
-	if($TourType==6 || $TourType==3 || $TourType==1) {
+	if($TourType==6 || $TourType==3 || $TourType==37 || $TourType==1) {
 		foreach($dv as $v_dv) {
 			foreach($cl as $k_cl => $v_cl) {
 				foreach($v_cl as $dett_cl) {

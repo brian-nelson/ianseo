@@ -2,7 +2,7 @@
 
 $CellH=8;
 
-$LastCellW=$pdf->getPageWidth()-20-$NatAtlCell*2-$TgtCell;
+$LastCellW=$pdf->getPageWidth()-20-$NatAtlCell*2-$TgtCell*2;
 
 	foreach($PdfData->Data['Items'] as $Country => $Rows) {
 		if($SinglePage and !$FirstTime) {
@@ -22,9 +22,12 @@ $LastCellW=$pdf->getPageWidth()-20-$NatAtlCell*2-$TgtCell;
 			}
 			if ($FirstTime || !$pdf->SamePage(4)) {
 			   	$pdf->SetFont($pdf->FontStd,'B',7);
-				$pdf->Cell($TgtCell, 4, $PdfData->Data['Fields']['Bib'], 1, 0, 'C', 1);
+				$pdf->Cell($TgtCell, 4, $PdfData->Data['Fields']['Bib'], 'TBL', 0, 'R', 1);
+                $pdf->Cell($TgtCell, 4, $PdfData->Data['Fields']['Bib2'], 'TBR', 0, 'R', 1);
+                $pdf->Cell($TgtCell, 4, $PdfData->Data['Fields']['Session'], 1, 0, 'C', 1);
+                $pdf->Cell($TgtCell, 4, $PdfData->Data['Fields']['TargetNo'], 1, 0, 'C', 1);
 				$pdf->Cell($NatAtlCell, 4, $PdfData->Data['Fields']['Athlete'], 1, 0, 'L', 1);
-				$pdf->Cell($NatAtlCell, 4, $PdfData->Data['Fields']['DOB'], 1, 0, 'L', 1);
+				$pdf->Cell($NatAtlCell-2*$TgtCell, 4, $PdfData->Data['Fields']['DOB'], 1, 0, 'L', 1);
 				$pdf->Cell($LastCellW, 4, $PdfData->Data['Fields']['Email'], 1, 0, 'L', 1);
 				$pdf->ln();
 				$OldTeam='';
@@ -39,9 +42,12 @@ $LastCellW=$pdf->getPageWidth()-20-$NatAtlCell*2-$TgtCell;
 			}
 
 			$pdf->SetFont($pdf->FontStd,'',7);
-			$pdf->Cell($TgtCell, $CellH,  $MyRow->Bib, 1, 0, 'R', 0);
+			$pdf->Cell($TgtCell, $CellH,  (($MyRow->Bib=='_'.$MyRow->Bib2) ? '': $MyRow->Bib), 'TBL', 0, 'R', 0);
+            $pdf->Cell($TgtCell, $CellH,  (($MyRow->Bib==$MyRow->Bib2) ? '': $MyRow->Bib2), 'TBR', 0, 'R', 0);
+            $pdf->Cell($TgtCell, $CellH,  $MyRow->Session, 1, 0, 'R', 0);
+            $pdf->Cell($TgtCell, $CellH,  $MyRow->TargetNo, 1, 0, 'R', 0);
 			$pdf->Cell($NatAtlCell, $CellH,  $MyRow->Athlete, 1, 0, 'L', 0);
-			$pdf->Cell($NatAtlCell, $CellH, $MyRow->EnDob, 1, 0, 'L', 0);
+			$pdf->Cell($NatAtlCell-2*$TgtCell, $CellH, $MyRow->EnDob, 1, 0, 'L', 0);
 			$pdf->Cell($LastCellW, $CellH,  $MyRow->EdEmail, 1, 0, 'L', 0);
 
 			$pdf->ln();

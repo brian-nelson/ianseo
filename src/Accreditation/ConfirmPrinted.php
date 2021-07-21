@@ -46,6 +46,12 @@ switch($CardType) {
 	case 'T':
 		$SQL="update Teams set TeBacknoPrinted='$Now', TeTimestamp=TeTimestamp, TeTimestampFinal=TeTimestampFinal where (TeCoId, concat(TeEvent, TeSubTeam)) in (select AEId, AEExtra from AccEntries where AEOperation=-{$Operation} and AETournament={$_SESSION['TourId']} and AEFromIp=INET_ATON('$RemoteIP')) ";
 		break;
+	case 'Y':
+		$SQL="insert into ExtraData (EdType, EdEmail, EdId) select 'D', '$Now', AEId from AccEntries where AEOperation=-{$Operation} and AETournament={$_SESSION['TourId']} and AEFromIp=INET_ATON('$RemoteIP') on duplicate key update EdEmail='$Now'";
+		break;
+	case 'Z':
+		$SQL="update Teams set TeBacknoPrinted='$Now', TeTimestamp=TeTimestamp, TeTimestampFinal=TeTimestampFinal where (TeCoId, concat(TeEvent, TeSubTeam)) in (select AEId, AEExtra from AccEntries where AEOperation=-{$Operation} and AETournament={$_SESSION['TourId']} and AEFromIp=INET_ATON('$RemoteIP')) ";
+		break;
 }
 
 safe_w_sql($SQL);

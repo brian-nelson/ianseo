@@ -34,25 +34,6 @@ $Anomalies=array();
 switch($Sequence[0]) {
 	case 'Q':
 		// gets the targets
-//		$SqlTargets="select distinct left(QuTargetNo, 4) Target from Entries inner join Qualifications on EnId=QuId and QuSession={$Sequence[2]} where EnTournament={$_SESSION['TourId']} and substr(QuTargetNo,2)+0>0 order by Target";
-//// 		$Out.='<q><![CDATA['.$SqlTargets.']]></q>';
-//		$q=safe_r_sql($SqlTargets);
-//		while($r=safe_Fetch($q)) {
-//			$Targets[]=StrSafe_DB($r->Target);
-//			$TgtsStatus[intval(substr($r->Target,1))]='';
-//		}
-		// prepares an array with all the available ends and the values if any
-		//$SQL="select substring(AtTargetNo, -4, 3)+0 Target, right(AtTargetNo, 1) Letter, AtTargetNo, Arrowstring, DiArrows
-		//	from AvailableTarget
-		//	left join (select QuTargetNo, EnTournament, QuD{$Dist}ArrowString Arrowstring
-		//			from Qualifications
-		//			inner join Entries on EnId=QuId and EnTournament={$_SESSION['TourId']} and EnStatus<=1
-		//			) Quals on AtTargetNo=QuTargetNo and AtTournament=EnTournament
-		//	left join DistanceInformation on DiType='Q' and DiDistance=$Dist and DiSession={$Sequence[2]} and DiTournament={$_SESSION['TourId']}
-		//	where AtTournament={$_SESSION['TourId']} and left(AtTargetNo, 4) in (".implode(',', $Targets).")
-		//	order by AtTargetNo";
-// 		$Out.='<q><![CDATA['.$SQL.']]></q>';
-
 		$SQL="select distinct AtTarget Target, AtLetter Letter, AtTargetNo
 			from Entries 
 			inner join Qualifications on QuId=EnId and QuSession={$Sequence[2]} and QuTarget>0
@@ -206,6 +187,194 @@ switch($Sequence[0]) {
 		$Error=0;
 		break;
 	case 'E':
+		$Error=0;
+		$Phase=$Sequence[1]-1;
+		$Session=$Sequence[2];
+
+		// gets all the targets
+		$SqlTargets="select distinct ElId, ElTargetNo+0 as Target, right(ElTargetNo, 1) Letter, ElTargetNo, ElArrowstring as Arrowstring, if(ElElimPhase=0, EvE1Ends, EvE2Ends) as Ends, if(ElElimPhase=0, EvE1Arrows, EvE2Arrows) as Arrows, EvCode Category
+			from Eliminations
+			inner join Events on EvCode=ElEventCode and EvTournament=ElTournament and EvTeamEvent=0
+			where ElTournament={$_SESSION['TourId']} and ElElimPhase=$Phase and ElSession=$Session and ElTargetNo>''
+			order by (Target-1)%if(ElElimPhase=0, EvE1Ends, EvE2Ends)";
+		$q=safe_r_sql($SqlTargets);
+		$Open=safe_num_rows($q);
+		$Total=0;
+		while($r=safe_Fetch($q)) {
+			if(!isset($TgtsStatus[$r->Target])) $TgtsStatus[$r->Target]='';
+
+			if(empty($ImportableCategories[$r->Category])) $ImportableCategories[$r->Category]=0;
+			$ImportableCategories[$r->Category]++;
+			$Ends[$r->Target][$r->Letter]='B';
+			$Payloads[$r->Target]='ses='.$Sequence.'&dist='.$Dist.'&end='.$End.'&target='.$r->Target;
+			//$Payloads[$r->Target]='group=group_'.$Group.'&end='.$End.'&target='.$r->Target;
+			$arrows=strlen(str_replace(' ', '', substr($r->Arrowstring, ($End-1)*$r->Arrows, $r->Arrows)));
+			if(!$r->ElId) {
+				$Ends[$r->Target][$r->Letter]='G'; // black, not used
+				$Open--;
+			} elseif(strlen(str_replace(' ', '', $r->Arrowstring))==$r->Arrows*$r->Ends) {
+				$Ends[$r->Target][$r->Letter]='F'; // Grayed out, finished the scoring
+				$Total++;
+			} elseif($End) {
+				if($arrows==$r->Arrows) {
+					$Ends[$r->Target][$r->Letter]='B'; // Blue, OK
+					$ImportableCategories[$r->Category]--;
+					$Total++;
+					if($TgtsStatus[$r->Target]!='C') $TgtsStatus[$r->Target]='B';
+				} elseif($arrows) {
+					$Ends[$r->Target][$r->Letter]='C'; // Cyan, missing arrows
+					$TgtsStatus[$r->Target]='C';
+				}
+			}
+			// no anomalies as in field everybody scores at any distance in the same time!
+// 			$Anomalies[$r->Target][$r->Letter]=preg_match('/ /sim', rtrim($r->Arrowstring));
+		}
+
+		// check which device should be attached to which target
+		$SQL="Select IskDvCode, IskDvDevice, IskDvTarget+0 IntTarget from IskDevices where IskDvTournament={$_SESSION['TourId']} and IskDvProActive>0 and IskDvSchedKey=".StrSafe_DB($Sequence);
+// 		$Out.='<q><![CDATA['.$SQL.']]></q>';
+		$q=safe_r_sql($SQL);
+		while($r=safe_fetch($q)) {
+			if(!isset($TgtsStatus[$r->IntTarget])) {
+				// device is not involved on this...
+				continue;
+			}
+
+			$span='<span device="'.$r->IskDvDevice.'" group="'.$Group.'">'.$r->IskDvCode.'</span>';
+			if(empty($AssignedDevices[$r->IntTarget]) or !in_array($span, $AssignedDevices[$r->IntTarget])) {
+				$AssignedDevices[$r->IntTarget][]=$span;
+			}
+		}
+
+		//// check if the devices have sent something to the targets in the correct session!
+		//$SQL="select IskData.*, IskDvCode,
+		//			IskDtTargetNo+0 as Target,
+		//			right(IskDtTargetNo, 1) as Letter,
+		//			trim(IskDtArrowstring) Arrowstring,
+		//			if(ElElimPhase=0, EvE1Arrows, EvE2Arrows) as DiArrows,
+		//			EvCode as Category
+		//		from IskData
+		//		inner join IskDevices on IskDvTournament=IskDtTournament and IskDvProActive>0 and IskDvDevice=IskDtDevice and IskDvSchedKey=".StrSafe_DB($Sequence)." and IskDvGroup=$Group
+		//		inner join Eliminations on ElTournament=IskDtTournament and ElSession=$Session and ElElimPhase=$Phase and ElTargetNo=IskDtTargetNo
+		//		inner join Events on EvTournament=IskDtTournament and EvCode=ElEventCode and EvTeamEvent=0
+		//		where IskDtTournament={$_SESSION['TourId']} and IskDtEndNo={$End} and IskDtSession=$Session and IskDtType='E{$IskSequence['maxdist']}'
+		//		";
+		//$JSON['sql'][]=$SQL;
+		//$q=safe_r_sql($SQL);
+		//while($r=safe_fetch($q)) {
+		//	$popId="data[$r->IskDtMatchNo][".($r->IskDtEvent ? $r->IskDtEvent : ':::')."][$r->IskDtTeamInd][$r->IskDtType][".($r->IskDtTargetNo ? intval($r->IskDtTargetNo) : ':::')."][$r->IskDtDistance][$r->IskDtEndNo][$Session]=1";
+		//	// scoring in the correct place
+		//	switch(true) {
+		//		case ($Ends[$r->Target][$r->Letter]=='G'): // this Position should not score at all!!!
+		//			$Messages[$r->Target][$r->IskDvCode]['Empty'][]='<span ondblclick="seeTarget(this)" title="'.get_text('IskTargetTitle', 'Api', $r->Target).'" value="'.$popId.'">' . $r->Letter . '</span>';
+		//			$TgtsStatus[$r->Target]='R';
+		//			break;
+		//		case (strlen(str_replace(' ', '', $r->Arrowstring))!=$r->DiArrows):
+		//			$Ends[$r->Target][$r->Letter]='Z'; // Yellow, score in progress
+		//			$ShowImport[$r->Target]=true;
+		//			if($TgtsStatus[$r->Target]!='R' and $TgtsStatus[$r->Target]!='O') {
+		//				$TgtsStatus[$r->Target]='Z';
+		//			}
+		//			break;
+		//		default:
+		//			$Ends[$r->Target][$r->Letter]='Y'; // Yellow, score finished
+		//			$Total++;
+		//			$Categories2Import[$r->Category]=true;
+		//			$ImportableCategories[$r->Category]--;
+		//			$ShowImport[$r->Target]=true;
+		//			if(!$TgtsStatus[$r->Target] or $TgtsStatus[$r->Target]=='C' or $TgtsStatus[$r->Target]=='B') {
+		//				$TgtsStatus[$r->Target]='Y';
+		//			}
+		//	}
+		//}
+
+		//// check if something strange is sent from the devices suppose to score this group
+		//$SQL="select IskData.*, IskDvCode, IskDvTarget, (IskDvSchedKey=".StrSafe_DB($Sequence).") as CorrectSession,
+		//			IskDtTargetNo+0 as Target,
+		//			right(IskDtTargetNo, 1) as Letter,
+		//			trim(IskDtArrowstring) Arrowstring,
+		//			if(ElElimPhase=0, EvE1Arrows, EvE2Arrows) as DiArrows,
+		//			EvCode as Category,
+		//			concat(FsScheduledDate, ' ', FsScheduledTime) Scheduled,
+		//			FsTarget+0 FsTarget
+		//		from IskData
+		//		inner join IskDevices on IskDvTournament=IskDtTournament and IskDvProActive>0 and IskDvDevice=IskDtDevice and IskDvGroup=$Group
+		//		inner join Eliminations on ElTournament=IskDtTournament and ElSession=$Session and ElElimPhase=$Phase and ElTargetNo=IskDtTargetNo
+		//		inner join Events on EvTournament=IskDtTournament and EvCode=ElEventCode and EvTeamEvent=0
+		//		left join FinSchedule on FsTournament={$_SESSION['TourId']} and FsMatchNo=IskDtMatchNo and FsEvent=IskDtEvent and FsTeamEvent=0
+		//		where IskDtTournament={$_SESSION['TourId']} and not (IskDtEndNo={$End} and IskDtSession=$Session and IskDtType='E{$IskSequence['maxdist']}')
+		//		";
+		//
+		//$JSON['sql'][]=$SQL;
+		//$q=safe_r_sql($SQL);
+		//while($r=safe_fetch($q)) {
+		//	$SkipRest=false;
+		//	$popId="data[$r->IskDtMatchNo][".($r->IskDtEvent ? $r->IskDtEvent : ':::')."][$r->IskDtTeamInd][$r->IskDtType][".($r->IskDtTargetNo ? intval($r->IskDtTargetNo) : ':::')."][$r->IskDtDistance][$r->IskDtEndNo][$Session]=1";
+		//	// check the correct code of device
+		//	$r->IskDvCode=($r->IskDvCode ? $r->IskDvCode : 'Unknown');
+		//
+		//	// readdress the correct target for matches
+		//	if($r->IskDtType!='Q' and $r->IskDtType[0]!='E') {
+		//		$r->Target=intval($r->IskDtTargetNo);
+		//	}
+		//	if(!$r->IskDvCode) {
+		//		// device is not known...
+		//		$Msg.='<div>'.get_text('IskUnknownDevice', 'Api', $r->Target ? $r->Target : $r->FsTarget).'</div>';
+		//	}
+		//	if(!isset($TgtsStatus[$r->Target])) {
+		//		// device is not involved on this... but is sending scores
+		//		$Msg.='<div ondblclick="seeTarget(this)" title="'.get_text('IskTargetTitle', 'Api', $r->Target ? $r->Target : $r->FsTarget).'" value="'.$popId.'">'.get_text('IskSpuriousDevice', 'Api', array($r->IskDvCode, $r->Target ? $r->Target : $r->FsTarget)).'</div>';
+		//		$SkipRest=true;
+		//	}
+		//	if(!$r->CorrectSession) {
+		//		// device is not sending Elimination scores of this phase and session
+		//		$Msg.='<div ondblclick="seeTarget(this)" title="'
+		//			.get_text('IskTargetTitle', 'Api', $r->Target ? $r->Target : $r->FsTarget).'" value="'.$popId.'">'
+		//			.get_text('IskSpuriousScore-Device', 'Api', array($r->IskDvCode, $r->Target ? $r->Target : $r->FsTarget, $r->IskDtType . ' '
+		//				.(strstr('EQ', $r->IskDtType) ? ($r->IskDtTargetNo[0] . ' ' . $r->IskDtDistance) : $r->IskDtEvent . ' '. $r->IskDtMatchNo. ' ('.$r->Scheduled.')')))
+		//			.'</div>';
+		//		$SkipRest=true;
+		//	}
+		//	if($SkipRest) {
+		//		continue;
+		//	}
+		//	switch(true) {
+		//		case ($Ends[$r->Target][$r->Letter]=='G'): // this Position should not score at all!!!
+		//			$Messages[$r->Target][$r->IskDvCode]['Empty'][]='<span ondblclick="seeTarget(this)" title="'.get_text('IskTargetTitle', 'Api', $r->Target).'" value="'.$popId.'">' . $r->Letter . '</span>';
+		//			$TgtsStatus[$r->Target]='R';
+		//			break;
+		//		case ($r->IskDtEvent): // scoring on another session!
+		//			$Messages[$r->Target][$r->IskDvCode]['Match'][]='<span ondblclick="seeTarget(this)" title="'.get_text('IskTargetTitle', 'Api', $r->Target).'" value="'.$popId.'">' . $r->IskDtEvent . '</span>';
+		//			$Ends[$r->Target][$r->Letter]='R'; // Red, error condition
+		//			$TgtsStatus[$r->Target]='R';
+		//			break;
+		//		case ($r->IskDtDistance!=$IskSequence['distance']): // scoring on a different distance
+		//			$Messages[$r->Target][$r->IskDvCode]['Distance'][]='<span ondblclick="seeTarget(this)" title="'.get_text('IskTargetTitle', 'Api', $r->Target).'" value="'.$popId.'">' . $r->IskDtDistance . '</span>';
+		//			$Ends[$r->Target][$r->Letter]='R'; // Red, error condition
+		//			$TgtsStatus[$r->Target]='R';
+		//			break;
+		//		case ($r->IskDtEndNo!=$End):
+		//			$tmp='<span ondblclick="seeTarget(this)" title="'.get_text('IskTargetTitle', 'Api', $r->Target).'" value="'.$popId.'">' . $r->IskDtEndNo . '</span>';
+		//			if(empty($Messages[$r->Target][$r->IskDvCode]['End']) or !in_array($tmp, $Messages[$r->Target][$r->IskDvCode]['End'])) {
+		//				$Messages[$r->Target][$r->IskDvCode]['End'][]=$tmp;
+		//			}
+		//			if($TgtsStatus[$r->Target]!='R') $TgtsStatus[$r->Target]='O';
+		//			break;
+		//		case ($r->IskDvTarget!=$r->Target):
+		//			$Messages[$r->Target][$r->IskDvCode]['End'][]='<span ondblclick="seeTarget(this)" title="'.get_text('IskTargetTitle', 'Api', $r->Target).'" value="'.$popId.'">' . $r->IskDtEndNo . '</span>';
+		//			if($TgtsStatus[$r->Target]!='R') $TgtsStatus[$r->Target]='O';
+		//			break;
+		//	}
+		//}
+		foreach($Ends as $t => $l) {
+			if(empty($ShowImport[$t]) or $TgtsStatus[$t]!='Y') continue;
+			$status=true;
+			foreach($l as $l1) {
+				$status=($status and ($l1=='Y' or $l1=='G' or $l1=='F'));
+			}
+			if(!$status) $TgtsStatus[$t]='Z';
+		}
+		$Error=0;
 		break;
 	case 'I':
 		$MatchTarget=array();

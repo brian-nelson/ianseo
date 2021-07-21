@@ -21,7 +21,6 @@ $lang['Failed']='NEUSPJEŠNO!';
 $lang['Failing install']='Molimo ažurirajte PHP instalacije prije ponovnog pokretanja IANSEO.';
 $lang['File permission error']='Morate provjeriti dozvole na direktorij IANSEO instalacije:
 treba biti omogućeno pisanje od strane korisnika koji izvodi poslužitelj ili world-writable.';
-$lang['FreeOnlineResults']='<b>Besplatni online pubblishing:</b> s osnovnom internetskom vezom možete pokazati svijetu ono što se događa za vrijeme natjecanja. To je besplatno, pa zašto čekati? Nakon kreiranja natjecanja, potraži kod putem točki izbornika «{$a}».';
 $lang['Host']='Domaćin (Host)';
 $lang['Install-0']='kritična pogreška';
 $lang['Install-1 Title']='PHP checking';
@@ -127,7 +126,6 @@ $lang['User']='Korisničko ime';
 $lang['Value']='Vrijednost (indeksiranih polja predmeta: key1:: vrijednost1 | key2:: vrijednost2)';
 $lang['WhatIanseoDoes01']='<b>u skladu sa WA pravilima:</b> Ianseo je uvijek u toku sa WA pravilima.  Developeri su dostupni za prilagodbe kako bi odgovarao nacionalnim i natjecanjima sa posebnim pravilima!';
 $lang['WhatIanseoDoes02']='<b> Pomoć i podrška:</b> ako vam je potrebna pomoć, pošaljite e-mail na $a: dobit ćete odgovor direktno od Ianseo core developera!';
-$lang['WhatIanseoDoes03']='<b>On site obuke i tečajevi:</b> Ianseo je može organizirati upravljanje tečajevima lokaciji. Dvije razine: bez i sa elektronskim uređajima. Prvi cilj je upoznati sve aspekte ianseo od pripreme natjecanja i rasporeda do online objave i lokalne distribucije rezultata. Drugi je usmjeren na stjecanje specifičnih znanja za pokretanje "arrow by arrow" natjecanja.';
 $lang['WhatIanseoDoes04']='<b> Donirajte! </b> Ianseo je besplatan i open source ... ako vam se sviđa, molimo da nam pomognete u održavanju softvera i poslužitelja ažurnim:pritisnite "donirati" gumb na početnoj stranici $a!';
 $lang['WhatIanseoDoes05']='<b> Društveni mediji: </b> Ianseo je također na $a!';
 $lang['WhatIanseoDoesTitle']='Što Ianseo može napraviti za vaše natjecanje';

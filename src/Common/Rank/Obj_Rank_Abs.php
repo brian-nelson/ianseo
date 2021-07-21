@@ -211,14 +211,14 @@
 
 			$only4zero="";
 			if ($this->opts['dist']==0 && empty($this->opts['runningDist']))
-				$only4zero=",IndTiebreak,(IndSO>0) as isSO, IFNULL(sqY.Quanti,1) AS `NumCT`,ABS(IndSO) AS RankBeforeSO ";
+				$only4zero=", IndTiebreak, IndTbClosest, IndTbDecoded, (IndSO>0) as isSO, IFNULL(sqY.Quanti,1) AS `NumCT`,ABS(IndSO) AS RankBeforeSO ";
 
 			$q="
 				SELECT
 					EnId, EnCode, ifnull(EdExtra, EnCode) as LocalId, if(EnDob=0, '', EnDob) as BirthDate, EnOdfShortname, EnSex, EnNameOrder, upper(EnIocCode) EnIocCode, EnName AS Name, EnFirstName AS FirstName, upper(EnFirstName) AS FirstNameUpper, SUBSTRING(QuTargetNo,1,1) AS Session,
 					SUBSTRING(QuTargetNo,2) AS TargetNo, FlContAssoc,
 					EvProgr, ToNumEnds,ToNumDist,ToMaxDistScore,
-					CoId, CoCode, CoName, EnClass, EnDivision,EnAgeClass,  EnSubClass,
+					CoId, CoCode, CoName, CoMaCode, CoCaCode, EnClass, EnDivision,EnAgeClass,  EnSubClass,
 					IFNULL(Td1,'.1.') as Td1, IFNULL(Td2,'.2.') as Td2, IFNULL(Td3,'.3.') as Td3, IFNULL(Td4,'.4.') as Td4, IFNULL(Td5,'.5.') as Td5, IFNULL(Td6,'.6.') as Td6, IFNULL(Td7,'.7.') as Td7, IFNULL(Td8,'.8.') as Td8,
 					QuD1Score, IndD1Rank, QuD2Score, IndD2Rank, QuD3Score, IndD3Rank, QuD4Score, IndD4Rank,
 					QuD5Score, IndD5Rank, QuD6Score, IndD6Rank, QuD7Score, IndD7Rank, QuD8Score, IndD8Rank,
@@ -227,10 +227,12 @@
 					QuD1Arrowstring,QuD2Arrowstring,QuD3Arrowstring,QuD4Arrowstring,QuD5Arrowstring,QuD6Arrowstring,QuD7Arrowstring,QuD8Arrowstring,
 					QuScore, QuNotes, QuConfirm, IndNotes, (EvShootOff OR EvE1ShootOff OR EvE2ShootOff) as ShootOffSolved,
 					IF(EvRunning=1,IFNULL(ROUND(QuScore/QuHits,3),0),0) as RunningScore,
-					EvCode,EvEventName,EvRunning, EvFinalFirstPhase, EvElim1, EvElim2,
+					EvCode,EvEventName,EvRunning, EvFinalFirstPhase, EvElim1, EvElim2, EvIsPara,
 					{$tmp} AS Arrows_Shot,
-					IF(EvElim1=0 && EvElim2=0, EvNumQualified ,IF(EvElim1=0,EvElim2,EvElim1)) as QualifiedNo, EvQualPrintHead as PrintHeader,
-					{$MyRank} AS Rank, " . (!empty($comparedTo) ? 'IFNULL(IopRank,0)' : '0') . " as OldRank, Qu{$dd}Score AS Score, Qu{$dd}Gold AS Gold,Qu{$dd}Xnine AS XNine, Qu{$dd}Hits AS Hits, ";
+					IF(EvElim1=0 && EvElim2=0, EvNumQualified ,IF(EvElim1=0,EvElim2,EvElim1)) as QualifiedNo, EvFirstQualified, EvQualPrintHead as PrintHeader,
+					{$MyRank} AS `Rank`, " . (!empty($comparedTo) ? 'IFNULL(IopRank,0)' : '0') . " as OldRank, Qu{$dd}Score AS Score, Qu{$dd}Gold AS Gold,Qu{$dd}Xnine AS XNine, Qu{$dd}Hits AS Hits, 
+					IndIrmType, IrmType, IrmShowRank, IrmHideDetails, ";
+			$q.="IndRecordBitmap as RecBitLevel, EvIsPara, CoMaCode, CoCaCode, "; // records management
 
 			if(!empty($this->opts['runningDist']) && $this->opts['runningDist']>0) {
 				$q1='';
@@ -261,44 +263,41 @@
 				INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament AND EnTournament={$this->tournament}
 				INNER JOIN Qualifications ON EnId=QuId
 				INNER JOIN Individuals ON IndTournament=EnTournament AND EnId=IndId
+				INNER JOIN IrmTypes ON IrmId=IndIrmType
 				INNER JOIN Events ON EvCode=IndEvent AND EvTeamEvent=0 AND EvTournament=EnTournament
 				left join ExtraData on EdId=EnId and EdType='Z'
 				LEFT JOIN DocumentVersions DV1 on EvTournament=DV1.DvTournament AND DV1.DvFile = 'QUAL-IND' and DV1.DvEvent=''
 				LEFT JOIN DocumentVersions DV2 on EvTournament=DV2.DvTournament AND DV2.DvFile = 'QUAL-IND' and DV2.DvEvent=EvCode
 				LEFT JOIN TournamentDistances ON ToType=TdType AND TdTournament=ToId AND CONCAT(TRIM(EnDivision),TRIM(EnClass)) LIKE TdClasses
 				left join DistanceInformation on EnTournament=DiTournament and DiSession=1 and DiDistance=1 and DiType='Q' ";
-			if(!empty($comparedTo))
+			if(!empty($comparedTo)) {
 				$q .= "LEFT JOIN IndOldPositions ON IopId=EnId AND IopEvent=EvCode AND IopTournament=EnTournament AND IopHits=" . ($comparedTo>0 ? $comparedTo :  "(SELECT MAX(IopHits) FROM IndOldPositions WHERE IopId=EnId AND IopEvent=EvCode AND IopTournament=EnTournament AND IopHits!=QuHits) ") . " ";
-			$q .= "LEFT JOIN Flags ON FlIocCode='FITA' and FlCode=CoCode and FlTournament=-1
+			}
+			$q .= "LEFT JOIN Flags ON FlIocCode='FITA' and FlCode=CoCode and FlTournament=ToId
 
 					/* Contatori per CT (gialli)*/
-					LEFT JOIN
-						(
-							SELECT
-								IndEvent,Count(*) as Quanti, IndSO as sqyRank, IndTournament
-							FROM
-								Individuals INNER JOIN Events ON IndEvent=EvCode AND IndTournament=EvTournament AND EvTeamEvent=0
-							WHERE
-								IndTournament = {$this->tournament} AND IndSO!=0 {$filter}
-							GROUP BY
-								IndSO, IndEvent,IndTournament
+					LEFT JOIN (
+						SELECT IndEvent,Count(*) as Quanti, IndSO as sqyRank, IndTournament
+						FROM Individuals 
+						inner join IrmTypes on IrmId=IndIrmType and IrmShowRank=1
+						INNER JOIN Events ON IndEvent=EvCode AND IndTournament=EvTournament AND EvTeamEvent=0
+						WHERE IndTournament = {$this->tournament} AND IndSO!=0 {$filter}
+						GROUP BY IndSO, IndEvent,IndTournament
 						) AS sqY
 					ON sqY.sqyRank=IndSO AND sqY.IndEvent=Individuals.IndEvent AND sqY.IndTournament=Individuals.IndTournament
 
 				WHERE
-					EnAthlete=1 AND EnIndFEvent=1 AND EnStatus <= 1  "
-					. (empty($this->opts['includeNullPoints'])? " AND (QuScore != 0 OR IndRank != 0) " : "")
-					." AND ToId = {$this->tournament}
+					EnAthlete=1 AND EnIndFEvent=1 AND EnStatus <= 1  
+					AND (QuScore != 0 OR IndRank != 0) 
+					AND ToId = {$this->tournament}
 					{$filter}
-					AND (IndRank!=9999 OR IndRank!=9998 OR EvRunning=0)
 					{$EnFilter}
 				ORDER BY
-						EvProgr, EvCode, ";
+					EvProgr, EvCode, if(IrmShowRank=1, 0, IndIrmType), ";
 			if(!empty($this->opts['runningDist']) && $this->opts['runningDist']>0)
 				$q .= "OrderScore DESC, OrderGold DESC, OrderXnine DESC, FirstName, Name ";
 			else
 				$q .= "RunningScore DESC, Ind{$dd}Rank ASC, FirstName, Name ";
-
 			$r=safe_r_sql($q);
 
 			$this->data['meta']['title']=get_text('ResultIndAbs','Tournament');
@@ -393,6 +392,8 @@
 						{
 							$fields=$fields+array(
 								'tiebreak' => get_text('TieArrows'),
+								'tiebreakClosest' => get_text('Close2Center', 'Tournament'),
+                                'tiebreakDecoded' => get_text('TieArrows'),
 								'ct' => get_text('CoinTossShort','Tournament'),
 								'so' => get_text('ShotOffShort','Tournament')
 							);
@@ -409,6 +410,7 @@
 								'descr' => get_text($myRow->EvEventName,'','',true),
 								'numDist' => $distValid,
 								'qualifiedNo' => $myRow->QualifiedNo,
+                                'firstQualified' => $myRow->EvFirstQualified,
 								'printHeader' => (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? get_text('AfterXDistance','Tournament',$this->opts['runningDist']) : ($this->opts['dist']>0 ? get_text('AtXDistance','Tournament',$this->opts['dist']): $myRow->PrintHeader)),
 								'arrowsShot'=> array(),
 								'maxPersons' => 1,
@@ -459,13 +461,13 @@
 
 
 				// creo un elemento per la sezione
-					if($myRow->Rank==9999) {
-                        $tmpRank = 'DSQ';
-                    } else if ($myRow->Rank==9998) {
-                        $tmpRank = 'DNS';
-					} else {
+					if($myRow->IrmShowRank) {
 						$tmpRank= (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $myRank : ($myRow->EvRunning==1 ? $runningRank: $myRow->Rank));
+					} else {
+                        $tmpRank = $myRow->IrmType;
 					}
+
+					$Score=$myRow->IrmShowRank ? (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $myRow->OrderScore : ($myRow->EvRunning==1 ? $myRow->RunningScore: $myRow->Score)) : $myRow->IrmType;
 
 					$item=array(
 						'id'  => $myRow->EnId,
@@ -487,48 +489,45 @@
 						'subclass' => $myRow->EnSubClass,
 						'countryId' => $myRow->CoId,
 						'countryCode' => $myRow->CoCode,
-						'contAssoc' => $myRow->FlContAssoc,
+						'contAssoc' => $myRow->CoCaCode,
+						'memberAssoc' => $myRow->CoMaCode,
 						'countryIocCode' => $myRow->EnIocCode,
 						'countryName' => $myRow->CoName,
-						'rank' => $tmpRank,
+						'rank' => $myRow->IrmShowRank ? $tmpRank : '',
 						'oldRank' => $myRow->OldRank,
 						'rankBeforeSO'=>(isset($myRow->RankBeforeSO) ? $myRow->RankBeforeSO:0),
-						'score' => (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $myRow->OrderScore : ($myRow->EvRunning==1 ? $myRow->RunningScore: $myRow->Score)),
+						'score' => $Score,
 						'completeScore' => $myRow->Score,
 						'scoreConfirmed' => $myRow->QuConfirm==$ConfirmStatus,
-						'gold' => (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $myRow->OrderGold : $myRow->Gold),
-						'xnine' => (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $myRow->OrderXnine : $myRow->XNine),
-						'hits' => $myRow->Hits,
+						'gold' => $myRow->IrmShowRank ? (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $myRow->OrderGold : $myRow->Gold) : '',
+						'xnine' => $myRow->IrmShowRank ? (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $myRow->OrderXnine : $myRow->XNine) : '',
+						'hits' => $myRow->IrmShowRank ? $myRow->Hits : '',
 						'notes' => trim($myRow->QuNotes. ' ' . $myRow->IndNotes),
+						'record' => $this->ManageBitRecord($myRow->RecBitLevel, $myRow->CoCaCode, $myRow->CoMaCode, $myRow->EvIsPara),
+						'irm' => $myRow->IndIrmType,
+						'irmText' => $myRow->IrmType,
 						'recordGap' => ($myRow->Arrows_Shot*10)-$myRow->Score,
 					);
 
-					if ($this->opts['dist']==0 && empty($this->opts['runningDist']))
-					{
-						$tmpArr="";
-						if(trim($myRow->IndTiebreak)) {
-							$tmpArr="T.";
-							for($countArr=0; $countArr<strlen(trim($myRow->IndTiebreak)); $countArr++) {
-								$tmpArr .= DecodeFromLetter(substr(trim($myRow->IndTiebreak),$countArr,1)) . ",";
-							}
-							$tmpArr = substr($tmpArr,0,-1);
-							$section['meta']['hasShootOff']=max($section['meta']['hasShootOff'], $countArr);
-						}
+					if ($this->opts['dist']==0 && empty($this->opts['runningDist'])) {
 						$item=$item+array(
 							'tiebreak' => trim($myRow->IndTiebreak),
-							'tiebreakDecoded' => $tmpArr,
+                            'tiebreakClosest' => $myRow->IndTbClosest,
+							'tiebreakDecoded' => $myRow->IndTbDecoded,
 							'ct' => $myRow->NumCT,
 							'so' => $myRow->isSO
 						);
 					}
 
 					$distFields=array();
-					foreach(range(1,8) as $n)
-					{
-						if((!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 && $n>$this->opts['runningDist']) || ($this->opts['dist']>0 && $n!=$this->opts['dist']))
+					foreach(range(1,8) as $n) {
+						if(!$myRow->IrmShowRank) {
+							$distFields['dist_' . $n]='|||';
+						} elseif((!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 && $n>$this->opts['runningDist']) || ($this->opts['dist']>0 && $n!=$this->opts['dist'])) {
 							$distFields['dist_' . $n]='0|0|0|0';
-						else
+						} else {
 							$distFields['dist_' . $n]=$myRow->{'IndD' . $n . 'Rank'} . '|' . $myRow->{'QuD' . $n . 'Score'} . '|' . $myRow->{'QuD' . $n . 'Gold'} . '|' . $myRow->{'QuD' . $n . 'Xnine'};
+						}
 						$item["D{$n}Arrowstring"]=$myRow->{"QuD{$n}Arrowstring"};
 					}
 

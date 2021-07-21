@@ -23,7 +23,7 @@ function getHomeURL() {
     global $CFG;
     return $_SERVER["REQUEST_SCHEME"] . "://" .
         $_SERVER['SERVER_NAME'] .
-        ((($_SERVER["REQUEST_SCHEME"]=='http' AND $_SERVER['SERVER_PORT']!=80) OR ($_SERVER["REQUEST_SCHEME"]=='https' AND $_SERVER['SERVER_PORT']!=443)) ? '' : ':'.$_SERVER['SERVER_PORT']).
+        ((($_SERVER["REQUEST_SCHEME"]=='http' AND $_SERVER['SERVER_PORT']==80) OR ($_SERVER["REQUEST_SCHEME"]=='https' AND $_SERVER['SERVER_PORT']==443)) ? '' : ':'.$_SERVER['SERVER_PORT']).
         $CFG->ROOT_DIR;
 }
 
@@ -86,6 +86,7 @@ function safe_w_con($error=false) {
 	mysqli_set_charset($a, "utf8");
 // 	mysqli_query($a, "SET NAMES 'utf8' COLLATE '{$_SESSION['COLLATION']}'") or safe_error(mysqli_error($a));
 // 	mysqli_query($a, "SET CHARACTER SET 'utf8'") or safe_error(mysqli_error($a));
+    mysqli_query($a, "SET session optimizer_search_depth = 0") or safe_error(mysqli_error($a));
 	mysqli_query($a, "SET session time_zone = '".date('P')."'") or safe_error(mysqli_error($a));
 	mysqli_query($a, "SET session sql_mode = 'NO_UNSIGNED_SUBTRACTION'") or safe_error(mysqli_error($a));
 
@@ -101,6 +102,7 @@ function safe_r_con() {
 	mysqli_set_charset($a, "utf8");
 // 	mysqli_query($a, "SET NAMES 'utf8' COLLATE '{$_SESSION['COLLATION']}'") or safe_error(mysqli_error($a));
 // 	mysqli_query($a, "SET CHARACTER SET 'utf8'") or safe_error(mysqli_error($a));
+    mysqli_query($a, "SET session optimizer_search_depth = 0") or safe_error(mysqli_error($a));
 	mysqli_query($a, "SET session time_zone = '".date('P')."'") or safe_error(mysqli_error($a));
 	mysqli_query($a, "SET session sql_mode = 'NO_UNSIGNED_SUBTRACTION'") or safe_error(mysqli_error($a));
 	Return $a;
@@ -117,6 +119,23 @@ function safe_w_SQL($SQL, $use=false, $acc_error=array(0)) {
 		$a=mysqli_query($WRIT_CON, $SQL, MYSQLI_USE_RESULT ) or in_array(mysqli_errno($WRIT_CON), $acc_error) or safe_error('Error ' . mysqli_errno($WRIT_CON) . ': ' . mysqli_error($WRIT_CON));
 	} else {
 		$a=mysqli_query($WRIT_CON, $SQL) or in_array(mysqli_errno($WRIT_CON), $acc_error) or safe_error('Error ' . mysqli_errno($WRIT_CON) . ': ' . mysqli_error($WRIT_CON));
+	}
+	Return $a;
+}
+
+/**
+ * @param string $BackEnd W to get the write server version, "R" for the read server
+ * @return int the server version in the form <code>main_version * 10000 + minor_version * 100 + sub_version (i.e. version 4.1.0 is 40100)</code>
+ */
+function safe_server_version($BackEnd='W') {
+	global $WRIT_CON, $READ_CON, $ERROR_REPORT, $CFG;
+	if($BackEnd=='W') {
+		if(!$WRIT_CON) $WRIT_CON=safe_w_con();
+		$a=mysqli_get_server_version($WRIT_CON);
+	} else {
+		// the read server
+		if(!$READ_CON) $WRIT_CON=safe_r_con();
+		$a=mysqli_get_server_version($READ_CON);
 	}
 	Return $a;
 }
@@ -243,7 +262,9 @@ function debug_svela($query=array(), $force=false) {
 		echo 'Line: '.$Cur['line']."\n";
 		echo 'Function: '.$Cur['function']."\n";
 		echo '<a href="#Backtrace">goto backtrace</a>'."\n\n";
-		if(!is_array($query)) $query=array($query);
+
+		$query=array($query);
+
 		foreach($query as $key=>$val) {
 			if($key) {
 				echo "\n\$$key = \n";
@@ -268,8 +289,20 @@ function CD_redirect($home='') {
 	if(substr(strtolower($home),0,4) != 'http') {
 		if(!$home or $home[0]!='/') $home=preg_replace("#[/\\\\]+#","/","/".dirname($_SERVER['PHP_SELF']).'/'.$home);
 		$port='';
-		if($_SERVER['SERVER_PORT']!=80) $port=':'.$_SERVER['SERVER_PORT'];
-		$home = "http://" . $_SERVER['SERVER_NAME'] . $port . $home;
+		if(empty($_SERVER["REQUEST_SCHEME"])) {
+			$Scheme='http';
+			if($_SERVER['SERVER_PORT']==443) {
+				$Scheme='https';
+			} elseif($_SERVER['SERVER_PORT']!=80) {
+				$port=':'.$_SERVER['SERVER_PORT'];
+			}
+		} else {
+			$Scheme=$_SERVER["REQUEST_SCHEME"];
+			if(($_SERVER["REQUEST_SCHEME"]!='http' AND $_SERVER['SERVER_PORT']!=80) OR ($_SERVER["REQUEST_SCHEME"]!='https' AND $_SERVER['SERVER_PORT']!=443)) {
+			    $port=':'.$_SERVER['SERVER_PORT'];
+	        }
+		}
+		$home = $Scheme."://" . $_SERVER['SERVER_NAME'] . $port . $home;
 	}
 	header("Location: $home");
 	exit();

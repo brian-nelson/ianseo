@@ -48,45 +48,39 @@ include('Common/Templates/head.php');
 <div id="sweDiv1">
     
     <div style="font-size: 1.2em; width: 50%; text-align: left;" >
-        <h1 style="text-align: center; background-color:#004488; text-align:center;  padding:5px; padding-left:0px; padding-right: 0px; font-weight:bold; color: #F2F9ff; font-size:120%;">Support information!</h1>
-        Detta är en IANSEO modul som supportas av Fredrik Larsson (fredrik@larre.nu) <br />
-        för Svenska Bågskytteförbundets räkning.<br /><br />
-        Uppstår frågor eller problem med denna modul kontakta då Fredrik Larsson, <br />
-        IANSEO's support-team kan inte hjälpa till med frågor gällande denna modul.
+        <h1 style="text-align: center; background-color:#004488; text-align:center;  padding:5px; padding-left:0px; padding-right: 0px; font-weight:bold; color: #F2F9ff; font-size:120%;"><?= $swelang_supportinformation; ?></h1>
+        <?= $swelang_supportinformationtext; ?>
     </div>
     <br /><hr style="width: 50%;"/><br />
-    <div style="font-size: 1.2em; width: 50%; text-align: left;">Modulversion: <?= $swe_module_version; ?> </div>
-    <div style="font-size: 1.2em; width: 50%; text-align: left;">Skickar till: <?= $swe_host; ?> </div>
+    <div style="font-size: 1.2em; width: 50%; text-align: left;"><?= $swelang_moduleversion; ?>: <?= $swe_module_version; ?> </div>
+    <div style="font-size: 1.2em; width: 50%; text-align: left;"><?= $swelang_sendto; ?>: <?= $swe_host; ?> </div>
     <br /><hr style="width: 50%;"/><br />
     <div style="font-size: 1.2em; width: 50%; text-align: left;">
-        Modulen låter dig rapportera in tävlingensresultatet direkt till den svenska resultatdatabasen.<br />
-        Fyll i Tävlingsnummer och lösenord, klicka sedan på Testa inställningar. <br />
-        Som svar kommer du få tävlingens namn till svar och om den tillåter att resultat kan skickas in.<br />
-        Klicka i omgångarna som skall skickas in och klicka på Skicka knappen<br /><br />
+        <?= $swelang_moduleinformation; ?>
         <table>
-            <thead><tr><th width="20%">Fält</th><th>Beskrivning</th></tr></thead>
+            <thead><tr><th width="20%"><?= $swelang_field; ?></th><th><?= $swelang_description; ?></th></tr></thead>
             <tbody>
-                <tr><td>Tävlingsnummer</td><td>Är tävlingens nummer i den svenska tävlingsdatabasen.</td></tr>
-                <tr><td>Lösenord</td><td>Ett lösenord satt på tävlingen, tillsvidare kan lösenord begäras av Fredrik Larsson.</td></tr>
-                <tr><td>Grundomgångar</td><td>Skickar in grundomgångens resultat till resultat databasen.</td></tr>
-                <tr><td>Finaler</td><td>Skickar in resultaten för final omgångarna. (kommer fungera senare).</td></tr>
+                <tr><td><?= $swelang_eventnumber; ?></td><td><?= $swelang_eventnumber_desc; ?></td></tr>
+                <tr><td><?= $swelang_password; ?></td><td><?= $swelang_password_desc; ?></td></tr>
+                <tr><td><?= $swelang_qualification; ?></td><td><?= $swelang_qualification_desc; ?></td></tr>
+                <tr><td><?= $swelang_final; ?></td><td><?= $swelang_final_desc; ?></td></tr>
             </tbody>
         </table>
         <br />
     </div>
 </div>
 
-<div style="width: 50%; background-color:#004488; text-align:center;  padding:5px; padding-left:0px; padding-right: 0px; font-weight:bold; color: #F2F9ff; font-size:120%;">Skicka in resultat</div>
+<!--div style="width: 50%; background-color:#004488; text-align:center;  padding:5px; padding-left:0px; padding-right: 0px; font-weight:bold; color: #F2F9ff; font-size:120%;">Skicka in resultat</div -->
 <br />
 <div style="width: 50%; padding: 0;">
     <table id="ConfigurationSettings" class="SweTabel">
         <thead>
-            <tr><th colspan="2">Inställningar</th></tr>
+            <tr><th colspan="2"><?= $swelang_settings; ?></th></tr>
         </thead>
         <tbody>
-            <tr><td class="SweTableRight" width="30%">Tävlingsnummer</td><td><input type="text" name="s_competition_code" id="s_competition_code"></input></td></tr>
-            <tr><td class="SweTableRight" width="30%">Lösenord</td><td><input type="password" name="s_competition_password" id="s_competition_password"></input></td></tr>
-            <tr><td colspan="2" class="SweCenter"><input type="submit" onClick="test_settings();" style="padding: 5px; margin: 5px;" value="Testa inställningar" /></td></tr>
+            <tr><td class="SweTableRight" width="30%"><?= $swelang_eventnumber; ?></td><td><input type="text" name="s_competition_code" id="s_competition_code"></input></td></tr>
+            <tr><td class="SweTableRight" width="30%"><?= $swelang_password; ?></td><td><input type="password" name="s_competition_password" id="s_competition_password"></input></td></tr>
+            <tr><td colspan="2" class="SweCenter"><input type="submit" onClick="test_settings();" style="padding: 5px; margin: 5px;" value="<?= $swelang_testsettings; ?>" /></td></tr>
             <tr><td colspan="2" class="SweCenter">&nbsp;</td></tr>
             <tr><td colspan="2" class="SweInformation" >&nbsp;<span id="status_information"></span></td></tr>
         </tbody>
@@ -94,12 +88,12 @@ include('Common/Templates/head.php');
     <br /><br />
     <table id="CompetitonSelector" class="SweTabel">
         <thead>
-            <tr><th colspan="2">Rapportera</th></tr>
+            <tr><th colspan="2"><?= $swelang_sendresult; ?></th></tr>
         </thead>
         <tbody>
-            <tr><td class="SweTableRight" width="30%" rowspan=2>Individuella</td><td><input type="checkbox" name="r_select" value="ind_kval" />Grundomgångar</input></td></tr>
-            <tr><td><input type="checkbox" name="r_select" value="ind_final" />Finaler</input></td></tr>
-            <tr><td colspan="2" class="SweCenter"><input type="submit" onClick="send_result();" style="padding: 5px; margin: 5px;" value="Skicka" id="sendbutton" /></td></tr>
+            <tr><td class="SweTableRight" width="30%" rowspan=2><?= $swelang_individ; ?></td><td><input type="checkbox" name="r_select" value="ind_kval" /><?= $swelang_qualification; ?></input></td></tr>
+            <tr><td><input type="checkbox" name="r_select" value="ind_final" /><?= $swelang_final; ?></input></td></tr>
+            <tr><td colspan="2" class="SweCenter"><input type="submit" onClick="send_result();" style="padding: 5px; margin: 5px;" value="<?= $swelang_send; ?>" id="sendbutton" /></td></tr>
             <tr><td colspan="2" class="SweCenter">&nbsp;</td></tr>
             <tr><td colspan="2" class="SweInformation">&nbsp;<span id="status_result"></span></td></tr>
         </tbody>

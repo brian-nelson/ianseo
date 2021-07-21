@@ -3,8 +3,10 @@ require_once(dirname(__FILE__) . '/config.php');
 require_once('Common/Lib/Obj_RankFactory.php');
 
 $TourId = 0;
+$TourCode = '';
 if(isset($_REQUEST['CompCode']) && preg_match("/^[a-z0-9_.-]+$/i", $_REQUEST['CompCode'])) {
 	$TourId = getIdFromCode($_REQUEST['CompCode']);
+	$TourCode = preg_replace('/[^a-z0-9_-]+/i','', $_REQUEST['CompCode']);
 }
 
 $EvType = -1;
@@ -27,6 +29,19 @@ if(isset($_REQUEST['ArrowPosition']) && preg_match("/^[01]$/", $_REQUEST['ArrowP
     $showArrowsPosition  = ($_REQUEST['ArrowPosition']==1);
 }
 
+$translateX = true;
+if(isset($_REQUEST['rawX']) && preg_match("/^[01]$/", $_REQUEST['rawX'])) {
+    $translateX  = ($_REQUEST['rawX']!=1);
+}
+
+
+$FullFlag=0;
+if(!empty($_REQUEST['FullFlag'])) {
+	if(file_exists($CasparConfig=$CFG->DOCUMENT_PATH.'/Modules/Caspar/config.php')) {
+		require_once($CasparConfig);
+	}
+	$FullFlag=1;
+}
 
 $json_array=array();
 
@@ -57,6 +72,9 @@ foreach($Data['sections'] as $kSec=>$vSec) {
 		foreach($vSec['phases'] as $kPh=>$vPh) {
 			$json_array = Array("Event"=>$EvCode, "Type"=>$EvType, "MatchId"=>$MatchId, "MatchLive"=>false, "MatchFinished"=>false, "MatchRunningEnd"=>"0", "MatchRunningEndSO"=>"0", "MatchConfirmed"=>false, "ScoreCanChange"=>0);
 			$objParam=getEventArrowsParams($kSec, $kPh, $EvType, $TourId);
+			$json_array['EventName'] = $vSec['meta']['eventName'];
+			$json_array['Phase'] = $vPh['meta']['phaseName'];
+			$json_array['PhaseName'] = $vPh['meta']['matchName'];
 			$json_array['Mode'] = Array("ScoringMode"=>($vSec["meta"]["matchMode"]==1 ? "S" : "C"), "Arrows"=>strval($objParam->arrows), "Ends"=>strval($objParam->ends), "ShootoffArrows"=>strval($objParam->so));
 			foreach($vPh['items'] as $kItem=>$vItem) {
 				$json_array['MatchFinished'] = ($vItem['winner'] OR $vItem['oppWinner']);
@@ -72,8 +90,55 @@ foreach($Data['sections'] as $kSec=>$vSec) {
 				$tmpR += array("TeamCode"=>$vItem["oppCountryCode"], "TeamName"=>$vItem["oppCountryName"]);
 				$tmpL += array("EndConfirmed"=>($vItem['status']==3 || $vItem['status']==1), "Winner"=>($vItem["winner"]? true:false) , 'ToWin' => '', 'Score'=>($vSec['meta']['matchMode'] ? $vItem['setScore'] : $vItem['score']));
 				$tmpR += array("EndConfirmed"=>($vItem['oppStatus']==3 || $vItem['oppStatus']==1), "Winner"=>($vItem["oppWinner"]? true:false), 'ToWin' => '', 'Score'=>($vSec['meta']['matchMode'] ? $vItem['oppSetScore'] : $vItem['oppScore']));
-                $tmpL += array("PositionAvailable"=>boolval($vItem['oppArrowpositionAvailable']));
-                $tmpR += array("PositionAvailable"=>boolval($vItem['arrowpositionAvailable']));
+                $tmpL += array("PositionAvailable"=>boolval($vItem['arrowpositionAvailable']));
+                $tmpR += array("PositionAvailable"=>boolval($vItem['oppArrowpositionAvailable']));
+                $tmpL += array("ClosestToCenter"=>boolval($vItem['closest']));
+                $tmpR += array("ClosestToCenter"=>boolval($vItem['oppClosest']));
+
+                $tmpL['FullFlag']='';
+                $tmpR['FullFlag']='';
+                if($FullFlag) {
+	                if(file_exists($CFG->DOCUMENT_PATH.($img='TV/Photos/'.$TourCode.'-FlSvg-'.$vItem["countryCode"].'.svg'))) {
+		                $f=file_get_contents($CFG->DOCUMENT_PATH.$img);
+		                $xmlget = simplexml_load_string($f);
+		                $xmlattributes = $xmlget->attributes();
+		                if(isset($xmlattributes->width)) {
+			                $Viewbox='0 0 '.$xmlattributes->width.' '.$xmlattributes->height;
+		                } else {
+			                $Viewbox=$xmlattributes->viewBox;
+		                }
+		                $svg= '<svg x="0" y="0" height="100%" viewBox="'.$Viewbox.'" preserveAspectRatio="xMidYMid meet">';
+		                //$svg.= $f;
+		                $svg.= '<image xlink:href="'.$Sets['ianseo'].$img.'" />';
+		                $svg.= '</svg>';
+		                $tmpL['FullFlag']=$svg;
+	                } elseif(is_file($CFG->DOCUMENT_PATH.($img='TV/Photos/'.$TourCode.'-Fl-'.$vItem["countryCode"].'.jpg'))) {
+		                $svg= '<svg x="0" y="0" height="100%" width="100%" preserveAspectRatio="xMidYMid meet">';
+		                $svg.= '<image xlink:href="'.$Sets['ianseo'].$img.'" height="100%" />';
+		                $svg.= '</svg>';
+		                $tmpL['FullFlag']=$svg;
+	                }
+	                if(file_exists($CFG->DOCUMENT_PATH.($img='TV/Photos/'.$TourCode.'-FlSvg-'.$vItem["oppCountryCode"].'.svg'))) {
+		                $f=file_get_contents($CFG->DOCUMENT_PATH.$img);
+		                $xmlget = simplexml_load_string($f);
+		                $xmlattributes = $xmlget->attributes();
+		                if(isset($xmlattributes->width)) {
+			                $Viewbox='0 0 '.$xmlattributes->width.' '.$xmlattributes->height;
+		                } else {
+			                $Viewbox=$xmlattributes->viewBox;
+		                }
+		                $svg= '<svg x="0" y="0" height="100%" viewBox="'.$Viewbox.'" preserveAspectRatio="xMidYMid meet">';
+		                //$svg.= $f;
+		                $svg.= '<image xlink:href="'.$Sets['ianseo'].$img.'" />';
+		                $svg.= '</svg>';
+		                $tmpR['FullFlag']=$svg;
+	                } elseif(is_file($CFG->DOCUMENT_PATH.($img='TV/Photos/'.$TourCode.'-Fl-'.$vItem["oppCountryCode"].'.jpg'))) {
+		                $svg= '<svg x="0" y="0" height="100%" width="100%" preserveAspectRatio="xMidYMid meet">';
+		                $svg.= '<image xlink:href="'.$Sets['ianseo'].$img.'" height="100%" />';
+		                $svg.= '</svg>';
+		                $tmpR['FullFlag']=$svg;
+	                }
+                }
 
                 $end = array();
 				$oppEnd = array();
@@ -105,7 +170,7 @@ foreach($Data['sections'] as $kSec=>$vSec) {
                         }
                         $arrValue = array_map('trim', $arrValue);
                         for ($aPtr = 0; $aPtr < count($arrValue); $aPtr++) {
-                            if ($arrValue[$aPtr] == 'X') {
+                            if ($arrValue[$aPtr] == 'X' AND $translateX) {
                                 $arrValue[$aPtr] = '10';
                             }
                         }
@@ -117,7 +182,7 @@ foreach($Data['sections'] as $kSec=>$vSec) {
                         }
                         $oppArrValue = array_map('trim', $oppArrValue);
                         for ($aPtr = 0; $aPtr < count($oppArrValue); $aPtr++) {
-                            if ($oppArrValue[$aPtr] == 'X') {
+                            if ($oppArrValue[$aPtr] == 'X' AND $translateX) {
                                 $oppArrValue[$aPtr] = '10';
                             }
                         }
@@ -192,7 +257,7 @@ foreach($Data['sections'] as $kSec=>$vSec) {
                         }
                         $arrValue = array_map('trim', $arrValue);
                         for ($aPtr = 0; $aPtr < count($arrValue); $aPtr++) {
-                            if ($arrValue[$aPtr] == 'X') {
+                            if ($arrValue[$aPtr] == 'X'  AND $translateX) {
                                 $arrValue[$aPtr] = '10';
                             }
                         }
@@ -204,14 +269,14 @@ foreach($Data['sections'] as $kSec=>$vSec) {
                         }
                         $oppArrValue = array_map('trim', $oppArrValue);
                         for ($aPtr = 0; $aPtr < count($oppArrValue); $aPtr++) {
-                            if ($oppArrValue[$aPtr] == 'X') {
+                            if ($oppArrValue[$aPtr] == 'X' AND $translateX) {
                                 $oppArrValue[$aPtr] = '10';
                             }
                         }
-                        if ($vItem['tiebreakDecoded'] == 'X') {
+                        if ($vItem['tiebreakDecoded'] == 'X' AND $translateX) {
                             $vItem['tiebreakDecoded'] = '10';
                         }
-                        if ($vItem['oppTiebreakDecoded'] == 'X') {
+                        if ($vItem['oppTiebreakDecoded'] == 'X' AND $translateX) {
                             $vItem['oppTiebreakDecoded'] = '10';
                         }
                         $tmpPos=array();
@@ -273,7 +338,7 @@ foreach($Data['sections'] as $kSec=>$vSec) {
                         }
                         $arrValue = array_map('trim', $arrValue);
                         for ($aPtr = 0; $aPtr < count($arrValue); $aPtr++) {
-                            if ($arrValue[$aPtr] == 'X') {
+                            if ($arrValue[$aPtr] == 'X'  AND $translateX) {
                                 $arrValue[$aPtr] = '10';
                             }
                         }
@@ -291,7 +356,7 @@ foreach($Data['sections'] as $kSec=>$vSec) {
                         }
                         $oppArrValue = array_map('trim', $oppArrValue);
                         for ($aPtr = 0; $aPtr < count($oppArrValue); $aPtr++) {
-                            if ($oppArrValue[$aPtr] == 'X') {
+                            if ($oppArrValue[$aPtr] == 'X' AND $translateX) {
                                 $oppArrValue[$aPtr] = '10';
                             }
                         }
@@ -359,7 +424,7 @@ foreach($Data['sections'] as $kSec=>$vSec) {
                         }
                         $arrValue = array_map('trim', $arrValue);
                         for ($aPtr = 0; $aPtr < count($arrValue); $aPtr++) {
-                            if ($arrValue[$aPtr] == 'X') {
+                            if ($arrValue[$aPtr] == 'X' AND $translateX) {
                                 $arrValue[$aPtr] = '10';
                             }
                         }
@@ -371,14 +436,14 @@ foreach($Data['sections'] as $kSec=>$vSec) {
                         }
                         $oppArrValue = array_map('trim', $oppArrValue);
                         for ($aPtr = 0; $aPtr < count($oppArrValue); $aPtr++) {
-                            if ($oppArrValue[$aPtr] == 'X') {
+                            if ($oppArrValue[$aPtr] == 'X' AND $translateX) {
                                 $oppArrValue[$aPtr] = '10';
                             }
                         }
-                        if ($vItem['tiebreakDecoded'] == 'X') {
+                        if ($vItem['tiebreakDecoded'] == 'X' AND $translateX) {
                             $vItem['tiebreakDecoded'] = '10';
                         }
-                        if ($vItem['oppTiebreakDecoded'] == 'X') {
+                        if ($vItem['oppTiebreakDecoded'] == 'X' AND $translateX) {
                             $vItem['oppTiebreakDecoded'] = '10';
                         }
                         $tmpPos=array();

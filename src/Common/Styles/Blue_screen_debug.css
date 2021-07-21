@@ -22,14 +22,16 @@ table.Tabella td.TargetNoComplete { background-color:#A0FFFF; color: #884400;}
 table.Tabella td.TargetKo { background-color:#A0FFFF; color: #884400;}
 
 table.Tabella tr.Main,
-#GrdDiv div.Main { background-color:#884400; color: #FFF9F2;}
+#GrdDiv div.Main,
+.HeadBlueBg-Dark { background-color:#884400; color: #FFF9F2;}
 table.Tabella tr.Spacer {background-color: #884400; }
 table.Tabella tr.warning {background-color:#99FFFF; }
 table.Tabella tr.yellow {background-color:#99FFFF;  }
 table.Tabella tr.error {background-color: #FFCC99;  }
 table.Missing th.Title,
     table.Tabella th,
-    table.Tabella2 th  { background-color:#FFDDBF; color: #884400}
+    table.Tabella2 th,
+    .HeadBlueBg-Light { background-color:#FFDDBF; color: #884400}
 table.Tabella th.Main { background-color:#884400; color: #FFFCF9; }
 table.Tabella th.Title,
 table.Tabella2 th.Title,

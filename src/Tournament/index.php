@@ -29,7 +29,7 @@ $SetTypes=GetExistingTournamentTypes();
 		// DEVE essere stata selezionata una regola localizzata!!!
 		if ($_REQUEST['Command']=='SAVE') { // /*and (!isset($_REQUEST['New']) or !empty($_REQUEST['d_Rule']))*/)
 			if (!IsBlocked(BIT_BLOCK_TOURDATA)) {
-				$ToCode=preg_replace('/[^0-9a-z.,:;_-]/sim', '', $_REQUEST['d_ToCode']);
+                $ToCode=preg_replace('/[^0-9a-z._-]+/sim', '_', $_REQUEST['d_ToCode']);
 
 				$TheString=preg_replace('/ +/', '', $_REQUEST['d_ToTimeZone']);
 				$sign=($TheString[0]=='-' ? '-' : '+');
@@ -165,11 +165,8 @@ $SetTypes=GetExistingTournamentTypes();
 						}
 
 						if(isset($_REQUEST['New']) or $DoChanges) {
-							//First I decide whenever, in case of new rules, I need to apply the old ones (to manage the switch on 1st April 2014)
-							$useOldRules = (intval($_REQUEST['xx_ToWhenFromYear'])<2014 || intval($_REQUEST['xx_ToWhenFromMonth'])<4);
-
 							// Eseguo il/i file(s) di setup della gara
-							GetSetupFile($_SESSION['TourId'], $_REQUEST['d_ToType'], $_REQUEST['d_Rule'], empty($_REQUEST['d_SubRule']) ? '1' : $_REQUEST['d_SubRule'], $useOldRules, $ToTypeSubRule);
+							GetSetupFile($_SESSION['TourId'], $_REQUEST['d_ToType'], $_REQUEST['d_Rule'], empty($_REQUEST['d_SubRule']) ? '1' : $_REQUEST['d_SubRule'], $ToTypeSubRule);
 
 							// calcolo il numero massimo di persone in ogni team
 							calcMaxTeamPerson(array(), true, $_SESSION['TourId']);
@@ -204,9 +201,24 @@ $SetTypes=GetExistingTournamentTypes();
 												}
 											}
 											break;
+                                        case ($Module=='ISK' and $Parameter=='ServerUrlPin' and $Value):
+                                            if(intval($Value)!=0) {
+                                                $Value = str_pad(substr(intval($Value),0,4),4,"0",STR_PAD_LEFT);
+                                            } else {
+                                                $Value='';
+                                            }
+                                            break;
 										case ($Module=='ISK' and $Parameter=='Mode' and $Value):
 											setModuleParameter('ISK', 'StopAutoImport', '0');
 											setModuleParameter('ISK', 'StopPartialImport', '0');
+											if($Value=='pro') {
+											    // MUST have a licence to work
+                                                if(!isset($_REQUEST['Module']['ISK']['LicenseNumber']) or trim($_REQUEST['Module']['ISK']['LicenseNumber'])=='') {
+                                                    unset($_REQUEST['Module']['ISK']['LicenseNumber']);
+                                                    $Value='lite';
+                                                    delModuleParameter('ISK', 'LicenseNumber');
+                                                }
+                                            }
 											$UseAPI = ($Value=='pro' ? 2 : ($Value=='live' ? 3 : 1));
 											if($Value=='pro' or $Value=='live') {
 												$tmp=array();
@@ -214,6 +226,15 @@ $SetTypes=GetExistingTournamentTypes();
 												setModuleParameter('ISK', 'StopAutoImport', $tmp);
 												setModuleParameter('ISK', 'StopPartialImport', $tmp);
 											}
+											break;
+										case ($Module=='ISK' and $Parameter=='LicenseNumber'):
+                                            // MUST have a licence to work
+                                            if(isset($_REQUEST['Module']['ISK']['Mode']) and $_REQUEST['Module']['ISK']['Mode']=='pro' and !trim($Value)) {
+                                                $_REQUEST['Module']['ISK']['Mode']='lite';
+												setModuleParameter('ISK', 'mode', 'lite');
+                                                delModuleParameter('ISK', 'LicenseNumber');
+                                                continue 2;
+                                            }
 											break;
 									}
 									setModuleParameter($Module, $Parameter, $Value);
@@ -294,7 +315,7 @@ $SetTypes=GetExistingTournamentTypes();
 	$JS_TMP.= '</script>';
 
 	$JS_SCRIPT=array($JS_TMP);
-	$JS_SCRIPT[] = '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>';
+	$JS_SCRIPT[] = '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>';
 	$JS_SCRIPT[] = '<script type="text/javascript" src="Fun_Index.js"></script>';
 	$JS_SCRIPT[] = '<style>
         .TextInput {width:40rem;box-sizing: border-box;}
@@ -347,7 +368,7 @@ $SetTypes=GetExistingTournamentTypes();
 <tr>
 <th class="TitleLeft" width="15%"><?php print get_text('TourCode','Tournament');?></th>
 <td>
-<input <?php print ($Arr_Values2Check_Index['d_ToCode']['Error'] ? ' class="error"' : '');?> type="text" name="d_ToCode" class="TextInput" maxlength="8" value="<?php print ($Arr_Values2Check_Index['d_ToCode']['Error'] ? (array_key_exists('d_ToCode',$_REQUEST) ? $ToCode : '') : ($MyRow!=NULL ? $MyRow->ToCode : (array_key_exists('d_ToCode',$_REQUEST) ? $ToCode : '')));?>">
+<input <?php print ($Arr_Values2Check_Index['d_ToCode']['Error'] ? ' class="error"' : '');?> type="text" name="d_ToCode" class="TextInput" maxlength="8" value="<?php print ($Arr_Values2Check_Index['d_ToCode']['Error'] ? (isset($ToCode) ? $ToCode : '') : ($MyRow!=NULL ? $MyRow->ToCode : (isset($ToCode) ? $ToCode : '')));?>">
 </td>
 </tr>
 
@@ -487,9 +508,11 @@ if (!isset($_REQUEST['New'])) {
 		echo '<option value="'.$r->LupIocCode.'"'.($MyRow->ToIocCode==$r->LupIocCode ? ' selected="selected"' : '').'>'.($r->LupIocCode ? get_text('LUE-'.$r->LupIocCode, 'Tournament') : '').'</option>';
 	}
 	echo '</select>';
-    $q = safe_r_SQL("select distinct EnIocCode from Entries where EnTournament={$MyRow->ToId} AND EnIocCode != ".StrSafe_DB($MyRow->ToIocCode));
-    if(safe_num_rows($q)) {
-        echo '<input type="button" id="cmdAssignLookup" value="'.get_text('AssignLookupTable', 'Tournament',  get_text('LUE-'.$MyRow->ToIocCode, 'Tournament')).'" onclick="assignCurrentLookUp()" style="margin-left: 1vh;">';
+	if($MyRow->ToIocCode) {
+        $q = safe_r_SQL("select distinct EnIocCode from Entries where EnTournament={$MyRow->ToId} AND EnIocCode != ".StrSafe_DB($MyRow->ToIocCode));
+        if(safe_num_rows($q)) {
+            echo '<input type="button" id="cmdAssignLookup" value="'.get_text('AssignLookupTable', 'Tournament',  get_text('LUE-'.$MyRow->ToIocCode, 'Tournament')).'" onclick="assignCurrentLookUp()" style="margin-left: 1vh;">';
+        }
     }
 
     echo '</td></tr>';
@@ -781,7 +804,7 @@ function GetExistingTournamentTypes() {
 	$q=safe_r_SQL("select * from TourTypes order by TtOrderBy");
 	$TourTypes=array();
 	while($r=safe_fetch($q)) {
-	    $TourTypes["$r->TtId"] = get_text($r->TtType, 'Tournament') . ($r->TtDistance ? " - $r->TtDistance " . get_text('Distances','Tournament') : '');
+	    $TourTypes["$r->TtId"] = get_text($r->TtType, 'Tournament') . ($r->TtDistance ? " - $r->TtDistance " . get_text(($r->TtDistance==1 ? 'Distance':'Distances'),'Tournament') : '');
 	}
 
 	// search in the local rules
@@ -802,13 +825,27 @@ function GetExistingTournamentTypes() {
 }
 
 function SubruleEncode($SubTypes) {
+    $Ret=array();
 	foreach($SubTypes as $loc => &$data) {
+	    $Ret[$loc]=$data;
+
+	    // Loop thru the types and create objects with an order value.
+        // This is needed as javascript will automatically re-sort arrays
+        // using the key values which makes them come in the wrong order
+        $Ret[$loc]['ordered_types']=array();
+        $order = 0;
+        foreach($data['types'] as $k => $v) {
+            $arr = array('order' => $order++, 'type' => $k, 'name' => $v);
+            array_push($Ret[$loc]['ordered_types'], $arr);
+        }
+
 		foreach($data['rules'] as $type => &$rules) {
-			foreach($rules as &$name) $name=get_text($name, 'Install');
-			array_unshift($rules, '---');
+	        $Ret[$loc]['rules'][$type]=array('---');
+			foreach($rules as $k => $name) {
+				$Ret[$loc]['rules'][$type][$k+1]=get_text($name, 'Install');
+			}
 		}
 	}
 
-	return $SubTypes;
+	return $Ret;
 }
-?>

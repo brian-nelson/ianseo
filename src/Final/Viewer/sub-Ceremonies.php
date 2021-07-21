@@ -12,7 +12,7 @@ $JSON['OppRight']=$SecondLang;
 
 $Sql = "SELECT AwAwarderGrouping, AwPositions, EnId, concat(EvTeamEvent,EvCode) EvCode, concat(EvCode,EvTeamEvent) EventTranslation, CoCode, $ReversedCountries AS Athlete, 
     CONCAT(" . ($_SESSION["ISORIS"] ? '' : "CoCode, ' ', ") . "if(CoNameComplete>'', if(ToLocRule='FR', concat(CoName, ' (',CoNameComplete,')'), CoNameComplete), CoName)) AS Country, EvEventName as Category, 1 as Counter,
-    IF(EvFinalFirstPhase=0,IndRank,ABS(IndRankFinal)) as Rank, QuScore AS Score, QuGold AS Gold,QuXnine AS XNine, AwDescription, AwAwarders
+    IF(EvFinalFirstPhase=0,IndRank,ABS(IndRankFinal)) as `Rank`, QuScore AS Score, QuGold AS Gold,QuXnine AS XNine, AwDescription, AwAwarders
     FROM Tournament
     INNER JOIN Entries ON ToId=EnTournament
     INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament AND EnTournament={$TourId}
@@ -30,7 +30,7 @@ if($Team) {
     $Sql = " SELECT AwAwarderGrouping, AwPositions, CoCode, concat(EvTeamEvent,EvCode) EvCode, concat(EvCode, EvTeamEvent) EventTranslation, CoId, 
         CONCAT(" . ($_SESSION["ISORIS"] ? '' : "CoCode, ' ', ") . "if(CoNameComplete>'', if(ToLocRule='FR', concat(CoName, ' (',CoNameComplete,')'), CoNameComplete), CoName), IF(TeSubTeam=0,'',CONCAT(' (',TeSubTeam,')'))) as Country, EvEventName as Category,
         EnId, group_concat($ReversedCountries order by EnSex DESC, EnFirstName, EnName separator '|') AS Athlete, Q as Counter,
-        IF(EvFinalFirstPhase=0,TeRank,TeRankFinal) as Rank, IF(EvFinalFirstPhase=0,TeScore,IFNULL(TfScore,'')) as Score, IF(EvFinalFirstPhase=0,TeGold,'') as Gold, IF(EvFinalFirstPhase=0,TeXnine,'') AS XNine, AwDescription, AwAwarders
+        IF(EvFinalFirstPhase=0,TeRank,TeRankFinal) as `Rank`, IF(EvFinalFirstPhase=0,TeScore,IFNULL(TfScore,'')) as Score, IF(EvFinalFirstPhase=0,TeGold,'') as Gold, IF(EvFinalFirstPhase=0,TeXnine,'') AS XNine, AwDescription, AwAwarders
         FROM Tournament
         INNER JOIN Teams ON ToId=TeTournament AND TeFinEvent=1
         INNER JOIN Countries ON TeCoId=CoId AND TeTournament=CoTournament

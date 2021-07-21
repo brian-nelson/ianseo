@@ -16,7 +16,10 @@ function CleanEvents($Events, $Field) {
 		return $ret;
 	}
 
-	@list($e, $p)=explode('@', $Events);
+    $e=$Events;
+	if(strpos($Events,'@')!==false) {
+        @list($e, $p) = explode('@', $Events);
+    }
 	if( preg_match('/^[0-9A-Z_%-]{1,4}$/i', $e)) {
 		if(strstr($e,'%') or strstr($e, '_')) {
 			$ret.= " AND $Field LIKE '" . $e . "' ";

@@ -20,11 +20,11 @@ CreateStandardFieldClasses($TourId, $SubRule);
 // default Distances
 switch($TourType) {
 	case 9:
-		CreateDistance($TourId, $TourType, '%', 'Course');
+		CreateDistanceNew($TourId, $TourType, '%', array(array('Course',0,0)));
 		break;
 	case 10:
 	case 12:
-		CreateDistance($TourId, $TourType, '%', 'Unmarked', 'Marked');
+		CreateDistanceNew($TourId, $TourType, '%', array(array('Unmarked',0), array('Marked',0)));
 		break;
 }
 

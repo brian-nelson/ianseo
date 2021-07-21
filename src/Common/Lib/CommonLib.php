@@ -29,6 +29,19 @@ function getPoolMatchesPhasesWA() {
 /**
  * @return array of the pool phases as [phase] => [descriptionShort]
  */
+function getPoolMatchesHeaders() {
+	$ret=array();
+	$ret['64']='Show Match';
+	$ret['32']='Match 1';
+	$ret['16']='Match 2';
+	$ret['8']='Match 3';
+	$ret['4']='Match 4';
+	return $ret;
+}
+
+/**
+ * @return array of the pool phases as [phase] => [descriptionShort]
+ */
 function getPoolMatchesHeadersWA() {
 	$ret=array();
 	$ret['64']='Match 1';
@@ -354,13 +367,13 @@ function getPoolGridsWA() {
  */
 function getPoolLooserRank($MatchNo) {
 	switch($MatchNo) {
-		case '96': return 12; break;
+		case '96': return 11; break;
 		case '94': return 11; break;
-		case '46': return 10; break;
+		case '46': return  9; break;
 		case '48': return  9; break;
-		case '24': return  8; break;
+		case '24': return  7; break;
 		case '22': return  7; break;
-		case '10': return  6; break;
+		case '10': return  5; break;
 		case '12': return  5; break;
 	}
 
@@ -373,27 +386,39 @@ function getPoolLooserRank($MatchNo) {
  */
 function getPoolLooserRankWA($MatchNo) {
 	switch($MatchNo) {
-		case '190': return 22; break;
-		case '222': return 21; break;
-		case '174': return 20; break;
+		case '190':
+		case '222':
+		case '174':
 		case '206': return 19; break;
-		case '102': return 18; break;
-		case '86':  return 17; break;
-		case '110': return 16; break;
+		case '102':
+		case '86':
+		case '110':
 		case '94':  return 15; break;
-		case '46':  return 14; break;
-		case '54':  return 13; break;
-		case '42':  return 12; break;
+		case '46':
+		case '54':
+		case '42':
 		case '50':  return 11; break;
-		case '24':  return 10; break;
-		case '20':  return  9; break;
-		case '26':  return  8; break;
+		case '24':
+		case '20':
+		case '26':
 		case '22':  return  7; break;
-		case '10':  return  6; break;
+		case '10':
 		case '12':  return  5; break;
 	}
 
 	return false;
+}
+
+function GetTournamentIocCode($TourId=0) {
+    if(!$TourId and !empty($_SESSION['TourId'])) $TourId=$_SESSION['TourId'];
+    if(empty($TourId)) return '';
+    $q=safe_r_sql("select ToIocCode from Tournament where ToId={$TourId}");
+
+    if($r=safe_fetch($q)) {
+        return $r->ToIocCode;
+    } else {
+        return '';
+    }
 }
 
 function Get_Tournament_Option($key, $Ret='', $TourId=0) {
@@ -591,10 +616,11 @@ function DefineForcePrintouts($TourId, $Restore=false) {
 //	if($OldLang==null) {
 //		$OldLang=SelectLanguage();
 //	}
-
-	$q=safe_r_SQL("select ToPrintLang from Tournament where ToId=$TourId");
-	$r=safe_fetch($q);
-	@define('PRINTLANG', $r->ToPrintLang);
+    if(!defined('PRINTLANG')) {
+        $q = safe_r_SQL("select ToPrintLang from Tournament where ToId=$TourId");
+        $r = safe_fetch($q);
+        @define('PRINTLANG', $r->ToPrintLang);
+    }
 }
 
 function getScheduledSessions($return='API', $TourId=0, $OnlyToday=false, $Short=false) {
@@ -734,4 +760,303 @@ function getStatusFromEnds($Ends, $Group, &$JSON) {
 		}
 	}
 	return $TgtsStatus;
+}
+
+function getMatchLive($TourId) {
+	// gets the live match
+	$q=safe_r_SQL("(Select '0' Team, FinEvent Event, FinMatchNo MatchNo, FinDateTime DateTime, EvMaxTeamPerson, EvEventName, EvFinalFirstPhase
+		from Finals use index (FinLive)
+		inner join Events on FinTournament=EvTournament and FinEvent=EvCode and EvTeamEvent=0
+		where FinLive='1' and FinMatchNo%2=0 and FinTournament=$TourId
+		) UNION (
+		Select '1' Team, TfEvent Event, TfMatchNo MatchNo, TfDateTime DateTime, EvMaxTeamPerson, EvEventName, EvFinalFirstPhase
+		from TeamFinals
+		inner join Events on TfTournament=EvTournament and TfEvent=EvCode and EvTeamEvent=1
+		where TfLive='1' and TfMatchNo%2=0 and TfTournament=$TourId
+		)");
+	if($r=safe_fetch($q)) {
+		return (object) array("MatchNo"=>$r->MatchNo, "Event"=>$r->Event, "Team"=>$r->Team, 'Archers'=>$r->EvMaxTeamPerson, 'Name'=>$r->EvEventName, 'FirstPhase'=>$r->EvFinalFirstPhase);
+	} else {
+		return false;
+	}
+}
+
+function decodeTie($TieString, $SoArrows, $Closest) {
+	$Decoded=array();
+	$idx=0;
+	while($TbString=substr($TieString, $idx, $SoArrows)) {
+		if($SoArrows==1) {
+			$Decoded[]=DecodeFromLetter($TbString);
+		} else {
+			$Decoded[]=ValutaArrowString($TbString);
+		}
+		$idx+=$SoArrows;
+	}
+	return implode(',',$Decoded).($Closest ? '+' : '');
+}
+
+
+/**
+ * @param bool $AllHHT selects which sets of sessions to return
+ *              <ul><li>Individuals: only individual events</li><li>Teams: only team events</li><li>All: all events</li></ul>
+ * @param null $ComboSesArray will contain the session items value
+ * @return string
+ * This function returns the string of options with all the timed sessions of the competition to use in a select
+ */
+function ComboSession($AllHHT=false, &$ComboSesArray=null) {
+	$ComboArr=array();
+	$ComboSes='';
+	$numOptions=0;
+
+	$MatchNames=getPoolMatchesPhases();
+	$MatchNamesWA=getPoolMatchesPhasesWA();
+
+	if((isset($_REQUEST["x_Hht"]) && $_REQUEST["x_Hht"]!=-1) or $AllHHT) {
+		if(!$AllHHT) {
+			$Select='SELECT HeEventCode FROM HhtEvents WHERE HeTournament=' . StrSafe_DB($_SESSION['TourId']) . ' AND HeHhtId=' . StrSafe_DB($_REQUEST["x_Hht"]);
+			$Rs=safe_r_sql($Select);
+		}
+		if($AllHHT or (numHHT()==1 && safe_num_rows($Rs)==0 )) {
+
+			if(!$AllHHT) {
+				$sessions=GetSessions('Q');
+
+				foreach ($sessions as $s) {
+					if ($ComboSesArray!==null) {
+						$ComboArr[]=$s->SesOrder;
+					}
+					$ComboSes.= '<option value="' . $s->SesOrder . '"' . (isset($_REQUEST['x_Session']) && $_REQUEST['x_Session']==$s->SesOrder ? ' selected' : '') . '>' . get_text('QualSession','HTT') . ' ' . $s->Descr . '</option>' . "\n";
+					$numOptions++;
+				}
+			}
+
+			// Individual Finals
+			if($AllHHT!='Teams') {
+				$Select='SELECT
+						@Phase:=ifnull(2*pow(2,truncate(log2(fsmatchno/2),0)),1) Phase,
+						@RealPhase:=truncate(@Phase/2, 0) RealPhase,
+						CONCAT(FSScheduledDate," ",FSScheduledTime) AS MyDate,
+						DATE_FORMAT(FSScheduledDate,"' . get_text('DateFmtDBshort') . '") AS Dt,
+						DATE_FORMAT(FSScheduledDate,"' . get_text('DateFmtDB') . '") AS Dat,
+						FSTeamEvent,
+						FSEvent,
+						FSScheduledTime,
+						EvFinalFirstPhase,
+						EvElimType
+					FROM FinSchedule fs
+					inner join Events on FSEvent=EvCode and FSTeamEvent=EvTeamEvent and FsTournament=EvTournament
+					where FsTournament=' . $_SESSION['TourId'] . ' and FsTeamEvent=0
+						and fsscheduleddate >0
+					group by FsScheduledDate, FsScheduledTime, FsEvent, Phase
+					order by FsScheduledDate, FsScheduledTime, FsEvent, Phase';
+				$tmp=array();
+				$Rs=safe_r_sql($Select);
+				while ($MyRow=safe_fetch($Rs)) {
+					$val=$MyRow->FSTeamEvent . $MyRow->MyDate;
+					$text=get_text('FinInd','HTT') . ': ' . $MyRow->MyDate ;
+					if($MyRow->EvElimType==3 and isset($MatchNames[$MyRow->RealPhase])) {
+						$idx=$MatchNames[$MyRow->RealPhase];
+					} elseif($MyRow->EvElimType==4 and isset($MatchNamesWA[$MyRow->RealPhase])) {
+						$idx=$MatchNamesWA[$MyRow->RealPhase];
+					} else {
+						$idx=get_text(namePhase($MyRow->EvFinalFirstPhase, $MyRow->RealPhase) . '_Phase');
+					}
+					$tmp[$val]['events'][$idx][]= $MyRow->FSEvent;
+					$tmp[$val]['date']= $MyRow->Dt . ' '. substr($MyRow->FSScheduledTime,0,5) . ' ' . get_text('FinInd','HTT') ;
+					$tmp[$val]['selected']= isset($_REQUEST['x_Session']) && $_REQUEST['x_Session']==$val ? ' selected' : '';
+					$numOptions++;
+				}
+				foreach($tmp as $k => $v) {
+					$val=array();
+					foreach($v['events'] as $ph => $ev) $val[]= $ph . ' ('.implode('+',$ev).')';
+					$ComboSes.='<option value="'.$k.'"'.$v['selected'].'>'.$v['date']  . ' '. implode('; ',$val).'</option>';
+					if ($ComboSesArray!==null)
+					{
+						$ComboArr[]=$k;
+					}
+				}
+			}
+
+			// Team Finals
+			if($AllHHT!='Individuals') {
+				$Select='SELECT  @Phase:=ifnull(2*pow(2,truncate(log2(fsmatchno/2),0)),1) Phase, @RealPhase:=truncate(@Phase/2, 0) RealPhase, 
+					CONCAT(FSScheduledDate,\' \',FSScheduledTime) AS MyDate, DATE_FORMAT(FSScheduledDate,"' . get_text('DateFmtDBshort') . '") AS Dt, DATE_FORMAT(FSScheduledDate,"' . get_text('DateFmtDB') . '") AS Dat,
+					FSTeamEvent, FSEvent, FSScheduledTime, EvFinalFirstPhase 
+					FROM `FinSchedule` fs 
+                    INNER JOIN Events on FSEvent=EvCode and FSTeamEvent=EvTeamEvent and FsTournament=EvTournament 
+					WHERE FsTournament=' . $_SESSION['TourId'] . ' and fsscheduleddate >0 AND FSTeamEvent!=0 
+					GROUP BY FsScheduledDate, FsScheduledTime, FsEvent, Phase 
+					order BY FsScheduledDate, FsScheduledTime, FsEvent, Phase';
+				$tmp=array();
+				$Rs=safe_r_sql($Select);
+				if (safe_num_rows($Rs)>0) {
+					while ($MyRow=safe_fetch($Rs)) {
+						$val=$MyRow->FSTeamEvent . $MyRow->MyDate;
+						$text=get_text('FinTeam','HTT') . ': ' . $MyRow->MyDate;
+						$tmp[$val]['events'][get_text(namePhase($MyRow->EvFinalFirstPhase, $MyRow->RealPhase) . '_Phase')][]= $MyRow->FSEvent;
+						$tmp[$val]['date']= get_text('FinTeam','HTT') . ': ' . $MyRow->Dt.' '. substr($MyRow->FSScheduledTime,0,5);
+						$tmp[$val]['selected']= isset($_REQUEST['x_Session']) && $_REQUEST['x_Session']==$val ? ' selected' : '';
+						$numOptions++;
+					}
+					foreach($tmp as $k => $v) {
+						$val=array();
+						foreach($v['events'] as $ph => $ev) $val[]= $ph . ' ('.implode('+',$ev).')';
+						$ComboSes.='<option value="'.$k.'"'.$v['selected'].'>'.$v['date']  . ': '. implode('; ',$val).'</option>';
+						if ($ComboSesArray!==null)
+						{
+							$ComboArr[]=$k;
+						}
+					}
+				}
+			}
+		} else {
+			//Solo le fasi di qualifica associate alla catena HHT
+			$Select='SELECT HeSession FROM HhtEvents WHERE HeTournament=' . StrSafe_DB($_SESSION['TourId']) . ' AND HeHhtId=' . StrSafe_DB($_REQUEST["x_Hht"]) . " AND HeSession!=0 ORDER BY HeSession";
+			$Rs=safe_r_sql($Select);
+			while ($MyRow=safe_fetch($Rs)) {
+				if ($ComboSesArray!==null) {
+					$ComboArr[]=$MyRow->HeSession;
+				}
+				$ComboSes.= '<option value="' . $MyRow->HeSession . '"' . (isset($_REQUEST['x_Session']) && $_REQUEST['x_Session']==$MyRow->HeSession ? ' selected' : '') . '>' . get_text('QualSession','HTT') . ' ' . $MyRow->HeSession . '</option>';
+				$numOptions++;
+			}
+
+			//Solo le finali associate alla catena HHT
+			$Select='SELECT
+					@Phase:=ifnull(2*pow(2,truncate(log2(fsmatchno/2),0)),1) Phase,
+					@RealPhase:=truncate(@Phase/2, 0) RealPhase,
+					CONCAT(FSScheduledDate," ",FSScheduledTime) AS MyDate,
+					DATE_FORMAT(FSScheduledDate,"' . get_text('DateFmtDBshort') . '") AS Dt,
+					DATE_FORMAT(FSScheduledDate,"' . get_text('DateFmtDB') . '") AS Dat,
+					FSTeamEvent,
+					FSEvent,
+					FSScheduledTime,
+					EvFinalFirstPhase
+				FROM FinSchedule fs
+				INNER JOIN HhtEvents ON HeTournament=FSTournament AND HeSession=0 AND HeTeamEvent=FSTeamEvent AND HeFinSchedule = CONCAT(FSScheduledDate," ",FSScheduledTime)
+				inner join Events on FSEvent=EvCode and FSTeamEvent=EvTeamEvent and FsTournament=EvTournament
+				where FsTournament=' . $_SESSION['TourId'] . ' and fsscheduleddate>0 AND HeHhtId=' . StrSafe_DB($_REQUEST["x_Hht"]) . '
+				group by FsScheduledDate, FsScheduledTime, FsEvent, Phase
+				order by FsScheduledDate, FsScheduledTime, FsEvent, Phase';
+			$tmp=array();
+			$Rs=safe_r_sql($Select);
+			if (safe_num_rows($Rs)>0)
+			{
+				while ($MyRow=safe_fetch($Rs))
+				{
+					$val=$MyRow->FSTeamEvent . $MyRow->MyDate;
+					$text=($MyRow->FSTeamEvent==0 ? get_text('FinInd','HTT') . ': ' . $MyRow->MyDate : get_text('FinTeam','HTT') . ': ' . $MyRow->MyDate);
+					$tmp[$val]['events'][get_text(namePhase($MyRow->EvFinalFirstPhase, $MyRow->RealPhase) . '_Phase')][]= $MyRow->FSEvent;
+					$tmp[$val]['date']= $MyRow->Dt . ' '. substr($MyRow->FSScheduledTime,0,5) . ' ' . ($MyRow->FSTeamEvent==0 ? get_text('FinInd','HTT') : get_text('FinTeam','HTT'));
+					$tmp[$val]['selected']= isset($_REQUEST['x_Session']) && $_REQUEST['x_Session']==$val ? ' selected' : '';
+					$numOptions++;
+				}
+				foreach($tmp as $k => $v) {
+					$val=array();
+					foreach($v['events'] as $ph => $ev) $val[]= $ph . ' ('.implode('+',$ev).')';
+					$ComboSes.='<option value="'.$k.'"'.$v['selected'].'>'.$v['date']  . ' '. implode('; ',$val).'</option>';
+					if ($ComboSesArray!==null)
+					{
+						$ComboArr[]=$k;
+					}
+				}
+			}
+		}
+		$ComboSes = '<select name="x_Session" id="x_Session">'
+			. ($numOptions>1 ? '<option value="-1">---</option>' : '')
+			. $ComboSes
+			. '</select>';
+	}
+
+	if ($ComboSesArray!==null) {
+		$ComboSesArray=$ComboArr;
+	}
+	return $ComboSes;
+}
+
+function CheckCredentials($OnlineId, $OnlineAuth, $Return, $LicenseVoucher='') {
+	global $CFG;
+
+	// check basic info
+	if(empty($_SESSION['TourCode'])) {
+		return get_text('CrackError');
+	}
+
+	if(empty($OnlineId) or strlen($OnlineAuth)==0) {
+		return get_text('ErrEmptyFields');
+	}
+
+	$postdata = http_build_query( array(
+		"ToId" => intval($OnlineId),
+		"Auth1" => stripslashes($OnlineAuth),
+		"Version" => UploadVersion,
+		"ToCode" => $_SESSION['TourCode'],
+		"CheckImgs" => '1',
+		'Voucher' => $LicenseVoucher,
+	), '', '&' );
+
+	$opts = array('http' =>
+		array(
+			'method'  => 'POST',
+			'header'  => 'Content-type: application/x-www-form-urlencoded',
+			'content' => $postdata,
+		)
+	);
+
+	$URL=$CFG->IanseoServer."TourCheckCodes.php";
+	$context = stream_context_create($opts);
+	$stream = fopen($URL, 'r', false, $context);
+	$tmp = null;
+
+	if($stream===false) {
+		$tmpErr = error_get_last();
+		return($tmpErr["message"]);
+	}
+
+	// retrieving data from ianseo
+	$StreamContent=stream_get_contents($stream);
+	$varResponse=@json_decode($StreamContent, true);
+	if(!$varResponse) {
+		return(get_text('ErrGenericError', 'Errors'));
+	}
+
+	if($varResponse['error']!=0) {
+		return get_text($varResponse['msg'], 'Tournament');
+	}
+
+	$_SESSION['OnlineServices']=$varResponse['services'];
+	$_SESSION['OnlineAuth']=stripslashes($OnlineAuth);
+	$_SESSION['OnlineId']=intval($OnlineId);
+	$_SESSION['OnlineEventCode']=$_SESSION['TourCode'];
+	$_SESSION['OnlineFiles']=$varResponse['files'];
+	$_SESSION['OnlineUrls']=$varResponse['urls'];
+
+	// No header images for PDF...
+	$_SESSION['SendOnlinePDFImages']=$varResponse['imgs'];
+
+	// sets the online code inside the tournament...
+	safe_w_SQL("update Tournament set ToOnlineId=".intval($OnlineId)." where ToId={$_SESSION['TourId']}");
+
+	// check if the service is available
+	switch($Return) {
+		case 'Modules/UpdateWeb/UpdateWeb.php':
+			// old arrow2arrow permission
+			if(!($_SESSION['OnlineServices']&2)) {
+				return get_text('ServiceNotAvailable', 'Tournament');
+			}
+			break;
+		case 'Modules/SyncroWeb/index.php':
+			// InfoSystem permission
+			if(!($_SESSION['OnlineServices']&4)) {
+				return get_text('ServiceNotAvailable', 'Tournament');
+			}
+			break;
+		case 'Tournament/UploadResults.php':
+			// InfoSystem permission
+			if(!($_SESSION['OnlineServices']&1)) {
+				return get_text('ServiceNotAvailable', 'Tournament');
+			}
+			break;
+		default:
+	}
 }

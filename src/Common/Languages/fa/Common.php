@@ -56,7 +56,6 @@ $lang['jrSingleChoice']='$a';
 $lang['jrTextArea']='محل قرار گرفتن متن   ($a[1] rows x $a[0] cols)';
 $lang['jrTextBox']='محل قرار گرفتن متن max $a characters';
 $lang['jrYesNo']='بله /خير';
-$lang['JudgeNotes']='ياداشتهاي داور';
 $lang['LB']='كمانهاي سنتي';
 $lang['ManFinAthTargetInd']='دورپاياني حذفي انفرادي براي هر سيبل';
 $lang['ManFinAthTargetTeam']='دور پاياني تيمي براي هر سيبل';

@@ -111,8 +111,11 @@ $JS_SCRIPT[]='
     .th div {flex:1 0 5rem; padding:0.5rem;}
     div.td {flex:1 0 6rem; background-color:white; text-align:center; color: black; }
 	.selected td {background-color:#d0d0d0;font-weight:bold}
+	.txtGreen {color:green;}
+	.txtGray {color:gray;}
 	';
 $JS_SCRIPT[]='</style>';
+$JS_SCRIPT[] = '<link href="'.$CFG->ROOT_DIR.'Common/css/font-awesome.css" rel="stylesheet" type="text/css">';
 
 include('Common/Templates/head.php');
 
@@ -173,8 +176,8 @@ if($Match) {
     $Score2=($Match->matchMode ? $Match->setScore2:$Match->score2);
     $TB1=ValutaArrowStringSO($Match->tiebreak1);
     $TB2=ValutaArrowStringSO($Match->tiebreak2);
-    $Closest1=($Match->tiebreak1!=strtoupper($Match->tiebreak1));
-    $Closest2=($Match->tiebreak2!=strtoupper($Match->tiebreak2));
+    $Closest1=($Match->tiebreak1!=strtoupper($Match->tiebreak1) or $Match->closest1);
+    $Closest2=($Match->tiebreak2!=strtoupper($Match->tiebreak2) or $Match->closest2);
 
 	if($Match->win1) {
 		$Win1=' winner';
@@ -201,7 +204,12 @@ if($Match) {
 		echo '</div>';
 	}
 	echo '<div class="th"><div>'.get_text('ShotOffShort', 'Tournament').'</div><div class="LetteraGrande td">'.(!empty($Match->tiebreak1) ? (strlen($Match->tiebreak1)>1 ? implode(DecodeFromString($Match->tiebreak1, false),',') : DecodeFromString($Match->tiebreak1, false)):'&nbsp;').'</div></div>';
-    echo '</td>';
+
+	if($Closest1 or $Closest2) {
+        echo '<div class="th"><div>'.get_text('ClosestShort', 'Tournament').'</div><div class="LetteraGrande td">'.($Closest1 ? '<i class="fa fa-check-circle txtGreen"></i>' :'&nbsp;').'</div></div>';
+    }
+
+	echo '</td>';
 
 	echo '<td>&nbsp;</td>';
 
@@ -215,6 +223,10 @@ if($Match) {
 		echo '</div>';
 	}
 	echo '<div class="th"><div>'.get_text('ShotOffShort', 'Tournament').'</div><div class="LetteraGrande td">'.(!empty($Match->tiebreak2) ? (strlen($Match->tiebreak2)>1 ? implode(DecodeFromString($Match->tiebreak2, false),',') : DecodeFromString($Match->tiebreak2, false)):'&nbsp;').'</div></div>';
+
+	if($Closest1 or $Closest2) {
+		echo '<div class="th"><div>'.get_text('ClosestShort', 'Tournament').'</div><div class="LetteraGrande td">'.($Closest2 ? '<i class="fa fa-check-circle txtGreen"></i>' :'&nbsp;').'</div></div>';
+	}
     echo '</td>';
 	echo '</tr>';
 

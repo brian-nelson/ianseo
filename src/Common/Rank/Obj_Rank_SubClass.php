@@ -168,7 +168,7 @@
 			}
 
 			$MyRank="Qu" . ($dd=='' ? 'Cl' : '') . $dd . "Rank";
-			$orderBy="$safeOrder, Qu{$dd}Score DESC,Qu{$dd}Gold DESC, Qu{$dd}Xnine DESC ";
+			$orderBy="$safeOrder, if(IrmShowRank=1, 0, IrmId), Qu{$dd}Score DESC,Qu{$dd}Gold DESC, Qu{$dd}Xnine DESC ";
 
 			$q="
 				SELECT
@@ -184,14 +184,15 @@
 					QuD1Gold, QuD2Gold, QuD3Gold, QuD4Gold, QuD5Gold, QuD6Gold, QuD7Gold, QuD8Gold,
 					QuD1Xnine, QuD2Xnine, QuD3Xnine, QuD4Xnine, QuD5Xnine, QuD6Xnine, QuD7Xnine, QuD8Xnine,
 					{$tmp} AS Arrows_Shot,
-					{$MyRank} AS Rank, " . (!empty($comparedTo) ? 'IFNULL(QopSubClassRank,0)' : '0') . " as OldRank, Qu{$dd}Score AS Score, Qu{$dd}Gold AS Gold,Qu{$dd}Xnine AS XNine,
+					{$MyRank} AS `Rank`, " . (!empty($comparedTo) ? 'IFNULL(QopSubClassRank,0)' : '0') . " as OldRank, Qu{$dd}Score AS Score, Qu{$dd}Gold AS Gold,Qu{$dd}Xnine AS XNine,
 					QuTimestamp,
 					ToGolds AS GoldLabel, ToXNine AS XNineLabel,
-					ToNumDist,ToDouble
+					ToNumDist,ToDouble, QuIrmType, IrmType, IrmShowRank
 				FROM Tournament
 				INNER JOIN Entries ON ToId=EnTournament
 				INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament AND EnTournament={$this->tournament}
 				INNER JOIN Qualifications ON EnId=QuId
+				INNER JOIN IrmTypes ON IrmId=QuIrmType
 				INNER JOIN Classes ON EnClass=ClId AND ClTournament={$this->tournament}
 				INNER JOIN Divisions ON EnDivision=DivId AND DivTournament={$this->tournament}
 				LEFT JOIN TournamentDistances ON ToType=TdType AND TdTournament=ToId AND CONCAT(TRIM(EnDivision),TRIM(EnClass)) LIKE TdClasses ";
@@ -325,14 +326,10 @@
 					$goldOld=$myRow->Gold;
 					$xNineOld=$myRow->XNine;
 					// creo un elemento per la sezione
-					if($myRow->Rank==9999) {
-						$tmpRank = 'DSQ';
-					} else if ($myRow->Rank==9998) {
-						$tmpRank = 'DNS';
-					} else {
-						// this line has not much sense as being a subclass it is recalculated each time!
-						// $tmpRank= (!empty($this->opts['runningDist']) && $this->opts['runningDist']>0 ? $rank : $myRow->Rank);
+					if($myRow->IrmShowRank) {
 						$tmpRank= $rank;
+					} else {
+						$tmpRank= $myRow->IrmType;
 					}
 
 					if (array_key_exists('cutRank',$this->opts) && is_numeric($this->opts['cutRank']) and $rank>$this->opts['cutRank']) {
@@ -356,8 +353,10 @@
 						'subclass' => $myRow->EnSubClass,
 						'countryCode' => $myRow->CoCode,
 						'countryName' => $myRow->CoName,
-						'rank' => $tmpRank,
+						'rank' => $myRow->IrmShowRank ? $tmpRank : $myRow->IrmType,
 						'oldRank' => $myRow->OldRank,
+						'irm' => $myRow->QuIrmType,
+						'irmText' => $myRow->IrmType,
 						'score' => $myRow->Score,
 						'gold' => $myRow->Gold,
 						'xnine' => $myRow->XNine,

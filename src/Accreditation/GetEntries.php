@@ -11,33 +11,35 @@ $CardNumber=(empty($_REQUEST['CardNumber']) ? 0 : intval($_REQUEST['CardNumber']
 
 require_once('CommonCard.php');
 
-$xmlDoc=new DOMDocument('1.0','UTF-8');
-$xmlRoot=$xmlDoc->createElement('response');
-$xmlDoc->appendChild($xmlRoot);
-
-//$xmlRoot->setAttribute('query', $MyQuery);
-$Greens=0;
-$Reds=0;
+$JSON=array(
+	'error'=>0,
+	'reds'=>0,
+	'greens'=>0,
+	'Entries'=>array()
+);
 
 $q=safe_r_sql($MyQuery);
 while($r=safe_fetch($q)) {
 	$Event=$r->DivCode.$r->ClassCode;
-	if($CardType=='I') $Event=$r->EvCode;
-	$xmlRule=$xmlDoc->createElement('entry');
-	$xmlRule->setAttribute('id', $r->EnId);
-	$xmlRule->setAttribute('option', ($r->FirstName.$r->Name ? "$r->FirstName $r->Name" : $r->Bib)." ($Event".(empty($_REQUEST['SortByTarget']) ? '' : " - $r->TargetNo").")");
-	$xmlRule->setAttribute('style', $r->Printed?'green':'red');
-	$xmlRoot->appendChild($xmlRule);
+	if($CardType=='I') {
+		$Event=$r->EvCode;
+	}
+	$JSON['Entries'][]=array(
+		'id'=>$r->EnId,
+		'style' => $r->Printed?'green':'red',
+		'text' => ($r->FirstName.$r->Name ? "$r->FirstName $r->Name" : $r->Bib)." ($Event".(empty($_REQUEST['SortByTarget']) ? '' : " - $r->TargetNo").")",
+	);
 	if($r->Printed) {
-		$Greens++;
+		$JSON['greens']++;
 	} else {
-		$Reds++;
+		$JSON['reds']++;
 	}
 }
-$xmlRoot->setAttribute('green', $Greens);
-$xmlRoot->setAttribute('red', $Reds);
 
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Content-type: text/xml; charset=' . PageEncode);
+JsonOut($JSON);
 
-print $xmlDoc->saveXML();
+function usersort($a,$b) {
+	if($a['txt']>$b['txt']) return 1;
+	if($a['txt']<$b['txt']) return -1;
+	return 0;
+}

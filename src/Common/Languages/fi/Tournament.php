@@ -357,7 +357,6 @@ $lang['PhaseBlock_5']='Loppuraportti';
 $lang['PhaseBlock_6']='Kilpailun tiedot';
 $lang['PhaseBlock_7']='Media muutokset';
 $lang['PhaseBlock_8']='Akkreditointi';
-$lang['PhaseBlock_9']='Online-julkaiseminen';
 $lang['PhaseTimeDescription']='Kun yhdelle vaiheelle on annettu päivä ja aika, seuraavat vaiheet voidaan asettaa nopeasti syöttämällä aika-kenttään «+» numero minuuteissa ja painamalla «Aseta kaikille».';
 $lang['Photo']='Kuva';
 $lang['PhotoBadTypeError']='Väärä tiedostomuoto!';

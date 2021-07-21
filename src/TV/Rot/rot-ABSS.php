@@ -22,6 +22,7 @@ function rotAbss($TVsettings, $RULE) {
 
 	$options=array('tournament' => $RULE->TVRTournament);
 	$options['dist'] = 0;
+	$options['records'] = 1;
 	$options['subFamily'] = 'Abs';
 
 	if(isset($TVsettings->TVPEventInd) && !empty($TVsettings->TVPEventInd))
@@ -63,7 +64,7 @@ function rotAbss($TVsettings, $RULE) {
 
 	$Return['SubBlocks']=count($rankData['sections']);
 
-	$Return['NextSubBlock']=$SubBlock+1;
+	$Return['NextSubBlock']=($SubBlock+1);
 	if($SubBlock>count($rankData['sections'])) $SubBlock=1;
 
 	foreach($rankData['sections'] as $IdEvent => $data) {
@@ -89,37 +90,28 @@ function rotAbss($TVsettings, $RULE) {
 		$RecCols=array();
 		$retToAdd='';
 
-		// Records handling
-		$MaxScore=$data['meta']['numDist']*$data['meta']['maxScore'];
-		$sql="select RtRecType, RtRecCode, RtRecDistance, RtRecTotal, RtRecXNine, TrColor, RtRecExtra,
-			find_in_set('bar', TrFlags) TrBars,
-			find_in_set('gap', TrFlags) TrGaps
-			from RecTournament
-			inner join TourRecords on TrTournament=RtTournament and TrRecType=RtRecType and TrRecCode=RtRecCode and TrRecTeam=RtRecTeam and TrRecPara=RtRecPara
-			inner join Events on RtTournament=EvTournament and EvRecCategory=RtRecCategory and EvCode='{$IdEvent}' and EvTournament={$TourId} and RtRecTeam=EvTeamEvent and EvTeamEvent=0
-			where RtRecPhase=1
-			order by RtRecTotal desc "; // for now we only do on totals
-		$q=safe_r_sql($sql);
 		$ExtraCSS='';
 		$NumRecords=0;
 		$Final=(max($data['meta']['arrowsShot'])==$data['meta']['numDist']*$data['meta']['maxArrows']);
-		while($r=safe_fetch($q)) {
-			$RecTot[$r->RtRecType][$r->RtRecCode]['tot']=$MaxScore-$r->RtRecTotal;
-			$RecTot[$r->RtRecType][$r->RtRecCode]['gap']=$r->TrGaps;
+		foreach($data['records'] as $r) {
+			$RecTot[$r->RtRecCode]['tot']=$r->RtRecMaxScore-$r->RtRecTotal;
+			$RecTot[$r->RtRecCode]['gap']=$r->TrGaps;
+			$RecTot[$r->RtRecCode]['area']=$r->ReArBitLevel;
+			$RecTot[$r->RtRecCode]['claim']=$r->ReArMaCode;
 			if($r->TrGaps and !$Final) {
-				$RecTitle.='&nbsp;<span class="piccolo" style="color:#'.$r->TrColor.'">'.get_text('RecordAverage', 'Tournament', get_text($r->RtRecType.'-short', 'Tournament'));
+				$RecTitle.='&nbsp;<span class="piccolo" style="color:#'.$r->TrColor.'">'.get_text('RecordAverage', 'Records');
 				if($r->RtRecExtra and $tmp=unserialize($r->RtRecExtra)) {
 					$RecTitle.=' ('.$r->RtRecTotal .' - '. $tmp[0]->Archers[0]['Archer'] . ')';
 				}
 				$RecTitle.='</span>';
 			}
-			$RecCut=max($RecCut, $RecTot[$r->RtRecType][$r->RtRecCode]['tot']);
+			$RecCut=max($RecCut, $RecTot[$r->RtRecCode]['tot']);
 			$rec=round($r->RtRecTotal*max($data['meta']['arrowsShot'])/($data['meta']['numDist']*$data['meta']['maxArrows']),1);
 			if($r->TrBars) {
 				$NumRecords++;
-				$ExtraCSS.=".Rec_{$r->RtRecType}_{$r->RtRecCode} {font-size:1.5vw;background-color:#{$r->TrColor}; color:white;}";
-				$tmp='<div class="QualRow Rec_'.$r->RtRecType.'_'. $r->RtRecCode.'">
-						<div class="Record">'.get_text('Record-'.$r->RtRecType.'-'.$r->RtRecCode.($Final ? '' : '-avg'), 'InfoSystem').'</div>
+				$ExtraCSS.=".Rec_{$r->RtRecCode} {background-color:#{$r->TrColor}; color:white;".($r->TrFontFile ? 'font-family:'.$r->RtRecCode.';' : '')."}";
+				$tmp='<div class="QualRow Rec_'. $r->RtRecCode.'">
+						<div class="Record">'.($Final ? $r->TrHeader : get_text('RecordAverage', 'Records', $r->RtRecCode)).'</div>
 					<div class="Score">' . ($data['meta']['running'] ? number_format($rec/($data['meta']['numDist']*$data['meta']['maxArrows']), 3) : number_format($rec, $Final ? 0 : 1)) . '</div>
 					'.($View10s ?  '<div class="Gold">&nbsp;</div>' : '').'
 					'.($ViewX9s ? '<div class="XNine">&nbsp;</div>' : '').'
@@ -225,13 +217,14 @@ function rotAbss($TVsettings, $RULE) {
 			$tmp.='<div class="RankOld '.$cl.'">' . ($archer['oldRank']&& $archer['oldRank']!=$archer['rank'] ? $archer['oldRank']:'&nbsp;'). '</div>';
 		}
 
-		foreach ($RecTot as $RecType => $RecCodes) {
-			foreach($RecCodes as $RecCode => $Record) {
-				if(!$Final and $Record['gap'] and $archer['recordGap'] < $Record['tot'] and ($RecCode=='WA' or $RecCode==$archer['contAssoc'])) {
-					$tmp.='<div class="RecBar Rec_'.$RecType.'_'. $RecCode.'"></div>';
-				} else {
-					$tmp.='<div class="RecBar">&nbsp;</div>';
-				}
+		foreach ($RecTot as $RecCode => $Record) {
+			if(!$Final and $Record['gap'] and $archer['recordGap'] < $Record['tot'] and
+				(!$Record['claim']
+					or $Record['claim']==$archer['contAssoc']
+					or $Record['claim']==$archer['memberAssoc'])) {
+				$tmp.='<div class="RecBar Rec_'.$RecCode.'"></div>';
+			} else {
+				$tmp.='<div class="RecBar">&nbsp;</div>';
 			}
 		}
 
@@ -347,33 +340,32 @@ foreach($rankData['sections'] as $IdEvent => $section) {
 		if($section['meta']['arrowsShot']) {
 			// Records handling
 			$MaxScore=$section['meta']['numDist']*$section['meta']['maxScore'];
-			$sql="select RtRecType, RtRecCode, RtRecDistance, RtRecTotal, RtRecXNine, TrColor, RtRecExtra,
+			$sql="select TrHeaderCode, TrHeader, RtRecCode, RtRecDistance, RtRecTotal, RtRecXNine, TrColor, RtRecExtra,
 					find_in_set('bar', TrFlags) TrBars,
 					find_in_set('gap', TrFlags) TrGaps
 				from RecTournament
-				inner join TourRecords on TrTournament=RtTournament and TrRecType=RtRecType and TrRecCode=RtRecCode and TrRecTeam=RtRecTeam and TrRecPara=RtRecPara
+				inner join TourRecords on TrTournament=RtTournament and TrRecCode=RtRecCode and TrRecTeam=RtRecTeam and TrRecPara=RtRecPara
 				inner join Events on RtTournament=EvTournament and EvRecCategory=RtRecCategory and EvCode='{$IdEvent}' and EvTournament={$TourId} and RtRecTeam=EvTeamEvent and EvTeamEvent=0
 				where locate('metres', RtRecDistance)>0
 				order by RtRecTotal desc "; // for now we only do on totals
 			$q=safe_r_sql($sql);
 			while($r=safe_fetch($q)) {
-				$RecTot[$r->RtRecType][$r->RtRecCode]['tot']=$MaxScore-$r->RtRecTotal;
-				$RecTot[$r->RtRecType][$r->RtRecCode]['gap']=$r->TrGaps;
+				$RecTot[$r->RtRecCode]['tot']=$MaxScore-$r->RtRecTotal;
+				$RecTot[$r->RtRecCode]['gap']=$r->TrGaps;
 				// no X9 checks now...
-				// $RecTot[$r->RtRecType][$r->RtRecCode]['X9']=$MaxScore-$r->RtRecTotal;
-//				$JS_SCRIPT[]='.Rec-'.$r->RtRecType.' {color:#'.$r->TrColor.';font-weight:bold;}';
+				// $RecTot[$r->RtRecCode]['X9']=$MaxScore-$r->RtRecTotal;
 				if($r->TrGaps) {
 
-					$RecTitle.='&nbsp;<span class="piccolo" style="color:#'.$r->TrColor.'">'.get_text('RecordAverage', 'Tournament', get_text($r->RtRecType.'-short', 'Tournament'));
+					$RecTitle.='&nbsp;<span class="piccolo" style="color:#'.$r->TrColor.'">'.get_text('RecordAverage', 'Tournament', $r->TrHeaderCode);
 					$RecTitle.='</span>';
 				}
 
 
-				$RecCut=max($RecCut, $RecTot[$r->RtRecType][$r->RtRecCode]['tot']);
+				$RecCut=max($RecCut, $RecTot[$r->RtRecCode]['tot']);
 				$rec=round($r->RtRecTotal*max($section['meta']['arrowsShot'])/($section['meta']['numDist']*$section['meta']['maxArrows']),1); // no X9 checks now...
 				if($r->TrBars) {
-					$RecordCut["$rec"][]='<tr class="Record_'.$r->RtRecType.'_'. $r->RtRecCode.'"><th colspan="%s">'.get_text('Record-'.$r->RtRecType.'-'.$r->RtRecCode.'-avg', 'InfoSystem').'</th>
-						<td class="NumberAlign Grassetto">' . number_format($rec,1) . '</td>
+					$RecordCut["$rec"][]='<tr class="Record_'. $r->RtRecCode.'"><th colspan="%s">'.get_text('RecordAverage', 'Records', $r->TrHeader).'</th>
+						<td class="NumberAlign Grassetto">' . number_format($rec,1, '.', '') . '</td>
 						</tr>';
 				}
 			}

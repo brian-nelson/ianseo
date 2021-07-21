@@ -1,174 +1,135 @@
 <?php
 	require_once(dirname(dirname(__FILE__)) . '/config.php');
-	require_once('Common/Fun_FormatText.inc.php');
+	require_once('Common/Lib/CommonLib.php');
 	require_once('Common/Fun_Sessions.inc.php');
 
-	if (!CheckTourSession())
-	{
+	if (!CheckTourSession()) {
 		print get_text('CrackError');
 		exit;
 	}
 	checkACL(array(AclQualification,AclEliminations,AclIndividuals,AclTeams),AclReadWrite);
 
-	/*$Select
-		= "SELECT ToId,ToNumSession,TtNumDist, "
-		. "ToTar4Session1, ToTar4Session2, ToTar4Session3, ToTar4Session4, ToTar4Session5, ToTar4Session6, ToTar4Session7, ToTar4Session8, ToTar4Session9 "
-		. "FROM Tournament INNER JOIN Tournament*Type ON ToType=TtId "
-		. "WHERE ToId=" . StrSafe_DB($_SESSION['TourId']) . " ";*/
-	$Select
-		= "SELECT ToId,ToNumSession,ToNumDist AS TtNumDist "
-		. "FROM Tournament  "
-		. "WHERE ToId=" . StrSafe_DB($_SESSION['TourId']) . " ";
-	$RsTour=safe_r_sql($Select);
-	$RowTour=null;
-	if (safe_num_rows($RsTour)==1)
-		$RowTour=safe_fetch($RsTour);
+//Data handler
+if(!empty($_REQUEST['action']) and preg_match("/^(list|set|bulk|session)$/i",$_REQUEST['action'])) {
+    $JSON=array('error'=>1, 'data'=>array());
+    if(strtolower($_REQUEST['action']) == 'session' AND !empty($_REQUEST['key'])) {
+        if($_REQUEST['key'][0]=='Q') {
+            $q = safe_r_SQL("SELECT DISTINCT EcCode, EcTeamEvent
+                from Entries
+                INNER JOIN Qualifications on EnId=QuId
+                INNER JOIN EventClass On EnTournament=EcTournament AND EcClass=EnClass AND EcDivision=EnDivision
+                WHERE EnTournament={$_SESSION['TourId']} AND QuSession=".intval(substr($_REQUEST['key'],-1)));
+            while($r=safe_fetch($q)) {
+                $JSON['data'][] = 'chkEv_'.$r->EcCode.'_'.$r->EcTeamEvent;
+            }
+            $JSON['error']=0;
+        }
+        if($_REQUEST['key'][0]=='I' OR $_REQUEST['key'][0]=='T') {
+            $q = safe_r_SQL("SELECT DISTINCT FSEvent, FSTeamEvent
+                from FinSchedule
+                WHERE FsTournament={$_SESSION['TourId']} AND FSScheduledDate='".substr($_REQUEST['key'],1,10)."' AND FSScheduledTime='".substr($_REQUEST['key'],-8)."'");
+            while($r=safe_fetch($q)) {
+                $JSON['data'][] = 'chkEv_'.$r->FSEvent.'_'.$r->FSTeamEvent;
+            }
+            $JSON['error']=0;
+        }
+        JsonOut($JSON);
+        die();
+    }
+    if (strtolower($_REQUEST['action']) == 'set' AND !empty($_REQUEST['key'])) {
+        $offShortcut = (strpos($_REQUEST['value'],'||!')===0 ? 1 : (strpos($_REQUEST['value'],'||')===0 ? -1 : 0));
+        $arrShortcut = ($offShortcut == 0  ? 0 : intval(substr($_REQUEST['value'],($offShortcut==1 ? 3:2))));
+        $ev ='';
+        $isTeam = 0;
+        list($what, $ev, $isTeam) = explode('_', $_REQUEST['key']);
+        $what = (substr($what,-1,1)=='Q' ? 'EvQualPrintHead' : 'EvFinalPrintHead');
+        $value = StrSafe_DB($_REQUEST['value']);
+        if($offShortcut != 0) {
+            $value = "CONCAT('".($offShortcut==1 ? 'OFFICIAL':'Unofficial')." After ',(".$arrShortcut."*EvMaxTeamPerson),' Arrows')";
+        }
+        safe_w_SQL("UPDATE `Events` SET {$what}={$value} WHERE EvTournament={$_SESSION['TourId']} AND EvCode='{$ev}' AND EvTeamEvent={$isTeam}");
+        if(safe_w_affected_rows()!=0) {
+            $JSON['error'] = 0;
+        }
+    }
+    if (strtolower($_REQUEST['action']) == 'bulk' AND !empty($_REQUEST['what']) AND !empty($_REQUEST['key'])) {
+        $offShortcut = (strpos($_REQUEST['value'],'||!')===0 ? 1 : (strpos($_REQUEST['value'],'||')===0 ? -1 : 0));
+        $arrShortcut = ($offShortcut == 0  ? 0 : intval(substr($_REQUEST['value'],($offShortcut==1 ? 3:2))));
+        foreach (explode('|',$_REQUEST['key']) as $key) {
+            $ev ='';
+            $isTeam = 0;
+            list($what, $ev, $isTeam) = explode('_', $key);
+            $what = ($_REQUEST['what']=='Q' ? 'EvQualPrintHead' : 'EvFinalPrintHead');
+            $value = StrSafe_DB($_REQUEST['value']);
+            if($offShortcut != 0) {
+                $value = "CONCAT('".($offShortcut==1 ? 'OFFICIAL':'Unofficial')." After ',(".$arrShortcut."*EvMaxTeamPerson),' Arrows')";
+            }
+            safe_w_SQL("UPDATE `Events` SET {$what}={$value} WHERE EvTournament={$_SESSION['TourId']} AND EvCode='{$ev}' AND EvTeamEvent={$isTeam}");
+        }
+        $JSON['error'] = 0;
+    }
 
-	//Tutte le fasi di qualifica
-	$sessions=GetSessions('Q',true);
-
-	$ComboSes = '<select name="x_Session" id="x_Session">' . "\n";
-	$ComboSes.= '<option value="-1">---</option>' . "\n";
-
-	foreach ($sessions as $s)
-	{
-		$ComboSes.= '<option value="' . $s->SesOrder . '"' . (isset($_REQUEST['x_Session']) && $_REQUEST['x_Session']==$s->SesOrder ? ' selected' : '') . '>' . $s->Descr . '</option>' . "\n";
-	}
-	//Tutte le finali
-	$Select
-		= "SELECT DISTINCT CONCAT(FSScheduledDate,' ',FSScheduledTime) AS MyDate,FSTeamEvent "
-		. "FROM Tournament INNER JOIN FinSchedule ON ToId=FSTournament "
-		. "WHERE ToId=" . StrSafe_DB($_SESSION['TourId']) . " "
-		. "ORDER BY FSTeamEvent ASC,CONCAT(FSScheduledDate,FSScheduledTime) ASC ";
-	$Rs=safe_r_sql($Select);
-	if (safe_num_rows($Rs)>0)
-	{
-		while ($MyRow=safe_fetch($Rs))
-		{
-			$val=$MyRow->FSTeamEvent . $MyRow->MyDate;
-			$text=($MyRow->FSTeamEvent==0 ? get_text('FinInd','HTT') . ': ' . $MyRow->MyDate : get_text('FinTeam','HTT') . ': ' . $MyRow->MyDate);
-			$ComboSes.='<option value="' . $val . '" ' . (isset($_REQUEST['x_Session']) && $_REQUEST['x_Session']==$val ? ' selected' : '') . '>' . $text . '</option>' . "\n";
-		}
-	}
-	$ComboSes.= '</select>' . "\n";
-
-
-
-	$Command=(isset($_REQUEST['Command']) ? $_REQUEST['Command'] : null);
-	$ResultRs = null;
-
-	if (!is_null($Command))
-	{
-		if ($Command=='SAVE')
-		{
-			if (isset($_REQUEST['x_Session']) && $_REQUEST['x_Session']!=-1)
-			{
-				//Non è una finale
-				if (is_numeric($_REQUEST['x_Session']))
-				{
-					//Update Individuals
-					$MyQuery = "UPDATE Qualifications "
-						. "INNER JOIN Entries ON QuId=EnId "
-						. "INNER JOIN Individuals ON IndId=EnId and IndTournament=EnTournament "
-						. "INNER JOIN Events ON EvCode=IndEvent AND EvTeamEvent=0 AND EvTournament=EnTournament "
-						. "SET EvQualPrintHead=" . StrSafe_DB((substr($_REQUEST['txtComment'],0,2)!='||' ? stripslashes($_REQUEST['txtComment']) : (substr($_REQUEST['txtComment'],2,1)=='!' ? 'OFFICIAL ' : 'Unofficial ') . str_replace("##",intval(substr($_REQUEST['txtComment'],(substr($_REQUEST['txtComment'],2,1)=='!' ? 3:2))),"After ## Arrows"))) . " "
-						. "WHERE QuSession=" . StrSafe_DB($_REQUEST['x_Session']) . " AND EnTournament=" . StrSafe_DB($_SESSION['TourId']);
-					$Rs=safe_w_sql($MyQuery);
-
-					//Update Teams
-					// normal teams, 3 components
-					$MyQuery = "UPDATE Qualifications "
-						. "INNER JOIN Entries ON QuId=EnId "
-						. "INNER JOIN EventClass ON EcClass=EnClass AND EcDivision=EnDivision and if(EcSubClass='', true, EcSubClass=EnSubClass) AND EcTournament=EnTournament "
-						. "INNER JOIN Events ON EvCode=EcCode AND EvTeamEvent=IF(EcTeamEvent!=0, 1,0) AND EvTournament=EcTournament "
-						. "SET EvQualPrintHead=" . StrSafe_DB((substr($_REQUEST['txtComment'],0,2)!='||' ? stripslashes($_REQUEST['txtComment']) : (substr($_REQUEST['txtComment'],2,1)=='!' ? 'OFFICIAL ' : 'Unofficial ') . str_replace("##",intval(substr($_REQUEST['txtComment'],(substr($_REQUEST['txtComment'],2,1)=='!' ? 3:2)))*3,"After ## Arrows"))) . " "
-						. "WHERE EvMixedTeam=0 AND QuSession=" . StrSafe_DB($_REQUEST['x_Session']) . " AND EnTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent!=0";
-					$Rs=safe_w_sql($MyQuery);
-					// Mixed Teams
-					$MyQuery = "UPDATE Qualifications "
-						. "INNER JOIN Entries ON QuId=EnId "
-						. "INNER JOIN EventClass ON EcClass=EnClass AND EcDivision=EnDivision and if(EcSubClass='', true, EcSubClass=EnSubClass) AND EcTournament=EnTournament "
-						. "INNER JOIN Events ON EvCode=EcCode AND EvTeamEvent=IF(EcTeamEvent!=0, 1,0) AND EvTournament=EcTournament "
-						. "SET EvQualPrintHead=" . StrSafe_DB((substr($_REQUEST['txtComment'],0,2)!='||' ? stripslashes($_REQUEST['txtComment']) : (substr($_REQUEST['txtComment'],2,1)=='!' ? 'OFFICIAL ' : 'Unofficial ') . str_replace("##",intval(substr($_REQUEST['txtComment'],(substr($_REQUEST['txtComment'],2,1)=='!' ? 3:2)))*2,"After ## Arrows"))) . " "
-						. "WHERE EvMixedTeam=1 AND QuSession=" . StrSafe_DB($_REQUEST['x_Session']) . " AND EnTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent!=0";
-					$Rs=safe_w_sql($MyQuery);
-
-					$MyQuery = "SELECT DISTINCT EvCode, EvTeamEvent, EvEventName, EvQualPrintHead as PrintHeader "
-						. "FROM Qualifications "
-						. "INNER JOIN Entries ON QuId=EnId "
-						. "INNER JOIN EventClass ON EcClass=EnClass AND EcDivision=EnDivision and if(EcSubClass='', true, EcSubClass=EnSubClass) AND EcTournament=EnTournament "
-						. "INNER JOIN Events ON EvCode=EcCode AND EvTeamEvent=IF(EcTeamEvent!=0, 1,0) AND EvTournament=EcTournament "
-						. "WHERE QuSession=" . StrSafe_DB($_REQUEST['x_Session']) . " AND EnTournament=" . StrSafe_DB($_SESSION['TourId']) . " "
-						. "ORDER BY EvTeamEvent, EvProgr";
-						//echo $MyQuery;exit();
-					$ResultRs = safe_r_sql($MyQuery);
-				}
-				else	// finali
-				{
-					$team=substr($_REQUEST['x_Session'],0,1);
-					$when=substr($_REQUEST['x_Session'],1);
-
-					$MyQuery = "UPDATE FinSchedule "
-						. "INNER JOIN Events ON EvCode=FSEvent AND EvTeamEvent=FSTeamEvent AND EvTournament=FSTournament "
-						. "SET EvFinalPrintHead=" . StrSafe_DB(stripslashes($_REQUEST['txtComment'])) . " "
-						. "WHERE CONCAT(FSScheduledDate,' ',FSScheduledTime)=" . StrSafe_DB($when) . " AND "
-						. "FSTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND "
-						. "FSTeamEvent=" . StrSafe_DB($team);
-					$Rs=safe_w_sql($MyQuery);
-
-					$MyQuery = "SELECT DISTINCT EvCode, EvTeamEvent, EvEventName, EvFinalPrintHead as PrintHeader "
-						. "FROM FinSchedule "
-						. "INNER JOIN Events ON EvCode=FSEvent AND EvTeamEvent=FSTeamEvent AND EvTournament=FSTournament "
-						. "WHERE CONCAT(FSScheduledDate,' ',FSScheduledTime)=" . StrSafe_DB($when) . " AND "
-						. "FSTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND "
-						. "FSTeamEvent=" . StrSafe_DB($team) . " "
-						. "ORDER BY EvTeamEvent, EvProgr";
-						//echo $MyQuery;exit();
-					$ResultRs = safe_r_sql($MyQuery);
-
-				}
-			}
-		}
-	}
-
-	$JS_SCRIPT = array(
-		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/Fun_JS.inc.js"></script>'
-		);
-	$PAGE_TITLE=get_text('PrintTextTitle','Tournament');
-
-	include('Common/Templates/head.php');
-?>
-<form name="FrmParam" method="POST" action="">
-	<input type="hidden" name="Command" value="SAVE">
-	<table class="Tabella" width="50%">
-	<tr><th class="Title" colspan="3"><?php print get_text('PrintTextTitle','Tournament'); ?></th></tr>
-	<tr class="Divider"><td colspan="3"></td></tr>
-	<tr>
-	<th width="50%"><?php print get_text('Session');?></th>
-	<th width="50%"><?php print get_text('PrintText','Tournament');?></th>
-	</tr>
-	<tr>
-	<td class="Center"><?php print $ComboSes; ?></td>
-	<td class="Left"><input type="text" name="txtComment" id="txtComment" size="80" maxlength="64" value="<?php echo (isset($_REQUEST['txtComment']) ? stripslashes($_REQUEST['txtComment']) : '') ?>">
-	<br/><?php echo get_text('PrintCommentTip', 'Tournament'); ?></td>
-	</tr>
-	<tr>
-	<td colspan="2" class="Center"><input type="submit" value="<?php print get_text('CmdSave');?>"></td>
-	</tr>
-<?php
-if(!is_null($ResultRs))
-{
-	while($MyRow = safe_fetch($ResultRs))
-	{
-		echo '<tr>';
-		echo '<td><b>' . $MyRow->EvCode . '</b> - ' . $MyRow->EvEventName .  ' (' . ($MyRow->EvTeamEvent==0 ? get_text('Individual') : get_text('Team'))  . ')</td>';
-		echo '<td>' . $MyRow->PrintHeader . '</td>';
-		echo '</tr>';
-	}
+    $Sql = "SELECT EvCode, EvTeamEvent, EvQualPrintHead, EvFinalPrintHead " .
+        "FROM Events " .
+        "WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvCodeParent=''";
+    $q=safe_r_SQL($Sql);
+    while($r=safe_fetch($q)) {
+        $JSON['data'][] = array('id'=>$r->EvCode.'_'.$r->EvTeamEvent, 'Q'=>$r->EvQualPrintHead, 'F'=>$r->EvFinalPrintHead, );
+    }
+    if(strtolower($_REQUEST['action']) == 'list') {
+        $JSON['error'] = 0;
+    }
+    JsonOut($JSON);
+    die();
 }
-?>
-	</table>
-</form>
-<?php
-	include('Common/Templates/tail.php');
-?>
+
+$JS_SCRIPT = array( phpVars2js(array(
+    'CmdCancel' => get_text('CmdCancel'),
+    'CmdConfirm' => get_text('Confirm', 'Tournament'),
+)),
+    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
+    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-confirm.min.js"></script>',
+    '<script type="text/javascript" src="./PrintoutComments.js"></script>',
+    '<link href="./PrintoutComments.css" rel="stylesheet" type="text/css">',
+    '<link href="'.$CFG->ROOT_DIR.'Common/css/jquery-confirm.min.css" media="screen" rel="stylesheet" type="text/css">',
+);
+include('Common/Templates/head.php');
+echo '<table class="Tabella">';
+echo '<tr><th class="Title" colspan="5">'.get_text('PrintTextTitle','Tournament').'</th></tr>';
+echo '<tr class="divider"><td colspan="5"></td></tr>';
+echo '<tr>'.
+    '<td colspan="3">'.get_text('PrintCommentTip', 'Tournament').'</td>'.
+    '<td class="txtContainer"><input type="text" id="txtQ"><input type="button" value="'.get_text('CmdSave').'" onclick="bulkSave(\'Q\')"></td>'.
+    '<td class="txtContainer"><input type="text" id="txtF"><input type="button" value="'.get_text('CmdSave').'" onclick="bulkSave(\'F\')"></td>'.
+    '</tr>';
+echo '<tr>'.
+    '<th class="smallContainer"><input type="checkbox" id="chkBulk" onclick="chkBulkSelection()"></th>'.
+    '<td colspan="4"><select id="cmbSessions"><option value="---">'.get_text('Select', 'Tournament').'</option>';
+    foreach (getScheduledSessions() as $s) {
+        echo '<option value="'.$s->keyValue.'">'.$s->Description.'</option>';
+    }
+echo '</select><input type="button" value="'.	get_text('SelectSession', 'Tournament').'" onclick="selectSession()"></td></tr>';
+echo '<tr class="divider"><td colspan="5"></td></tr>';
+$Sql = "SELECT EvCode, EvEventName, EvFinalFirstPhase, EvTeamEvent, EvQualPrintHead, EvFinalPrintHead " .
+    "FROM Events " .
+    "WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvCodeParent='' " .
+    "ORDER BY EvTeamEvent ASC, EvProgr ASC, EvCode ";
+$q=safe_r_SQL($Sql);
+$isTeam=-1;
+while ($r=safe_fetch($q)) {
+    if($isTeam!=$r->EvTeamEvent) {
+        echo '<tr><th colspan="3">'.get_text('Event').'</th><th>Header Qualification</th><th>Header Finals</th></tr>';
+        $isTeam=$r->EvTeamEvent;
+    }
+    echo '<tr class="EventLine" id="ev_'.$r->EvCode.'_'.$r->EvTeamEvent.'">'.
+        '<th class="smallContainer"><input type="checkbox" id="chkEv_'.$r->EvCode.'_'.$r->EvTeamEvent.'"></th>'.
+        '<td class="evCodeContainer">'.$r->EvCode.'</td>'.
+        '<td class="evContainer">'.$r->EvEventName.'</td>'.
+        '<td class="txtContainer"><input type="text" id="txtQ_'.$r->EvCode.'_'.$r->EvTeamEvent.'" onchange="updateField(this)"></td>'.
+        '<td class="txtContainer"><input type="text" id="txtF_'.$r->EvCode.'_'.$r->EvTeamEvent.'" onchange="updateField(this)"></td>'.
+        '</tr>';
+
+}
+
+echo '</table>';
+include('Common/Templates/tail.php');

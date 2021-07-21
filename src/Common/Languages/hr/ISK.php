@@ -95,7 +95,6 @@ $lang['NoArrowScored']='strijela mora biti zapisana prije nego obilježavanja ka
 $lang['NoAthletes']='Nije pronađen niti jedan natjecatelj';
 $lang['NoDist']='Nije pronađena niti jedna udaljenost';
 $lang['NoLangInfo']='Ne mogu dohvatiti jezik info. __TEXT__';
-$lang['NoLanguages']='Engleski je jedini jezik dostupan odmah. Koristite funkciju ažuriranje jezika u izborniku za dodavanje drugih jezika, a zatim pokušajte ponovno.';
 $lang['NoServerUrl']='Morate skenirati QR-kod ili unesite Ianseo URL ručno prije nego što možete ažurirati jezike.';
 $lang['NoTargetTypes']='Niti jedna vrsta mete nije pronađena';
 $lang['Number']='Broj';

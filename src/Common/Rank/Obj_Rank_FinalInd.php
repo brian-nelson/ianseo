@@ -130,21 +130,24 @@
 		 */
 			$q="SELECT EnId,EnCode, EnSex, EnNameOrder, upper(EnIocCode) EnIocCode, EnName AS Name, EnFirstName AS FirstName, upper(EnFirstName) AS FirstNameUpper, CoId, CoCode, CoName, if(CoNameComplete>'', CoNameComplete, CoName) as CoNameComplete,
 					EvCode,EvEventName,EvProgr,EvElimType, ifnull(EdExtra, EnCode) as LocalBib, EnDob,
-					EvFinalPrintHead as PrintHeader,
-					EvFinalFirstPhase,	EvElim1, 	EvElim2,EvMatchMode, EvMedals, EvCodeParent, 
-					IndRank as QualRank, ".($StraightRank ? "IndRankFinal" : "IF(EvShootOff+EvE1ShootOff+EvE2ShootOff=0, IndRank, IndRankFinal)")." as FinalRank, QuScore AS QualScore,
+					EvFinalPrintHead as PrintHeader, CoMaCode, CoCaCode,
+					EvFinalFirstPhase,	EvNumQualified, EvFirstQualified, EvElim1, 	EvElim2,EvMatchMode, EvMedals, EvCodeParent, 
+					IndRank as QualRank, ".($StraightRank ? "IndRankFinal" : "IF(EvShootOff+EvE1ShootOff+EvE2ShootOff=0, IndRank, IndRankFinal)")." as FinalRank, QuScore AS QualScore, 
 					e1.ElRank AS E1Rank,e1.ElScore AS E1Score,
 					e2.ElRank AS E2Rank,e2.ElScore AS E2Score,
 					IndTimestamp,IndTimestampFinal,
 					ifnull(concat(DV2.DvMajVersion, '.', DV2.DvMinVersion) ,concat(DV1.DvMajVersion, '.', DV1.DvMinVersion)) as DocVersion,
 					date_format(ifnull(DV2.DvPrintDateTime, DV1.DvPrintDateTime), '%e %b %Y %H:%i UTC') as DocVersionDate,
-					ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes, EvOdfCode, EvOdfGender
+					ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes, EvOdfCode, EvOdfGender,
+					i1.IrmId as IrmId, i1.IrmType as IrmType, i1.IrmShowRank as ShowRank, i2.IrmId as IrmIdQual, i2.IrmType as IrmTypeQual, i2.IrmShowRank as ShowRankQual, i2.IrmHideDetails as HideDetails
 				FROM Tournament
 				INNER JOIN Entries ON ToId=EnTournament
 				INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament AND EnTournament={$this->tournament}
 				INNER JOIN Qualifications ON EnId=QuId
 				INNER JOIN Individuals ON EnTournament=IndTournament AND EnId=IndId
 				INNER JOIN Events ON EvCode=IndEvent AND EvTeamEvent=0 AND EvTournament=IndTournament
+				INNER JOIN IrmTypes i1 ON i1.IrmId=IndIrmTypeFinal
+				INNER JOIN IrmTypes i2 ON i2.IrmId=IndIrmType
 				LEFT JOIN DocumentVersions DV1 on EvTournament=DV1.DvTournament AND DV1.DvFile = 'R-IND' and DV1.DvEvent=''
 				LEFT JOIN DocumentVersions DV2 on EvTournament=DV2.DvTournament AND DV2.DvFile = 'R-IND' and DV2.DvEvent=EvCode
 				LEFT JOIN Eliminations AS e1 ON IndId=e1.ElId AND IndTournament=e1.ElTournament AND IndEvent=e1.ElEventCode AND e1.ElElimPhase=0
@@ -155,13 +158,14 @@
 					{$filter}
 					{$EnFilter}
 				ORDER BY
-						EvProgr, EvCode, IF(EvShootOff+EvE1ShootOff+EvE2ShootOff=0, IndRank, IndRankFinal) ASC, EnFirstName, EnName
+						EvProgr, EvCode, IF(EvShootOff+EvE1ShootOff+EvE2ShootOff=0, IndRank, IndRankFinal) ASC, if(i2.IrmHideDetails, 0, i1.IrmId), IndIrmTypeFinal, EnFirstName, EnName
 			";
 
 			//print $q;exit;
 			$r=safe_r_sql($q);
 
 			$this->data['meta']['title']=get_text('IndFinEvent','Tournament');
+			$this->data['meta']['notAwarded']=get_text('NotAwarded','ODF');
 //			$this->data['meta']['printHeader']='';
 //			$this->data['meta']['firstPhase']=-1;
 //			$this->data['meta']['elim1']=-1;
@@ -249,9 +253,11 @@
 								'descr' => get_text($myRow->EvEventName,'','',true),
 								'printHeader'=>get_text($myRow->PrintHeader,'','',true),
 								'firstPhase'=>$myRow->EvFinalFirstPhase,
+								'lastQualified'=>$myRow->EvNumQualified+$myRow->EvFirstQualified-1,
 								'elimType'=>$myRow->EvElimType,
 								'elim1'=>($myRow->EvElim1!=0),
 								'elim2'=>($myRow->EvElim2!=0),
+                                'jumpLines' => array(5,9),
                                 'parent'=>$myRow->EvCodeParent,
 								'matchMode'=>$myRow->EvMatchMode,
 								'order'=>$myRow->EvProgr,
@@ -264,9 +270,24 @@
 								),
 							'items'=>array()
 						);
-
+						if($myRow->EvElimType==3) {
+							$section['meta']['jumpLines'] = array(5, 7, 9, 11, 13);
+							$section['meta']['lastQualified'] = 13;
+						} elseif($myRow->EvElimType==4) {
+							$section['meta']['jumpLines'] = array(5,7,11,15,19,23);
+							$section['meta']['lastQualified'] = 23;
+						} else {
+							$section['meta']['jumpLines'] = getJumpLines($myRow->EvFinalFirstPhase);
+						}
 					}
 
+					if($myRow->HideDetails or !$myRow->ShowRank) {
+						$Rank=$myRow->IrmType;
+					} elseif(!$myRow->ShowRankQual) {
+						$Rank=$myRow->IrmTypeQual;
+					} else {
+						$Rank=$myRow->FinalRank;
+					}
 					$item=array(
 						'id'  => $myRow->EnId,
 						'bib' => $myRow->EnCode,
@@ -284,35 +305,39 @@
 //						'subclass' => $myRow->EnSubClass,
 						'countryId' => $myRow->CoId,
 						'countryCode' => $myRow->CoCode,
+						'contAssoc' => $myRow->CoCaCode,
+						'memberAssoc' => $myRow->CoMaCode,
 						'countryIocCode' => $myRow->EnIocCode,
 						'countryName' => $myRow->CoName,
 						'countryNameLong' => $myRow->CoNameComplete,
-						'qualScore'=>$myRow->QualScore,
-						'qualRank'=>($myRow->QualRank == 9999 ? 'DSQ' : ($myRow->QualRank == 9998 ? 'DNS' : $myRow->QualRank)),
-						'rank'=>($myRow->FinalRank == 9999 ? 'DSQ' : ($myRow->FinalRank == 9998 ? 'DNS' : $myRow->FinalRank)),
+						'qualScore'=>$myRow->HideDetails ? '' : $myRow->QualScore,
+						'qualRank'=>$myRow->HideDetails ? '' : ($myRow->ShowRankQual ? $myRow->QualRank : $myRow->IrmTypeQual),
+						'rank'=>$Rank,
 						'preseed'=>(($Saved=SavedInPhase($myRow->EvFinalFirstPhase)) and $myRow->QualRank<=$Saved) ? '1' : '',
+						'irm'=>$myRow->IrmId,
+						'irmText'=>$myRow->IrmType,
 						'elims'=>array(),
 						'finals'=>array()
 					);
 
-					if ($myRow->E1Rank!==null && $myRow->E1Score!==null)
-					{
+					if ($myRow->E1Rank!==null and $myRow->E1Score!==null and !$myRow->IrmType) {
 						$item['elims']['e1']['score']=$myRow->E1Score;
 						$item['elims']['e1']['rank']=$myRow->E1Rank;
 					}
 
-					if ($myRow->E2Rank!==null && $myRow->E2Score!==null)
-					{
+					if ($myRow->E2Rank!==null and $myRow->E2Score!==null and !$myRow->IrmType) {
 						$item['elims']['e2']['score']=$myRow->E2Score;
 						$item['elims']['e2']['rank']=$myRow->E2Rank;
 					}
 
 					$section['items'][$myRow->EnId]=$item;
 
-					if ($myRow->IndTimestampFinal>$section['meta']['lastUpdate'])
+					if ($myRow->IndTimestampFinal>$section['meta']['lastUpdate']) {
 						$section['meta']['lastUpdate']=$myRow->IndTimestampFinal;
-					if ($myRow->IndTimestampFinal>$this->data['meta']['lastUpdate'])
+					}
+					if ($myRow->IndTimestampFinal>$this->data['meta']['lastUpdate']) {
 						$this->data['meta']['lastUpdate']=$myRow->IndTimestampFinal;
+					}
 
 				}
 			// ultimo giro
@@ -330,7 +355,10 @@
 				SELECT
 					EvElimType, f1.FinEvent AS `event`,f1.FinAthlete AS `athlete`,f1.FinMatchNo AS `matchNo`,f1.FinScore AS `score`,f1.FinSetScore AS `setScore`,f1.FinSetPoints AS `setPoints`,f1.FinSetPointsByEnd AS `setPointsByEnd`,f1.FinTie AS `tie`,f1.FinArrowstring AS `arrowstring`,f1.FinTiebreak AS `tiebreak`, f1.FinNotes as Notes,
 					f2.FinAthlete AS `oppAthlete`,f2.FinMatchNo AS `oppMatchNo`,f2.FinScore AS `oppScore`,f2.FinSetScore AS `oppSetScore`,f2.FinSetPoints AS `oppSetPoints`,f2.FinSetPointsByEnd AS `oppSetPointsByEnd`,f2.FinTie AS `oppTie`,f2.FinArrowstring AS `oppArrowstring`,f2.FinTiebreak AS `oppTiebreak`, f2.FinNotes as OppNotes,
-					GrPhase, EvProgr, IndRankFinal
+					GrPhase, EvProgr, IndRankFinal, IndIrmTypeFinal,
+					f1.FinIrmType IrmType, f2.FinIrmType OppIrmType, i1.IrmType IrmText, i2.IrmType OppIrmText, i1.IrmShowRank, i1.IrmHideDetails as HideDetails,
+					@ArBit:=(EvMatchArrowsNo & pow(2, if(f1.FinMatchNo=0, 0, floor(LOG(2, f1.FinMatchNo))))),
+					if(@ArBit=0, EvFinArrows, EvElimArrows) Arrows, if(@ArBit=0, EvElimEnds, EvFinEnds) Ends, if(@ArBit=0, EvElimSO, EvFinSO) SO
 					FROM Finals AS f1
 					INNER JOIN Events
 						ON EvTournament=f1.FinTournament AND EvCode=f1.FinEvent AND EvTeamEvent=0 AND EvShootOff=1
@@ -340,6 +368,8 @@
 						ON GrMatchNo=f1.FinMatchNo and if(EvElimType=3, GrPhase<=EvFinalFirstPhase, true)
 					INNER JOIN Individuals
 						ON IndTournament={$this->tournament} AND IndEvent=f1.FinEvent AND IndId=f1.FinAthlete
+					inner join IrmTypes i1 on i1.IrmId=f1.FinIrmType
+					inner join IrmTypes i2 on i2.IrmId=f2.FinIrmType
 					WHERE
 						f1.FinTournament={$this->tournament} and f1.FinMatchNo%2=0
 						{$filter}
@@ -347,108 +377,118 @@
 				SELECT
 					EvElimType, f1.FinEvent AS `event`,f1.FinAthlete AS `athlete`,f1.FinMatchNo AS `matchNo`,f1.FinScore AS `score`,f1.FinSetScore AS `setScore`,f1.FinSetPoints AS `setPoints`,f1.FinSetPointsByEnd AS `setPointsByEnd`,f1.FinTie AS `tie`,f1.FinArrowstring AS `arrowstring`,f1.FinTiebreak AS `tiebreak`, f1.FinNotes as Notes,
 					f2.FinAthlete AS `oppAthlete`,f2.FinMatchNo AS `oppMatchNo`,f2.FinScore AS `oppScore`,f2.FinSetScore AS `oppSetScore`,f2.FinSetPoints AS `oppSetPoints`,f2.FinSetPointsByEnd AS `oppSetPointsByEnd`,f2.FinTie AS `oppTie`,f2.FinArrowstring AS `oppArrowstring`,f2.FinTiebreak AS `oppTiebreak`, f2.FinNotes as OppNotes,
-					GrPhase, EvProgr, IndRankFinal
+					GrPhase, EvProgr, IndRankFinal, IndIrmTypeFinal,
+					f1.FinIrmType IrmType, f2.FinIrmType OppIrmType, i1.IrmType IrmText, i2.IrmType OppIrmText, i1.IrmShowRank, i1.IrmHideDetails as HideDetails,
+					@ArBit:=(EvMatchArrowsNo & pow(2, if(f1.FinMatchNo=0, 0, floor(LOG(2, f1.FinMatchNo))))),
+					if(@ArBit=0, EvFinArrows, EvElimArrows) Arrows, if(@ArBit=0, EvElimEnds, EvFinEnds) Ends, if(@ArBit=0, EvElimSO, EvFinSO) SO
 					FROM Finals AS f1
 					INNER JOIN Events
 						ON EvTournament=f1.FinTournament AND EvCode=f1.FinEvent AND EvTeamEvent=0 AND EvShootOff=1
 					INNER JOIN Finals AS f2
 						ON f2.FinEvent=f1.FinEvent AND f2.FinTournament=f1.FinTournament AND f2.FinMatchNo=f1.FinMatchNo-1
 					INNER JOIN Grids
-						ON GrMatchNo=f1.FinMatchNo and if(EvElimType=3, GrPhase<=EvFinalFirstPhase, true)
+						ON GrMatchNo=f1.FinMatchNo
 					INNER JOIN Individuals
 						ON IndTournament={$this->tournament} AND IndEvent=f1.FinEvent AND IndId=f1.FinAthlete
+					inner join IrmTypes i1 on i1.IrmId=f1.FinIrmType
+					inner join IrmTypes i2 on i2.IrmId=f2.FinIrmType
 					WHERE
 						f1.FinTournament={$this->tournament} and f1.FinMatchNo%2=1
 						{$filter}
   				)
   				ORDER BY
-  					EvProgr ASC, IndRankFinal ASC, GrPhase DESC
+  					EvProgr ASC, if(IrmShowRank=1, 0, IndIrmTypeFinal), IndRankFinal ASC, GrPhase DESC
 			";
 			//print $q;exit;
 			//return;
 			$rr=safe_r_sql($q);
-			if (safe_num_rows($rr)>0)
-			{
-				while ($row=safe_fetch($rr))
+			while ($row=safe_fetch($rr)) {
+				if($row->HideDetails) {
+					continue;
+				}
+				$arrowstring=array();
+				for ($i=0;$i<strlen($row->arrowstring);++$i)
 				{
-					$arrowstring=array();
-					for ($i=0;$i<strlen($row->arrowstring);++$i)
+					if (trim($row->arrowstring[$i])!='')
 					{
-						if (trim($row->arrowstring[$i])!='')
-						{
-							$arrowstring[]=DecodeFromLetter($row->arrowstring[$i]);
-						}
+						$arrowstring[]=DecodeFromLetter($row->arrowstring[$i]);
 					}
+				}
 
-					$tiebreak=array();
-					for ($i=0;$i<strlen($row->tiebreak);++$i)
+				$tiebreak=array();
+				for ($i=0;$i<strlen($row->tiebreak);++$i)
+				{
+					if (trim($row->tiebreak[$i])!='')
 					{
-						if (trim($row->tiebreak[$i])!='')
-						{
-							$tiebreak[]=DecodeFromLetter($row->tiebreak[$i]);
-						}
+						$tiebreak[]=DecodeFromLetter($row->tiebreak[$i]);
 					}
+				}
 
-					$oppArrowstring=array();
-					for ($i=0;$i<strlen($row->oppArrowstring);++$i)
+				$oppArrowstring=array();
+				for ($i=0;$i<strlen($row->oppArrowstring);++$i)
+				{
+					if (trim($row->oppArrowstring[$i])!='')
 					{
-						if (trim($row->oppArrowstring[$i])!='')
-						{
-							$oppArrowstring[]=DecodeFromLetter($row->oppArrowstring[$i]);
-						}
+						$oppArrowstring[]=DecodeFromLetter($row->oppArrowstring[$i]);
 					}
+				}
 
-					$oppTiebreak=array();
-					for ($i=0;$i<strlen($row->oppTiebreak);++$i)
+				$oppTiebreak=array();
+				for ($i=0;$i<strlen($row->oppTiebreak);++$i)
+				{
+					if (trim($row->oppTiebreak[$i])!='')
 					{
-						if (trim($row->oppTiebreak[$i])!='')
-						{
-							$oppTiebreak[]=DecodeFromLetter($row->oppTiebreak[$i]);
-						}
+						$oppTiebreak[]=DecodeFromLetter($row->oppTiebreak[$i]);
 					}
+				}
 
-					if(!empty($this->data['sections'][$row->event]['items'][$row->athlete])) {
-						if($row->GrPhase > $this->data['sections'][$row->event]['meta']['firstPhase']) {
-							$phases=getPhasesId($row->GrPhase);
-							$PhPools=getPoolMatchesHeadersWA();
-							$Finals=array();
-							foreach($phases as $k => $v) {
-								if($v<=valueFirstPhase($row->GrPhase)) {
-									if($row->EvElimType==4 and $v>=4) {
-										$Finals[$v]=$PhPools[$v];
-									} else {
-										$Finals[$v]=get_text(namePhase($row->GrPhase,$v)  . "_Phase");
-									}
+				if(!empty($this->data['sections'][$row->event]['items'][$row->athlete])) {
+					if($row->GrPhase > $this->data['sections'][$row->event]['meta']['firstPhase']) {
+						$phases=getPhasesId($row->GrPhase);
+						$PhPools= $row->EvElimType==3 ? getPoolMatchesHeaders() : getPoolMatchesHeadersWA();
+						$Finals=array();
+						foreach($phases as $k => $v) {
+							if($v<=valueFirstPhase($row->GrPhase)) {
+								if($row->EvElimType==4 and $v>=4) {
+									$Finals[$v]=$PhPools[$v];
+								} elseif($row->EvElimType==3 and $v>=4) {
+									$Finals[$v]=$PhPools[$v];
+								} else {
+									$Finals[$v]=get_text(namePhase($row->GrPhase,$v)  . "_Phase");
 								}
 							}
-
-							if($row->EvElimType==4) {
-								$this->data['sections'][$row->event]['meta']['firstPhase']=$row->GrPhase;
-								$this->data['sections'][$row->event]['meta']['fields']['finals']=$Finals;
-							}
-
 						}
-						$this->data['sections'][$row->event]['items'][$row->athlete]['finals'][$row->GrPhase]=array(
-							'score'=>$row->score,
-							'setScore'=>$row->setScore,
-						 	'setPoints'=>$row->setPoints,
-						 	'setPointsByEnd'=>$row->setPointsByEnd,
-						 	'notes'=>$row->Notes,
-							'tie'=>$row->tie,
-							'arrowstring'=>implode('|',$arrowstring),
-						 	'tiebreak'=>implode('|',$tiebreak),
 
-							'oppAthlete'=>$row->oppAthlete,
-							'oppScore'=>$row->oppScore,
-							'oppSetScore'=>$row->oppSetScore,
-						 	'oppSetPoints'=>$row->oppSetPoints,
-						 	'oppSetPointsByEnd'=>$row->oppSetPointsByEnd,
-						 	'oppNotes'=>$row->OppNotes,
-							'oppTie'=>$row->oppTie,
-							'oppArrowstring'=>implode('|',$oppArrowstring),
-						 	'oppTiebreak'=>implode('|',$oppTiebreak)
-						);
+						if($row->EvElimType==3 or $row->EvElimType==4) {
+							$this->data['sections'][$row->event]['meta']['firstPhase']=$row->GrPhase;
+							$this->data['sections'][$row->event]['meta']['fields']['finals']=$Finals;
+						}
+
 					}
+					$this->data['sections'][$row->event]['items'][$row->athlete]['finals'][$row->GrPhase]=array(
+						'score'=>$row->score,
+						'setScore'=>$row->setScore,
+					    'setPoints'=>$row->setPoints,
+					    'setPointsByEnd'=>$row->setPointsByEnd,
+					    'notes'=>$row->Notes,
+						'tie'=>$row->tie,
+						'arrowstring'=>implode('|',$arrowstring),
+					    'tiebreak'=>implode('|',$tiebreak),
+					    'irm'=>$row->IrmType,
+					    'irmText'=>$row->IrmText,
+
+						'oppAthlete'=>$row->oppAthlete,
+						'oppScore'=>$row->oppScore,
+						'oppSetScore'=>$row->oppSetScore,
+					    'oppSetPoints'=>$row->oppSetPoints,
+					    'oppSetPointsByEnd'=>$row->oppSetPointsByEnd,
+					    'oppNotes'=>$row->OppNotes,
+						'oppTie'=>$row->oppTie,
+						'oppArrowstring'=>implode('|',$oppArrowstring),
+					    'oppTiebreak'=>implode('|',$oppTiebreak),
+					    'oppIrm'=>$row->OppIrmType,
+					    'oppIrmText'=>$row->OppIrmText,
+					);
 				}
 			}
 		}

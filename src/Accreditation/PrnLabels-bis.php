@@ -59,7 +59,7 @@ if($_POST) {
 
 		$pdf->SetFontSize(7);
 
-		error_reporting(E_ALL);
+		//error_reporting(E_ALL);
 
 		while($r=safe_fetch($q)) {
 			if(!is_file($file= $CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-En-'.$r->PhEnId.'.jpg')) {

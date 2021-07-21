@@ -149,7 +149,17 @@ function UpdatePreOpen($TournamentID) {
 		to_save_version($TournamentID, '2018-06-24 22:07:02');
 	}
 
-	to_save_version($TournamentID, $DbVersion);
+    if($version<'2020-04-04 15:25:01') {
+        updateTbClosest_20200404($TournamentID);
+        to_save_version($TournamentID, '2020-04-04 15:25:00');
+    }
+
+    if($version<'2020-05-19 15:25:01') {
+	    updateTbDecoded_20200519($TournamentID);
+        to_save_version($TournamentID, '2020-05-19 15:25:00');
+    }
+
+    to_save_version($TournamentID, $DbVersion);
 }
 
 function to_save_version($TournamentID,$newversion) {

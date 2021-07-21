@@ -116,7 +116,7 @@
 		= "SELECT ti.*, it.*"
 		. "FROM TournamentInvolved AS ti LEFT JOIN InvolvedType AS it ON ti.TiType=it.ItId "
 		. "WHERE ti.TiTournament=" . StrSafe_DB($_SESSION['TourId']) . " "
-		. "ORDER BY IF(it.ItId IS NOT NULL,IF(ItJudge!=0,1,IF(ItDoS!=0,2,IF(ItJury!=0,3,4))),9999) ASC, IF(it.ItId IS NOT NULL,IF(ItJudge!=0,ItJudge,IF(ItDoS!=0,ItDoS,IF(ItJury!=0,ItJury,ItOC))),9999) ASC,ti.TiName ASC ";
+		. "ORDER BY IF(it.ItId IS NOT NULL,IF(ItJudge!=0,1,IF(ItDoS!=0,2,IF(ItJury!=0,3,4))),99999) ASC, IF(it.ItId IS NOT NULL,IF(ItJudge!=0,ItJudge,IF(ItDoS!=0,ItDoS,IF(ItJury!=0,ItJury,ItOC))),99999) ASC,ti.TiName ASC ";
 		//. "ORDER BY ti.TiName ASC ";
 
 		//print $Select;  exit;

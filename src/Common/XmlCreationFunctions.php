@@ -1,7 +1,6 @@
 <?php
 
 require_once('Common/StartListQueries.php');
-require_once('Common/FinalQueries.php');
 require_once('Common/Lib/Obj_RankFactory.php');
 require_once('Common/Lib/ArrTargets.inc.php');
 

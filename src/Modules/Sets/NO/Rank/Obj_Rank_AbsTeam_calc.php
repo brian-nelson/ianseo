@@ -106,7 +106,7 @@
 				SELECT
 					TeTournament,TeCoId,TeSubTeam,CoCode,TeEvent,
 					TeScore, TeGold, TeXnine,
-					IF(EvFinalFirstPhase=0,9999,EvNumQualified) AS QualifiedNo,
+					IF(EvFinalFirstPhase=0,99999,EvNumQualified) AS QualifiedNo,
 					TeRank AS ActualRank
 				 FROM
 				 	Teams
@@ -117,7 +117,7 @@
 				 		Events
 				 	ON TeEvent=EvCode AND TeTournament=EvTournament AND EvTeamEvent=1
 				 WHERE
-				 	TeTournament={$this->tournament} AND TeFinEvent=1 AND TeScore<>'0'
+				 	TeTournament={$this->tournament} AND TeFinEvent=1 AND TeScore<>'0' and TeIrmTypeFinal<=10
 				 	{$filter}
 				 ORDER BY
 				 	{$orderBy}
@@ -238,7 +238,9 @@
 								'event'		=> $myRow->TeEvent,
 								'so'		=> ($so * $myRank),
 								'rank'		=> $myRank,
-								'tiebreak'	=> ''
+								'tiebreak'	=> '',
+								'decoded'	=> '',
+                                'closest'   => 0
 							)
 						));
 					}
@@ -488,11 +490,20 @@
 					$q.=",TeRank={$item['rank']}";
 				}
 
-				if (array_key_exists('tiebreak',$item))
-				{
+				if (array_key_exists('tiebreak',$item)) {
 					$canUp=true;
 					$q.=",TeTiebreak='{$item['tiebreak']}'";
 				}
+
+				if (array_key_exists('decoded',$item)) {
+					$canUp=true;
+					$q.=",TeTbDecoded='{$item['decoded']}'";
+				}
+
+                if (array_key_exists('closest',$item)) {
+                    $canUp=true;
+                    $q.=",TeTbClosest='{$item['closest']}'";
+                }
 
 				if (array_key_exists('so',$item))
 				{

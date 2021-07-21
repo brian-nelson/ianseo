@@ -14,40 +14,36 @@ CreateStandardClasses($TourId, $SubRule, '3D'); //
 // default Distances
 switch($TourType) {
 	case 11:
-		CreateDistance($TourId, $TourType, 'CE_', 'Röd påle');
-		CreateDistance($TourId, $TourType, 'CM_', 'Röd påle');
-		CreateDistance($TourId, $TourType, 'CJ_', 'Röd påle');
-
-		CreateDistance($TourId, $TourType, 'RE_', 'Blå påle');
-		CreateDistance($TourId, $TourType, 'BE_', 'Blå påle');
-		CreateDistance($TourId, $TourType, 'LE_', 'Blå påle');
-		CreateDistance($TourId, $TourType, 'IE_', 'Blå påle');
-		CreateDistance($TourId, $TourType, 'CS_', 'Blå påle');
-		CreateDistance($TourId, $TourType, 'CV_', 'Blå påle');
-		CreateDistance($TourId, $TourType, 'RJ_', 'Blå påle');
-		CreateDistance($TourId, $TourType, 'BJ_', 'Blå påle');
-		CreateDistance($TourId, $TourType, 'LJ_', 'Blå påle');
-		CreateDistance($TourId, $TourType, 'IJ_', 'Blå påle');
-
-		CreateDistance($TourId, $TourType, 'RC_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'CC_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'BC_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'LC_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'IC_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'RS_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'RM_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'RV_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'BS_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'BM_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'BV_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'LS_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'LM_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'LV_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'IS_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'IM_', 'Svart påle');
-		CreateDistance($TourId, $TourType, 'IV_', 'Svart påle');
-
-		CreateDistance($TourId, $TourType, '_K_', 'Vit påle');
+		CreateDistanceNew($TourId, $TourType, 'CE_', array(array('Röd påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'CM_', array(array('Röd påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'RE_', array(array('Blå påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'BE_', array(array('Blå påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'LE_', array(array('Blå påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'IE_', array(array('Blå påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'CS_', array(array('Blå påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'CV_', array(array('Blå påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'RJ_', array(array('Blå påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'BJ_', array(array('Blå påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'LJ_', array(array('Blå påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'IJ_', array(array('Blå påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'RC_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'CC_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'BC_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'LC_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'IC_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'RS_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'RM_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'RV_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'BS_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'BM_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'BV_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'LS_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'LM_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'LV_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'IS_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'IM_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, 'IV_', array(array('Svart påle',0)));
+		CreateDistanceNew($TourId, $TourType, '_K_', array(array('Vit påle',0)));
 		break;
 }
 

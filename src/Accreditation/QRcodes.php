@@ -242,7 +242,7 @@ $JS_SCRIPT=array(
             'WifiUse' => get_text('ISK-WifiUse','Api'),
             'WifiTargetRange' => get_text('ISK-WifiTargetRange','Api'),
 		)),
-		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 		'<script type="text/javascript" src="./QRcodes.js"></script>',
 );
 

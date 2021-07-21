@@ -8,12 +8,23 @@
 	per aggiornare il campo Field
 */
 function UpdateField(Field) {
-    $.getJSON("UpdateFieldEventList.php?"+encodeURIComponent(Field)+"="+encodeURIComponent($('#'+Field).val()), function(data) {
+    $.getJSON("UpdateFieldEventList.php?field="+encodeURIComponent(Field)+"&value="+encodeURIComponent($('#'+Field).val()), function(data) {
 
         if (data.error==1) {
             $('#'+Field).toggleClass('error', true);
         } else {
             $('#'+Field).toggleClass('error', false);
+        }
+    });
+}
+
+function togglePara(obj) {
+    $.getJSON("UpdateFieldEventList.php?field="+encodeURIComponent(obj.id)+"&value="+encodeURIComponent(obj.checked ? 1 : 0), function(data) {
+
+        if (data.error==1) {
+            $(obj).toggleClass('error', true);
+        } else {
+            $(obj).toggleClass('error', false);
         }
     });
 }
@@ -86,9 +97,11 @@ function AddEvent(ErrMsg) {
         var New_EvFinalTargetType = encodeURIComponent($('#New_EvFinalTargetType').val());
         var New_EvTargetSize = encodeURIComponent($('#New_EvTargetSize').val());
         var New_EvDistance = encodeURIComponent($('#New_EvDistance').val());
+        var New_EvIsPara = ($('#New_EvIsPara:checked').length==1 ? 1 : 0);
 
         var QueryString
             = 'New_EvCode=' + New_EvCode + '&'
+            + 'New_EvIsPara=' + New_EvIsPara + '&'
             + 'New_EvEventName=' + New_EvEventName + '&'
             + 'New_EvProgr=' + New_EvProgr + '&'
             + 'New_EvElim1=' + New_EvElim1 + '&'

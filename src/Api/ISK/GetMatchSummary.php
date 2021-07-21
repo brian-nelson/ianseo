@@ -43,7 +43,7 @@
 					while($r=safe_fetch($q)) {
 						if($r->IskDtEndNo > $objParam->ends) {
 							// tie break
-							$fld = ($r->IskDtMatchNo == $vItem['matchNo'] ? 'tiebreakArrowstring' : 'oppTiebreakArrowstring');
+							$fld = ($r->IskDtMatchNo == $vItem['matchNo'] ? 'tiebreak' : 'oppTiebreak');
 							$vItem[$fld]=str_repeat(' ', strlen($r->IskDtArrowstring));
 							$idx = 0;
 						} else {
@@ -73,32 +73,34 @@
 					if($vSec['meta']['matchMode']) {
 						$endtot0 = ($pts0==$pts1 ? 1 : ($pts0>$pts1 ? 2 : 0));
 						$endtot1 = ($pts0==$pts1 ? 1 : ($pts0<$pts1 ? 2 : 0));
+                        $Tot0+=$endtot0;
+                        $Tot1+=$endtot1;
 					} else {
-						$endtot0 = $pts0;
-						$endtot1 = $pts1;
+						$endtot0 += $pts0;
+						$endtot1 += $pts1;
+                        $Tot0+=$pts0;
+                        $Tot1+=$pts1;
 					}
-					$Tot0+=$endtot0;
-					$Tot1+=$endtot1;
 					$end[]=array('endnum'=>$End+1, 'endscore'=>$pts0, 'points'=>$endtot0);
 					$oppEnd[]=array('endnum'=>$End+1, 'endscore'=>$pts1, 'points'=>$endtot1);
 				}
 
 				// check tiebreak
 				$SO=false;
-				if(!empty($vItem['tiebreakArrowstring']) or !empty($vItem['oppTiebreakArrowstring'])) {
-					if(!trim($vItem['tiebreakArrowstring']) and ! trim($vItem['oppTiebreakArrowstring'])) continue;
+				if(!empty($vItem['tiebreak']) or !empty($vItem['oppTiebreak'])) {
+					if(!trim($vItem['tiebreak']) and ! trim($vItem['oppTiebreak'])) continue;
 					$SO=true;
-					$pts0=ValutaArrowString($vItem['tiebreakArrowstring']);
-					$pts1=ValutaArrowString($vItem['oppTiebreakArrowstring']);
+					$pts0=ValutaArrowString($vItem['tiebreak']);
+					$pts1=ValutaArrowString($vItem['oppTiebreak']);
 
 					if($vSec['meta']['matchMode']) {
-						$endtot0 = ($pts0==$pts1 ? 0 : (($pts0>$pts1 or $vItem['tiebreakArrowstring']!=strtoupper($vItem['tiebreakArrowstring'])) ? 1 : 0));
-						$endtot1 = ($pts0==$pts1 ? 0 : (($pts0<$pts1 or $vItem['oppTiebreakArrowstring']!=strtoupper($vItem['oppTiebreakArrowstring'])) ? 1 : 0));
+						$endtot0 = ($pts0==$pts1 ? 0 : (($pts0>$pts1 or $vItem['tiebreak']!=strtoupper($vItem['tiebreak'])) ? 1 : 0));
+						$endtot1 = ($pts0==$pts1 ? 0 : (($pts0<$pts1 or $vItem['oppTiebreak']!=strtoupper($vItem['oppTiebreak'])) ? 1 : 0));
 						$Tot0+=$endtot0;
 						$Tot1+=$endtot1;
 					} else {
-						$endtot0 = $pts0;
-						$endtot1 = $pts1;
+                        $endtot0 = '-';
+                        $endtot1 = '-';
 					}
 					$end[]=array('endnum'=>'S.O.', 'endscore'=>$pts0, 'points'=>$endtot0);
 					$oppEnd[]=array('endnum'=>'S.O.', 'endscore'=>$pts1, 'points'=>$endtot1);
@@ -107,9 +109,9 @@
 				// check winner if no winners and pro mode
 				if($iskModePro and !$vItem['winner']
 						and !$vItem['oppWinner']
-						and ($vSec['meta']['matchMode'] ? ($Tot0>$vSec['meta']['finEnds'] or $Tot1>$vSec['meta']['finEnds']) : (strlen(rtrim($vItem['arrowstring']))==$vSec['meta']['finEnds']*$vSec['meta']['finArrows'] and strlen(rtrim($vItem['oppArrowstring']))==$vSec['meta']['finEnds']*$vSec['meta']['finArrows']))) {
-					if($vSec['meta']['matchMode']) {
-						if($Tot0>$vSec['meta']['finEnds']) {
+						and ($objParam->EvMatchMode ? ($Tot0>$objParam->ends or $Tot1>$objParam->ends) : (strlen(rtrim($vItem['arrowstring']))==$objParam->ends*$objParam->arrows and strlen(rtrim($vItem['oppArrowstring']))==$objParam->ends*$objParam->arrows))) {
+					if($objParam->EvMatchMode) {
+						if($Tot0>$objParam->ends) {
 							$vItem['winner']=1;
 						} else {
 							$vItem['oppWinner']=1;

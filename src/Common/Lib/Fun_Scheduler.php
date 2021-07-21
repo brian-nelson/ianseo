@@ -121,7 +121,7 @@ Class Scheduler {
 		static $Shift=0, $Day='';
 		static $PushKey='';
 
-		$tmpKey="$r->Day|$r->Start|$r->Events|$r->Session";
+		$tmpKey="$r->Day|$r->Start|$r->Events|$r->Session|$r->OrderPhase";
 		if($PushKey==$tmpKey and !$Warmup) return;
 
 		if($tmpKey and !$Warmup) $PushKey=$tmpKey;
@@ -149,6 +149,7 @@ Class Scheduler {
 		$tmp->Event=$r->Event;
 		$tmp->Session=$r->Session;
 		$tmp->Distance=$r->Distance;
+		$tmp->RealDistance=$r->RealDistance;
 		$tmp->DistanceName=((!empty($r->{'TD'.$r->Distance}) and !strchr($r->{'TD'.$r->Distance}, '£££')) ? $r->{'TD'.$r->Distance} : get_text('Distance', 'Tournament'). ' '.$r->Distance);
 		$tmp->Order=$r->OrderPhase;
 		$tmp->Shift=$Shift;
@@ -274,6 +275,7 @@ Class Scheduler {
 					SchDay Day,
 					'-' Session,
 					'-' Distance,
+					'' RealDistance,
 					'' Medal,
 					if(SchStart=0, '', date_format(SchStart, '%H:%i')) Start,
 					SchDuration Duration,
@@ -329,6 +331,7 @@ Class Scheduler {
 						DiDay Day,
 						DiSession Session,
 						DiDistance Distance,
+						DiDistance RealDistance,
 						'' Medal,
 						if(DiStart=0, '', date_format(DiStart, '%H:%i')) Start,
 						DiDuration Duration,
@@ -381,6 +384,7 @@ Class Scheduler {
 						DiDay Day,
 						DiSession Session,
 						DiDistance Distance,
+						DiDistance RealDistance,
 						'' Medal,
 						if(DiStart=0, '', date_format(DiStart, '%H:%i')) Start,
 						DiDuration Duration,
@@ -421,6 +425,7 @@ Class Scheduler {
 					DiDay Day,
 					DiSession Session,
 					DiDistance Distance,
+					DiDistance RealDistance,
 					'' Medal,
 					if(DiStart=0, '', date_format(DiStart, '%H:%i')) Start,
 					DiDuration Duration,
@@ -457,6 +462,7 @@ Class Scheduler {
 				FwDay Day,
 				'' Session,
 				'' Distance,
+				EvDistance as RealDistance,
 				'' Medal,
 				date_format(FwTime, '%H:%i') Start,
 				FwDuration Duration,
@@ -492,6 +498,7 @@ Class Scheduler {
 					date_format(F2FSchedule, '%Y-%m-%d') Day,
 					concat(F2FPhase, '-', F2FRound, '-', F2FGroup) Session,
 					F2FPhase Distance,
+	                EvDistance as RealDistance,
 					'' Medal,
 					if(F2FSchedule=0, '', date_format(F2FSchedule, '%H:%i')) Start,
 					0 Duration,
@@ -530,6 +537,7 @@ Class Scheduler {
 					date_format(SesDtStart, '%Y-%m-%d') Day,
 					'-' Session,
 					'-' Distance,
+	                '' as RealDistance,
 					'' Medals,
 					if(SesDtStart=0, '', date_format(SesDtStart, '%H:%i')) Start,
 					0 Duration,
@@ -562,6 +570,7 @@ Class Scheduler {
 				FsScheduledDate Day,
 				GrPhase Session,
 				if(EvWinnerFinalRank>1, 1, EvFinalFirstPhase) Distance,
+				EvDistance as RealDistance,
 				EvMedals as Medal,
 				if(FsScheduledTime=0, '', date_format(FsScheduledTime, '%H:%i')) Start,
 				FsScheduledLen Duration,
@@ -581,7 +590,7 @@ Class Scheduler {
 				inner join Grids on FsMatchNo=GrMatchNo
 				left join FinWarmup on FsEvent=FwEvent and FsTeamEvent=FwTeamEvent and FsTournament=FwTournament and FsScheduledDate=FwDay and FsScheduledTime=FwMatchTime
 				where FsTournament=$this->TourId
-					and FsScheduledDate>0 and (FsScheduledTime>0 or FwTime>0)
+					and FsScheduledDate>0 and (FsScheduledTime>0 or FwTime>0) and FsTarget!=0
 					".($this->SingleDay ? " and FsScheduledDate='$this->SingleDay'" : '')."
 					".($this->FromDay ? " and FsScheduledDate>='$this->FromDay'" : '')."
 				group by if(EvElimType>=3, FsMatchNo, 0), FsTeamEvent, FsScheduledDate, FsScheduledTime, Locations, if(EvWinnerFinalRank>1, EvWinnerFinalRank*100-GrPhase, GrPhase), FwTime
@@ -1265,16 +1274,26 @@ Class Scheduler {
 	 */
 	function getSchedulePDF(&$pdf='') {
 		if(empty($pdf)) {
-			require_once('Common/pdf/IanseoPdf.php');
-			$pdf= new IanseoPdf('Scheduler');
+			require_once('Common/pdf/OrisPDF.inc.php');
+			$pdf= new OrisPDF('C08', 'Schedule');
+			$pdf->EvPhase='Schedule';
 			$pdf->startPageGroup();
-			$pdf->AddPage();
 		} else {
-			$pdf->AddPage();
+			$pdf->EvPhase='Schedule';
 		}
 
+		if($this->SchedVersion) {
+		//	$pdf->dy(-4.5*$FontAdjust);
+		//	$pdf->Cell(0, 0, $this->SchedVersionText, '', 1, 'R' );
+			$pdf->Version=$this->SchedVersion;
+			$pdf->setComment($this->SchedVersionText);
+		}
+		//$pdf->dy(3*$FontAdjust);
+		$pdf->AddPage();
+
+
 		$Start=true;
-		$StartX=$pdf->getX();
+		$StartX=$pdf->GetX();
 		$FontAdjust= 1;
 		$DelayWidth=10;
 		$TimingWidth=20;
@@ -1293,29 +1312,24 @@ Class Scheduler {
 		$descrSize=$pdf->getPageWidth() - 20-$TimeColumns;
 		$RepeatTile='';
 
-		$pdf->ln();
-		$pdf->SetFont($pdf->FontStd, 'B', 20*$FontAdjust);
-		$pdf->Cell(0, 0, $pdf->IsOris ? 'Schedule' : get_text('Schedule', 'Tournament'), '', 1, 'C' );
+		$pdf->SetTopMargin(OrisPDF::topStart-5);
+
+		//$pdf->ln();
+		//$pdf->SetFont($pdf->FontStd, 'B', 20*$FontAdjust);
+		//$pdf->Cell(0, 0, $pdf->IsOris ? 'Schedule' : get_text('Schedule', 'Tournament'), '', 1, 'C' );
 		$pdf->SetFont($pdf->FontStd, '', 8*$FontAdjust);
 
-		if($this->SchedVersion) {
-			$pdf->dy(-4.5*$FontAdjust);
-			$pdf->Cell(0, 0, $this->SchedVersionText, '', 1, 'R' );
-			$pdf->Version=$this->SchedVersion;
-		}
-		$pdf->dy(3*$FontAdjust);
 
 		foreach($this->GetSchedule() as $Date => $Times) {
-			if(!$Start and ($this->DayByDay or !$pdf->SamePage($CellHeight*4))) {
-				$pdf->AddPage();
-			} elseif(!$Start) {
-				$pdf->dy(2*$FontAdjust);
+			if(!$Start) {
+				if($this->DayByDay or in_array($Date, $this->PageBreaks) or !$pdf->SamePage(5, $CellHeight, '', false)) {
+					$pdf->AddPage();
+				} else {
+					$pdf->dy(2*$FontAdjust);
+				}
 			}
 			$Start=false;
 
-			if(in_array($Date, $this->PageBreaks)) {
-				$pdf->AddPage();
-			}
 
 			// DAY
 			$pdf->SetFont($pdf->FontStd,'B',8*$FontAdjust);
@@ -1343,7 +1357,7 @@ Class Scheduler {
 								$Singles[]=$SingleKey;
 							}
 
-							if(!$pdf->SamePage($CellHeight)) {
+							if(!$pdf->SamePage(1, $CellHeight, '', false)) {
 								$pdf->AddPage();
 								// Day...
 								$pdf->SetFont('', 'B');
@@ -1689,7 +1703,7 @@ Class Scheduler {
 
 													if($tmp) {
 														foreach($tmp as $Category => $Opponents) {
-															if(!$pdf->SamePage(count($tmp)*$CellHeight)) {
+															if(!$pdf->SamePage(count($tmp), $CellHeight,'', false)) {
 																$pdf->AddPage();
 															}
 															$pdf->SetX($StartX+$TimeColumns);
@@ -2446,7 +2460,7 @@ Class Scheduler {
 			$tmp=new stdClass();
 			$tmp->Loc='';
 			$tmp->Tg1=1;
-			$tmp->Tg2=9999;
+			$tmp->Tg2=99999;
             $LocationsToPrint = array();
 			$LocationsToPrint[]=$tmp;
 		}
@@ -2928,7 +2942,7 @@ Class Scheduler {
 
 												// Now get the targets with the matches
 												$MyQuery = "SELECT '' as Warmup, FSEvent, FSTeamEvent, GrPhase, FsMatchNo, FsTarget, '' as TargetTo, EvMatchArrowsNo, EvMatchMode, EvMixedTeam, EvTeamEvent, UNIX_TIMESTAMP(FSScheduledDate) as SchDate, DATE_FORMAT(FSScheduledTime,'" . get_text('TimeFmt') . "') as SchTime, EvFinalFirstPhase,
-														@bit:=pow(2, ceil(log2(GrPhase))+1) & EvMatchArrowsNo,
+														@bit:=if(GrPhase=0, 1, pow(2, ceil(log2(GrPhase))+1)) & EvMatchArrowsNo,
 														IF(@bit=0,EvFinEnds,EvElimEnds) AS `ends`,
 														IF(@bit=0,EvFinArrows,EvElimArrows) AS `arrows`,
 														IF(@bit=0,EvFinSO,EvElimSO) AS `so`,
@@ -3156,7 +3170,7 @@ Class Scheduler {
 		die();
 	}
 
-	function FOP() {
+	function FOP($Output=true) {
 
 		$terne=array(
 			array(0,255,0),
@@ -3167,6 +3181,9 @@ Class Scheduler {
 			array(204,255,204),
 // 			array(204,0,255),
 			array(51,204,204),
+			//array(255,51,51),
+			//array(255,0,51),
+			//array(0,255,204),
 		);
 
 		// seed a lot of colors (Macolin rules!
@@ -3190,6 +3207,7 @@ Class Scheduler {
 		}
 
 		$ColorAssignment = array();
+		$MaxColor=count($ColorArray);
 		$ColorIndex=0;
 		$OldSession = '';
 		$OldDist = '';
@@ -3291,7 +3309,9 @@ Class Scheduler {
 											$FOP[$Date]['max']=max($FOP[$Date]['max'], $tmp[0]);
 										}
 
-										$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+										if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+											$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+										}
 									}
 								}
 							} else {
@@ -3381,7 +3401,9 @@ Class Scheduler {
 																$FOP[$Date]['max']=max($FOP[$Date]['max'], $tmp[0]);
 															}
 
-															$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+															if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+																$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+															}
 														}
 													}
 												} else {
@@ -3405,7 +3427,9 @@ Class Scheduler {
 														while($w=safe_fetch($v)) {
 															if(empty($bl) or $k!="{$w->TarDescr} {$w->TarDim} {$w->Distance}") {
 																if($k) {
-																	$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+																	if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+																		$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+																	}
 																}
 
 																$bl=new TargetButt();
@@ -3429,7 +3453,9 @@ Class Scheduler {
 																$bl->Range[1]=$w->TargetNo;
 															} else {
 																// starts another block because there is a "hole" in the target sequence
-																$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+																if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+																	$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+																}
 																$bl=new TargetButt();
 																$bl->Target=get_text($w->TarDescr)." $w->TarDim cm";
 																$bl->Distance=$w->Distance;
@@ -3448,7 +3474,9 @@ Class Scheduler {
 															$k="{$w->TarDescr} {$w->TarDim} {$w->Distance}";
 														}
 														if($k) {
-															$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+															if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+																$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+															}
 														}
 													}
 												}
@@ -3476,7 +3504,8 @@ Class Scheduler {
 														UNIX_TIMESTAMP(FwDay) as SchDate,
 														DATE_FORMAT(FwTime,'" . get_text('TimeFmt') . "') as SchTime,
 														FwDay,
-														FwTime, EvDistance, TarDescr, EvTargetSize, FsEvent
+														FwTime, EvDistance, TarDescr, EvTargetSize, FsEvent,
+														EvMaxTeamPerson, group_concat(distinct if(instr('ABCD', right(FsLetter,1))>0, right(FsLetter,1), '') order by right(FsLetter,1) separator '') as Persons
 													FROM FinWarmup
 													INNER JOIN Events ON FwEvent=EvCode AND FwTeamEvent=EvTeamEvent AND FwTournament=EvTournament
 													left join Targets on EvFinalTargetType=TarId
@@ -3485,7 +3514,7 @@ Class Scheduler {
 														AND FwDay='$Date' and FwTime='$Time'
 														and FwTargets!=''
 													GROUP BY FwEvent
-													ORDER BY FwTargets";
+													ORDER BY FwEvent,FwTargets";
 												$t = safe_r_sql($MyQuery);
 												while($u=safe_fetch($t)) {
 													foreach(explode(',', $u->FwTargets) as $range) {
@@ -3510,24 +3539,28 @@ Class Scheduler {
 														foreach($Ranges as $tmp) {
 															if(count($tmp)>1) {
 																foreach(range($tmp[0], $tmp[1]) as $tgt) {
-																	$rows[$tgt]['d']=$u->EvDistance;
 																	$DistanceMin=min($DistanceMin, $u->EvDistance);
 																	$DistanceMax=max($DistanceMax, $u->EvDistance);
 
-																	$rows[$tgt]['e']=$u->FwEvent;
-																	$rows[$tgt]['w']=1;
-																	$rows[$tgt]['ph']=($u->FwOptions ? $u->FwOptions : ($u->FsEvent ? get_text('Bye') : get_text('WarmUp', 'Tournament')));
-																	$rows[$tgt]['f']=get_text($u->TarDescr)." $u->EvTargetSize cm";
+																	$rows[$u->FwEvent][$tgt]['d']=$u->EvDistance;
+																	$rows[$u->FwEvent][$tgt]['e']=$u->FwEvent;
+																	$rows[$u->FwEvent][$tgt]['w']=1;
+																	$rows[$u->FwEvent][$tgt]['ph']=($u->FwOptions ? $u->FwOptions : ($u->FsEvent ? get_text('Bye') : get_text('WarmUp', 'Tournament')));
+																	$rows[$u->FwEvent][$tgt]['f']=get_text($u->TarDescr)." $u->EvTargetSize cm";
+																	$rows[$u->FwEvent][$tgt]['p']=$u->Persons;
+																	$rows[$u->FwEvent][$tgt]['mp']=$u->EvMaxTeamPerson;
 																}
 															} else {
-																$rows[$tmp[0]]['d']=$u->EvDistance;
 																$DistanceMin=min($DistanceMin, $u->EvDistance);
 																$DistanceMax=max($DistanceMax, $u->EvDistance);
 
-																$rows[$tmp[0]]['e']=$u->FwEvent;
-																$rows[$tmp[0]]['w']=1;
-																$rows[$tmp[0]]['ph']=($u->FwOptions ? $u->FwOptions : ($u->FsEvent ? get_text('Bye') : get_text('WarmUp', 'Tournament')));
-																$rows[$tmp[0]]['f']=get_text($u->TarDescr)." $u->EvTargetSize cm";
+																$rows[$u->FwEvent][$tmp[0]]['d']=$u->EvDistance;
+																$rows[$u->FwEvent][$tmp[0]]['e']=$u->FwEvent;
+																$rows[$u->FwEvent][$tmp[0]]['w']=1;
+																$rows[$u->FwEvent][$tmp[0]]['ph']=($u->FwOptions ? $u->FwOptions : ($u->FsEvent ? get_text('Bye') : get_text('WarmUp', 'Tournament')));
+																$rows[$u->FwEvent][$tmp[0]]['f']=get_text($u->TarDescr)." $u->EvTargetSize cm";
+																$rows[$u->FwEvent][$tmp[0]]['p']=$u->Persons;
+																$rows[$u->FwEvent][$tmp[0]]['mp']=$u->EvMaxTeamPerson;
 															}
 														}
 													}
@@ -3535,11 +3568,11 @@ Class Scheduler {
 
 												// Now get the targets with the matches
 												$MyQuery = "SELECT '' as Warmup, FSEvent, FSTeamEvent, GrPhase, FsMatchNo, FsTarget, '' as TargetTo, EvMatchArrowsNo, EvMatchMode, EvMixedTeam, EvTeamEvent, UNIX_TIMESTAMP(FSScheduledDate) as SchDate, DATE_FORMAT(FSScheduledTime,'" . get_text('TimeFmt') . "') as SchTime, EvFinalFirstPhase,
-														@bit:=pow(2, ceil(log2(GrPhase))+1) & EvMatchArrowsNo,
+														@bit:=if(GrPhase=0, 1, pow(2, ceil(log2(GrPhase))+1)) & EvMatchArrowsNo,
 														IF(@bit=0,EvFinEnds,EvElimEnds) AS `ends`,
 														IF(@bit=0,EvFinArrows,EvElimArrows) AS `arrows`,
 														IF(@bit=0,EvFinSO,EvElimSO) AS `so`,
-														if(EvTeamEvent=1, EvMaxTeamPerson, if(right(FsLetter,1)='A' or right(FsLetter,1)='B', 2, 1)) as Persons,
+														EvMaxTeamPerson, group_concat(distinct if(instr('ABCD', right(FsLetter,1))>0, right(FsLetter,1), '') order by right(FsLetter,1) separator '') as Persons,
 														FSScheduledDate,
 														FSScheduledTime, EvDistance, TarDescr, EvTargetSize,
 														EvWinnerFinalRank
@@ -3552,14 +3585,19 @@ Class Scheduler {
 														AND FSScheduledDate='$Date' and FSScheduledTime='$Time'
 														and FsTarget!=''
 														AND GrPhase<=greatest(ifnull(PhId,0), ifnull(PhLevel,0), EvFinalFirstPhase)
+														group by FsEvent, FsTarget, GrPhase
 													".($this->TargetsInvolved ? ' HAVING '.sprintf($this->TargetsInvolved, 'FsTarget+0') : '')."
-														ORDER BY Warmup ASC, FSTarget ASC, FSMatchNo ASC";
+														ORDER BY Warmup ASC, FsEvent, FSTarget ASC, FSMatchNo ASC";
 												$t = safe_r_sql($MyQuery);
 												while($u=safe_fetch($t)) {
-													if(!in_array("$u->ends ends of $u->arrows arrows", $FOP[$Date]['times'][$Time]['text'])) {
-														$FOP[$Date]['times'][$Time]['text'][]="$u->ends ends of $u->arrows arrows";
+													$EndsArrows=get_text('EventDetailsShort', 'Tournament', array($u->ends, $u->arrows));
+													if(!in_array($EndsArrows, $FOP[$Date]['times'][$Time]['text'])) {
+														$FOP[$Date]['times'][$Time]['text'][]=$EndsArrows;
 													}
 													if(empty($ColorAssignment["{$u->EvDistance}-{$u->FSEvent}"])) {
+														if(!isset($ColorArray[$ColorIndex])) {
+															$ColorArray[$ColorIndex]=$ColorArray[$ColorIndex%$MaxColor];
+														}
 														$ColorAssignment["{$u->EvDistance}-{$u->FSEvent}"]=$ColorArray[$ColorIndex];
 														$ColorIndex++;
 													}
@@ -3569,80 +3607,105 @@ Class Scheduler {
 													}
 */
 													$u->FsTarget=intval($u->FsTarget);
-													$rows[$u->FsTarget]['d']=$u->EvDistance;
 													$DistanceMin=min($DistanceMin, $u->EvDistance);
 													$DistanceMax=max($DistanceMax, $u->EvDistance);
 
-													$rows[$u->FsTarget]['e']=$u->FSEvent;
-													$rows[$u->FsTarget]['c']=$ColorAssignment["{$u->EvDistance}-{$u->FSEvent}"];
-													$rows[$u->FsTarget]['f']=get_text($u->TarDescr)." $u->EvTargetSize cm";
-													$rows[$u->FsTarget]['p']=$u->Persons;
-													$rows[$u->FsTarget]['w']=0;
+													$rows[$u->FSEvent][$u->FsTarget]['d']=$u->EvDistance;
+													$rows[$u->FSEvent][$u->FsTarget]['e']=$u->FSEvent;
+													$rows[$u->FSEvent][$u->FsTarget]['c']=$ColorAssignment["{$u->EvDistance}-{$u->FSEvent}"];
+													$rows[$u->FSEvent][$u->FsTarget]['f']=get_text($u->TarDescr)." $u->EvTargetSize cm";
+													$rows[$u->FSEvent][$u->FsTarget]['p']=$u->Persons;
+													$rows[$u->FSEvent][$u->FsTarget]['mp']=$u->EvMaxTeamPerson;
+													$rows[$u->FSEvent][$u->FsTarget]['w']=0;
 													if($u->GrPhase==0) {
-														$rows[$u->FsTarget]['ph']=$u->EvWinnerFinalRank==1 ? get_text('0_Phase') : ($u->EvWinnerFinalRank) . ' vs ' . ($u->EvWinnerFinalRank+1);
+														$rows[$u->FSEvent][$u->FsTarget]['ph']=$u->EvWinnerFinalRank==1 ? get_text('0_Phase') : ($u->EvWinnerFinalRank) . ' vs ' . ($u->EvWinnerFinalRank+1);
 													} elseif($u->GrPhase==1) {
-														$rows[$u->FsTarget]['ph']=$u->EvWinnerFinalRank==1 ? get_text('1_Phase') : ($u->EvWinnerFinalRank+2) . ' vs ' . ($u->EvWinnerFinalRank+3);
+														$rows[$u->FSEvent][$u->FsTarget]['ph']=$u->EvWinnerFinalRank==1 ? get_text('1_Phase') : ($u->EvWinnerFinalRank+2) . ' vs ' . ($u->EvWinnerFinalRank+3);
 													} else {
-														$rows[$u->FsTarget]['ph']=get_text(namePhase($u->EvFinalFirstPhase, $u->GrPhase) . '_Phase');
+														$rows[$u->FSEvent][$u->FsTarget]['ph']=get_text(namePhase($u->EvFinalFirstPhase, $u->GrPhase) . '_Phase');
 													}
 												}
 
-												// $rows is now containing all targets
-												ksort($rows);
 												$k='';
-												foreach($rows as $tgt => $def) {
-													if(empty($bl) or $k!="{$def['d']}-{$def['e']}-{$def['w']}-{$def['ph']}") {
-														if($k) {
+												foreach($rows as $Events => $tgts) {
+													// $rows is now containing all targets
+													ksort($tgts);
+													foreach($tgts as $tgt => $def) {
+														if(empty($bl) or $k!="{$def['d']}-{$def['e']}-{$def['w']}-{$def['ph']}") {
+															if($k) {
+																if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+																	$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+																}
+															}
+
+															$bl=new TargetButt();
+															$bl->Target=$def['f'];
+															$bl->Event=$def['e'];
+															$bl->Distance=$def['d'];
+															$bl->Line=0;
+															$DistanceMin=min($DistanceMin, $def['d']);
+															$DistanceMax=max($DistanceMax, $def['d']);
+
+															$bl->Range=array($tgt, $tgt);
+															if(!empty($def['c'])) $bl->Colour=$def['c'];
+															if(empty($def['p'])) {
+																$bl->ArcTarget=$def['mp'];
+															} else {
+																$bl->ArcTarget=strlen($def['p']);
+																if(strlen($def['p'])<4 and strstr($def['p'],'C')) {
+																	$bl->Line=1;
+																}
+															}
+															if(!empty($def['ph'])) $bl->Phase=$def['ph'];
+
+															if(!$FOP[$Date]['times'][$Time]['min']) $FOP[$Date]['times'][$Time]['min']=$tgt;
+															if(!$FOP[$Date]['min']) $FOP[$Date]['min']=$tgt;
+														} elseif($tgt == $bl->Range[1]+1) {
+															// sequence is OK
+															$bl->Range[1]=$tgt;
+														} else {
+															// starts another block because there is a "hole" in the target sequence
+															if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+																$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+															}
+															$bl=new TargetButt();
+															$bl->Target=$def['f'];
+															$bl->Event=$def['e'];
+															$bl->Distance=$def['d'];
+															$bl->Line=0;
+															$DistanceMin=min($DistanceMin, $def['d']);
+															$DistanceMax=max($DistanceMax, $def['d']);
+
+															$bl->Range=array($tgt, $tgt);
+															if(!empty($def['c'])) $bl->Colour=$def['c'];
+															if(empty($def['p'])) {
+																$bl->ArcTarget=$def['mp'];
+															} else {
+																$bl->ArcTarget=strlen($def['p']);
+																if(strlen($def['p'])<4 and strstr($def['p'],'C')) {
+																	$bl->Line=1;
+																}
+															}
+															if(!empty($def['ph'])) $bl->Phase=$def['ph'];
+														}
+														$FOP[$Date]['times'][$Time]['min']=min($FOP[$Date]['times'][$Time]['min'], $tgt);
+														$FOP[$Date]['min']=min($FOP[$Date]['min'], $tgt);
+														$FOP[$Date]['times'][$Time]['max']=max($FOP[$Date]['times'][$Time]['max'], $tgt);
+														$FOP[$Date]['max']=max($FOP[$Date]['max'], $tgt);
+
+														$k="{$def['d']}-{$def['e']}-{$def['w']}-{$def['ph']}";
+													}
+													if($k) {
+														if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
 															$FOP[$Date]['times'][$Time]['targets'][]=$bl;
 														}
-
-														$bl=new TargetButt();
-														$bl->Target=$def['f'];
-														$bl->Event=$def['e'];
-														$bl->Distance=$def['d'];
-														$DistanceMin=min($DistanceMin, $def['d']);
-														$DistanceMax=max($DistanceMax, $def['d']);
-
-														$bl->Range=array($tgt, $tgt);
-														if(!empty($def['c'])) $bl->Colour=$def['c'];
-														if(!empty($def['p'])) $bl->ArcTarget=$def['p'];
-														if(!empty($def['ph'])) $bl->Phase=$def['ph'];
-
-														if(!$FOP[$Date]['times'][$Time]['min']) $FOP[$Date]['times'][$Time]['min']=$tgt;
-														if(!$FOP[$Date]['min']) $FOP[$Date]['min']=$tgt;
-													} elseif($tgt == $bl->Range[1]+1) {
-														// sequence is OK
-														$bl->Range[1]=$tgt;
-													} else {
-														// starts another block because there is a "hole" in the target sequence
-														$FOP[$Date]['times'][$Time]['targets'][]=$bl;
-														$bl=new TargetButt();
-														$bl->Target=$def['f'];
-														$bl->Event=$def['e'];
-														$bl->Distance=$def['d'];
-														$DistanceMin=min($DistanceMin, $def['d']);
-														$DistanceMax=max($DistanceMax, $def['d']);
-
-														$bl->Range=array($tgt, $tgt);
-														if(!empty($def['c'])) $bl->Colour=$def['c'];
-														if(!empty($def['p'])) $bl->ArcTarget=$def['p'];
-														if(!empty($def['ph'])) $bl->Phase=$def['ph'];
 													}
-													$FOP[$Date]['times'][$Time]['min']=min($FOP[$Date]['times'][$Time]['min'], $tgt);
-													$FOP[$Date]['min']=min($FOP[$Date]['min'], $tgt);
-													$FOP[$Date]['times'][$Time]['max']=max($FOP[$Date]['times'][$Time]['max'], $tgt);
-													$FOP[$Date]['max']=max($FOP[$Date]['max'], $tgt);
-
-													$k="{$def['d']}-{$def['e']}-{$def['w']}-{$def['ph']}";
-												}
-												if($k) {
-													$FOP[$Date]['times'][$Time]['targets'][]=$bl;
 												}
 											}
 											break;
 										case 'R':
 
-											continue; // temporary put there...
+											break; // temporary put there...
 
 											$lnk=$Item->Text.': '.$Item->Events;
 											$row=array('', '', '', '', htmlspecialchars(strip_tags($lnk)));
@@ -3756,7 +3819,9 @@ Class Scheduler {
 																$FOP[$Date]['max']=max($FOP[$Date]['max'], $tmp[0]);
 															}
 
-															$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+															if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+																$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+															}
 														}
 
 													}
@@ -3779,7 +3844,9 @@ Class Scheduler {
 														while($w=safe_fetch($v)) {
 															if(empty($bl) or $k!="{$w->TarDescr} {$w->TarDim} {$w->Distance}") {
 																if($k) {
-																	$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+																	if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+																		$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+																	}
 																}
 
 																$bl=new TargetButt();
@@ -3799,7 +3866,9 @@ Class Scheduler {
 																$bl->Range[1]=$w->TargetNo;
 															} else {
 																// starts another block because there is a "hole" in the target sequence
-																$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+																if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+																	$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+																}
 																$bl=new TargetButt();
 																$bl->Target=get_text($w->TarDescr)." $w->TarDim cm";
 																$bl->Distance=$w->Distance;
@@ -3818,7 +3887,9 @@ Class Scheduler {
 															$k="{$w->TarDescr} {$w->TarDim} {$w->Distance}";
 														}
 														if($k) {
-															$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+															if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+																$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+															}
 														}
 													}
 												}
@@ -3833,16 +3904,17 @@ Class Scheduler {
 														UNIX_TIMESTAMP(FwDay) as SchDate,
 														DATE_FORMAT(FwTime,'" . get_text('TimeFmt') . "') as SchTime,
 														FwDay,
-														FwTime, EvDistance, TarDescr, EvTargetSize
+														FwTime, EvDistance, TarDescr, EvTargetSize, EvMaxTeamPerson
 													FROM FinWarmup
 													INNER JOIN Events ON FwEvent=EvCode AND FwTeamEvent=EvTeamEvent AND FwTournament=EvTournament
 													left join Targets on EvFinalTargetType=TarId
 													WHERE FwTournament=" . StrSafe_DB($this->TourId) . "
 															AND date_format(FwDay, '%Y-%m-%d')='$Date' and FwTime='$Time'
 															and FwTargets!=''
-															ORDER BY FwTargets";
+															ORDER BY FwEvent, FwTargets";
 												$t = safe_r_sql($MyQuery);
 
+												$RowTgts=array();
 												while($u=safe_fetch($t)) {
 													foreach(explode(',', $u->FwTargets) as $range) {
 														$Ranges=array();
@@ -3866,79 +3938,99 @@ Class Scheduler {
 														foreach($Ranges as $tmp) {
 															if(count($tmp)>1) {
 																foreach(range($tmp[0], $tmp[1]) as $tgt) {
-																	$rows[$tgt]['d']=$u->EvDistance;
 																	$DistanceMin=min($DistanceMin, $u->EvDistance);
 																	$DistanceMax=max($DistanceMax, $u->EvDistance);
 
-																	$rows[$tgt]['e']=$u->FwEvent;
-																	$rows[$tgt]['f']=get_text($u->TarDescr)." $u->EvTargetSize cm";
-	// 																$rows[$tgt]['ph']=($u->FwOptions ? substr($u->FwOptions, 0, 30) : get_text('WarmUp', 'Tournament'));
-																	$rows[$tgt]['ph']=get_text('WarmUp', 'Tournament');
+																	$rows[$u->FwEvent][$tgt]['d']=$u->EvDistance;
+																	$rows[$u->FwEvent][$tgt]['e']=$u->FwEvent;
+																	$rows[$u->FwEvent][$tgt]['f']=get_text($u->TarDescr)." $u->EvTargetSize cm";
+																	$rows[$u->FwEvent][$tgt]['ph']=get_text('WarmUp', 'Tournament');
+																	$rows[$u->FwEvent][$tgt]['mp']=$u->EvMaxTeamPerson;
+																	if(empty($RowTgts[$tgt])) {
+																		$rows[$u->FwEvent][$tgt]['l']=0;
+																	} else {
+																		$rows[$u->FwEvent][$tgt]['l']=1;
+																	}
+																	$RowTgts[$tgt]=1;
 																}
 															} else {
-																$rows[$tmp[0]]['d']=$u->EvDistance;
 																$DistanceMin=min($DistanceMin, $u->EvDistance);
 																$DistanceMax=max($DistanceMax, $u->EvDistance);
 
-																$rows[$tmp[0]]['e']=$u->FwEvent;
-																$rows[$tmp[0]]['f']=get_text($u->TarDescr)." $u->EvTargetSize cm";
-	// 															$rows[$tmp[0]]['ph']=($u->FwOptions ? substr($u->FwOptions, 0, 30) : get_text('WarmUp', 'Tournament'));
-																$rows[$tmp[0]]['ph']=get_text('WarmUp', 'Tournament');
+																$rows[$u->FwEvent][$tmp[0]]['d']=$u->EvDistance;
+																$rows[$u->FwEvent][$tmp[0]]['e']=$u->FwEvent;
+																$rows[$u->FwEvent][$tmp[0]]['f']=get_text($u->TarDescr)." $u->EvTargetSize cm";
+																$rows[$u->FwEvent][$tmp[0]]['ph']=get_text('WarmUp', 'Tournament');
+																$rows[$u->FwEvent][$tmp[0]]['mp']=$u->EvMaxTeamPerson;
+																if(empty($RowTgts[$tmp[0]])) {
+																	$rows[$u->FwEvent][$tmp[0]]['l']=0;
+																} else {
+																	$rows[$u->FwEvent][$tmp[0]]['l']=1;
+																}
+																$RowTgts[$tmp[0]]=1;
 															}
 														}
 													}
 												}
 
 
-												ksort($rows);
 												$k='';
-												foreach($rows as $tgt => $def) {
-													if(empty($bl) or $k!="{$def['d']}-{$def['e']}") {
-														if($k) {
+												foreach($rows as $Events => $tgts) {
+													ksort($tgts);
+													foreach($tgts as $tgt => $def) {
+														if(empty($bl) or $k!="{$def['d']}-{$def['e']}") {
+															if($k) {
+																if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+																	$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+																}
+															}
+
+															$bl=new TargetButt();
+															$bl->Target=$def['f'];
+															$bl->Event=$def['e'];
+															$bl->Distance=$def['d'];
+															$DistanceMin=min($DistanceMin, $def['d']);
+															$DistanceMax=max($DistanceMax, $def['d']);
+
+															$bl->Range=array($tgt, $tgt);
+															if(!empty($def['c'])) $bl->Colour=$def['c'];
+															if(!empty($def['ph'])) $bl->Phase=$def['ph'];
+															if(!empty($def['l'])) $bl->Line=$def['l'];
+
+															if(!$FOP[$Date]['times'][$Time]['min']) $FOP[$Date]['times'][$Time]['min']=$tgt;
+															if(!$FOP[$Date]['min']) $FOP[$Date]['min']=$tgt;
+														} elseif($tgt == $bl->Range[1]+1) {
+															// sequence is OK
+															$bl->Range[1]=$tgt;
+														} else {
+															// starts another block because there is a "hole" in the target sequence
+															if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
+																$FOP[$Date]['times'][$Time]['targets'][]=$bl;
+															}
+															$bl=new TargetButt();
+															$bl->Target=$def['f'];
+															$bl->Event=$def['e'];
+															$bl->Distance=$def['d'];
+															$DistanceMin=min($DistanceMin, $def['d']);
+															$DistanceMax=max($DistanceMax, $def['d']);
+
+															$bl->Range=array($tgt, $tgt);
+															if(!empty($def['c'])) $bl->Colour=$def['c'];
+															if(!empty($def['ph'])) $bl->Phase=$def['ph'];
+															if(!empty($def['l'])) $bl->Line=$def['l'];
+														}
+														$FOP[$Date]['times'][$Time]['min']=min($FOP[$Date]['times'][$Time]['min'], $tgt);
+														$FOP[$Date]['min']=min($FOP[$Date]['min'], $tgt);
+														$FOP[$Date]['times'][$Time]['max']=max($FOP[$Date]['times'][$Time]['max'], $tgt);
+														$FOP[$Date]['max']=max($FOP[$Date]['max'], $tgt);
+
+														$k="{$def['d']}-{$def['e']}";
+													}
+													if($k) {
+														if(!in_array($bl, $FOP[$Date]['times'][$Time]['targets'])) {
 															$FOP[$Date]['times'][$Time]['targets'][]=$bl;
 														}
-
-														$bl=new TargetButt();
-														$bl->Target=$def['f'];
-														$bl->Event=$def['e'];
-														$bl->Distance=$def['d'];
-														$DistanceMin=min($DistanceMin, $def['d']);
-														$DistanceMax=max($DistanceMax, $def['d']);
-
-														$bl->Range=array($tgt, $tgt);
-														if(!empty($def['c'])) $bl->Colour=$def['c'];
-														if(!empty($def['p'])) $bl->ArcTarget=$def['p'];
-														if(!empty($def['ph'])) $bl->Phase=$def['ph'];
-
-														if(!$FOP[$Date]['times'][$Time]['min']) $FOP[$Date]['times'][$Time]['min']=$tgt;
-														if(!$FOP[$Date]['min']) $FOP[$Date]['min']=$tgt;
-													} elseif($tgt == $bl->Range[1]+1) {
-														// sequence is OK
-														$bl->Range[1]=$tgt;
-													} else {
-														// starts another block because there is a "hole" in the target sequence
-														$FOP[$Date]['times'][$Time]['targets'][]=$bl;
-														$bl=new TargetButt();
-														$bl->Target=$def['f'];
-														$bl->Event=$def['e'];
-														$bl->Distance=$def['d'];
-														$DistanceMin=min($DistanceMin, $def['d']);
-														$DistanceMax=max($DistanceMax, $def['d']);
-
-														$bl->Range=array($tgt, $tgt);
-														if(!empty($def['c'])) $bl->Colour=$def['c'];
-														if(!empty($def['p'])) $bl->ArcTarget=$def['p'];
-														if(!empty($def['ph'])) $bl->Phase=$def['ph'];
 													}
-													$FOP[$Date]['times'][$Time]['min']=min($FOP[$Date]['times'][$Time]['min'], $tgt);
-													$FOP[$Date]['min']=min($FOP[$Date]['min'], $tgt);
-													$FOP[$Date]['times'][$Time]['max']=max($FOP[$Date]['times'][$Time]['max'], $tgt);
-													$FOP[$Date]['max']=max($FOP[$Date]['max'], $tgt);
-
-													$k="{$def['d']}-{$def['e']}";
-												}
-												if($k) {
-													$FOP[$Date]['times'][$Time]['targets'][]=$bl;
 												}
 												break;
 										}
@@ -3956,7 +4048,7 @@ Class Scheduler {
 		// Starts the real job...
 		include_once('Common/pdf/ResultPDF.inc.php');
 
-		error_reporting(E_ALL);
+		//error_reporting(E_ALL);
 
 		$FirstPage=true;
 		$DistHeight=4;
@@ -4093,8 +4185,12 @@ Class Scheduler {
 					$Offset=min(8, max(0, ((intval($DistanceMax)-intval($DistanceMin))/5) - (intval($Range->Distance)/5)));
 					$MaxOffset=max($MaxOffset, $Offset);
 
+					if(!empty($Range->Line)) {
+						$Y+=$DistHeight + $Offset + $EventHeight + ($Range->Phase ? $PhaseHeight : 0) + $ArcTgtHeight+2;
+					}
+
 					// prints the distance block
-					$pdf->setXY($RangeStart, $OrgY);
+					$pdf->setXY($RangeStart, $Y);
 					$pdf->Cell($RangeWidth, $DistHeight + $Offset, $Range->Distance, '1', 0, 'C');
 					$Y+=$DistHeight + $Offset;
 
@@ -4115,18 +4211,25 @@ Class Scheduler {
 						$Y+=$PhaseHeight;
 					}
 
-					if($Range->ArcTarget and $Range->ArcTarget<4) {
+					if($Range->ArcTarget and $Range->ArcTarget<=4) {
 						foreach(range($Range->Range[0], $Range->Range[1]) as $tgt) {
 							$colX=$tmp['left']+1 + $TimeWidth + $TgtWidth*($tgt-$Blocks['min']) ;
 							$pdf->SetFillColor(255);
 							$pdf->Rect($colX, $Y, $TgtWidth, $ArcTgtHeight, "DF");
 							$pdf->SetFillColor(127);
-							if($Range->ArcTarget & 1) {
-								$pdf->Rect($colX + 2*$larCell, $Y + 0.5, $larCell, 1, "DF");
-							}
-							if($Range->ArcTarget & 2) {
-								$pdf->Rect($colX + 1*$larCell, $Y + 0.5, $larCell, 1, "DF");
-								$pdf->Rect($colX + 3*$larCell, $Y + 0.5, $larCell, 1, "DF");
+							if($Range->ArcTarget & 4) {
+								$pdf->Rect($colX + 1*$larCell - 0.5, $Y + 0.5, $larCell, 1, "DF");
+								$pdf->Rect($colX + 2*$larCell - 0.5, $Y + 0.5, $larCell, 1, "DF");
+								$pdf->Rect($colX + 3*$larCell - 0.5, $Y + 0.5, $larCell, 1, "DF");
+								$pdf->Rect($colX + 4*$larCell - 0.5, $Y + 0.5, $larCell, 1, "DF");
+							} else {
+								if($Range->ArcTarget & 1) {
+									$pdf->Rect($colX + 2*$larCell, $Y + 0.5, $larCell, 1, "DF");
+								}
+								if($Range->ArcTarget & 2) {
+									$pdf->Rect($colX + 1*$larCell, $Y + 0.5, $larCell, 1, "DF");
+									$pdf->Rect($colX + 3*$larCell, $Y + 0.5, $larCell, 1, "DF");
+								}
 							}
 						}
 						$Y+=$ArcTgtHeight;
@@ -4185,8 +4288,13 @@ Class Scheduler {
 
 			}
 		}
-		if(!empty($pdf)) {
+		if(empty($pdf)) {
+			$pdf = new ResultPDF(get_text('FopSetup'));
+		}
+		if($Output) {
 			$pdf->Output();
+		} else {
+			return $pdf;
 		}
 		die();
 	}
@@ -4470,4 +4578,5 @@ Class TargetButt {
 	var $Distance='';
 	var $ArcTarget=0;
 	var $Phase='';
+	var $Line=0;
 }

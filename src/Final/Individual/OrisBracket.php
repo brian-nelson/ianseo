@@ -22,10 +22,14 @@ $PdfData=getBracketsIndividual($Events,
 	true,
 	true);
 
-if(!isset($isCompleteResultBook))
+if(!isset($isCompleteResultBook)) {
 	$pdf = new OrisBracketPDF('C75A', $PdfData->Description);
-else
-	$pdf->setOrisCode('', $PdfData->Description);
+} else {
+	$pdf->SetAutoPageBreak(false);
+	//$pdf->setOrisCode('', $PdfData->Description);
+}
+
+$pdf->OrisPages = isset($_REQUEST['OrisAB']) ? $_REQUEST['OrisAB'] : 'AB';
 
 require_once(PdfChunkLoader('OrisBracketIndividual.inc.php'));
 

@@ -37,7 +37,7 @@
 					TeRankFinal={$rank},
 					TeTimeStampFinal='{$date}'
 				WHERE
-					TeTournament={$this->tournament} AND TeEvent='{$event}' AND TeCoId={$id} AND TeSubTeam='{$subteam}'
+					TeTournament={$this->tournament} AND TeEvent='{$event}' AND TeCoId={$id} AND TeSubTeam='{$subteam}' and TeIrmTypeFinal<15
 			";
 			//print $q.'<br><br>';
 			$r=safe_w_sql($q);
@@ -96,14 +96,10 @@
 
 		// reset delle RankFinal della fase x le persone di quell'evento e quella fase
 			$q="
-				UPDATE
-					Teams
-					INNER JOIN
-						TeamFinals
-					ON TeCoId=TfTeam AND TeSubTeam=TfSubTeam AND TeTournament=TfTournament AND TeEvent=TfEvent AND TeFinEvent=1
-					INNER JOIN
-						Grids
-					ON TfMatchNo=GrMatchNo AND GrPhase={$realphase}
+				UPDATE Teams
+				INNER JOIN TeamFinals ON TeCoId=TfTeam AND TeSubTeam=TfSubTeam AND TeTournament=TfTournament AND TeEvent=TfEvent AND TeFinEvent=1
+			    inner join IrmTypes on IrmId=TeIrmTypeFinal and IrmShowRank=1
+				INNER JOIN Grids ON TfMatchNo=GrMatchNo AND GrPhase={$realphase}
 				SET
 					TeRankFinal=0,
 					TeTimeStampFinal='{$date}'
@@ -135,8 +131,7 @@
 					left join (select group_concat(DISTINCT concat(EvCode, '@', EvFinalFirstPhase)) SubCodes, EvCodeParent SubMainCode, EvFinalFirstPhase SubFirstPhase from Events where EvCodeParent!='' and EvTeamEvent=1 and EvTournament={$this->tournament} group by EvCodeParent, EvFinalFirstPhase) Secondary on SubMainCode=EvCode and SubFirstPhase=GrPhase/2
 				WHERE
 					tf.TfTournament={$this->tournament} AND tf.TfEvent='{$event}' AND GrPhase={$realphase}
-					AND (tf.TfNotes='DNS' or ((tf.TfWinLose=1 OR tf2.TfWinLose=1)
-					AND (IF(EvMatchMode=0,tf.TfScore,tf.TfSetScore) < IF(EvMatchMode=0,tf2.TfScore,tf2.TfSetScore) OR (IF(EvMatchMode=0,tf.TfScore,tf.TfSetScore)=IF(EvMatchMode=0,tf2.TfScore,tf2.TfSetScore) AND tf.TfTie < tf2.TfTie))))
+					AND (tf2.TfWinLose=1 or (tf.TfIrmType>0 and tf.TfIrmType<20 and tf2.TfIrmType>0 and tf2.TfIrmType<20))
 				ORDER BY
 					IF(EvMatchMode=0,tf.TfScore,tf.TfSetScore) DESC,tf.TfScore DESC
 			";
@@ -281,42 +276,42 @@
 				}
 
 
-				if($FirstCycle) {
-					// get all ranked 0 with next matches already won...
-					$q="
-					SELECT distinct GrPhase
-
-					FROM TeamFinals AS tf
-					INNER JOIN Teams on TeCoId=tf.TfTeam and TeSubTeam=tf.TfSubTeam and TeTournament=tf.TfTournament and TeEvent=tf.TfEvent and TeRankFinal=0 and TeFinEvent=1
-					INNER JOIN Grids
-						ON tf.TfMatchNo=GrMatchNo
-					INNER JOIN TeamFinals AS tf2
-						ON tf.TfEvent=tf2.TfEvent AND tf.TfMatchNo=IF((tf.TfMatchNo % 2)=0,tf2.TfMatchNo-1,tf2.TfMatchNo+1) AND tf.TfTournament=tf2.TfTournament
-					INNER JOIN Events
-						ON tf.TfEvent=EvCode AND tf.TfTournament=EvTournament AND EvTeamEvent=1
-					LEFT JOIN
-						(select nm1.TfWinLose+nm2.TfWinLose Winner, nm1.TfMatchNo, nm1.TfEvent
-							from TeamFinals nm1
-							inner join TeamFinals nm2 on nm1.TfTournament=nm2.TfTournament and nm1.TfEvent=nm2.TfEvent and nm1.TfMatchNo=IF((nm1.TfMatchNo % 2)=0,nm2.TfMatchNo-1,nm2.TfMatchNo+1)
-							where nm1.TfTournament={$this->tournament} AND nm1.TfEvent='{$event}') NextMatch
-						on NextMatch.TfMatchNo=floor(tf.TfMatchNo/2) and NextMatch.TfEvent=tf.TfEvent
-
-					WHERE
-						tf.TfTournament={$this->tournament} AND tf.TfEvent='{$event}'
-					AND (
-						IF(EvMatchMode=0,tf.TfScore,tf.TfSetScore) < IF(EvMatchMode=0,tf2.TfScore,tf2.TfSetScore)
-						OR (IF(EvMatchMode=0,tf.TfScore,tf.TfSetScore)=IF(EvMatchMode=0,tf2.TfScore,tf2.TfSetScore) AND tf.TfTie < tf2.TfTie)
-						OR (tf.TfWinLose+tf2.TfWinLose=0 and NextMatch.Winner>0)
-						)
-					ORDER BY
-					IF(EvMatchMode=0,tf.TfScore,tf.TfSetScore) DESC,tf.TfScore DESC
-					";
-					$t=safe_r_sql($q);
-					while($u=safe_fetch($t)) {
-						//echo "<div>$event, $u->GrPhase</div>";
-						$this->calcFromPhase($event, $u->GrPhase, false);
-					}
-				}
+				//if($FirstCycle) {
+				//	// get all ranked 0 with next matches already won...
+				//	$q="
+				//	SELECT distinct GrPhase
+				//
+				//	FROM TeamFinals AS tf
+				//	INNER JOIN Teams on TeCoId=tf.TfTeam and TeSubTeam=tf.TfSubTeam and TeTournament=tf.TfTournament and TeEvent=tf.TfEvent and TeRankFinal=0 and TeFinEvent=1
+				//	INNER JOIN Grids
+				//		ON tf.TfMatchNo=GrMatchNo
+				//	INNER JOIN TeamFinals AS tf2
+				//		ON tf.TfEvent=tf2.TfEvent AND tf.TfMatchNo=IF((tf.TfMatchNo % 2)=0,tf2.TfMatchNo-1,tf2.TfMatchNo+1) AND tf.TfTournament=tf2.TfTournament
+				//	INNER JOIN Events
+				//		ON tf.TfEvent=EvCode AND tf.TfTournament=EvTournament AND EvTeamEvent=1
+				//	LEFT JOIN
+				//		(select nm1.TfWinLose+nm2.TfWinLose Winner, nm1.TfMatchNo, nm1.TfEvent
+				//			from TeamFinals nm1
+				//			inner join TeamFinals nm2 on nm1.TfTournament=nm2.TfTournament and nm1.TfEvent=nm2.TfEvent and nm1.TfMatchNo=IF((nm1.TfMatchNo % 2)=0,nm2.TfMatchNo-1,nm2.TfMatchNo+1)
+				//			where nm1.TfTournament={$this->tournament} AND nm1.TfEvent='{$event}') NextMatch
+				//		on NextMatch.TfMatchNo=floor(tf.TfMatchNo/2) and NextMatch.TfEvent=tf.TfEvent
+				//
+				//	WHERE
+				//		tf.TfTournament={$this->tournament} AND tf.TfEvent='{$event}'
+				//	AND (
+				//		IF(EvMatchMode=0,tf.TfScore,tf.TfSetScore) < IF(EvMatchMode=0,tf2.TfScore,tf2.TfSetScore)
+				//		OR (IF(EvMatchMode=0,tf.TfScore,tf.TfSetScore)=IF(EvMatchMode=0,tf2.TfScore,tf2.TfSetScore) AND tf.TfTie < tf2.TfTie)
+				//		OR (tf.TfWinLose+tf2.TfWinLose=0 and NextMatch.Winner>0)
+				//		)
+				//	ORDER BY GrPhase desc,
+				//	IF(EvMatchMode=0,tf.TfScore,tf.TfSetScore) DESC,tf.TfScore DESC
+				//	";
+				//	$t=safe_r_sql($q);
+				//	while($u=safe_fetch($t)) {
+				//		//echo "<div>$event, $u->GrPhase</div>";
+				//		$this->calcFromPhase($event, $u->GrPhase, false);
+				//	}
+				//}
 			} else {
 				return false;
 			}

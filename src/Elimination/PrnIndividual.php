@@ -9,7 +9,31 @@ require_once('Common/pdf/PdfChunkLoader.php');
 if (!isset($_SESSION['TourId']) && isset($_REQUEST['TourId'])) CreateTourSession($_REQUEST['TourId']);
 checkACL(AclEliminations, AclReadOnly);
 
-$PdfData=getEliminationIndividual();
+if(!empty($_REQUEST['doStartlist'])) {
+    CD_redirect('PrnSession.php'.go_get());
+    die();
+}
+
+if(!empty($_REQUEST['isORIS'])) {
+    CD_redirect('OrisIndividual.php'.go_get());
+    die();
+}
+
+$events = array();
+$isPool = false;
+if(isset($_REQUEST["EventCode"])) {
+    if(is_array($_REQUEST["EventCode"])) {
+        $events = $_REQUEST["EventCode"];
+    } else {
+        $events[] = $_REQUEST["EventCode"];
+    }
+}
+
+if(!empty($_REQUEST["isPool"])) {
+    $isPool = true;
+}
+
+$PdfData=getEliminationIndividual($events, false, $isPool);
 
 if(!isset($isCompleteResultBook)) $pdf = new ResultPDF($PdfData->Description);
 

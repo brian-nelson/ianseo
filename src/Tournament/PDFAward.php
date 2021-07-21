@@ -32,7 +32,7 @@ if(getModuleParameter('Awards', 'SecondLanguage')) {
     }
 }
 
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 
 $idList=array();
 //Lista Premiazione in Ordine
@@ -85,7 +85,7 @@ while($rowOrder=safe_fetch($rsOrder)) {
 			$sql = "SELECT AwAwarderGrouping, EnId, concat(EnDivision,EnClass) EvCode, concat(EnDivision,EnClass) EventTranslation, CoCode, $ReversedCountries AS Athlete, 
 				CONCAT(" . ($_SESSION["ISORIS"] ? '' : "CoCode, ' ', ") . "if(CoNameComplete>'', if(ToLocRule='FR', concat(CoName, ' (',CoNameComplete,')'), CoNameComplete), CoName)) AS Country, 
 				CONCAT(DivDescription, ' - ', ClDescription) as Category, 1 as Counter,
-				QuClRank AS Rank, QuScore AS Score, QuGold AS Gold,QuXnine AS XNine, AwDescription, AwAwarders
+				QuClRank AS `Rank`, QuScore AS Score, QuGold AS Gold,QuXnine AS XNine, AwDescription, AwAwarders
 				FROM Tournament
 				INNER JOIN Entries ON ToId=EnTournament
 				INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament AND EnTournament=" . StrSafe_DB($_SESSION['TourId']) . "
@@ -101,7 +101,7 @@ while($rowOrder=safe_fetch($rsOrder)) {
 		{
 			$sql = "SELECT AwAwarderGrouping, EnId, concat(EvTeamEvent,EvCode) EvCode, concat(EvCode,EvTeamEvent) EventTranslation, CoCode, $ReversedCountries AS Athlete, 
 				CONCAT(" . ($_SESSION["ISORIS"] ? '' : "CoCode, ' ', ") . "if(CoNameComplete>'', if(ToLocRule='FR', concat(CoName, ' (',CoNameComplete,')'), CoNameComplete), CoName)) AS Country, EvEventName as Category, 1 as Counter,
-				IF(EvFinalFirstPhase=0,IndRank,ABS(IndRankFinal)) as Rank, QuScore AS Score, QuGold AS Gold,QuXnine AS XNine, AwDescription, AwAwarders
+				IF(EvFinalFirstPhase=0,IndRank,ABS(IndRankFinal)) as `Rank`, QuScore AS Score, QuGold AS Gold,QuXnine AS XNine, AwDescription, AwAwarders
 				FROM Tournament
 				INNER JOIN Entries ON ToId=EnTournament
 				INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament AND EnTournament=" . StrSafe_DB($_SESSION['TourId']) . "
@@ -117,7 +117,7 @@ while($rowOrder=safe_fetch($rsOrder)) {
 		{
 			$sql=" SELECT AwAwarderGrouping, CoCode, '' EvCode, '' EventTranslation, CONCAT(" . ($_SESSION["ISORIS"] ? '' : "CoCode, ' ', ") . "if(CoNameComplete>'', if(ToLocRule='FR', concat(CoName, ' (',CoNameComplete,')'), CoNameComplete), CoName), IF(TeSubTeam=0,'',CONCAT(' (',TeSubTeam,')'))) as Country, CONCAT(DivDescription, ' - ', ClDescription) as Category,
 				EnId, group_concat($ReversedCountries order by EnSex DESC, EnFirstName, EnName separator '|') AS Athlete, Q as Counter,
-				TeRank as Rank, TeScore as Score, TeGold as Gold, TeXnine AS XNine, AwDescription, AwAwarders
+				TeRank as `Rank`, TeScore as Score, TeGold as Gold, TeXnine AS XNine, AwDescription, AwAwarders
 				FROM Tournament
 				INNER JOIN Teams ON ToId=TeTournament AND TeFinEvent=0
 				INNER JOIN Countries ON TeCoId=CoId AND TeTournament=CoTournament
@@ -153,7 +153,7 @@ while($rowOrder=safe_fetch($rsOrder)) {
 			$sql = " SELECT AwAwarderGrouping, CoCode, concat(EvTeamEvent,EvCode) EvCode, concat(EvCode, EvTeamEvent) EventTranslation, CoId, 
 				CONCAT(" . ($_SESSION["ISORIS"] ? '' : "CoCode, ' ', ") . "if(CoNameComplete>'', if(ToLocRule='FR', concat(CoName, ' (',CoNameComplete,')'), CoNameComplete), CoName), IF(TeSubTeam=0,'',CONCAT(' (',TeSubTeam,')'))) as Country, EvEventName as Category,
 				EnId, group_concat($ReversedCountries order by EnSex DESC, EnFirstName, EnName separator '|') AS Athlete, Q as Counter,
-				IF(EvFinalFirstPhase=0,TeRank,TeRankFinal) as Rank, IF(EvFinalFirstPhase=0,TeScore,IFNULL(TfScore,'')) as Score, IF(EvFinalFirstPhase=0,TeGold,'') as Gold, IF(EvFinalFirstPhase=0,TeXnine,'') AS XNine, AwDescription, AwAwarders
+				IF(EvFinalFirstPhase=0,TeRank,TeRankFinal) as `Rank`, IF(EvFinalFirstPhase=0,TeScore,IFNULL(TfScore,'')) as Score, IF(EvFinalFirstPhase=0,TeGold,'') as Gold, IF(EvFinalFirstPhase=0,TeXnine,'') AS XNine, AwDescription, AwAwarders
 				FROM Tournament
 				INNER JOIN Teams ON ToId=TeTournament AND TeFinEvent=1
 				INNER JOIN Countries ON TeCoId=CoId AND TeTournament=CoTournament
@@ -215,7 +215,7 @@ $pdf->Output();
 
 function writeData($pdf, $data, $Description, $Category, $Awarders, $indEvent, $Order, $EventTranslated, $Event='') {
 	static $LangCol;
-	GLOBAL $par_RepresentCountry, $par_PlayAnthem, $rowOrder, $par_ShowPoints;
+	GLOBAL $CFG, $par_RepresentCountry, $par_PlayAnthem, $rowOrder, $par_ShowPoints;
 
 	$PlayAnthem=$par_PlayAnthem;
 
@@ -404,6 +404,60 @@ function writeData($pdf, $data, $Description, $Category, $Awarders, $indEvent, $
 			$lines=$pdf->multicell($LangCol, 7, get_text_eval(getModuleParameter('Awards', 'Aw-Applause-2')), 'L', 'L', 0, 0);
 		}
 		$pdf->ln(6*max($lines, $lines2));
+	}
+
+	if(getModuleParameter('Awards', 'ShowPdfFlags', 0)) {
+		if($pdf->SamePage(31, false)) {
+			$pdf->ln(4);
+			$pdf->Line(10, $pdf->GetY(),$pdf->getPageWidth()-10,$pdf->GetY());
+			$pdf->ln(4);
+
+			$Flags=count($data);
+			$Space=($pdf->getpagewidth()-20)/$Flags;
+			$FlagWidth=min(24, $Space);
+			//$pdf=new Ianseopdf();
+			$X=(($Space-24)/2) + 10;
+			$Y=$pdf->getY();
+
+			// second place
+			if(isset($data[1][3])) {
+				$pdf->setXY($X, $Y);
+				$pdf->cell(24,6,'2-'.$data[1][3], '','','C');
+				$CountryFlag='';
+				if(file_exists($CountryFlag=$CFG->DOCUMENT_PATH.'TV/'.'Photos/'.$_SESSION['TourCode'].'-FlSvg-'.$data[1][3].'.svg')) {
+					$pdf->ImageSVG($CountryFlag,$X,$Y+6,24,16,'','','','1');
+				} elseif(file_exists($CountryFlag=$CFG->DOCUMENT_PATH.'TV/'.'Photos/'.$_SESSION['TourCode'].'-Fl-'.$data[1][3].'.jpg')) {
+					$pdf->Image($CountryFlag, $X,$Y+6,24,16,'JPG','','','','','','','','1');
+				}
+				$X+=$Space;
+			}
+
+			// First place
+			if(isset($data[0][3])) {
+				$pdf->setXY($X, $Y);
+				$pdf->cell(24,0,'1-'.$data[0][3], '','','C');
+				$CountryFlag='';
+				if(file_exists($CountryFlag=$CFG->DOCUMENT_PATH.'TV/'.'Photos/'.$_SESSION['TourCode'].'-FlSvg-'.$data[0][3].'.svg')) {
+					$pdf->ImageSVG($CountryFlag,$X,$Y+6,24,16,'','','','1');
+				} elseif(file_exists($CountryFlag=$CFG->DOCUMENT_PATH.'TV/'.'Photos/'.$_SESSION['TourCode'].'-Fl-'.$data[0][3].'.jpg')) {
+					$pdf->Image($CountryFlag, $X,$Y+6,24,16,'JPG','','','','','','','','1');
+				}
+				$X+=$Space;
+			}
+
+			// third place
+			if(isset($data[2][3])) {
+				$pdf->setXY($X, $Y);
+				$pdf->cell(24,0,'3-'.$data[2][3], '','','C');
+				$CountryFlag='';
+				if(file_exists($CountryFlag=$CFG->DOCUMENT_PATH.'TV/'.'Photos/'.$_SESSION['TourCode'].'-FlSvg-'.$data[2][3].'.svg')) {
+					$pdf->ImageSVG($CountryFlag,$X,$Y+6,24,16,'','','','1');
+				} elseif(file_exists($CountryFlag=$CFG->DOCUMENT_PATH.'TV/'.'Photos/'.$_SESSION['TourCode'].'-Fl-'.$data[2][3].'.jpg')) {
+					$pdf->Image($CountryFlag, $X,$Y+6,24,16,'JPG','','','','','','','','1');
+				}
+				$X+=$Space;
+			}
+		}
 	}
 }
 

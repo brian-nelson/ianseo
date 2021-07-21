@@ -183,12 +183,17 @@ function draw_pip($r) {
 					case 'CatCode':$Text='CODE'; break;
 					case 'CatCode-EvDescr':$Text='CODE-Category'; break;
 					case 'CatDescr':$Text='Category'; break;
+					case 'CatDescrUpper':$Text='CATEGORY'; break;
 				}
 			}
 		case 'Session':
 			if(!isset($Text)) $Text=get_text('Session');
+		case 'QRScore':
+			if(!isset($Text)) $Text=get_text('Score','Tournament');
 		case 'Ranking':
 			if(!isset($Text)) $Text=get_text('Rank');
+		case 'FinalRanking':
+			if(!isset($Text)) $Text=get_text('FinalRanking','BackNumbers');
 		case 'Event':
 			if(!isset($Text)) {
 				switch($r->IceContent) {
@@ -205,45 +210,50 @@ function draw_pip($r) {
 			if(!isset($Text)) $Text='0/9*';
 
 			if(isset($Text)) {
-				// Calculate the dimensions of the box containing the text
-				$font=dirname(dirname(__FILE__))."/Common/tcpdf/fonts/{$Options['Font']}.ttf";
-				$size=$Options['Size']*0.35278*2;
-				$pos=imagettfbbox($size, 0, $font, $Text);
-				$width=$pos[4]-$pos[0];
-				$height=$pos[1]-$pos[5];
-
-				$y=($Options['H']*2-$height)/2;
-				switch($Options['Just']) {
-					case 1: $x=($Options['W']*2-$width)/2; break; // centered
-					case 2: $x=$Options['W']*2-$width; break; // left
-					default: $x=0; break; // right
-				}
-
-				$txt1=imagecreatetruecolor($Options['W']*2, $Options['H']*2);
-				$Back=imagecolorallocate($txt1, 250, 250, 250); // background
-				imagefill($txt1, 0, 0, $Back);
-				if($Options['Col']) {
-					$color=imagecolorallocate($txt1, hexdec(substr($Options['Col'], 1, 2)), hexdec(substr($Options['Col'], 3, 2)), hexdec(substr($Options['Col'], 5, 2)));
-				} else {
-					$color=imagecolorallocate($txt1, 0, 0, 0); // black
-				}
-				if($Options['BackCol']) {
-					$colb=imagecolorallocate($txt1, hexdec(substr($Options['BackCol'], 1, 2)), hexdec(substr($Options['BackCol'], 3, 2)), hexdec(substr($Options['BackCol'], 5, 2)));
-					imagefill($txt1, 0, 0, $colb);
-				} elseif(!empty($Options['BackCat'])) {
-					for($i=0; $i<imagesx($txt1); $i+=10) {
-						for($j=0; $j<imagesy($txt1); $j+=5) {
-							$Offset=($j%2==0);
-							imagefilledrectangle($txt1, $i+5*$Offset, $j, $i+4+5*$Offset, $j+4, $ColBlk);
-						}
+				if($Options and $Options['H']>0 and $Options['W']>0) {
+					// Calculate the dimensions of the box containing the text
+					$font=dirname(dirname(__FILE__))."/Common/tcpdf/fonts/{$Options['Font']}.ttf";
+					if(strpos($Options['Size'],'-') !== false) {
+						list($Options['Size'],) = explode('-',$Options['Size']);
 					}
-				} else {
-					imagecolortransparent($txt1, $Back);
-				}
+					$size=$Options['Size']*0.35278*2;
+					$pos=imagettfbbox($size, 0, $font, $Text);
+					$width=$pos[4]-$pos[0];
+					$height=$pos[1]-$pos[5];
 
-				imagettftext ($txt1, $size, 0, $x, $y+$size, $color, $font, $Text);
-				imagecopymerge ($img, $txt1, $Options['X']*2, $Options['Y']*2, 0, 0, $Options['W']*2, $Options['H']*2, 100);
-				imagerectangle($img, $Options['X']*2, $Options['Y']*2, $Options['X']*2+$Options['W']*2-1, $Options['Y']*2+$Options['H']*2-1, $ColBlk);
+					$y=($Options['H']*2-$height)/2;
+					switch($Options['Just']) {
+						case 1: $x=($Options['W']*2-$width)/2; break; // centered
+						case 2: $x=$Options['W']*2-$width; break; // left
+						default: $x=0; break; // right
+					}
+
+					$txt1=imagecreatetruecolor($Options['W']*2, $Options['H']*2);
+					$Back=imagecolorallocate($txt1, 250, 250, 250); // background
+					imagefill($txt1, 0, 0, $Back);
+					if($Options['Col']) {
+						$color=imagecolorallocate($txt1, hexdec(substr($Options['Col'], 1, 2)), hexdec(substr($Options['Col'], 3, 2)), hexdec(substr($Options['Col'], 5, 2)));
+					} else {
+						$color=imagecolorallocate($txt1, 0, 0, 0); // black
+					}
+					if($Options['BackCol']) {
+						$colb=imagecolorallocate($txt1, hexdec(substr($Options['BackCol'], 1, 2)), hexdec(substr($Options['BackCol'], 3, 2)), hexdec(substr($Options['BackCol'], 5, 2)));
+						imagefill($txt1, 0, 0, $colb);
+					} elseif(!empty($Options['BackCat'])) {
+						for($i=0; $i<imagesx($txt1); $i+=10) {
+							for($j=0; $j<imagesy($txt1); $j+=5) {
+								$Offset=($j%2==0);
+								imagefilledrectangle($txt1, $i+5*$Offset, $j, $i+4+5*$Offset, $j+4, $ColBlk);
+							}
+						}
+					} else {
+						imagecolortransparent($txt1, $Back);
+					}
+
+					imagettftext ($txt1, $size, 0, $x, $y+$size, $color, $font, $Text);
+					imagecopymerge ($img, $txt1, $Options['X']*2, $Options['Y']*2, 0, 0, $Options['W']*2, $Options['H']*2, 100);
+					imagerectangle($img, $Options['X']*2, $Options['Y']*2, $Options['X']*2+$Options['W']*2-1, $Options['Y']*2+$Options['H']*2-1, $ColBlk);
+				}
 			} else {
 				if($Options['BackCol']) {
 					$color=imagecolorallocate($img, hexdec(substr($Options['BackCol'], 1, 2)), hexdec(substr($Options['BackCol'], 3, 2)), hexdec(substr($Options['BackCol'], 5, 2)));
@@ -302,4 +312,3 @@ function draw_pip($r) {
 	imagerectangle($img, $RowBn->Settings[$Field.'_X'], $RowBn->Settings[$Field.'_Y'], $RowBn->Settings[$Field.'_X']+$RowBn->Settings[$Field.'_W']-1, $RowBn->Settings[$Field.'_Y']+$RowBn->Settings[$Field.'_H']-1, $ColBlk);
 }
 
-?>

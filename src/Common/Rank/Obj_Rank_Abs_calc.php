@@ -110,9 +110,10 @@
 			for($n=1; $n<=8; $n++) {
 				$sql.="IndD{$n}Rank=if(QuD{$n}Score=0, 0, IndD{$n}Rank), ";
 			}
-			$sql.="IndRank=if(QuScore=0, 0, IndRank), IndRankFinal=if(QuScore=0, 0, IndRankFinal), IndSO=if(QuScore=0, 0, IndSO) ";
+			$sql.="IndRank=if(QuScore=0 and QuHits=0, 0, IndRank), IndRankFinal=if(QuScore=0 and QuHits=0, 0, IndRankFinal), IndSO=if((QuScore=0 and QuHits=0) or IrmShowRank=0, 0, IndSO) ";
 			safe_w_sql("update Individuals
 					inner join Qualifications ON IndId=QuId
+					inner join IrmTypes on IrmId=IndIrmType
 					set $sql
 					where IndTournament={$this->tournament}");
 
@@ -120,21 +121,14 @@
 					IndId AS `athId`,IndEvent AS `EventCode`,
 					Qu{$dd}Score AS Score,Qu{$dd}Gold AS Gold,Qu{$dd}Xnine AS XNine, Qu{$dd}Hits AS Hits, IndRank as actualRank,
 					EvFinalFirstPhase, EvElim1, EvElim2, EvElimType,
-					IF(EvFinalFirstPhase=0,9999,IF(EvElimType=0, EvNumQualified ,IF(EvElim1=0,EvElim2,EvElim1))) as QualifiedNo
-				FROM
-					Events
-
-					INNER JOIN
-						Individuals
-					ON EvCode=IndEvent AND EvTournament=IndTournament AND EvTeamEvent=0
-
-					INNER JOIN
-						Qualifications
-					ON IndId=QuId
+					IF(EvFinalFirstPhase=0,999999,IF(EvElimType=0, EvNumQualified ,IF(EvElim1=0,EvElim2,EvElim1))) as QualifiedNo, EvFirstQualified
+				FROM Events
+				INNER JOIN Individuals ON EvCode=IndEvent AND EvTournament=IndTournament AND EvTeamEvent=0
+			    inner join IrmTypes on IrmId=IndIrmType and IrmShowRank=1
+				INNER JOIN Qualifications ON IndId=QuId
 				WHERE
 					IndTournament={$this->tournament}
-					AND IndRank!=9999
-			".(empty($this->opts['includeNullPoints'])? " AND QuScore != 0 " : "")."
+			        AND (QuScore != 0 OR QuHits !=0) 
 					{$filter}
 				ORDER BY
 					IndEvent,Qu{$dd}Score DESC,Qu{$dd}Gold DESC,Qu{$dd}Xnine DESC
@@ -142,15 +136,10 @@
 				//print $q.'<br><br>';
 			$r=safe_r_sql($q);
 
-
-			if (!$r)
-				return false;
-
 			if (safe_num_rows($r)>0) {
 				$curGroup = "";
 				$myRank = 1;
 				$myPos = 0;
-				$endQualified = false;
 
 				$myScoreOld = 0;
 				$myGoldOld = 0;
@@ -160,7 +149,7 @@
 				$currentRow=-1;
 
 				while($myRow=safe_fetch($r)) {
-					++$currentRow;
+					$currentRow++;
 
 					if ($curGroup != $myRow->EventCode) {
 						$curGroup = $myRow->EventCode;
@@ -171,16 +160,15 @@
 						$myGoldOld = 0;
 						$myXNineOld = 0;
 						$mySoScore=array();
-						$endQualified = false;
 						$myGroupStartPos = $currentRow;
 
 
 					/*
 					 * If starting phase is 1/48 or 1/24, I check the 8th position for shootoff,
 					 */
-						if($NumSaved=SavedInPhase($myRow->EvFinalFirstPhase ) and $myRow->EvElimType==0) {
-							if(safe_num_rows($r) > ($myGroupStartPos + $NumSaved)) {
-								safe_data_seek($r,$myGroupStartPos + $NumSaved - 1);
+						if(($NumSaved=SavedInPhase($myRow->EvFinalFirstPhase ) and $myRow->EvElimType==0) or ($NumSaved=2 and ($myRow->EvElimType==3 or $myRow->EvElimType==4))) {
+							if(safe_num_rows($r) > ($myGroupStartPos + $NumSaved + $myRow->EvFirstQualified-1)) {
+								safe_data_seek($r,$myGroupStartPos + $NumSaved + $myRow->EvFirstQualified - 2);
 								$tmpMyRow = safe_fetch($r);
 								if($curGroup == $tmpMyRow->EventCode) {
 									$tmpScore = $tmpMyRow->Score;
@@ -199,8 +187,8 @@
 					 * Carico l'ultimo punteggio per entrare.
 					 * Vado a prendere la riga con l'ultimo Score buono
 					 */
-						if(safe_num_rows($r) > ($myGroupStartPos + $myRow->QualifiedNo)) {
-							safe_data_seek($r,$myGroupStartPos + $myRow->QualifiedNo -1);
+						if(safe_num_rows($r) > ($myGroupStartPos + $myRow->QualifiedNo + $myRow->EvFirstQualified - 1)) {
+							safe_data_seek($r,$myGroupStartPos + $myRow->QualifiedNo + $myRow->EvFirstQualified - 2);
 							$tmpMyRow = safe_fetch($r);
 							if($curGroup == $tmpMyRow->EventCode) {
 								$tmpScore = $tmpMyRow->Score;
@@ -214,24 +202,27 @@
 						}
 						safe_data_seek($r,$myGroupStartPos+1);
 					}
-					++$myPos;
-
+					$myPos++;
 					$so=-1;
 
-
-				// Se non ho parimerito il ranking è uguale alla posizione
-                    //so che c'è uno spareggio per come ho caricato $mySoScore
+                    // As for $mySoScore loading, in case of same score there is a SO.
                     if(in_array($myRow->Score,$mySoScore)) {
 						if ($myRow->Score!=$myScoreOld) {
                             $myRank = $myPos;
                         }
-    					$so=1;	// rosso
-					} else {    //tutti gli altri pareggi...
+    					$so=1;
+					} else {
+                        // all the other are tie only in case of Full Tie
 						if (!($myRow->Score==$myScoreOld AND $myRow->Gold==$myGoldOld AND $myRow->XNine==$myXNineOld)) {
                             $myRank = $myPos;
                         }
 					}
-					if($myRank>$myRow->QualifiedNo) {
+                    //Before the first qualified we remove CT
+                    if ($myRow->EvFirstQualified != 1 AND $myPos == $myRow->EvFirstQualified) {
+                        safe_w_SQL("UPDATE Individuals SET IndSO=0 WHERE IndSO < 0 AND IndSO > " . (-1*$myRank) . " AND IndEvent='{$myRow->EventCode}' AND IndTournament={$this->tournament}");
+                    }
+                    //After the last qualified we do not check SO/CT any more
+					if($myRow->EvFinalFirstPhase==0 OR ($myRank>($myRow->QualifiedNo + $myRow->EvFirstQualified -1))) {
                         $so = 0;
                     }
 
@@ -260,6 +251,8 @@
 								'rank'		=> $myRank,
 								'finalrank' => ($myRow->EvFinalFirstPhase ? -1 : $myRank),
 								'tiebreak'	=> '',
+								'decoded'	=> '',
+                                'closest'	=> 0,
 								'so'		=> ($so * $myRank)
 							)
 						));
@@ -292,6 +285,7 @@
 	 *					dist		=> <dist> 	(chiave)
 	 * 					rank 		=> <rank>
  	 * 					tiebreak 	=> <arrowstring>
+                        closest 	=> <tinyint>
 	 * 					so 			=> <so>
 	 * 				)
 	 * 			)
@@ -358,7 +352,17 @@
 						$q.=",IndTiebreak='{$item['tiebreak']}'";
 					}
 
-					if (array_key_exists('so',$item)) {
+                    if (array_key_exists('decoded',$item)) {
+                        $canUp=true;
+                        $q.=",IndTbDecoded='{$item['decoded']}'";
+                    }
+
+                    if (array_key_exists('closest',$item)) {
+                        $canUp=true;
+                        $q.=",IndTbClosest='{$item['closest']}'";
+                    }
+
+                    if (array_key_exists('so',$item)) {
 						$canUp=true;
 						$q.=",IndSO={$item['so']}";
 					}

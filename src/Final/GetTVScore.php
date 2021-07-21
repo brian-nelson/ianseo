@@ -139,9 +139,11 @@
 				$Out.='<tr style="height:30%">';
 				foreach(range(1,2) as $m) {
 					$Out.='<td class="ScoreArrows'.$m.'" colspan="'.$cols.'">T.&nbsp;';
-					foreach(range(0, strlen($myRow->{'tiebreak'.$m})-1) as $col) {
-						$Out.='<div class="SingleScore">'.DecodeFromLetter($myRow->{'tiebreak'.$m}[$col]).'</div>';
-						$OutString+=1;
+					if($myRow->{'tiebreak'.$m}) {
+						foreach(range(0, strlen($myRow->{'tiebreak'.$m})-1) as $col) {
+							$Out.='<div class="SingleScore">'.DecodeFromLetter($myRow->{'tiebreak'.$m}[$col]).'</div>';
+							$OutString+=1;
+						}
 					}
 					$Out.='</td>';
 				}
@@ -161,27 +163,6 @@
 	#name1, #name2 {width:'.$ColWidth.'%; font-size:'.($WinWidth/($OutString ? $OutString*$Scale*2 : 15)).'px}
 	#MiniScore1, #MiniScore2 {font-size:'.($WinWidth/($OutMainString*$Scale)).'px; }
 	</style>';
-//	$JS_SCRIPT[]='<meta http-equiv="refresh" content="0.1">';
-// 	$Col1='#4040ff';
-// 	$Col2='#ffff80';
-// 	$JS_SCRIPT[]=phpVars2js(array("WebDir" => $CFG->ROOT_DIR));
-// 	$JS_SCRIPT[]='<style>';
-// 	$JS_SCRIPT[]='body, table, #PopupContent {margin:0;padding:0;width:100%;height:100%;}';
-// //	$JS_SCRIPT[]='td {border:1px solid black;}';
-// 	$JS_SCRIPT[]='#Tabella {width:100%; height:100%;}';
-// 	$JS_SCRIPT[]='	';
-// 	$JS_SCRIPT[]='#Score2, #MiniScore2, .ScoreArrows2 {color:'.$Col2.'; background-color:'.$Col1.';}';
-// 	$JS_SCRIPT[]='#MiniScore2 {text-align:left}';
-// 	$JS_SCRIPT[]='</style>';
-// 	$JS_SCRIPT[]='<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/Fun_JS.inc.js"></script>';
-// 	$JS_SCRIPT[]='<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/ajax/ObjXMLHttpRequest.js"></script>';
-// 	$JS_SCRIPT[]='<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Final/Fun_AJAX.js"></script>';
-// 	$JS_SCRIPT[]='<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Final/Fun_AJAX_WriteScoreCard.js"></script>';
-//	include('Common/Templates/head-popup.php');
-//
-//	echo $Out;
-//
-//	include('Common/Templates/tail-popup.php');
 
 
 

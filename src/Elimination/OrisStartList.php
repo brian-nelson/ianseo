@@ -6,9 +6,23 @@ require_once('Common/OrisFunctions.php');
 require_once('Common/pdf/PdfChunkLoader.php');
 checkACL(AclEliminations, AclReadOnly);
 
+$events = array();
+$isPool = false;
+if(isset($_REQUEST["EventCode"])) {
+    if(is_array($_REQUEST["EventCode"])) {
+        $events = $_REQUEST["EventCode"];
+    } else {
+        $events[] = $_REQUEST["EventCode"];
+    }
+}
+
+if(!empty($_REQUEST["isPool"])) {
+    $isPool = true;
+}
+
 // ATTENTION!
 // MUST BE called $PdfData
-$PdfData=getStartList(true, '', true);
+$PdfData=getStartList(true, $events, true, false, $isPool);
 
 if(!isset($isCompleteResultBook))
 	$pdf = new OrisPDF('C51A', 'Start List by Target');

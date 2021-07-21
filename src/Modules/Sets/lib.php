@@ -61,6 +61,7 @@ define('TGT_OUT_6_big10', 10);
 define('TGT_NOR_HUN', 11);
 define('TGT_SWE_FORREST', 12);
 define('TGT_IND_NFAA', 13);
+define('TGT_KYUDO', 19);
 
 define('MATCH_ALL_SEP', 0);
 define('MATCH_SEP_FROM_32', 128);
@@ -83,7 +84,7 @@ define('FINAL_GOLD', 254);
 define('FINAL_ALL', 255);
 
 
-function CreateDivision($TourId, $Order, $Id, $Description, $Athlete='1', $RecDiv='', $WaDiv='') {
+function CreateDivision($TourId, $Order, $Id, $Description, $Athlete='1', $RecDiv='', $WaDiv='', $IsPara=false) {
 	if(!$RecDiv) $RecDiv=$Id;
 	if(!$WaDiv) $WaDiv=$Id;
 	safe_w_sql("INSERT INTO Divisions set "
@@ -94,10 +95,11 @@ function CreateDivision($TourId, $Order, $Id, $Description, $Athlete='1', $RecDi
 		. ", DivAthlete=".StrSafe_DB(intval($Athlete))
 		. ", DivRecDivision=".StrSafe_DB($RecDiv)
 		. ", DivWaDivision=".StrSafe_DB($WaDiv)
+		. ", DivIsPara=".intval($IsPara)
 		);
 }
 
-function CreateClass($TourId, $Order, $From, $To, $Sex, $Id, $ValidClass, $Description, $Athlete='1', $AlDivision='', $RecCl='', $WaCl='') {
+function CreateClass($TourId, $Order, $From, $To, $Sex, $Id, $ValidClass, $Description, $Athlete='1', $AlDivision='', $RecCl='', $WaCl='', $IsPara=false) {
 	if(!$RecCl) $RecCl=$Id;
 	if(!$WaCl) $WaCl=$Id;
 	safe_w_sql("INSERT INTO Classes set "
@@ -113,6 +115,7 @@ function CreateClass($TourId, $Order, $From, $To, $Sex, $Id, $ValidClass, $Descr
 		. ", ClDivisionsAllowed=".StrSafe_DB($AlDivision)
 		. ", ClRecClass=".StrSafe_DB($RecCl)
 		. ", ClWaClass=".StrSafe_DB($WaCl)
+		. ", ClIsPara=".intval($IsPara)
 		);
 }
 
@@ -125,23 +128,15 @@ function CreateSubClass($TourId, $Order, $Id, $Description) {
 		);
 }
 
-function CreateDistance($TourId, $Type, $Classes, $D1='', $D2='', $D3='', $D4='', $D5='', $D6='', $D7='', $D8='') {
-	safe_w_sql("INSERT INTO TournamentDistances set "
-		. " TdTournament=$TourId"
-		. ", TdType=$Type"
-		. ", TdClasses=".StrSafe_DB($Classes)
-		. ", Td1=".StrSafe_DB($D1)
-		. ", Td2=".StrSafe_DB($D2)
-		. ", Td3=".StrSafe_DB($D3)
-		. ", Td4=".StrSafe_DB($D4)
-		. ", Td5=".StrSafe_DB($D5)
-		. ", Td6=".StrSafe_DB($D6)
-		. ", Td7=".StrSafe_DB($D7)
-		. ", Td8=".StrSafe_DB($D8)
-		);
+function CreateDistanceNew($TourId, $Type, $Classes, $Distances=array()) {
+	$SQL='';
+	foreach($Distances as $k => $Distance) {
+		$SQL.=", Td".($k+1)."=".StrSafe_DB($Distance[0]).", TdDist".($k+1)."=".intval($Distance[1]);
+	}
+	safe_w_sql("INSERT INTO TournamentDistances set TdTournament=$TourId, TdType=$Type, TdClasses=".StrSafe_DB($Classes) . $SQL);
 }
 
-function CreateEvent($TourId, $Order, $Team, $MixTeam, $FirstPhase, $TargetType, $ElimEnds, $ElimArrows, $ElimSO, $FinEnds, $FinArrows, $FinSO, $Code, $Description, $SetMode=0, $MatchArrows=0, $AthTarget=0, $ElimRound1=array(), $ElimRound2=array(), $RecCategory='', $WaCategory='', $tgtSize=0, $shootingDist=0, $parentEvent='', $MultipleTeam=0, $Selected=0, $EvWinnerFinalRank=1) {
+function CreateEvent($TourId, $Order, $Team, $MixTeam, $FirstPhase, $TargetType, $ElimEnds, $ElimArrows, $ElimSO, $FinEnds, $FinArrows, $FinSO, $Code, $Description, $SetMode=0, $MatchArrows=0, $AthTarget=0, $ElimRound1=array(), $ElimRound2=array(), $RecCategory='', $WaCategory='', $tgtSize=0, $shootingDist=0, $parentEvent='', $MultipleTeam=0, $Selected=0, $EvWinnerFinalRank=1, $CreationMode=0, $MultipleTeamNo=0, $PartialTeam=0) {
 	if(!$RecCategory) $RecCategory=$Code;
 	if(!$WaCategory) $WaCategory=$Code;
 	$Elim1=(empty($ElimRound1) ? 0 : $ElimRound1['Archers']);
@@ -161,6 +156,8 @@ function CreateEvent($TourId, $Order, $Team, $MixTeam, $FirstPhase, $TargetType,
 		. ", EvProgr=$Order"
 		. ", EvTeamEvent=$Team"
 		. ", EvMultiTeam=$MultipleTeam"
+        . ", EvMultiTeamNo=$MultipleTeamNo"
+        . ", EvPartialTeam=$PartialTeam"
 		. ", EvMixedTeam=$MixTeam"
 		. ", EvFinalFirstPhase=$FirstPhase"
 		. ", EvWinnerFinalRank=$EvWinnerFinalRank"
@@ -187,6 +184,7 @@ function CreateEvent($TourId, $Order, $Team, $MixTeam, $FirstPhase, $TargetType,
 		. ", EvE2Ends=$ElEnd2"
 		. ", EvE2Arrows=$ElArr2"
 		. ", EvE2SO=$ElSO2"
+        . ", EvTeamCreationMode=".intval($CreationMode)
 		. ", EvRecCategory=" . StrSafe_DB($RecCategory)
 		. ", EvWaCategory=".StrSafe_DB($WaCategory)
 		. ", EvCodeParent=".StrSafe_DB($parentEvent)
@@ -218,6 +216,7 @@ function CreateEventNew($TourId, $Code, $Description, $Order, $Options) {
 		'EvE2SO'=>0,
 		'EvPartialTeam'=>0,
 		'EvMultiTeam'=>0,
+        'EvMultiTeamNo'=>0,
 		'EvMixedTeam'=>0,
 		'EvTeamCreationMode'=>0,
 		'EvMaxTeamPerson'=>1,
@@ -238,6 +237,7 @@ function CreateEventNew($TourId, $Code, $Description, $Order, $Options) {
 		'EvXNine' => $tourDetXNine,
 		'EvGoldsChars' => $tourDetGoldsChars,
 		'EvXNineChars' => $tourDetXNineChars,
+		'EvIsPara' => 0,
 	);
 	foreach($Defaults as $def => $val) {
 		if(!isset($Options[$def])) {
@@ -259,15 +259,18 @@ function CreateEventNew($TourId, $Code, $Description, $Order, $Options) {
 }
 
 function InsertClassEvent($TourId, $Team, $Number, $Code, $Division, $Class, $SubClass='') {
-	safe_w_sql("INSERT INTO EventClass set "
-		. " EcTournament=$TourId"
-		. ", EcTeamEvent=$Team"
-		. ", EcNumber=$Number"
-		. ", EcCode=" . StrSafe_DB($Code)
-		. ", EcDivision=".StrSafe_DB($Division)
-		. ", EcClass=".StrSafe_DB($Class)
-		. ", EcSubClass=".StrSafe_DB($SubClass)
-		);
+    $q = safe_r_SQL("SELECT EvCode FROM Events WHERE EvCode=".StrSafe_DB($Code)." AND EvTeamEvent='".($Team!=0 ? '1':'0')."' AND EvTournament={$TourId}");
+    if(safe_num_rows($q)!=0) {
+        safe_w_sql("INSERT INTO EventClass set "
+            . " EcTournament=$TourId"
+            . ", EcTeamEvent=$Team"
+            . ", EcNumber=$Number"
+            . ", EcCode=" . StrSafe_DB($Code)
+            . ", EcDivision=" . StrSafe_DB($Division)
+            . ", EcClass=" . StrSafe_DB($Class)
+            . ", EcSubClass=" . StrSafe_DB($SubClass)
+        );
+    }
 }
 
 function CreateFinals($TourId) {

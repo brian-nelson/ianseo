@@ -43,7 +43,9 @@ $pdf->multicell($LangCol, 6, getModuleParameter('Awards', 'Aw-Intro-1'), 'R', 'L
 $Y1=$pdf->gety();
 if($pdf->SecondLang) {
 	$pdf->SetFont($pdf->FontStd2);
-	if($Y1<$Y) $Y=$pdf->lastY+1;
+    if($Y1<$Y) {
+        $pdf->setPage($pdf->getPage()-1);
+    }
 	$pdf->setXY($LangCol+10, $Y);
 	$pdf->multicell($LangCol, 6, getModuleParameter('Awards', 'Aw-Intro-2'), 'L', 'L');
 	$Y1=max($Y1, $pdf->gety());
@@ -91,7 +93,9 @@ while($r=safe_fetch($q)) {
 	$Y1=$pdf->gety();
 	if($pdf->SecondLang) {
 		$pdf->SetFont($pdf->FontStd2);
-		if($Y1<$Y) $Y=$pdf->lastY+1;
+        if($Y1<$Y) {
+            $pdf->setPage($pdf->getPage()-1);
+        }
 		$pdf->setXY($LangCol+10, $Y);
 		$pdf->multicell($LangCol, 6, $r->AwEventTrans, 'L', 'L');
 		$Y1=max($Y1, $pdf->gety());
@@ -127,7 +131,9 @@ foreach($Lines as $line) {
 	$Y1=$pdf->gety();
 	if($pdf->SecondLang) {
 		$pdf->SetFont($pdf->FontStd2);
-		if($Y1<$Y) $Y=$pdf->lastY+1;
+        if($Y1<$Y) {
+            $pdf->setPage($pdf->getPage()-1);
+        }
 		$pdf->setXY($LangCol+10, $Y);
 		$pdf->multicell($LangCol, 6, getModuleParameter('Awards', $line.'-2'), 'L', 'L');
 		$Y1=max($Y1, $pdf->gety());
@@ -145,7 +151,9 @@ while(($awarder=getModuleParameter('Awards', 'Aw-Award-1-'.$n, $def))!=$def) {
 	$Y1=$pdf->gety();
 	if($pdf->SecondLang) {
 		$pdf->SetFont($pdf->FontStd2);
-		if($Y1<$Y) $Y=$pdf->lastY+1;
+        if($Y1<$Y) {
+            $pdf->setPage($pdf->getPage()-1);
+        }
 		$pdf->setXY($LangCol+10, $Y);
 		$pdf->multicell($LangCol, 7, getModuleParameter('Awards', 'Aw-Award-2-'. $n), 'L', 'L');
 		$Y1=max($Y1, $pdf->gety());
@@ -157,15 +165,17 @@ while(($awarder=getModuleParameter('Awards', 'Aw-Award-1-'.$n, $def))!=$def) {
 	$n++;
 }
 
-$Y=$pdf->gety();
+$Y=$pdf->GetY();
 $pdf->multicell($LangCol, 6, getModuleParameter('Awards', 'Aw-Special-1'), 'R', 'L');
-$Y1=$pdf->gety();
+$Y1=$pdf->GetY();
 if($pdf->SecondLang) {
 	$pdf->SetFont($pdf->FontStd2);
-	if($Y1<$Y) $Y=$pdf->lastY+1;
+    if($Y1<$Y) {
+        $pdf->setPage($pdf->getPage()-1);
+    }
 	$pdf->setXY($LangCol+10, $Y);
 	$pdf->multicell($LangCol, 6, getModuleParameter('Awards', 'Aw-Special-2'), 'L', 'L');
-	$Y1=max($Y1, $pdf->gety());
+	$Y1=max($Y1, $pdf->GetY());
 	$pdf->sety($Y1, true);
 	$pdf->SetFont($pdf->FontStd);
 }
@@ -187,7 +197,9 @@ while($r=safe_fetch($q)) {
 	$Y1=$pdf->gety();
 	if($pdf->SecondLang) {
 		$pdf->SetFont($pdf->FontStd2);
-		if($Y1<$Y) $Y=$pdf->lastY+1;
+		if($Y1<$Y) {
+		    $pdf->setPage($pdf->getPage()-1);
+        }
 		$pdf->setXY($LangCol+10, $Y);
 		$pdf->multicell($LangCol, 5, get_text($r->CoCode, 'IOC_Codes', '', '', '', $pdf->SecondLang, false), 'L', 'L');
 		$Y1=max($Y1, $pdf->gety());
@@ -211,7 +223,9 @@ while(($a=getModuleParameter('Awards', 'Aw-Awarder-1-'.$n, $def))!=$def) {
 	$Y1=$pdf->gety();
 	if($pdf->SecondLang) {
 		$pdf->SetFont($pdf->FontStd2);
-		if($Y1<$Y) $Y=$pdf->lastY+1;
+        if($Y1<$Y) {
+            $pdf->setPage($pdf->getPage()-1);
+        }
 		$pdf->setXY($LangCol+10, $Y);
 		$pdf->multicell($LangCol, 5, getModuleParameter('Awards', 'Aw-Awarder-2-'.$n), 'L', 'L');
 		$Y1=max($Y1, $pdf->gety());

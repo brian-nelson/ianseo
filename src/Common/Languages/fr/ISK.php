@@ -114,7 +114,6 @@ $lang['NoArrowScored']='Avant de marquer la flèche comme étant la plus proche 
 $lang['NoAthletes']='Pas d\'athlète trouvé';
 $lang['NoDist']='Pas de distance trouvée';
 $lang['NoLangInfo']='Ne peut rapporter l\'info du language. __TEXT__';
-$lang['NoLanguages']='L\'anglais est le seul language actuellement disponible. Utilisez la fonction de mise à jour des langues du menu ajout d\'autres langues et réessayez à nouveau.';
 $lang['NoServerUrl']='Vouqs devez scanner le QR-Code ou entrer manuellement l\'URL de Ianseo avant de pouvoir mettre à jour les languages.';
 $lang['NoTargetTypes']='Pas de type de cible trouvé';
 $lang['Number']='Numéro';

@@ -1,48 +1,26 @@
 <?php
-/*
-													- SelectSession.php -
-	Estrae il primo e l'ultimo target della sessione
-*/
 
-	define('debug',false);
+require_once(dirname(dirname(__FILE__)) . '/config.php');
 
-	require_once(dirname(dirname(__FILE__)) . '/config.php');
+$JSON=array('error'=>1, 'min'=>'', 'max'=>'','coalesce'=>false);
+if (!CheckTourSession() or !hasACL(AclQualification, AclReadOnly)) {
+	JsonOut($JSON);
+}
 
-	if (!CheckTourSession()) {
-		print get_text('CrackError');
-		exit;
+if (isset($_REQUEST['Ses'])) {
+	$Select = "SELECT MIN(AtTarget) AS Minimo, MAX(AtTarget) AS Massimo, SesAth4Target in (1,2) as Coalesce
+		FROM AvailableTarget 
+		inner join Session on SesTournament=AtTournament and SesOrder=AtSession and SesType='Q'
+		WHERE AtTournament={$_SESSION['TourId']} AND AtSession = " . intval($_REQUEST['Ses']) . "
+		group by AtTournament, AtSession";
+	$Rs=safe_r_sql($Select);
+	if (safe_num_rows($Rs)==1) {
+		$MyRow=safe_fetch($Rs);
+		$JSON['min']=$MyRow->Minimo;
+		$JSON['max']=$MyRow->Massimo;
+		$JSON['error']=0;
+		$JSON['coalesce']=($MyRow->Coalesce ? '<input id="x_Coalesce" name="x_Coalesce" type="checkbox" value="1">' . get_text('CoalesceScorecards', 'Tournament').'<div>' . get_text('CoalesceScorecardsTip', 'Tournament').'</div>' : '');
 	}
-    checkACL(AclQualification, AclReadOnly, false);
+}
 
-	$Errore=0;
-	$First='';
-	$Last='';
-
-	if (isset($_REQUEST['Ses']))
-	{
-		$Select
-			= "SELECT SUBSTRING(MIN(AtTargetNo),2," . TargetNoPadding . ") AS Minimo, SUBSTRING(MAX(AtTargetNo),2," . TargetNoPadding . ") AS Massimo "
-			. "FROM AvailableTarget "
-			. "WHERE AtTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND AtTargetNo LIKE " . StrSafe_DB($_REQUEST['Ses'] . "%") . " ";
-		$Rs=safe_r_sql($Select);
-		if (debug)
-			print $Select . '<br>';
-		if (safe_num_rows($Rs)==1)
-		{
-			$MyRow=safe_fetch($Rs);
-			$First=(!is_null($MyRow->Minimo) ? $MyRow->Minimo : '#');
-			$Last=(!is_null($MyRow->Massimo) ? $MyRow->Massimo : '#');
-		}
-		else
-			$Errore=1;
-	}
-
-	if (!debug)
-		header('Content-Type: text/xml');
-
-	print '<response>';
-	print '<error>' . $Errore . '</error>';
-	print '<minimo>' . $First . '</minimo>';
-	print '<massimo>' . $Last . '</massimo>';
-	print '</response>';
-?>
+JsonOut($JSON);

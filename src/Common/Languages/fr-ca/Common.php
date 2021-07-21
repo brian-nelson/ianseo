@@ -120,7 +120,6 @@ $lang['ISKMenuHeader']='ISK';
 $lang['JF']='Femme Junior';
 $lang['JM']='Homme Junior';
 $lang['jrYesNo']='Oui / Non';
-$lang['JudgeNotes']='Annotations des Juges';
 $lang['LB']='Arc droit';
 $lang['M']='Homme';
 $lang['ManFinAthTargetInd']='Finales individuelles - Athlètes par cible';

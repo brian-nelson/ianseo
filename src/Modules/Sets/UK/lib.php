@@ -13,73 +13,383 @@ if(empty($SubRule)) $SubRule='1';
 
 function CreateStandardDivisions($TourId, $Type, $SubRule) {
 	$i=1;
-	switch($SubRule) {
-		case 1:
-			if($Type==21) { // F2F
-				CreateDivision($TourId, $i++, 'R', 'Recurve');
-				CreateDivision($TourId, $i++, 'C', 'Compound');
-			} else {
-				CreateDivision($TourId, $i++, 'R', 'Recurve/Barebow');
-				CreateDivision($TourId, $i++, 'C', 'Compound');
-			}
-			break;
-		case 2:
-			CreateDivision($TourId, $i++, 'R', 'Recurve');
-			CreateDivision($TourId, $i++, 'C', 'Compound');
-			CreateDivision($TourId, $i++, 'L', 'Longbow');
-			CreateDivision($TourId, $i++, 'B', 'Barebow');
-			break;
-	}
+    $optionDivs = array(
+        'R'=>'Recurve',
+        'C'=>'Compound',
+        'B'=>'Barebow',
+        'L'=>'Longbow',
+    );
+    if ($Type == 21) {
+        $optionDivs = array('C' => 'Compound','R' => 'Recurve');
+    } else if (($Type!=40) && ($SubRule == 1)) {
+        $optionDivs = array('R'=>'Recurve/Barebow','C'=>'Compound','L'=>'Longbow');
+    }
+
+    foreach ($optionDivs as $k => $v){
+        CreateDivision($TourId, $i++, $k, $v);
+    }
+
 }
 
-function CreateStandardClasses($TourId, $SubRule) {
-	$i=1;
-	switch($SubRule) {
-		case '1': // National Championships - F2F
-			CreateClass($TourId, $i++, 1, 99, 0, 'M', 'M', 'Gentlemen');
-			CreateClass($TourId, $i++, 1, 99, 1, 'W', 'W', 'Ladies');
-			break;
-		case '2': // Junior National Championships
-			CreateClass($TourId, $i++, 17,18, 0, 'S1', 'S1', 'Section 1 - Junior Gentlemen U18');
-			CreateClass($TourId, $i++, 17,18, 1, 'S2', 'S2', 'Section 2 - Junior Ladies U18');
-			CreateClass($TourId, $i++, 15,16, 0, 'S3', 'S3', 'Section 3 - Junior Gentlemen U16');
-			CreateClass($TourId, $i++, 15,16, 1, 'S4', 'S4', 'Section 4 - Junior Ladies U16');
-			CreateClass($TourId, $i++, 13,14, 0, 'S5', 'S5', 'Section 5 - Junior Gentlemen U14');
-			CreateClass($TourId, $i++, 13,14, 1, 'S6', 'S6', 'Section 6 - Junior Ladies U14');
-			CreateClass($TourId, $i++,  1,12, 0, 'S7', 'S7', 'Section 7 - Junior Gentlemen U12');
-			CreateClass($TourId, $i++,  1,12, 1, 'S8', 'S8', 'Section 8 - Junior Ladies U12');
-			break;
+function CreateStandardClasses($TourId, $SubRule,$TourType) {
+    $i=1;
+	switch($TourType) {
+        case 40:
+            CreateClass($TourId, $i++, 19, 110, 0, 'M', 'M4,M3,M2,M1,M', 'Men');
+            CreateClass($TourId, $i++, 19, 110, 1, 'W', 'W5,W4,W3,W2,W', 'Women');
+            CreateClass($TourId, $i++, 17, 18, 0, 'M1', 'M4,M3,M2,M1,M', 'Junior Men U18');
+            CreateClass($TourId, $i++, 17, 18, 1, 'W2', 'W5,W4,W3,W2,W', 'Junior Women U18');
+            CreateClass($TourId, $i++, 15, 16, 0, 'M2', 'M4,M3,M2,M1,M', 'Junior Men U16');
+            CreateClass($TourId, $i++, 15, 16, 1, 'W3', 'W5,W4,W3,W2,W', 'Junior Women U16');
+            CreateClass($TourId, $i++, 13, 14, 0, 'M3', 'M4,M3,M2,M1,M', 'Junior Men U14');
+            CreateClass($TourId, $i++, 13, 14, 1, 'W4', 'W5,W4,W3,W2,W', 'Junior Women U14');
+            CreateClass($TourId, $i++, 1, 12, 0, 'M4', 'M4,M3,M2,M1,M', 'Junior Men U12');
+            CreateClass($TourId, $i++, 1, 12, 1, 'W5', 'W5,W4,W3,W2,W', 'Junior Women U12');
+            break;
+        default:
+            switch ($SubRule) {
+                case '1': // National Championships - F2F
+                    CreateClass($TourId, $i++, 1, 99, 0, 'M', 'M', 'Gentlemen');
+                    CreateClass($TourId, $i++, 1, 99, 1, 'W', 'W', 'Ladies');
+                    break;
+                case '2': // Junior National Championships
+                    CreateClass($TourId, $i++, 17, 18, 0, 'S1', 'S1', 'Section 1 - Junior Gentlemen U18');
+                    CreateClass($TourId, $i++, 17, 18, 1, 'S2', 'S2', 'Section 2 - Junior Ladies U18');
+                    CreateClass($TourId, $i++, 15, 16, 0, 'S3', 'S3', 'Section 3 - Junior Gentlemen U16');
+                    CreateClass($TourId, $i++, 15, 16, 1, 'S4', 'S4', 'Section 4 - Junior Ladies U16');
+                    CreateClass($TourId, $i++, 13, 14, 0, 'S5', 'S5', 'Section 5 - Junior Gentlemen U14');
+                    CreateClass($TourId, $i++, 13, 14, 1, 'S6', 'S6', 'Section 6 - Junior Ladies U14');
+                    CreateClass($TourId, $i++, 1, 12, 0, 'S7', 'S7', 'Section 7 - Junior Gentlemen U12');
+                    CreateClass($TourId, $i++, 1, 12, 1, 'S8', 'S8', 'Section 8 - Junior Ladies U12');
+                    break;
+                case 3:
+                    CreateClass($TourId, $i++, 50, 100, 0, 'MM', 'MM,M', 'Master Men');
+                    CreateClass($TourId, $i++, 50, 100, 1, 'MW', 'MW,W', 'Master Women');
+                    CreateClass($TourId, $i++, 21, 49, 0, 'M', 'M4,M3,M2,M1,M,MM', 'Men');
+                    CreateClass($TourId, $i++, 21, 49, 1, 'W', 'W5,W4,W3,W2,W,MW', 'Women');
+                    CreateClass($TourId, $i++, 1, 17, 0, 'M1', 'M4,M3,M2,M1,M', 'Junior Men U18');
+                    CreateClass($TourId, $i++, 1, 17, 1, 'W2', 'W5,W4,W3,W2,W', 'Junior Women U18');
+                    CreateClass($TourId, $i++, 15, 16, 0, 'M2', 'M4,M3,M2,M1,M', 'Junior Men U16');
+                    CreateClass($TourId, $i++, 15, 16, 1, 'W3', 'W5,W4,W3,W2,W', 'Junior Women U16');
+                    CreateClass($TourId, $i++, 13, 14, 0, 'M3', 'M4,M3,M2,M1,M', 'Junior Men U14');
+                    CreateClass($TourId, $i++, 13, 14, 1, 'W4', 'W5,W4,W3,W2,W', 'Junior Women U14');
+                    CreateClass($TourId, $i++, 1, 12, 0, 'M4', 'M4,M3,M2,M1,M', 'Junior Men U12');
+                    CreateClass($TourId, $i++, 1, 12, 1, 'W5', 'W5,W4,W3,W2,W', 'Junior Women U12');
+                    break;
+
+            }
+            break;
 	}
+
 }
 
-function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
+
+function CreateStandardEvents($TourId, $SubRule, $Outdoor=true,$TourType) {
 	$TargetR=($Outdoor?5:2);
 	$TargetC=($Outdoor?9:4);
 	$SetC=($Outdoor?0:1);
-	switch($SubRule) {
-		case '1':// National Championships
-			$i=1;
-			CreateEvent($TourId, $i++, 0, 0, 16, $TargetR, 5, 3, 1, 5, 3, 1, 'RM',  'Gentlemen Recurve', 1, 240);
-			CreateEvent($TourId, $i++, 0, 0, 16, $TargetR, 5, 3, 1, 5, 3, 1, 'RW',  'Ladies Recurve', 1, 240);
-			CreateEvent($TourId, $i++, 0, 0, 16, $TargetC, 5, 3, 1, 5, 3, 1, 'CM',  'Gentlemen Compound', $SetC, 240);
-			CreateEvent($TourId, $i++, 0, 0, 16, $TargetC, 5, 3, 1, 5, 3, 1, 'CW',  'Ladies Compound', $SetC, 240);
-			CreateEvent($TourId, $i++, 0, 0, 16, $TargetR, 5, 3, 1, 5, 3, 1, 'LM',  'Gentlemen Longbow', 1, 240);
-			CreateEvent($TourId, $i++, 0, 0, 16, $TargetR, 5, 3, 1, 5, 3, 1, 'LW',  'Ladies Longbow', 1, 240);
-			break;
-	}
+	switch($TourType) {
+        case 40:
+            switch ($SubRule) {
+                case 1:
+                    $M = "York";
+                    $W = "Hereford";
+                    $B1 = "Bristol 1";
+                    $B2 = "Bristol 2";
+                    $B3 = "Bristol 3";
+                    $B4 = "Bristol 4";
+                    $B5 = "Bristol 5";
+                    break;
+                case 2:
+                    $M = "St George";
+                    $W = "Albion";
+                    $B1 = "Albion";
+                    $B2 = "Windsor";
+                    $B3 = "Short Windsor";
+                    $B4 = "Junior Windsor";
+                    $B5 = "Short Junior Windsor";
+                    break;
+                case 3:
+                    $M = "American";
+                    $W = $M;
+                    $B1 = $M;
+                    $B2 = $M;
+                    $B3 = $M;
+                    $B4 = $M;
+                    $B5 = $M;
+                    break;
+                case 4:
+                    $M = "New National";
+                    $W = "Long National";
+                    $B1 = "Long National";
+                    $B2 = "National";
+                    $B3 = "Short National";
+                    $B4 = "Junior National";
+                    $B5 = "Short Junior National";
+                    break;
+                case 5:
+                    $M = "New Western";
+                    $W = "Long Western";
+                    $B1 = "Long Western";
+                    $B2 = "Western";
+                    $B3 = "Short Western";
+                    $B4 = "Junior Western";
+                    $B5 = "Short Junior Western";
+                    break;
+                case 6:
+                    $M = "New Warwick";
+                    $W = "Long Warwick";
+                    $B1 = "Long Warwick";
+                    $B2 = "Warwick";
+                    $B3 = "Short Warwick";
+                    $B4 = "Junior Warwick";
+                    $B5 = "Short Junior Warwick";
+                    break;
+                case 7:
+                    $M = "St Nicholas";
+                    $W = $M;
+                    $B1 = $M;
+                    $B2 = $M;
+                    $B3 = $M;
+                    $B4 = $M;
+                    $B5 = $M;
+                    break;
+                case 8:
+                    $M = "ontarget";
+                    $W = $M;
+                    $B1 = $M;
+                    $B2 = $M;
+                    $B3 = $M;
+                    $B4 = $M;
+                    $B5 = $M;
+                    break;
+                case 9:
+                    $M = "Short Metric";
+                    $W = "Short Metric";
+                    $B1 = "Short Metric 1";
+                    $B2 = "Short Metric 2";
+                    $B3 = "Short Metric 3";
+                    $B4 = "Short Metric 4";
+                    $B5 = "Short Metric 5";
+                    break;
+                case 10:
+                    $M = "Long Metric";
+                    $W = "Long Metric";
+                    $B1 = "Long Metric 1";
+                    $B2 = "Long Metric 2";
+                    $B3 = "Long Metric 3";
+                    $B4 = "Long Metric 4";
+                    $B5 = "Long Metric 5";
+                    break;
+                case 11:
+                    $M = "Worcester";
+                    $W = $M;
+                    $B1 = $M;
+                    $B2 = $M;
+                    $B3 = $M;
+                    $B4 = $M;
+                    $B5 = $M;
+                    break;
+                case 12:
+                    $M = "Bray 1";
+                    $W = $M;
+                    $B1 = $M;
+                    $B2 = $M;
+                    $B3 = $M;
+                    $B4 = $M;
+                    $B5 = $M;
+                    break;
+                case 13:
+                    $M = "Bray 2";
+                    $W = $M;
+                    $B1 = $M;
+                    $B2 = $M;
+                    $B3 = $M;
+                    $B4 = $M;
+                    $B5 = $M;
+                    break;
+                case 14:
+                    $M = "Stafford";
+                    $W = $M;
+                    $B1 = $M;
+                    $B2 = $M;
+                    $B3 = $M;
+                    $B4 = $M;
+                    $B5 = $M;
+                    break;
+                case 15:
+                    $M = "Portsmouth";
+                    $W = $M;
+                    $B1 = $M;
+                    $B2 = $M;
+                    $B3 = $M;
+                    $B4 = $M;
+                    $B5 = $M;
+                    break;
+            }
+            $i = 1;
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RM', $M . ' Recurve Men', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CM', $M . ' Compound Men', $SetC, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LM', $M . ' Longbow Men', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BM', $M . ' Barebow Men', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RW', $W . ' Recurve Women', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CW', $W . ' Compound Women', $SetC, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LW', $W . ' Longbow Women', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BW', $W . ' Barebow Women', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RM1', $B1 . ' Gentlemen Recurve Under 18', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CM1', $B1 . ' Gentlemen Compound Under 18', $SetC, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LM1', $B1 . ' Gentlemen Longbow Under 18', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BM1', $B1 . ' Gentlemen Barebow Under 18', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RW2', $B2 . ' Ladies Recurve Under 18', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CW2', $B2 . ' Ladies Compound Under 18', $SetC, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LW2', $B2 . ' Ladies Longbow Under 18', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BW2', $B2 . ' Ladies Barebow Under 18', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RM2', $B2 . ' Gentlemen Recurve Under 16', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CM2', $B2 . ' Gentlemen Compound Under 16', $SetC, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LM2', $B2 . ' Gentlemen Longbow Under 16', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BM2', $B2 . ' Gentlemen Barebow Under 16', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RW3', $B3 . ' Ladies Recurve Under 16', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CW3', $B3 . ' Ladies Compound Under 16', $SetC, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LW3', $B3 . ' Ladies Longbow Under 16', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BW3', $B3 . ' Ladies Barebow Under 16', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RM3', $B3 . ' Gentlemen Recurve Under 14', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CM3', $B3 . ' Gentlemen Compound Under 14', $SetC, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LM3', $B3 . ' Gentlemen Longbow Under 14', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BM3', $B3 . ' Gentlemen Barebow Under 14', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RW4', $B4 . ' Ladies Recurve Under 14', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CW4', $B4 . ' Ladies Compound Under 14', $SetC, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LW4', $B4 . ' Ladies Longbow Under 14', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BW4', $B4 . ' Ladies Barebow Under 14', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RM4', $B4 . ' Gentlemen Recurve Under 12', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CM4', $B4 . ' Gentlemen Compound Under 12', $SetC, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LM4', $B4 . ' Gentlemen Longbow Under 12', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BM4', $B4 . ' Gentlemen Barebow Under 12', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RW5', $B5 . ' Ladies Recurve Under 12', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CW5', $B5 . ' Ladies Compound Under 12', $SetC, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LW5', $B5 . ' Ladies Longbow Under 12', 1, 240);
+            CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BW5', $B5 . ' Ladies Barebow Under 12', 1, 240);
+            break;
+        default:
+            switch ($SubRule) {
+                case 1:// National Championships
+                    $i = 1;
+                    CreateEvent($TourId, $i++, 0, 0, 16, $TargetR, 5, 3, 1, 5, 3, 1, 'RM', 'Gentlemen Recurve', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 16, $TargetR, 5, 3, 1, 5, 3, 1, 'RW', 'Ladies Recurve', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 16, $TargetC, 5, 3, 1, 5, 3, 1, 'CM', 'Gentlemen Compound', $SetC, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 16, $TargetC, 5, 3, 1, 5, 3, 1, 'CW', 'Ladies Compound', $SetC, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 16, $TargetR, 5, 3, 1, 5, 3, 1, 'LM', 'Gentlemen Longbow', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 16, $TargetR, 5, 3, 1, 5, 3, 1, 'LW', 'Ladies Longbow', 1, 240);
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    if ($TourType == 1) {
+                        $appAdult='1440';
+                        $app1 = 'Metric 1';
+                        $app2 = 'Metric 2';
+                        $app3 = 'Metric 3';
+                        $app4 = 'Metric 4';
+                        $app5 = 'Metric 5';
+                    }
+                    elseif ($TourType == 2) {
+                        $appAdult = 'Double 1440';
+                        $app1 = 'Double Metric 1';
+                        $app2 = 'Double Metric 2';
+                        $app3 = 'Double Metric 3';
+                        $app4 = 'Double Metric 4';
+                        $app5 = 'Double Metric 5';
+                    }
+                    else {
+                        $app1 = '';
+                        $app2 = '';
+                        $app3 = '';
+                        $app4 = '';
+                        $app5 = '';
+                        $appAdult = '';
+
+                    }
+
+                    $i=1;
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RM', $appAdult.' Recurve Men', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RW', $appAdult.' Recurve Women', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CM', $appAdult.' Compound Men', $SetC, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CW', $appAdult.' Compound Women', $SetC, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LM', $appAdult.' Longbow Men', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LW', $appAdult.' Longbow Women', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BM', $appAdult.' Barebow Men', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BW', $appAdult.' Barebow Women', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RM1', $app1.' Gentlemen Recurve Under 18', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CM1', $app1.' Gentlemen Compound Under 18', $SetC, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LM1', $app1.' Gentlemen Longbow Under 18', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BM1', $app1.' Gentlemen Barebow Under 18', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RW2', $app2.' Ladies Recurve Under 18', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CW2', $app2.' Ladies Compound Under 18', $SetC, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LW2', $app2.' Ladies Longbow Under 18', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BW2', $app2.' Ladies Barebow Under 18', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RM2', $app2.' Gentlemen Recurve Under 16', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CM2', $app2.' Gentlemen Compound Under 16', $SetC, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LM2', $app2.' Gentlemen Longbow Under 16', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BM2', $app2.' Gentlemen Barebow Under 16', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RW3', $app3.' Ladies Recurve Under 16', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CW3', $app3.' Ladies Compound Under 16', $SetC, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LW3', $app3.' Ladies Longbow Under 16', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BW3', $app3.' Ladies Barebow Under 16', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RM3', $app3.' Gentlemen Recurve Under 14', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CM3', $app3.' Gentlemen Compound Under 14', $SetC, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LM3', $app3.' Gentlemen Longbow Under 14', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BM3', $app3.' Gentlemen Barebow Under 14', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RW4', $app4.' Ladies Recurve Under 14', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CW4', $app4.' Ladies Compound Under 14', $SetC, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LW4', $app4.' Ladies Longbow Under 14', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BW4', $app4.' Ladies Barebow Under 14', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RM4', $app4.' Gentlemen Recurve Under 12', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CM4', $app4.' Gentlemen Compound Under 12', $SetC, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LM4', $app4.' Gentlemen Longbow Under 12', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BM4', $app4.' Gentlemen Barebow Under 12', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'RW5', $app5.' Ladies Recurve Under 12', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetC, 5, 3, 1, 5, 3, 1, 'CW5', $app5.' Ladies Compound Under 12', $SetC, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'LW5', $app5.' Ladies Longbow Under 12', 1, 240);
+                    CreateEvent($TourId, $i++, 0, 0, 0, $TargetR, 5, 3, 1, 5, 3, 1, 'BW5', $app5.' Ladies Barebow Under 12', 1, 240);
+                    break;
+
+            }
+            break;
+
+            }
 }
 
-function InsertStandardEvents($TourId, $SubRule) {
-	switch($SubRule) {
-		case '1':
-			InsertClassEvent($TourId, 0, 1, 'RM',  'R',  'M');
-			InsertClassEvent($TourId, 0, 1, 'RW',  'R',  'W');
-			InsertClassEvent($TourId, 0, 1, 'CM',  'C',  'M');
-			InsertClassEvent($TourId, 0, 1, 'CW',  'C',  'W');
-			InsertClassEvent($TourId, 0, 1, 'LM',  'L',  'M');
-			InsertClassEvent($TourId, 0, 1, 'LW',  'L',  'W');
-			break;
-	}
+function InsertStandardEvents($TourId, $SubRule,$TourType){
+
+    switch ($TourType) {
+        case 40:
+            EventInserts($TourId);
+            break;
+        default:
+            switch($SubRule){
+                case 3:
+                   EventInserts($TourId);
+                break;
+
+
+            }
+    }
+}
+
+function EventInserts($TourId){
+    foreach (array('R' => 'R', 'C' => 'C', 'B' => 'B', 'L' => 'L') as $kDiv => $vDiv) {
+        $clsTmpArr = array('W', 'W2', 'W3', 'W4', 'W5');
+
+        foreach ($clsTmpArr as $kClass => $vClass) {
+            InsertClassEvent($TourId, 0, 1, $vDiv . $vClass, $kDiv, $vClass);
+
+        }
+        $clsTmpArr = array('M', 'M1', 'M2', 'M3', 'M4', 'M5');
+        foreach ($clsTmpArr as $kClass => $vClass) {
+            InsertClassEvent($TourId, 0, 1, $vDiv . $vClass, $kDiv, $vClass);
+
+        }
+    }
+
 }
 
 /*

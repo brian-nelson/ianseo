@@ -11,11 +11,9 @@ $WithFinals=array(3, 6, 7, 8, 22);
 
 foreach($AllowedTypes as $val) {
 	$SetType['NO']['types']["$val"]=$TourTypes[$val];
-	$SetType['NO']['rules']["$val"]=array(
-		'SetOrdinary',
-		);
+
 	if(in_array($val, $WithFinals)) {
-		$SetType['NO']['rules']["$val"][]='SetOrdinaryFinals';
+        $SetType['NO']['rules']["$val"]=array('SetOrdinary','SetOrdinaryFinals');
 	}
 	switch($val) {
 		case '3':
@@ -23,7 +21,7 @@ foreach($AllowedTypes as $val) {
 			$SetType['NO']['rules']["$val"][]='SetChampionship';
 			break;
 		case '5':
-			$SetType['NO']['rules']["$val"][]='NorskKortrunde';
+			$SetType['NO']['rules']["$val"]=array('SetOrdinary','NorskKortrunde');
 			break;
 		case '6':
 			$SetType['NO']['rules']["$val"][]='SetChampionship';

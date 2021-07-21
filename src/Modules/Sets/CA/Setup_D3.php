@@ -23,10 +23,10 @@ CreateStandardClasses($TourId, $SubRule);
 // default Distances
 switch($TourType) {
 	case 11:
-		CreateDistance($TourId, $TourType, '%', 'Course');
+		CreateDistanceNew($TourId, $TourType, '%', array(array('Course',0)));
 		break;
 	case 13:
-		CreateDistance($TourId, $TourType, '%', 'Course 1', 'Course 2');
+		CreateDistanceNew($TourId, $TourType, '%', array(array('Course 1',0), array('Course 2',0)));
 		break;
 }
 

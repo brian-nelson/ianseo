@@ -21,6 +21,7 @@
     checkACL(AclQualification, AclReadWrite, false);
 
 	$Errore=0;
+	$MakeTeams=1;
 
 	$MaxArrows=0;	// num massimo di frecce
 	$ArrowString = '';	// arrowstring da scrivere
@@ -54,9 +55,7 @@
 			. "FROM Tournament INNER JOIN Tournament*Type ON ToType=TtId "
 			. "WHERE ToId=" . StrSafe_DB($_SESSION['TourId']) . " ";*/
 
-		$Select	= "SELECT ToGoldsChars,ToXNineChars,(ToMaxDistScore/ToGolds) AS MaxArrows "
-			. "FROM Tournament "
-			. "WHERE ToId=" . StrSafe_DB($_SESSION['TourId']) . " ";
+		$Select	= "SELECT ToType, ToGoldsChars,ToXNineChars,(ToMaxDistScore/ToGolds) AS MaxArrows FROM Tournament WHERE ToId=" . StrSafe_DB($_SESSION['TourId']) . " ";
 
 		$Rs=safe_r_sql($Select);
 
@@ -64,6 +63,7 @@
             $Errore = 1;
         } else {
 			$MyRow=safe_fetch($Rs);
+			$MakeTeams=($MyRow->ToType!=14); // Vegas style does not have teams!!!
 			$MaxArrows=$MyRow->MaxArrows;
 			$G=$MyRow->ToGoldsChars;
 			$X=$MyRow->ToXNineChars;
@@ -97,9 +97,7 @@
 					$CurEndScore=ValutaArrowString(substr($ArrowString, intval($_REQUEST['Index']/$MyRow->DiArrows)*$MyRow->DiArrows, $MyRow->DiArrows));
 
 				// Ricalcolo i totali della distanza usando $ArrowString
-					list($CurScore,$CurGold,$CurXNine) = ValutaArrowStringGX($ArrowString,$G,$X);
-
-					if (debug) print $Score . '<br>';
+                    list($CurScore,$CurGold,$CurXNine) = ValutaArrowStringGX($ArrowString,$G,$X);
 
 				// Estraggo il vecchio valore
 					$Select
@@ -135,7 +133,9 @@
                                 . "WHERE QuId=" . StrSafe_DB($_REQUEST['Id']) . " ";
                             $RsUp=safe_w_sql($Update);
 
-                            if($PageOutput!='JSON' or !$BlockApi) {
+	                        runJack("QualArrUpdate", $_SESSION['TourId'], array("Dist"=>$_REQUEST['Dist'] ,"Index"=>$_REQUEST['Index'] ,"Id"=>$_REQUEST['Id'] ,"Point"=>$_REQUEST['Point'] ,"TourId"=>$_SESSION['TourId']));
+
+	                        if($PageOutput!='JSON' or !$BlockApi) {
                                 if (safe_w_affected_rows() == 1 && $OldValue != $CurScore) {
 
                                     $q = "SELECT DISTINCT EvCode,EvTeamEvent
@@ -214,16 +214,19 @@
                                         }
                                     }
 
-                                    if ($Errore == 0) {
-                                        // se non ho errori calcolo le squadre
-                                        if (MakeTeams($Societa, $Category))
-                                            $Errore = 1;
-                                    }
+                                    if($MakeTeams) {
 
-                                    if ($Errore == 0) {
-                                        // se non ho errori calcolo le squadre assolute
-                                        if (MakeTeamsAbs($Societa, $Div, $Cl))
-                                            $Errore = 1;
+	                                    if ($Errore == 0) {
+	                                        // se non ho errori calcolo le squadre
+	                                        if (MakeTeams($Societa, $Category))
+	                                            $Errore = 1;
+	                                    }
+
+	                                    if ($Errore == 0) {
+	                                        // se non ho errori calcolo le squadre assolute
+	                                        if (MakeTeamsAbs($Societa, $Div, $Cl))
+	                                            $Errore = 1;
+	                                    }
                                     }
 
                                 }
@@ -250,9 +253,6 @@
 	} else {
         $Errore = 1;
     }
-
-	runJack("QualArrUpdate", $_SESSION['TourId'], array("Dist"=>$_REQUEST['Dist'] ,"Index"=>$_REQUEST['Index'] ,"Id"=>$_REQUEST['Id'] ,"Point"=>$_REQUEST['Point'] ,"TourId"=>$_SESSION['TourId']));
-
 
 	switch($PageOutput) {
 		case 'XML':

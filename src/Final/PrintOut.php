@@ -8,6 +8,7 @@
 	$JS_SCRIPT=array(
 		'<script src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 		'<script src="PrintOut.js"></script>',
+		'<style>.hide {display:none}</style>'
 		);
 
 	$PAGE_TITLE=get_text('PrintList','Tournament');
@@ -148,13 +149,18 @@
 		safe_free_result($Rs);
 	}
 	echo '</td><td width="50%">';
-	echo '<input name="IncRankings" type="checkbox" value="1" checked>&nbsp;' . get_text('Rankings') . '<br>';
-	echo '<input name="IncBrackets" type="checkbox" value="1" checked>&nbsp;' . get_text('Brackets') . '<br>';
-	echo '<input name="ShowTargetNo" type="checkbox" value="1" checked>&nbsp;' . get_text('Target') . '<br>';
-	echo '<input name="ShowSchedule" type="checkbox" value="1" checked>&nbsp;' . get_text('ManFinScheduleInd') . '<br>';
-	echo '<input name="ShowSetArrows" type="checkbox" value="1">&nbsp;' . get_text('ShowSetEnds', 'Tournament') . '<br>';
-	echo '<input id="ShowOrisInd" name="ShowOrisInd" type="checkbox" value="1" onClick="javascript:CheckIfOris(\'ShowOrisInd\',\'PrnParametersInd\',true);"'.($_SESSION['ISORIS'] ? ' checked="checked"' : '').'>&nbsp;' . get_text('StdORIS','Tournament') . '<br>';
-	echo '<br/><input name="ShowChildren" type="checkbox" onclick="updateEvents(this, 0)">&nbsp;' . get_text('ShowChildren', 'Tournament') . '<br>';
+	echo '<div><input name="IncRankings" id="IncRankings" type="checkbox" value="1" checked>&nbsp;' . get_text('Rankings') . '</div>';
+	echo '<div><input name="IncBrackets" id="IncBrackets" type="checkbox" value="1" checked onclick="CheckIfOrisBrackets(true);">&nbsp;' . get_text('Brackets') . '</div>';
+	echo '<div><input name="ShowTargetNo" id="ShowTargetNo" type="checkbox" value="1" checked>&nbsp;' . get_text('Target') . '</div>';
+	echo '<div><input name="ShowSchedule" id="ShowSchedule" type="checkbox" value="1" checked>&nbsp;' . get_text('ManFinScheduleInd') . '</div>';
+	echo '<div><input name="ShowSetArrows" id="ShowSetArrows" type="checkbox" value="1">&nbsp;' . get_text('ShowSetEnds', 'Tournament') . '</div>';
+	echo '<div><input id="ShowOrisInd" name="ShowOrisInd" type="checkbox" value="1" onClick="CheckIfOris(\'ShowOrisInd\',\'PrnParametersInd\',true);"'.($_SESSION['ISORIS'] ? ' checked="checked"' : '').'>&nbsp;' . get_text('StdORIS','Tournament') . '</div>';
+	echo '<div id="OrisDetails" style="padding-left:2em;white-space: nowrap" class="'.($_SESSION['ISORIS'] ? '' : 'hide').'">
+		<input name="OrisAB" type="radio" value="AB" checked="checked">&nbsp;' . get_text('OrisComplete','Tournament') . '<br/>
+		<input name="OrisAB" type="radio" value="A">&nbsp;' . get_text('OrisEliminations','Tournament') . '<br/>
+		<input name="OrisAB" type="radio" value="B">&nbsp;' . get_text('OrisFinals','Tournament') . '
+		</div>';
+	echo '<div><br/><input name="ShowChildren" type="checkbox" onclick="updateEvents(this, 0)">&nbsp;' . get_text('ShowChildren', 'Tournament') . '</div>';
 	//echo '<input id="PrintLabelsInd" name="PrintLabelsInd" type="checkbox" value="1" onClick="javascript:CheckIfLabel(\'PrintLabelsInd\',\'PrnParametersInd\',true);">&nbsp;' . get_text('FinalIndividualLabels','Tournament') . '<br>';
 	echo '</td>';
 	echo '</tr>';

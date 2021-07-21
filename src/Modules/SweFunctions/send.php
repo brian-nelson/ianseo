@@ -29,11 +29,12 @@ if ($data['option']['ind_final'] == 1) {
     $have_data_to_send = true;
 }
 unset($data['option']);
+//print_r($data);
 
 if ($have_data_to_send) {
     echo sendInformation($url, json_encode($data));
 } else {
-    $rdata = array('status'=>'Failed','message'=>'Ingen data att skicka.');
+    $rdata = array('status'=>'Failed','message'=>$swelang_noinformation_sent);
     echo json_encode($rdata);
 }
 
@@ -87,7 +88,8 @@ function prepareIndQualification($data) {
                 'dist_5' => $ivalue['dist_5'],
                 'dist_6' => $ivalue['dist_6'],
                 'dist_7' => $ivalue['dist_7'],
-                'dist_8' => $ivalue['dist_8']
+                'dist_8' => $ivalue['dist_8'],
+                'hits' => $ivalue['arrowsShot']
             );
         }
 

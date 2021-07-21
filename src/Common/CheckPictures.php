@@ -143,17 +143,23 @@ function CheckPictures($TourCode='', $open=false, $all=false, $force=false) {
 		if($r->ToImgL and $im=@imagecreatefromstring($r->ToImgL)) {
 			if($force or !file_exists($imgLname)) imagejpeg($im, $imgLname, 90);
 		} else {
-			@unlink($imgLname);
+            if(file_exists($imgLname)) {
+                @unlink($imgLname);
+            }
 		}
 		if($r->ToImgR and $im=@imagecreatefromstring($r->ToImgR)) {
 			if($force or !file_exists($imgRname)) imagejpeg($im, $imgRname, 90);
 		} else {
-			@unlink($imgRname);
+            if(file_exists($imgRname)) {
+                @unlink($imgRname);
+            }
 		}
 		if($r->ToImgB and $im=@imagecreatefromstring($r->ToImgB)) {
 			if($force or !file_exists($imgBname)) imagejpeg($im, $imgBname, 90);
 		} else {
-			@unlink($imgBname);
+		    if(file_exists($imgBname)) {
+                @unlink($imgBname);
+            }
 		}
 	}
 
@@ -168,7 +174,9 @@ function CheckPictures($TourCode='', $open=false, $all=false, $force=false) {
 			if($r->BnBackground and $im=@imagecreatefromstring($r->BnBackground)) {
 				if($force or !file_exists($ImName)) imagejpeg($im, $ImName, 90);
 			} else {
-				@unlink($ImName);
+			    if(file_exists($ImName)) {
+                    @unlink($ImName);
+                }
 			}
 		}
 	}
@@ -180,7 +188,9 @@ function CheckPictures($TourCode='', $open=false, $all=false, $force=false) {
 		if($r->IcBackground and $im=@imagecreatefromstring($r->IcBackground)) {
 			if($force or !file_exists($ImName)) imagejpeg($im, $ImName, 90);
 		} else {
-			@unlink($ImName);
+		    if(file_exists($ImName)) {
+                @unlink($ImName);
+            }
 		}
 	}
 	$q=safe_r_sql("select IceContent, IceOrder, IceType, IceCardType, IceCardNumber from IdCardElements where IceTournament = $TourId and IceType in ('Image', 'RandomImage')");
@@ -189,7 +199,9 @@ function CheckPictures($TourCode='', $open=false, $all=false, $force=false) {
 		if($r->IceContent and $im=@imagecreatefromstring($r->IceContent)) {
 			if($force or !file_exists($ImName)) imagejpeg($im, $ImName, 90);
 		} else {
-			@unlink($ImName);
+            if(file_exists($ImName)) {
+                @unlink($ImName);
+            }
 		}
 	}
 
@@ -204,7 +216,9 @@ function CheckPictures($TourCode='', $open=false, $all=false, $force=false) {
 		if($r->ImContent and $im=@imagecreatefromstring($r->ImContent)) {
 			if($force or !file_exists($ImName) or filemtime($ImName) < $r->ImgLastUpdate) imagejpeg($im, $ImName, 90);
 		} else {
-			@unlink($ImName);
+		    if(file_exists($ImName)) {
+                @unlink($ImName);
+            }
 		}
 	}
 }
@@ -323,17 +337,23 @@ function RedrawPictures($TourCode='', $Force=false) {
 		if($r->ToImgL and $im=@imagecreatefromstring($r->ToImgL)) {
 			if($Force or !file_exists($imgLname)) imagejpeg($im, $imgLname, 90);
 		} else {
-			@unlink($imgLname);
+		    if(file_exists($imgLname)) {
+                @unlink($imgLname);
+            }
 		}
 		if($r->ToImgR and $im=@imagecreatefromstring($r->ToImgR)) {
 			if($Force or !file_exists($imgRname)) imagejpeg($im, $imgRname, 90);
 		} else {
-			@unlink($imgRname);
+            if(file_exists($imgRname)) {
+                @unlink($imgRname);
+            }
 		}
 		if($r->ToImgB and $im=@imagecreatefromstring($r->ToImgB)) {
 			if($Force or !file_exists($imgBname)) imagejpeg($im, $imgBname, 90);
 		} else {
-			@unlink($imgBname);
+            if(file_exists($imgBname)) {
+                @unlink($imgBname);
+            }
 		}
 	}
 
@@ -347,7 +367,9 @@ function RedrawPictures($TourCode='', $Force=false) {
 			if($r->BnBackground and $im=@imagecreatefromstring($r->BnBackground)) {
 				if($Force or !file_exists($ImName)) imagejpeg($im, $ImName, 90);
 			} else {
-				@unlink($ImName);
+			    if(file_exists($ImName)) {
+                    @unlink($ImName);
+                }
 			}
 		}
 	}
@@ -359,7 +381,9 @@ function RedrawPictures($TourCode='', $Force=false) {
 		if($r->IcBackground and $im=@imagecreatefromstring($r->IcBackground)) {
 			if($Force or !file_exists($ImName)) imagejpeg($im, $ImName, 90);
 		} else {
-			@unlink($ImName);
+		    if(file_exists($ImName)) {
+                @unlink($ImName);
+            }
 		}
 	}
 	$q=safe_r_sql("select IceContent, IceType, IceOrder, IceCardType, IceCardNumber from IdCardElements where IceContent>'' and IceTournament = $TourId and IceType in ('Image', 'ImageSvg', 'RandomImage')");
@@ -369,14 +393,18 @@ function RedrawPictures($TourCode='', $Force=false) {
 			if($im=@gzinflate($r->IceContent)) {
 				if($Force or !file_exists($ImName)) file_put_contents($ImName, $im);
 			} else {
-				@unlink($ImName);
+			    if(file_exists($ImName)) {
+                    @unlink($ImName);
+                }
 			}
 		} else {
 			$ImName=$CFG->DOCUMENT_PATH.'TV/Photos/'.$TourCodeSafe.'-'.$r->IceType.'-'.$r->IceCardType.'-'.$r->IceCardNumber.'-'.$r->IceOrder.'.jpg';
 			if($im=@imagecreatefromstring($r->IceContent)) {
 				if($Force or !file_exists($ImName)) imagejpeg($im, $ImName, 90);
 			} else {
-				@unlink($ImName);
+			    if(file_exists($ImName)) {
+                    @unlink($ImName);
+                }
 			}
 		}
 	}
@@ -392,7 +420,9 @@ function RedrawPictures($TourCode='', $Force=false) {
 		if($r->ImContent and $im=@imagecreatefromstring($r->ImContent)) {
 			if($Force or !file_exists($ImName) or filemtime($ImName) < $r->ImgLastUpdate) imagejpeg($im, $ImName, 90);
 		} else {
-			@unlink($ImName);
+		    if(file_exists($ImName)) {
+                @unlink($ImName);
+            }
 		}
 	}
 }
@@ -537,7 +567,9 @@ function updatePhoto($EnId, $q='') {
 			$ret=($ret and true);
 		} else {
 			safe_w_SQL("delete from Photos where PhEnId=$r->EnId");
-			@unlink($ImName);
+            if(file_exists($ImName)) {
+                @unlink($ImName);
+            }
 			$ret=false;
 		}
 	}
@@ -574,7 +606,9 @@ function updateFlag($FlCode, $Type='JPG', $q='') {
 				$ret=($ret and true);
 			} else {
 				safe_w_SQL("update Flags set FlJPG='' where FlCode='$r->FlCode' and FlTournament=$r->ToId");
-				@unlink($ImName);
+                if(file_exists($ImName)) {
+                    @unlink($ImName);
+                }
 				$ret=false;
 				$Delete+=safe_w_affected_rows();
 			}
@@ -588,7 +622,9 @@ function updateFlag($FlCode, $Type='JPG', $q='') {
 				$ret=($ret and true);
 			} else {
 				safe_w_SQL("update Flags set FlSVG='' where FlCode='$r->FlCode' and FlTournament=$r->ToId");
-				@unlink($ImName);
+                if(file_exists($ImName)) {
+                    @unlink($ImName);
+                }
 				$ret=false;
 				$Delete+=safe_w_affected_rows();
 			}

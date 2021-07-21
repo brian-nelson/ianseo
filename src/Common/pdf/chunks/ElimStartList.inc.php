@@ -8,7 +8,7 @@ $OldTarget='';
 
 foreach($PdfData->Data['Items'] as $MyRows) {
 	foreach($MyRows as $MyRow) {
-		$NumEnd=($MyRow->Session == 0 ? 12 : 8);
+		$NumEnd=$MyRow->NumTargets;
 
 		$athlete=$MyRow->FirstName . ' ' . $MyRow->Name;
 		$titlePools=$MyRow->SesName;
@@ -49,7 +49,8 @@ foreach($PdfData->Data['Items'] as $MyRows) {
 
 		    $pdf->SetFont($pdf->FontStd,'B',10);
 
-			$NumEnd=($MyRow->Session == 0 ? 12 : 8);
+			//$NumEnd=($MyRow->Session == 0 ? 12 : 8);
+			//debug_svela($MyRow, true);
 
 			$pdf->Cell(190, 6, $titlePools, 1, 1, 'C', 1);
 			$OldTarget='';
@@ -78,15 +79,15 @@ foreach($PdfData->Data['Items'] as $MyRows) {
 
 		$pdf->SetFont($pdf->FontStd,'B',8);
 		if($OldTarget != substr($MyRow->TargetNo,0,-1)) {
-			$TargetToPrint=intval($MyRow->TargetNo);
+			$TargetToPrint=$MyRow->TargetNo;
 			if($MyRow->TargetNo and $NumTarget!=intval($MyRow->TargetNo)) {
-				$TargetToPrint = $NumTarget . $Indices[ceil(intval($MyRow->TargetNo)/($NumEnd))-2] ;
+				$TargetToPrint = $NumTarget . $Indices[ceil(intval($MyRow->TargetNo)/($NumEnd))-2] . '-' . substr($MyRow->TargetNo,-1,1);
 			}
 			$OldTarget = substr($MyRow->TargetNo,0,-1);
 			$pdf->SetFont($pdf->FontStd,'',1);
 			$pdf->Cell(190, 0.5,  '', 0, 1, 'C', 0);
 			$pdf->SetFont($pdf->FontStd,'B',8);
-			$pdf->Cell(7, 4, $TargetToPrint, 'LTB', 0, 'R', 0);
+			$pdf->Cell(7, 4, (substr(ltrim($TargetToPrint,'0'),0,-1)), 'LTB', 0, 'R', 0);
 			$pdf->Cell(4, 4,  (substr($MyRow->TargetNo,-1,1)), 'RTB', 0, 'R', 0);
 		} else {
 			$pdf->Cell(7, 4,  '', 0, 0, 'R', 0);
@@ -107,7 +108,7 @@ foreach($PdfData->Data['Items'] as $MyRows) {
 
 		$PdfData->HTML['sessions'][$MyRow->EventName]['Description']=$MyRow->EventName . ' ' . ($MyRow->SesName ? $titlePools : $PdfData->Data['Fields']['Session'] . ' ' . $MyRow->Session);
 		$PdfData->HTML['sessions'][$MyRow->EventName]['Targets'][$TargetToPrint][]=array(
-			ltrim(substr($TargetToPrint,0,-1),'0').substr($MyRow->TargetNo,-1),
+            ltrim(substr($TargetToPrint,0,-1),'0').substr($MyRow->TargetNo,-1),
 			$athlete,
 			$MyRow->NationCode,
 			$MyRow->Nation,

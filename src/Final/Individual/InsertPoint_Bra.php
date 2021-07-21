@@ -1,42 +1,53 @@
 <?php
-	require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-	CheckTourSession(true);
-    checkACL(AclIndividuals, AclReadWrite);
-	require_once('Common/Fun_FormatText.inc.php');
-	require_once('Common/Lib/ArrTargets.inc.php');
-	require_once('Common/Fun_Phases.inc.php');
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+CheckTourSession(true);
+checkACL(AclIndividuals, AclReadWrite);
+require_once('Common/Fun_FormatText.inc.php');
+require_once('Common/Lib/ArrTargets.inc.php');
+require_once('Common/Lib/CommonLib.php');
+require_once('Common/Fun_Phases.inc.php');
 
-	$VediGriglia = false;
-	$StartPhase=-1;
+$VediGriglia = false;
+$StartPhase=-1;
 
-	if (isset($_REQUEST['Command']) && $_REQUEST['Command']=='OK')
-	{
-		// verifico se lo spareggio per l'evento è stato fatto
-		$Select
-			= "SELECT EvShootOff "
-			. "FROM Events "
-			. "WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvShootOff='1' AND EvTeamEvent='0' AND EvCode=" . StrSafe_DB($_REQUEST['d_Event']) . " ";
-		$Rs = safe_r_sql($Select);
-		//print $Select;exit;
-		if (!$Rs || safe_num_rows($Rs)!=1)
-		{
-			header('Location: AbsIndividual2.php?EventCode=' . $_REQUEST['d_Event']);
-			exit;
-		}
-		else
-			$VediGriglia=true;
-	}
+if (isset($_REQUEST['Command']) && $_REQUEST['Command']=='OK')
+{
+    // verifico se lo spareggio per l'evento è stato fatto
+    $Select
+        = "SELECT EvShootOff "
+        . "FROM Events "
+        . "WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvShootOff='1' AND EvTeamEvent='0' AND EvCode=" . StrSafe_DB($_REQUEST['d_Event']) . " ";
+    $Rs = safe_r_sql($Select);
+    //print $Select;exit;
+    if (!$Rs || safe_num_rows($Rs)!=1)
+    {
+        header('Location: AbsIndividual.php?EventCodes[]=' . $_REQUEST['d_Event']);
+        exit;
+    }
+    else
+        $VediGriglia=true;
+}
 
-	$PAGE_TITLE=get_text('MenuLM_Data insert (Bracket view)');
+$IrmOptions=array();
+$q=safe_r_sql("select * from IrmTypes where IrmId>0 order by IrmId");
+while($r=safe_fetch($q)) {
+    $IrmOptions[]=$r;
+}
 
-	$JS_SCRIPT=array(
-		'<script type="text/javascript" src="../../Common/ajax/ObjXMLHttpRequest.js"></script>',
-		'<script type="text/javascript" src="../../Common/js/Fun_JS.inc.js"></script>',
-		'<script type="text/javascript" src="Fun_JS.js"></script>',
-		'<script type="text/javascript" src="Fun_AJAX_InsertPoint_Bra.js"></script>',
-		);
+$PAGE_TITLE=get_text('MenuLM_Data insert (Bracket view)');
 
-	include('Common/Templates/head.php');
+$JS_SCRIPT=array(
+    phpVars2js(array('CmdEnable' => get_text('CmdEnable'), 'CmdDisable'=>get_text('CmdDisable'), 'ROOT_DIR' => $CFG->ROOT_DIR)),
+    '<script type="text/javascript" src="../../Common/ajax/ObjXMLHttpRequest.js"></script>',
+    '<script type="text/javascript" src="../../Common/js/Fun_JS.inc.js"></script>',
+    '<script type="text/javascript" src="../../Common/js/jquery-3.2.1.min.js"></script>',
+    '<script type="text/javascript" src="Fun_JS.js"></script>',
+    '<script type="text/javascript" src="Fun_AJAX_InsertPoint_Bra.js"></script>',
+    );
+
+include('Common/Templates/head.php');
+
+
 ?>
 <form name="Frm" method="post" action="">
 <input type="hidden" name="Command" value="OK">
@@ -48,27 +59,26 @@
 <th class="TitleLeft" width="15%"><?php print get_text('Event');?></th>
 <td>
 <?php
-	$Select
-		= "SELECT EvCode,EvEventName "
-		. "FROM Events "
-		. "WHERE EvTournament = " . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' AND EvFinalFirstPhase!=0 "
-		. "ORDER BY EvProgr ASC ";
-	$Rs=safe_r_sql($Select);
 
-	print '<select name="d_Event" id="d_Event">' . "\n";
-	if (safe_num_rows($Rs)>0)
-	{
-		while ($Row=safe_fetch($Rs))
-		{
-			print '<option value="' . $Row->EvCode . '"' . (isset($_REQUEST['d_Event']) && $_REQUEST['d_Event']==$Row->EvCode ? ' selected' : '') . '>' . $Row->EvCode . ' - ' . get_text($Row->EvEventName,'','',true) . '</option>' . "\n";
-		}
-	}
-	print '</select>' . "\n";
+$Select = "SELECT EvCode,EvEventName
+    FROM Events
+    WHERE EvTournament = " . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' AND EvFinalFirstPhase!=0
+    ORDER BY EvProgr ASC ";
+$Rs=safe_r_sql($Select);
+
+print '<select name="d_Event" id="d_Event">' . "\n";
+if (safe_num_rows($Rs)>0) {
+    while ($Row=safe_fetch($Rs)) {
+        print '<option value="' . $Row->EvCode . '"' . (isset($_REQUEST['d_Event']) && $_REQUEST['d_Event']==$Row->EvCode ? ' selected' : '') . '>' . $Row->EvCode . ' - ' . get_text($Row->EvEventName,'','',true) . '</option>' . "\n";
+    }
+}
+print '</select>' . "\n";
+
 ?>
 &nbsp;
 <select name="d_Tie" id="d_Tie">
-<option value="0"<?php print (isset($_REQUEST['d_Tie']) && $_REQUEST['d_Tie']==0 ? ' selected' : '');?>><?php print get_text('NoManTie');?></option>
-<option value="1"<?php print (isset($_REQUEST['d_Tie']) && $_REQUEST['d_Tie']==1 ? ' selected' : '');?>><?php print get_text('ManTie');?></option>
+    <option value="0"<?php print (isset($_REQUEST['d_Tie']) && $_REQUEST['d_Tie']==0 ? ' selected' : '');?>><?php print get_text('NoManTie');?></option>
+    <option value="1"<?php print (isset($_REQUEST['d_Tie']) && $_REQUEST['d_Tie']==1 ? ' selected' : '');?>><?php print get_text('ManTie');?></option>
 </select>
 &nbsp;<input type="submit" value="<?php print get_text('CmdOk');?>">
 <div id="idOutput"></div>
@@ -81,10 +91,9 @@
 	{
 		$Status=0;	// 1 -> errore
 		// Estraggo la fase da cui inizia l'EventCode scelto, e la sua descrizione
-		$Select
-			= "SELECT EvCode,EvEventName,EvFinalFirstPhase AS StartPhase "
-			. "FROM Events "
-			. "WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvCode=" . StrSafe_DB($_REQUEST['d_Event']) . " AND EvTeamEvent='0' AND EvFinalFirstPhase!=0 ";
+		$Select = "SELECT EvCode,EvEventName,EvFinalFirstPhase AS StartPhase, EvElimType
+		    FROM Events
+		    WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvCode=" . StrSafe_DB($_REQUEST['d_Event']) . " AND EvTeamEvent='0' AND EvFinalFirstPhase!=0 ";
 		$RsParam=safe_r_sql($Select);
 		$RowPar = NULL;
 
@@ -92,6 +101,9 @@
 		{
 			$RowPar=safe_fetch($RsParam);
 			$StartPhase=$RowPar->StartPhase;
+			//if($RowPar->EvElimType==3 or $RowPar->EvElimType==4) {
+			//    $StartPhase=64;
+            //}
 
 			$GridRows = 4*valueFirstPhase($StartPhase) + 2;	// righe della griglia
 
@@ -142,15 +154,6 @@
 
 			$TabIndex = 1;
 
-			// data list for the Notes field
-			echo '<datalist id="NoteList">';
-			echo '<option value="DNS">' . get_text('DNS', 'Tournament') . '</option>' . "\n";
-			echo '<option value="DNF">' . get_text('DNF', 'Tournament') . '</option>' . "\n";
-			echo '<option value="DSQ">' . get_text('DSQ', 'Tournament') . '</option>' . "\n";
-			echo '<option value="WR">' . get_text('WR-Record', 'Tournament') . '</option>' . "\n";
-			echo '<option value="OR">' . get_text('OR-Record', 'Tournament') . '</option>' . "\n";
-			echo '</datalist>';
-
 			while ($CurPhase>1 && $Status==0)
 			{
 				$AthPrinted = 0;	// Numero di arcieri stampati
@@ -158,19 +161,19 @@
 				$Row=0;
 
 			// Estraggo la griglia della fase $CurPhase
-				$Select
-					= "SELECT GrPhase, IF(EvFinalFirstPhase=48, GrPosition2, if(GrPosition>EvNumQualified, 0, GrPosition)) as GrPosition,GrMatchNo,EvMatchMode, "
-					. "FinNotes, FinMatchNo, FinEvent, FinAthlete, IF(EvMatchMode=0,FinScore,FinSetScore) AS Score, FinTie, FinTiebreak,/* Finals*/"
-					. "CONCAT(EnFirstName,' ',SUBSTRING(EnName,1,1),'.') AS Atleta, /* Entries*/"
-					. "CoCode,CoName, /*Countries*/"
-					. "IF(GrPhase>2, FLOOR(FinMatchNo/2),FLOOR(FinMatchNo/2)-2) AS NextMatchNo "
-					. "FROM Finals "
-					. "INNER JOIN Grids ON FinMatchNo=GrMatchNo AND GrPhase=" . StrSafe_DB($CurPhase) . " "
-					. "INNER JOIN Events ON FinEvent=EvCode AND EvTeamEvent='0' AND EvTournament=FinTournament "
-					. "LEFT JOIN Entries ON FinAthlete=EnId "
-					. "LEFT JOIN Countries ON EnCountry=CoId "
-					. "WHERE FinTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND FinEvent=" . StrSafe_DB($_REQUEST['d_Event']) . " "
-					. "ORDER BY FinEvent, GrPhase DESC , GrMatchNo ASC ";
+				$Select = "SELECT GrPhase, IF(EvFinalFirstPhase=48, GrPosition2, if(GrPosition>EvNumQualified, 0, GrPosition)) as GrPosition,GrMatchNo,EvMatchMode,
+                        FinNotes, FinMatchNo, FinEvent, FinAthlete, IF(EvMatchMode=0,FinScore,FinSetScore) AS Score, FinTie, FinTiebreak,/* Finals*/
+                        CONCAT(EnFirstName,' ',SUBSTRING(EnName,1,1),'.') AS Atleta, /* Entries*/
+                        CoCode,CoName, /*Countries*/
+                        IF(GrPhase>2, FLOOR(FinMatchNo/2),FLOOR(FinMatchNo/2)-2) AS NextMatchNo, FinTbClosest,
+                        FinIrmType
+					FROM Finals
+					INNER JOIN Grids ON FinMatchNo=GrMatchNo AND GrPhase=" . StrSafe_DB($CurPhase) . "
+					INNER JOIN Events ON FinEvent=EvCode AND EvTeamEvent='0' AND EvTournament=FinTournament
+					LEFT JOIN Entries ON FinAthlete=EnId
+					LEFT JOIN Countries ON EnCountry=CoId
+					WHERE FinTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND FinEvent=" . StrSafe_DB($_REQUEST['d_Event']) . "
+					ORDER BY FinEvent, GrPhase DESC , GrMatchNo ASC ";
 				$Rs=safe_r_sql($Select);
 
 				$StrValue = '';
@@ -178,7 +181,7 @@
 				if (safe_num_rows($Rs)>0) {
 					$obj=getEventArrowsParams($_REQUEST['d_Event'],$CurPhase,0);
 
-					$Bottone = '<input type="button" name="CmdBlockPhase_' . $CurPhase . '" id="CmdBlockPhase_' . $CurPhase . '" value="' . get_text('CmdEnable') . '" onClick="javascript:BlockPhase(' . $CurPhase . ',\'' . get_text('CmdEnable') . '\',\'' . get_text('CmdDisable') . '\',' . $obj->so . ');">';
+					$Bottone = '<input type="button" name="CmdBlockPhase_' . $CurPhase . '" id="CmdBlockPhase_' . $CurPhase . '" value="' . get_text('CmdEnable') . '" onClick="BlockPhase(' . $CurPhase . ');">';
 				// righe di testa della fase
 					for ($i=0;$i<=$HeadRows+2;++$i) {
 					// se sto stampando l'ultima riga di testa scrivo la fase
@@ -200,8 +203,9 @@
 
 					while ($MyRow=safe_fetch($Rs))
 					{
+                        $Key=$MyRow->FinEvent . '_' . $MyRow->GrMatchNo;
 						$obj=getEventArrowsParams($MyRow->FinEvent,$MyRow->GrPhase,0);
-
+						$MyGrid[$Row][$Col]='';
 						if (!isFirstPhase($StartPhase, $MyRow->GrPhase))
 						{
 							$TipoBordo=($Ultima%2==0 ? 'Bottom' : '');
@@ -213,33 +217,37 @@
 							$MyGrid[$Row][$Col].= '<td nowrap class="'. ($AthPrinted==1 ? 'Bottom ' : '') . 'Top Right Left">' . $MyRow->GrPosition . '</td>';
 						}
 					// Atleta
-						$MyGrid[$Row][$Col].= '<td  nowrap class="' . ($AthPrinted==1 ? 'Bottom ' : '') . 'Top Right Left"><div id="idAth_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '">'  .(!is_null($MyRow->Atleta) ? $MyRow->Atleta : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;') /*. ' ' . $MyRow->GrMatchNo*/ . '</div></td>';
+						$MyGrid[$Row][$Col].= '<td  nowrap class="' . ($AthPrinted==1 ? 'Bottom ' : '') . 'Top Right Left"><div id="idAth_' . $Key . '">'  .(!is_null($MyRow->Atleta) ? $MyRow->Atleta : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;') /*. ' ' . $MyRow->GrMatchNo*/ . '</div></td>';
 					// Codice Nazione (o bandiera)
-						$MyGrid[$Row][$Col].= '<td nowrap class="' . ($AthPrinted==1 ? 'Bottom ' : '') . 'Top Right Left"><div id="idCty_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '">' . (!is_null($MyRow->CoCode) ? $MyRow->CoCode : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;') . '</div></td>';
+						$MyGrid[$Row][$Col].= '<td nowrap class="' . ($AthPrinted==1 ? 'Bottom ' : '') . 'Top Right Left"><div id="idCty_' . $Key . '">' . (!is_null($MyRow->CoCode) ? $MyRow->CoCode : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;') . '</div></td>';
 					// Punteggio
-						$MyGrid[$Row][$Col].= '<td  nowrap class="' . ($AthPrinted==1 ? 'Bottom ' : '') . 'Top Right Left TextRight"><input type="text" class="disabled" tabindex="' . ($TabIndex++) . '" size="3" maxlength="3" name="d_S_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '" id="d_S_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '" value="' . $MyRow->Score . '" onBlur="javascript:SendToServer(\'d_S_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '\');" disabled></td>';
+						$MyGrid[$Row][$Col].= '<td  nowrap class="' . ($AthPrinted==1 ? 'Bottom ' : '') . 'Top Right Left TextRight ph-' . $CurPhase . '"><input type="text" class="disabled" tabindex="' . ($TabIndex++) . '" size="3" maxlength="3" name="d_S_' . $Key . '" id="d_S_' . $Key . '" value="' . $MyRow->Score . '" onBlur="SendToServer(this);" disabled></td>';
 					// tie
-						$MyGrid[$Row][$Col].= '<td nowrap class="' . ($AthPrinted==1 ? 'wBottom Top' : 'wTop ') . ' wRight wLeft">';
+						$MyGrid[$Row][$Col].= '<td nowrap class="' . ($AthPrinted==1 ? 'wBottom Top' : 'wTop ') . ' wRight wLeft ph-' . $CurPhase . '">';
 
-						if (isset($_REQUEST['d_Tie']) && $_REQUEST['d_Tie']==1)
-						{
-							$MyGrid[$Row][$Col].= '<select  class="disabled" tabindex="' . ($TabIndex++) . '" name="d_T_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '" id="d_T_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '" onChange="javascript:SendToServer(\'d_T_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '\');" disabled>' . "\n";
+						if (isset($_REQUEST['d_Tie']) && $_REQUEST['d_Tie']==1) {
+							$MyGrid[$Row][$Col].= '<select event="M'.$_REQUEST['d_Event'].'" team="0" phase="'.$MyRow->GrPhase.'" class="disabled mr-2" tabindex="' . ($TabIndex++) . '" name="d_T_' . $Key . '" id="d_T_' . $Key . '" onChange="SendToServer(this);" disabled>';
 							$MyGrid[$Row][$Col].= '<option value="0"' . ($MyRow->FinTie==0 ? ' selected' : '') . '>' . get_text('NoTie', 'Tournament') . '</option>' . "\n";
 							$MyGrid[$Row][$Col].= '<option value="1"' . ($MyRow->FinTie==1 ? ' selected' : '') . '>' . get_text('TieWinner', 'Tournament') . '</option>' . "\n";
 							$MyGrid[$Row][$Col].= '<option value="2"' . ($MyRow->FinTie==2 ? ' selected' : '') . '>' . get_text('Bye') . '</option>' . "\n";
-							$MyGrid[$Row][$Col].= '</select>&nbsp;' . "\n";
+							foreach($IrmOptions as $irm) {
+                                $MyGrid[$Row][$Col].= '<option value="'.($irm->IrmShowRank ? 'irm-'.$irm->IrmId : 'man').'"' . ($MyRow->FinIrmType==$irm->IrmId ? ' selected' : '') . '>' . $irm->IrmType . '</option>' . "\n";
+                            }
+							$MyGrid[$Row][$Col].= '</select>';
+							$MyGrid[$Row][$Col] .= '<input disabled type="checkbox" class="disabled" name="d_cl_' . $Key . '" id="d_cl_' . $Key . '" '.($MyRow->FinTbClosest ? 'checked="checked"' : '').' onclick="SendToServer(this);">&nbsp;'.get_text('ClosestShort', 'Tournament');
+							$MyGrid[$Row][$Col].= '<br/>';
 
 							$TieBreak = str_pad($MyRow->FinTiebreak,$obj->so,' ',STR_PAD_RIGHT);
                             for($pSo=0; $pSo<3; $pSo++ ) {
                                 for ($i = 0; $i < $obj->so; ++$i) {
                                     $ArrI = $i+($pSo*$obj->so);
-                                    $MyGrid[$Row][$Col] .= '<input  class="disabled" tabindex="' . ($TabIndex++) . '" type="text" size="1" maxlength="3" name="d_t_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '_' . $ArrI . '" id="d_t_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '_' . $ArrI . '" value="' .
+                                    $MyGrid[$Row][$Col] .= '<input  class="disabled" tabindex="' . ($TabIndex++) . '" type="text" size="1" maxlength="3" name="d_t_' . $Key . '_' . $ArrI . '" id="d_t_' . $Key . '_' . $ArrI . '" value="' .
                                         (!empty($TieBreak[$ArrI]) ? DecodeFromLetter($TieBreak[$ArrI]):'')
-                                        . '" onBlur="javascript:SendTieBreak(\'d_t_' . $MyRow->FinEvent . '_' . $MyRow->FinMatchNo . '\',' . (3*$obj->so) . ');" disabled>';
+                                        . '" onBlur="SendToServer(this);" disabled>';
                                 }
                                 $MyGrid[$Row][$Col] .= '&nbsp;';
                             }
-							$MyGrid[$Row][$Col].= '<br/><input list="NoteList" value="'.$MyRow->FinNotes.'" tabindex="' . ($TabIndex++) . '" name="d_N_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '" id="d_N_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '" onChange="javascript:SendToServer(\'d_N_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '\');">' . "\n";
+							$MyGrid[$Row][$Col].= '<br/><input disabled="disabled" value="'.$MyRow->FinNotes.'" tabindex="' . ($TabIndex++) . '" name="d_N_' . $Key . '" id="d_N_' . $Key . '" onChange="SendToServer(this);">' . "\n";
 						}
 						else
 						{
@@ -334,7 +342,7 @@
 
 		// Adesso gestisco l'oro e il bronzo
 			$Select
-				= "SELECT GrPhase, GrMatchNo, EvMatchMode, "
+				= "SELECT GrPhase, GrMatchNo, EvMatchMode, FinTbClosest,"
 				. "FinNotes,FinMatchNo,FinEvent, FinAthlete, IF(EvMatchMode=0,FinScore,FinSetScore) AS Score, FinTie, FinTiebreak, /* Finals*/"
 				. "CONCAT(EnFirstName,' ',SUBSTRING(EnName,1,1),'.') AS Atleta, /* Entries*/"
 				. "CoCode,CoName, /*Countries*/"
@@ -357,7 +365,7 @@
 				$Ultima=0;
 				$MiddleRows=2;
 			// righe di testa della fase
-				$Bottone = '<input type="button" name="CmdBlockPhase_0" id="CmdBlockPhase_0" value="' . get_text('CmdEnable') . '" onClick="javascript:BlockPhase(0,\'' . get_text('CmdEnable') . '\',\'' . get_text('CmdDisable') . '\',' . $obj->so . ');">';
+				$Bottone = '<input type="button" name="CmdBlockPhase_0" id="CmdBlockPhase_0" value="' . get_text('CmdEnable') . '" onClick="BlockPhase(0);">';
 				for ($i=0;$i<=$HeadRows+2;++$i)
 				{
 				// se sto stampando l'ultima riga di testa scrivo la fase
@@ -378,8 +386,8 @@
 					$MyGrid[$Row++][$Col].= $Txt;
 				}
 
-				while ($MyRow=safe_fetch($Rs))
-				{
+				while ($MyRow=safe_fetch($Rs)) {
+					$Key=$MyRow->FinEvent . '_' . $MyRow->GrMatchNo;
 					$obj=getEventArrowsParams($MyRow->FinEvent,$MyRow->GrPhase,0);
 				// righe mediane ogni due arcieri
 					if ($AthPrinted==2)
@@ -397,34 +405,35 @@
 					$MyGrid[$Row][$Col].= '<td nowrap class="Center ' . $TipoBordo . '">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>';
 
 				// Atleta
-					$MyGrid[$Row][$Col].= '<td nowrap class="Bottom Top Right Left"><div id="idAth_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '">' . (!is_null($MyRow->Atleta) ? $MyRow->Atleta : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;') /*. ' ' . $MyRow->GrMatchNo*/ . '</div></td>';
+					$MyGrid[$Row][$Col].= '<td nowrap class="Bottom Top Right Left"><div id="idAth_' . $Key . '">' . (!is_null($MyRow->Atleta) ? $MyRow->Atleta : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;') /*. ' ' . $MyRow->GrMatchNo*/ . '</div></td>';
 				// Codice Nazione (o bandiera)
-					$MyGrid[$Row][$Col].= '<td nowrap class="Bottom Top Right Left"><div id="idCty_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '">' . (!is_null($MyRow->CoCode) ? $MyRow->CoCode : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;') . '</div></td>';
+					$MyGrid[$Row][$Col].= '<td nowrap class="Bottom Top Right Left"><div id="idCty_' . $Key . '">' . (!is_null($MyRow->CoCode) ? $MyRow->CoCode : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;') . '</div></td>';
 				// Punteggio
-					$MyGrid[$Row][$Col].= '<td nowrap class="Bottom Top Right Left TextRight"><input type="text"  class="disabled" tabindex="' . ($TabIndex++) . '" size="3" maxlength="3" name="d_S_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '" id="d_S_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '" value="' . $MyRow->Score . '" onBlur="javascript:SendToServer(\'d_S_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '\');" disabled></td>';
+					$MyGrid[$Row][$Col].= '<td nowrap class="Bottom Top Right Left TextRight ph-0"><input type="text"  class="disabled" tabindex="' . ($TabIndex++) . '" size="3" maxlength="3" name="d_S_' . $Key . '" id="d_S_' . $Key . '" value="' . $MyRow->Score . '" onBlur="SendToServer(this);" disabled></td>';
 				// tie
-					$MyGrid[$Row][$Col].= '<td nowrap class="Center">';
+					$MyGrid[$Row][$Col].= '<td nowrap class="Center ph-0">';
 
 					if (isset($_REQUEST['d_Tie']) && $_REQUEST['d_Tie']==1)
 					{
-						$MyGrid[$Row][$Col].= '<select  class="disabled" tabindex="' . ($TabIndex++) . '" name="d_T_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '" id="d_T_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '" onChange="javascript:SendToServer(\'d_T_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '\');" disabled>' . "\n";
+						$MyGrid[$Row][$Col].= '<select  class="disabled" tabindex="' . ($TabIndex++) . '" name="d_T_' . $Key . '" id="d_T_' . $Key . '" onChange="SendToServer(this);" disabled>' . "\n";
 						$MyGrid[$Row][$Col].= '<option value="0"' . ($MyRow->FinTie==0 ? ' selected' : '') . '>' . get_text('NoTie', 'Tournament'). '</option>' . "\n";
 						$MyGrid[$Row][$Col].= '<option value="1"' . ($MyRow->FinTie==1 ? ' selected' : '') . '>' . get_text('TieWinner', 'Tournament') . '</option>' . "\n";
 						$MyGrid[$Row][$Col].= '<option value="2"' . ($MyRow->FinTie==2 ? ' selected' : '') . '>' . get_text('Bye') . '</option>' . "\n";
-						$MyGrid[$Row][$Col].= '</select>&nbsp;' . "\n";
+						$MyGrid[$Row][$Col].= '</select>';
+                        $MyGrid[$Row][$Col] .= '&nbsp;<input type="checkbox" class="disabled" name="d_cl_' . $Key . '" id="d_cl_' . $Key . '" '.($MyRow->FinTbClosest ? 'checked="checked"' : '').'>&nbsp;'.get_text('ClosestShort', 'Tournament');
+						$MyGrid[$Row][$Col].= '<br/>';
 
 						$TieBreak = str_pad($MyRow->FinTiebreak,$obj->so,' ',STR_PAD_RIGHT);
 
                         for($pSo=0; $pSo<3; $pSo++ ) {
                             for ($i = 0; $i < $obj->so; ++$i) {
                                 $ArrI = $i+($pSo*$obj->so);
-                                $MyGrid[$Row][$Col] .= '<input  class="disabled" tabindex="' . ($TabIndex++) . '" type="text" size="1" maxlength="3" name="d_t_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '_' . $ArrI . '" id="d_t_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '_' . $ArrI . '" value="' .
+                                $MyGrid[$Row][$Col] .= '<input  class="disabled" tabindex="' . ($TabIndex++) . '" type="text" size="1" maxlength="3" name="d_t_' . $Key . '_' . $ArrI . '" id="d_t_' . $Key . '_' . $ArrI . '" value="' .
                                     (!empty($TieBreak[$ArrI]) ? DecodeFromLetter($TieBreak[$ArrI]):'')
-                                    . '" onBlur="javascript:SendTieBreak(\'d_t_' . $MyRow->FinEvent . '_' . $MyRow->FinMatchNo . '\',' . (3*$obj->so) . ');" disabled>';
+                                    . '" onBlur="SendTieBreak(\'d_t_' . $Key . '\',' . (3*$obj->so) . ');" disabled>';
                             }
-                            $MyGrid[$Row][$Col] .= '&nbsp;';
                         }
-						$MyGrid[$Row][$Col].= '<br/><input list="NoteList" value="'.$MyRow->FinNotes.'" tabindex="' . ($TabIndex++) . '" name="d_N_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '" id="d_N_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '" onChange="javascript:SendToServer(\'d_N_' . $MyRow->FinEvent . '_' . $MyRow->GrMatchNo . '\');">' . "\n";
+						$MyGrid[$Row][$Col].= '<br/><input value="'.$MyRow->FinNotes.'" tabindex="' . ($TabIndex++) . '" name="d_N_' . $Key . '" id="d_N_' . $Key . '" onChange="SendToServer(this);">' . "\n";
 					} else {
 						$MyGrid[$Row][$Col].= '&nbsp;';
 					}
@@ -452,11 +461,11 @@
 			print '<br><br>';*/
 
 			print '<table class="Griglia">' . "\n";
-			for ($i=0;$i<$GridRows+($StartPhase==2 ? 3 : 0);++$i)
-			{
+			for ($i=0;$i<$GridRows+($StartPhase==2 ? 3 : 0);++$i) {
 				print '<tr>';
-				for ($j=0;$j<$GridCols;++$j)
-					print $MyGrid[$i][$j];
+				for ($j=0;$j<$GridCols;++$j) {
+				    print $MyGrid[$i][$j];
+				}
 				print '</tr>' . "\n";
 			}
 			print '</table>' . "\n";
@@ -464,4 +473,4 @@
 	}
 
 	include('Common/Templates/tail.php');
-?>
+

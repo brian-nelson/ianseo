@@ -20,14 +20,14 @@ CreateStandardGdGClasses($TourId, $SubRule);
 // default Distances
 switch($TourType) {
 	case 15:
-		CreateDistance($TourId, $TourType, '__M_', '20m-1', '20m-2');
-		CreateDistance($TourId, $TourType, '__F_', '20m-1', '20m-2');
-		CreateDistance($TourId, $TourType, '__G_', '15m-1', '15m-2');
+		CreateDistanceNew($TourId, $TourType, '__M_', array(array('20m-1',20), array('20m-2',20)));
+		CreateDistanceNew($TourId, $TourType, '__F_', array(array('20m-1',20), array('20m-2',20)));
+		CreateDistanceNew($TourId, $TourType, '__G_', array(array('15m-1',15), array('15m-2',15)));
 		break;
 	case 16:
-		CreateDistance($TourId, $TourType, '__M_', '18m-1', '18m-2');
-		CreateDistance($TourId, $TourType, '__F_', '18m-1', '18m-2');
-		CreateDistance($TourId, $TourType, '__G_', '15m-1', '15m-2');
+		CreateDistanceNew($TourId, $TourType, '__M_', array(array('18m-1',18), array('18m-2',18)));
+		CreateDistanceNew($TourId, $TourType, '__F_', array(array('18m-1',18), array('18m-2',18)));
+		CreateDistanceNew($TourId, $TourType, '__G_', array(array('15m-1',15), array('15m-2',15)));
 		break;
 }
 

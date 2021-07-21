@@ -4,7 +4,7 @@ $version='2016-05-29 08:13:00';
 $AllowedTypes=array(3,6);
 
 //$SetType['IS']['descr']=get_text('Setup-IS', 'Install');
-$SetType['IS']['descr']='Icelandic Tournament Rules (Íslenskar Reglur)';
+$SetType['IS']['descr']='Icelandic Tournament Rules/ Íslenskar Reglur';
 $SetType['IS']['types']=array();
 $SetType['IS']['rules']=array();
 
@@ -15,5 +15,8 @@ foreach($AllowedTypes as $val) {
 		'SetAduClass',
 		'SetOneClass',
 		'SetAllClass',
+		'SetKidClass',
 		);
+		
+		// 'SetUkNationals' Heitir National Championships, 'SetUkJunNationals' heitir Junior National Championships
 }

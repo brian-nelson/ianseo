@@ -145,7 +145,6 @@ $lang['LastPhase']='Dernière phase';
 $lang['LegendSO']='Abréviation tir de barrage et tirage au sort';
 $lang['ListCountries']='Liste des clubs';
 $lang['MailSubject']='Sujet';
-$lang['MailTitle']='Nom';
 $lang['ManDistances']='Gérer les distances';
 $lang['New']='Nouveau';
 $lang['NoAcc']='Pas accrédité';

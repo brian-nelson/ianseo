@@ -73,7 +73,6 @@ function CreateStandardClasses($TourId, $SubRule) {
 
 // creation of standard NZ individual matchplay competition events
 function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
-	global $useOldRules;
 	$TargetR=($Outdoor?5:2);
 	$TargetC=($Outdoor?9:4);
 	$TargetSizeR=($Outdoor ? 122 : 40);

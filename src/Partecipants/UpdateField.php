@@ -82,6 +82,10 @@
 					case 'CoNameComplete':
 						$passValue = $Value;
 						break;
+					case 'CoCaCode':
+					case 'CoMaCode':
+						$passValue = strtoupper($Value);
+						break;
 					case 'EnIndClEvent':
 					case 'EnTeamClEvent':
 					case 'EnIndFEvent':

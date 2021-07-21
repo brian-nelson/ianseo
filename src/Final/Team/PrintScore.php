@@ -4,16 +4,17 @@
     checkACL(AclTeams, AclReadOnly);
 	require_once('Common/Globals.inc.php');
 	require_once('Common/Fun_DB.inc.php');
-	require_once('Common/Fun_Phases.inc.php');
-	require_once('Common/Fun_FormatText.inc.php');
-	require_once('HHT/Fun_HHT.local.inc.php');
-	require_once('Common/Fun_Modules.php');
 	require_once('Common/Lib/CommonLib.php');
+	require_once('Common/Lib/Fun_Phases.inc.php');
+	require_once('Common/Lib/Fun_FormatText.inc.php');
+	//require_once('HHT/Fun_HHT.local.inc.php');
+	require_once('Common/Lib/Fun_Modules.php');
 
 	$JS_SCRIPT=array(
 		phpVars2js(array("WebDir" => $CFG->ROOT_DIR, "AllEvents" => get_text('AllEvents'))),
 		'<script type="text/javascript" src="../../Common/js/Fun_JS.inc.js"></script>',
 		'<script type="text/javascript" src="../../Common/ajax/ObjXMLHttpRequest.js"></script>',
+		'<script type="text/javascript" src="../../Common/js/jquery-3.2.1.min.js"></script>',
 		'<script type="text/javascript" src="../Fun_AJAX.js"></script>',
 		'<script type="text/javascript">',
 		'function DisableChkOther(NoDist, NumDist)',
@@ -93,7 +94,7 @@
 				for($i=$TmpCnt; $i>$MyRow->GrPhase; $i = floor($i/2))
 					echo '<td>&nbsp;</td>';
 			}
-			echo '<td class="Center"><a href="PDFScoreMatch.php?Event=' .  $MyRow->EvCode . '&amp;Phase=' . $MyRow->GrPhase . '" class="Link" target="PrintOut">';
+			echo '<td class="Center"><a href="PDFScoreMatch.php?Event=' .  $MyRow->EvCode . '&amp;Phase=' . $MyRow->GrPhase . '&Barcode=1" class="Link" target="PrintOut">';
 			echo '<img src="../../Common/Images/pdf' . ($MyRow->Printable==1 ? '' : "_small") . '.gif" alt="' . $MyRow->EvCode . '" border="0"><br>';
 			echo $MyRow->EvCode;
 			echo '</a></td>';
@@ -170,7 +171,7 @@
 	$Rs = safe_r_sql($MySql);
 	if(safe_num_rows($Rs)>0)
 	{
-		echo get_text('Event') . '<br><select name="Event[]" multiple="multiple" id="d_Event" onChange="javascript:ChangeEvent(1);" size="8">';
+		echo get_text('Event') . '<br><select name="Event[]" multiple="multiple" id="d_Event" onChange="ChangeEvent(1);" size="8">';
 		while($MyRow=safe_fetch($Rs))
 			echo '<option value="' . $MyRow->EvCode . '">' . $MyRow->EvCode . ' - ' . get_text($MyRow->EvEventName,'','',true)  . '</option>';
 		echo '</select>';
@@ -182,7 +183,7 @@
 	echo '</select>';
 	echo '</td>';
 	echo '</tr>';
-	echo '<tr><td colspan="2" class="Center">' . ComboSes(RowTour(), 'Teams') . '</td></tr>';
+	echo '<tr><td colspan="2" class="Center">' . ComboSession('Teams') . '</td></tr>';
 	echo '<tr>';
 	echo '<td colspan="2" class="left">';
 	echo '<input name="ScoreFilled" type="checkbox" value="1">&nbsp;' . get_text('ScoreFilled') . '<br>';
@@ -194,7 +195,7 @@
         if(!($tmp=getModuleParameter($Api, 'Mode')) || $tmp=='live' ) {
             continue;
         }
-		echo '<input name="QRCode[]" type="checkbox" checked value="'.$Api.'" >&nbsp;' . get_text($Api.'-QRCode','Api') . '<br>';
+		echo '<input name="QRCode[]" type="checkbox" '.($tmp=='pro' ? '' : 'checked="checked"').' value="'.$Api.'" >&nbsp;' . get_text($Api.'-QRCode','Api') . '<br>';
 	}
 	echo '</td>';
 	echo '</tr>';
@@ -346,7 +347,7 @@
 	$Rs = safe_r_sql($MySql);
 	if(safe_num_rows($Rs)>0)
 	{
-		echo get_text('Event') . '<br><select name="Event[]" multiple="multiple" id="p_Event" onChange="javascript:ChangeEvent(1,\'p\',null,true);" size="8">';
+		echo get_text('Event') . '<br><select name="Event[]" multiple="multiple" id="p_Event" onChange="ChangeEvent(1,\'p\',null,true);" size="8">';
 		while($MyRow=safe_fetch($Rs))
 			echo '<option value="' . $MyRow->EvCode . '">' . $MyRow->EvCode . ' - ' . get_text($MyRow->EvEventName,'','',true)  . '</option>';
 		echo '</select>';

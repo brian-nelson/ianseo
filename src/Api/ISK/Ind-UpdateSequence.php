@@ -19,14 +19,21 @@ if($ses != "") {
 	if($type=='Q' || $type=='E') {
 		$maxDist = substr($ses,1,1);
 		$ses = substr($ses,2);
-	} else
+	} else {
 		$ses = substr($ses,1);
-	setModuleParameter('ISK', 'Sequence', array("type"=>$type, "session"=>$ses, "distance"=>$dist, "maxdist"=>$maxDist, "end"=>$end));
+	}
+	$NewSession=array("type"=>$type, "session"=>$ses, "distance"=>$dist, "maxdist"=>$maxDist, "end"=>$end);
+	$tmp = getModuleParameter('ISK', 'Sequence', array("type"=>'', "session"=>'', "distance"=>'',  "maxdist"=>'', "end"=>''));
+	// force all devices to reload themselves!
+	if($tmp!=$NewSession) {
+		safe_w_sql("update IskDevices set IskDvState=3 where IskDvTournament={$_SESSION["TourId"]}");
+	}
+	setModuleParameter('ISK', 'Sequence', $NewSession);
 	delModuleParameter('ISK', 'StickyEnds');
 	safe_w_SQL("UPDATE IskDevices SET `IskDvState`=2 WHERE IskDvTournament=" . StrSafe_DB($_SESSION["TourId"]) . " AND `IskDvState`=1 ");
 }
 
-$tmp = getModuleParameter('ISK', 'Sequence', array("type"=>'', "session"=>'', "distance"=>'',  "maxdist"=>'', "end"=>''));
+$tmp = getModuleParameter('ISK', 'Sequence', array("type"=>'', "session"=>'', "distance"=>'',  "maxdist"=>'', "end"=>''), $_SESSION["TourId"], true);
 
 $JSON['error']=0;
 $JSON['type']=$tmp['type'];

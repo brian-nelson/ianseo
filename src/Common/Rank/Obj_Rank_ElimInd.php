@@ -176,9 +176,9 @@
 			$q="
 				SELECT
 					EnId,EnCode, EnSex, EnNameOrder, EnName AS Name, EnFirstName AS FirstName, upper(EnFirstName) AS FirstNameUpper, el.ElTargetNo AS TargetNo,
-					CoId, CoCode, CoName, EnClass, EnDivision,EnAgeClass,  EnSubClass,
+					CoId, CoCode, CoName, EnClass, EnDivision,EnAgeClass,  EnSubClass, ElIrmType, IrmType, IrmShowRank,
 					if(el.ElElimPhase=0, 'Eliminations_1', if(el.ElElimPhase=1 and EvElim1!=0 and EvElim2!=0, 'Eliminations_2', 'Eliminations')) as roundText,
-					ElScore, ElRank, ElGold, ElXnine, ElHits, ElTiebreak, ToGolds AS GoldLabel, ToXNine AS XNineLabel,
+					ElScore, ElRank, ElGold, ElXnine, ElHits, ElTiebreak, ElTbClosest, ElTbDecoded, ToGolds AS GoldLabel, ToXNine AS XNineLabel,
 					IF(el.ElElimPhase=0,EvElim2,EvNumQualified) AS QualifiedNo,
 					EvProgr,EvCode,EvEventName,el.ElElimPhase, EvRunning, IF(EvRunning=(el.ElElimPhase+2),(IFNULL(ROUND(ElScore/ElHits,3),0)),0) as RunningScore,
 					sqY.Quanti AS NumCT,
@@ -190,18 +190,11 @@
 					ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes
 				FROM
 					Eliminations as el
-					INNER JOIN
-						Entries
-					ON el.ElId=EnId AND el.ElTournament=EnTournament
-					INNER JOIN
-						Countries
-					ON EnCountry=CoId AND EnTournament=CoTournament
-					INNER JOIN
-						Tournament
-					ON el.ElTournament=ToId
-					INNER JOIN
-						Events
-					ON EvCode=el.ElEventCode AND EvTournament=el.ElTournament AND EvTeamEvent=0 and EvElimType<3
+					INNER JOIN IrmTypes ON IrmId=ElIrmType
+					INNER JOIN Entries ON el.ElId=EnId AND el.ElTournament=EnTournament
+					INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament
+					INNER JOIN Tournament ON el.ElTournament=ToId
+					INNER JOIN Events ON EvCode=el.ElEventCode AND EvTournament=el.ElTournament AND EvTeamEvent=0 and EvElimType<3
 					LEFT JOIN DocumentVersions DV1 on EvTournament=DV1.DvTournament AND DV1.DvFile = 'ELIM' and DV1.DvEvent=''
 					LEFT JOIN DocumentVersions DV2 on EvTournament=DV2.DvTournament AND DV2.DvFile = 'ELIM' and DV2.DvEvent=EvCode
 					/* contatore ct */
@@ -278,6 +271,8 @@
 							'gold' => $myRow->GoldLabel,
 							'xnine' => $myRow->XNineLabel,
 							'tiebreak'=>get_text('TieArrows'),
+                            'tiebreakClosest' => get_text('Close2Center', 'Tournament'),
+                            'tiebreakDecoded' => get_text('TieArrows'),
 							'hits' => get_text('Arrows','Tournament'),
 							'so' => '',
 							'ct' => ''
@@ -346,11 +341,17 @@
 						'gold' => $myRow->ElGold,
 						'xnine' => $myRow->ElXnine,
 						'tiebreak'=> $myRow->ElTiebreak,
+                        'tiebreakClosest' => $myRow->ElTbClosest,
+                        'tiebreakDecoded' => $myRow->ElTbDecoded,
 						'hits' => $myRow->ElHits,
 						'ct'=>$myRow->NumCT,
 						//'so'=>$myRow->ElSO
-						'so'=>$myRow->isSO
+						'so'=>$myRow->isSO,
+						'irm'=>$myRow->ElIrmType,
+						'irmText'=>$myRow->IrmType,
+						'showRank'=>$myRow->IrmShowRank,
 					);
+
 				// e lo aggiungo alla sezione
 					//print_r($item);
 					$section['items'][]=$item;

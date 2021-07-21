@@ -7,6 +7,13 @@ if (!CheckTourSession()) {
     exit;
 }
 
+if($CFG->USERAUTH AND !empty($_SESSION['AUTH_ENABLE']) AND empty($_SESSION['AUTH_ROOT'])) {
+    if(!in_array(getCodeFromId($_SESSION['TourId']),$_SESSION["AUTH_COMP"])){
+        CD_redirect($CFG->ROOT_DIR);
+        exit;
+    }
+}
+
 if(isset($_REQUEST["CtrlCode"]) && preg_match("/^[0-9A-F]{8}$/i",$_REQUEST["CtrlCode"]) &&
 	isset($_REQUEST["InputCode"]) && preg_match("/^[0-9A-F]{8}$/i",$_REQUEST["InputCode"]) &&
 	strcmp($_REQUEST["InputCode"], $_REQUEST["CtrlCode"])==0)

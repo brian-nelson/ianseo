@@ -52,15 +52,40 @@
 	}
 
 	function FirstLetters($string) {
-		$n=preg_split('/[ -]/', $string);
-		foreach($n as &$v) $v= mb_eregi_replace('^(.).+', '\\1', $v);
-		return implode('',$n);
+		$ret='';
+		if(empty($string)) {
+			return $ret;
+		}
+		mb_regex_encoding('UTF-8');
+		$n=mb_split(' ', $string);
+		foreach($n as &$v) {
+			$r=array();
+			foreach(mb_split('-', $v) as $v2) {
+				$r[]=mb_substr($v2,0,1,'UTF-8');
+			}
+			$ret .= implode('-', $r);
+		}
+		return $ret;
 	}
 
 	function FirstLettersWithDots($string) {
-		$n=preg_split('/[ -]/', $string);
-		foreach($n as &$v) $v= mb_eregi_replace('^(.).+', '\\1', $v);
-		return implode('.',$n).".";
+		$ret='';
+		if(empty($string)) {
+			return $ret;
+		}
+		mb_regex_encoding('UTF-8');
+		$n=mb_split(' ', $string);
+		foreach($n as $v) {
+			if(!trim($v)) {
+				continue;
+			}
+			$r=array();
+			foreach(mb_split('-', $v) as $v2) {
+				$r[]=mb_substr($v2,0,1,'UTF-8').'.';
+			}
+			$ret .= implode('-', $r);
+		}
+		return $ret;
 	}
 
 function GetPaddedNames($Ath1, $len) {

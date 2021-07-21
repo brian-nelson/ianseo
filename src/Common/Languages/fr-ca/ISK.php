@@ -81,7 +81,6 @@ $lang['NextArcher']='Prochain archer';
 $lang['NoArrowScored']='La valeur de la flèche doit être inscrite en premier avant de la marquer comme étant la flèche la plus près.';
 $lang['NoAthletes']='Aucun athlète trouvé';
 $lang['NoDist']='Aucune distance trouvée';
-$lang['NoLanguages']='L\'Anglais est la seule langue disponible pour l\'instant.  Utiliser la fonction de mise à jour des langues à partir du menu pour ajouter d\'autre langues et ensuite essayer encore.';
 $lang['Number']='Numéro';
 $lang['Ok']='OK';
 $lang['Points']='Points';

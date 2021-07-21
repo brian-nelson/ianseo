@@ -116,7 +116,7 @@ while($r=safe_fetch($q)) {
 
 <tr>
 <th class="TitleLeft" width="15%"><?php print get_text('TVContentText','Tournament');?></th>
-<td><textarea name="d_TVContentText" id="d_TVContentText"><?php echo $MyRow->TVPContentText ?></textarea></td>
+<td><textarea name="d_TVContentText" id="d_TVContentText" style="width:100%;height:20vh;box-sizing: border-box;"><?php echo $MyRow->TVPContentText ?></textarea></td>
 <td><?php print get_text('TVContentTextDescr','Tournament');?></td>
 </tr>
 

@@ -1,5 +1,10 @@
 <?php
 $lang['Aggiorna']='Päivitä';
+$lang['CA-B']='Vaistojousi';
+$lang['CA-C']='Taljajousi';
+$lang['CA-L']='Pitkäjousi';
+$lang['CA-O']='Avoin';
+$lang['CA-R']='Tähtäinjousi';
 $lang['CmdSearch']='Etsi moduulit';
 $lang['Create']='luo';
 $lang['CreateDescr']='Sinun tulee luoda käännettävä tiedosto';

@@ -76,10 +76,13 @@ foreach($Data['sections'] as $kSec=>$vSec) {
 				"Score"=>$vItem[($vSec['meta']['matchMode']==1 ?  'setScore': 'score')], "TieBreak"=>$vItem['tiebreakDecoded'], "Winner"=>($vItem['winner']? true:false));
 			$tmpR += array("TeamCode"=>$vItem["oppCountryCode"], "TeamName"=>$vItem["oppCountryName"], "Target"=>ltrim($vItem["oppTarget"],"0"),
 					"Score"=>$vItem[($vSec['meta']['matchMode']==1 ?  'oppSetScore': 'oppScore')], "TieBreak"=>$vItem['oppTiebreakDecoded'], "Winner"=>($vItem['oppWinner']? true:false));
-			$JSON['data'][] = Array('Prefix' => (isset($Prefix[$vItem['matchNo']]) ? $Prefix[$vItem['matchNo']] : ''), "Event"=>$EvCode, "Type"=>$TeamEvent, "MatchId"=>$vItem['matchNo'], "ScheduledDateTime"=>date("Y-m-d H:i",strtotime($vItem["scheduledDate"] . " ". $vItem["scheduledTime"])), "LeftOpponent"=>$tmpL, "RightOpponent"=>$tmpR);
+			$JSON['data'][$vItem["scheduledKey"].'|'.str_pad($vItem["target"],5,'0', STR_PAD_LEFT).'|'.$vItem['matchNo']] = Array('Prefix' => (isset($Prefix[$vItem['matchNo']]) ? $Prefix[$vItem['matchNo']] : ''), "Event"=>$EvCode, "Type"=>$TeamEvent, "MatchId"=>$vItem['matchNo'], "ScheduledDateTime"=>date("Y-m-d H:i",strtotime($vItem["scheduledDate"] . " ". $vItem["scheduledTime"])), "LeftOpponent"=>$tmpL, "RightOpponent"=>$tmpR);
 		}
 	}
 }
+ksort($JSON['data']);
+$JSON['data'] = array_values($JSON['data']);
+
 
 JsonOut($JSON);
 

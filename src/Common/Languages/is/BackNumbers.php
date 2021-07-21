@@ -1,0 +1,34 @@
+<?php
+$lang['AlignC']='Miðja';
+$lang['AlignL']='Vinstri';
+$lang['AlignR']='Hægri';
+$lang['AllCaps']='Eftirnafn í stórum stöfum';
+$lang['Athlete']='Nafn Keppanda';
+$lang['AutoCHK-Code']='Móts Kóði';
+$lang['BibNumber']='BIB númer';
+$lang['Category']='Flokkur';
+$lang['ClubCamel']='CLUBNAME';
+$lang['ClubCaps']='CLUBNAME';
+$lang['EvDescr']='Lýsing á viðburði';
+$lang['EvDescrUpper']='LÝSING Á VIÐBURÐI';
+$lang['Event']='Viðburður';
+$lang['FamCamel']='FAMILYNAME';
+$lang['FamCaps']='FAMILYNAME';
+$lang['GivCamel']='GIVENNAME';
+$lang['GivCaps']='GIVENNAME';
+$lang['Heigh']='Hæð';
+$lang['Image']='Mynd';
+$lang['Images']='Myndir';
+$lang['ImageSvg']='SVG Mynd';
+$lang['PosX']='Staða (X)';
+$lang['PosY']='Staða (Y)';
+$lang['QRScore']='Undankeppni Skor';
+$lang['QualPosition']='Undankeppni Sæti';
+$lang['Ranking']='Sæti í Undankeppni';
+$lang['Schedule']='Dagskrá';
+$lang['Target']='Skotmark';
+$lang['ToBottom']='Keppnis merki (niðri)';
+$lang['ToLeft']='Keppnis merki (vinstri)';
+$lang['ToRight']='Keppnis merki (hægri)';
+$lang['Width']='Breidd';
+?>

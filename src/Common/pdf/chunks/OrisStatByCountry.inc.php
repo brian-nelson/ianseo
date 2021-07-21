@@ -2,8 +2,8 @@
 $pdf->SetDataHeader($PdfData->Header, $PdfData->HeaderWidth);
 $pdf->setPhase('');
 
-$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 $pdf->AddPage();
+$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 $pdf->Bookmark($PdfData->IndexName, 0);
 
 $ONLINE=isset($PdfData->HTML);
@@ -14,13 +14,13 @@ foreach($PdfData->Data['Items'] as $MyRow) {
 	$tmp=array(
 		$MyRow->NationCode,
 		$MyRow->NationName,
-		$MyRow->M . "#",
-		$MyRow->W . "#",
-		($MyRow->M+$MyRow->W) . "#",
+		number_format($MyRow->M,0,'','.') . "#",
+		number_format($MyRow->W,0,'','.') . "#",
+		number_format(($MyRow->M+$MyRow->W),0,'','.') . "#",
 		"",
-		$MyRow->Of . "#",
-		($MyRow->M+$MyRow->W+$MyRow->Of) . "#",
-		);
+		number_format($MyRow->Of,0,'','.') . "#",
+		number_format(($MyRow->M+$MyRow->W+$MyRow->Of),0,'','.') . "#",
+	);
 	$Total["M"] += $MyRow->M;
 	$Total["W"] += $MyRow->W;
 	$Total["Of"] += $MyRow->Of;
@@ -44,12 +44,11 @@ $pdf->lastY += 2;
 $tmp=array(
 		"",
 		"Total: " . $CountryCnt,
-		$Total["M"] . "#",
-		$Total["W"] . "#",
-		($Total["M"]+$Total["W"]) . "#",
+		number_format($Total["M"],0,'','.') . "#",
+		number_format($Total["W"],0,'','.') . "#",
+		number_format(($Total["M"]+$Total["W"]),0,'','.') . "#",
 		"",
-		$Total["Of"]  . "#",
-		($Total["M"]+$Total["W"]+$Total["Of"] ) . "#",
+		number_format($Total["Of"],0,'','.')  . "#",
+		number_format(($Total["M"]+$Total["W"]+$Total["Of"] ),0,'','.') . "#",
 );
 $pdf->printDataRow($tmp);
-?>

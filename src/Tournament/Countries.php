@@ -78,7 +78,7 @@ if($_FILES) {
 
 		//exec("inkscape -e $imgPNG -w 200 -z $imgSVG ");
 		// Imagick does not work with ALL the images :(
-		exec("convert -render $img.svg -scale 200x200 -quality 95 $img.jpg");
+		exec("convert -render {$img}.svg -scale 200x200 -quality 95 $img.jpg");
 
 		$ImageSVG=addslashes(gzdeflate(file_get_contents($imgSVG), 9));
 		$ImageJPG='';
@@ -161,12 +161,12 @@ $q=safe_r_sql("select distinct "
 	. "from"
 	. " Countries"
 	. " INNER JOIN Entries on CoId in (EnCountry, EnCountry2, EnCountry3)"
-	. " left join (select distinct FlCode, FlJPG, FlSVG, FlTournament from Flags where FlTournament in (-1, {$_SESSION['TourId']}) order by FlCode, FlTournament desc) fl on FlCode=CoCode "
+	. " left join (select distinct FlCode, (FlJPG IS NOT NULL) as isFlJPG, (FlSVG IS NOT NULL) as isFlSVG, FlTournament from Flags where FlTournament in (-1, {$_SESSION['TourId']}) order by FlCode, FlTournament desc) fl on FlCode=CoCode "
 	. "where"
 	. " CoTournament = {$_SESSION['TourId']}"
 	. ($edit?" and CoCode='$edit' ":" and CoCode>'' ")
 	. "order by"
-	. " FlSVG>'', FlJPG>'', CoCode, FlTournament desc");
+	. " isFlSVG, isFlJPG, CoCode, FlTournament desc");
 
 $OldCode='';
 while($r=safe_fetch($q)) {
@@ -175,23 +175,23 @@ while($r=safe_fetch($q)) {
 		echo '<tr>';
 		echo '<td>'.$r->CoCode.'</td>';
 		echo '<td>'.$r->CoName.'</td>';
-		echo '<td>'.get_text($r->FlSVG?'Yes':'No').' <input type="file" name="SVG['.$r->CoCode.']" size="5"> <input type="checkbox" name="UpdateJPG" checked="checked">' . get_text('UpdateJPG', 'Tournament').' <a href="http://en.wikipedia.org/wiki/File:Flag_of_'.$r->CoName.'.svg" target="_blank">Wikipedia</a></td>';
-		echo '<td>'.($r->FlJPG?'<img height="30" src="' . $CFG->ROOT_DIR . 'TV/Photos/'.$_SESSION['TourCodeSafe'].'-Fl-'.$r->FlCode . '.jpg">':'&nbsp;').' <input type="file" name="JPG['.$r->CoCode.']" size="5"></td>';
+		echo '<td>'.get_text($r->isFlSVG?'Yes':'No').' <input type="file" name="SVG['.$r->CoCode.']" size="5"> <input type="checkbox" name="UpdateJPG" checked="checked">' . get_text('UpdateJPG', 'Tournament').' <a href="http://en.wikipedia.org/wiki/File:Flag_of_'.$r->CoName.'.svg" target="_blank">Wikipedia</a></td>';
+		echo '<td>'.($r->isFlJPG?'<img height="30" src="' . $CFG->ROOT_DIR . 'TV/Photos/'.$_SESSION['TourCodeSafe'].'-Fl-'.$r->FlCode . '.jpg">':'&nbsp;').' <input type="file" name="JPG['.$r->CoCode.']" size="5"></td>';
 		echo '<td>&nbsp;</td>';
 		echo '</tr>';
 	} else {
 		echo '<tr>';
 		echo '<td><a name="'.$r->CoCode.'" href="?edit='.$r->CoCode.'">'.$r->CoCode.'</a></td>';
 		echo '<td><a name="'.$r->CoCode.'" href="?edit='.$r->CoCode.'">'.$r->CoName.'</a></td>';
-		echo '<td>'.get_text($r->FlSVG ? 'Yes' : 'No').'</td>';
-		if($r->FlJPG) {
+		echo '<td>'.get_text($r->isFlSVG ? 'Yes' : 'No').'</td>';
+		if($r->isFlJPG) {
 			$size=getimagesize($CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-Fl-'.$r->FlCode . '.jpg');
 			$Ratio=round($size[0]/$size[1],2);
 			echo '<td><img height="30" src="' . $CFG->ROOT_DIR . 'TV/Photos/'.$_SESSION['TourCodeSafe'].'-Fl-'.$r->FlCode . '.jpg">&nbsp;'.$Ratio.'</td>';
 		} else {
 			echo '<td>&nbsp;</td>';
 		}
-		if($r->FlSVG or $r->FlJPG) {
+		if($r->isFlSVG or $r->isFlJPG) {
 			echo '<td><img src="' . $CFG->ROOT_DIR . 'Common/Images/drop.png" onclick="location.href=\'?delete='.$r->FlCode.'\'"></td>';
 		} else {
 			echo '<td>&nbsp;</td>';

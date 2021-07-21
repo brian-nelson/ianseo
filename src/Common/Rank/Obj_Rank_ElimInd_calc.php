@@ -219,6 +219,9 @@
 								'event'		=> $myRow->ElEventCode,
 								'phase'		=> $myRow->ElElimPhase,
 								'rank'		=> $myRank,
+								'tiebreak'	=> '',
+								'decoded'	=> '',
+								'closest'	=> 0,
 								'so'		=> ($so * $myRank)
 							)
 						));
@@ -306,25 +309,32 @@
 				;
 
 			/* campi opzionali e basta */
-				if (array_key_exists('rank',$item))
-				{
+				if (array_key_exists('rank',$item)) {
 					$canUp=true;
 					$q.=",ElRank={$item['rank']}";
 				}
 
-				if (array_key_exists('so',$item))
-				{
+				if (array_key_exists('so',$item)) {
 					$canUp=true;
 					$q.=",ElSO={$item['so']}";
 				}
 
-				if (array_key_exists('tiebreak',$item))
-				{
+				if (array_key_exists('tiebreak',$item)) {
 					$canUp=true;
 					$q.=",ElTiebreak='{$item['tiebreak']}' ";
 				}
 
-				$phase=$item['phase'];
+				if (array_key_exists('decoded',$item)) {
+					$canUp=true;
+					$q.=",ElTbDecoded='{$item['decoded']}' ";
+				}
+
+                if (array_key_exists('closest',$item)) {
+                    $canUp=true;
+                    $q.=",ElTbClosest='{$item['closest']}' ";
+                }
+
+                $phase=$item['phase'];
 
 				$q
 					.=" WHERE "

@@ -20,11 +20,11 @@ CreateStandardClasses($TourId, 1, 'FIELD'); // $SubRule force to 1 (ALL CLASSES)
 // default Distances
 switch($TourType) {
 	case 9:
-		CreateDistance($TourId, $TourType, '%', 'H&F');
+		CreateDistanceNew($TourId, $TourType, '%', array(array('H&F',0)));
 		break;
 	case 10:
 	case 12:
-		CreateDistance($TourId, $TourType, '%', 'Hunter', 'Field');
+		CreateDistanceNew($TourId, $TourType, '%', array(array('Hunter',0), array('Field',0)));
 		break;
 }
 

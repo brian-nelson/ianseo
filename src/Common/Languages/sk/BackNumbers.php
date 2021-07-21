@@ -10,6 +10,7 @@ $lang['Athlete']='Menos strelca';
 $lang['AthQrCode']='Kód Strelca (QR kód)';
 $lang['AutoCHK-Camera']='Použi kameru na čítanie QR kódu';
 $lang['AutoCHK-Code']='Kód súťaže';
+$lang['BackNoImportLayout']='Načítať vzor karty športovca';
 $lang['BgImage']='Obrázok Pozadia';
 $lang['Category']='Podľa kategória';
 $lang['Club']='Klub';

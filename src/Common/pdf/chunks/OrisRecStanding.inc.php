@@ -4,13 +4,13 @@ $OldStop=$pdf->StopHeader;
 $pdf->StopHeader=true;
 $pdf->setPhase('As of '.$PdfData->RecordAs);
 
-$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 $Version='';
 if($PdfData->DocVersion) {
 	$Version=trim('Vers. '.$PdfData->DocVersion . " ($PdfData->DocVersionDate) $PdfData->DocVersionNotes");
 }
 $pdf->setComment($Version);
 $pdf->AddPage();
+$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 $pdf->Bookmark($PdfData->IndexName, 0);
 
 $ONLINE=isset($PdfData->HTML);
@@ -30,26 +30,51 @@ if(empty($PdfData->Data['Items'])) {
 		$lstDoB = array();
 	// 	$pdf->printSectionTitle('As of '.$PdfData->RecordAs);
 		foreach($Rows as $RecType => $MyRows) {
-            $pdf->SamePage(count($MyRows) + 6, 3.5, $pdf->lastY);
-			$pdf->printSectionTitle($PdfData->SubSections[$Team][$RecType].'§', $pdf->GetY()+10);
-			$pdf->ln();
-			$pdf->SetDataHeader($PdfData->Header, $PdfData->HeaderWidth);
-			$pdf->PrintHeader($pdf->GetX(), $pdf->GetY()+1);
+			$PrintSection=true;
 			foreach($MyRows as $MyRow) {
+				$MinRows=count($MyRow->RtRecExtra)*count($MyRows);
+				if($MyRow->RtRecExtra and count($MyRow->RtRecExtra[0]->Archers)>1) {
+					$MinRows=(count($MyRow->RtRecExtra[0]->Archers)+1)*count($MyRows);
+				}
+				if($PrintSection or !$pdf->SamePage($MinRows, 3.5, $pdf->lastY)) {
+					if($PrintSection and count($MyRow->RtRecExtra)) {
+	                    $pdf->SamePage($MinRows+6, 3.5, $pdf->lastY);
+					}
+					$pdf->printSectionTitle($PdfData->SubSections[$Team][$RecType].($PrintSection ? '' : ' ('.get_text('Continue').')').'§', $pdf->GetY()+10);
+					$pdf->ln();
+					$pdf->SetDataHeader($PdfData->Header, $PdfData->HeaderWidth);
+					$pdf->PrintHeader($pdf->GetX(), $pdf->GetY()+1);
+
+					$PrintSection=false;
+				}
 				$first=true;
 				foreach($MyRow->RtRecExtra as $Record) {
+					$firstHolder=true;
 					foreach($Record->Archers as $Archers) {
-						if($MyRow->EvTeamEvent and $first) {
-							$tmp=array(
-								$MyRow->RtRecDistance,
-								'§'.$MyRow->RtRecTotal.($MyRow->RtRecXNine ? "/$MyRow->RtRecXNine" : ''),
-								$Record->NOC ,
-								'§'.$Record->NOC,
-								$Record->EventNOC,
-								$MyRow->RtRecDate.'#'
+						if($MyRow->EvTeamEvent) {
+							if($first) {
+								$tmp=array(
+									$MyRow->RtRecDistance,
+									'§'.$MyRow->RtRecTotal.($MyRow->RtRecXNine ? "/$MyRow->RtRecXNine" : ''),
+									$Record->NOC ,
+									'§'.$Record->NOC,
+									$Record->EventNOC,
+									$MyRow->RtRecDate.'#'
 								);
-							$pdf->printDataRow($tmp);
-							$first=false;
+								$pdf->printDataRow($tmp);
+								$first=false;
+							} elseif($firstHolder) {
+								$tmp=array(
+									'',
+									'',
+									$Record->NOC ,
+									'§'.$Record->NOC,
+									$Record->EventNOC,
+									$MyRow->RtRecDate.'#'
+								);
+								$pdf->printDataRow($tmp);
+								$firstHolder=false;
+							}
 						}
 						$tmp=array(
 							$MyRow->RtRecDistance,
@@ -67,6 +92,7 @@ if(empty($PdfData->Data['Items'])) {
 							if($MyRow->EvTeamEvent) $tmp[3]='';
 						}
 						$first=false;
+						$firstHolder=false;
 						$pdf->printDataRow($tmp);
 					}
 				}

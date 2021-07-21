@@ -53,8 +53,8 @@ if(count($rankData['sections'])) {
 		$pdf->Records=$section['records'];
 
 		//Aggiungo Pagina
-		$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 		$pdf->AddPage();
+		$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 		if($First and (empty($pdf->CompleteBookTitle) or $pdf->CompleteBookTitle!=$PdfData->IndexName)) {
 			$pdf->Bookmark($PdfData->IndexName, 0);
 			$pdf->CompleteBookTitle=$PdfData->IndexName;
@@ -95,9 +95,14 @@ if(count($rankData['sections'])) {
 						$dataRow[]=$item['hits'] . ' #';
 					}
 					$dataRow[]=$item['score'] . ' #';
+					$tmpNote='';
 					if($item['notes']) {
-						$dataRow[] = $item['notes'] . "#";
+						$tmpNote .= ' ' . $item['notes'];
 					}
+					if(!empty($item['record'])) {
+						$tmpNote .= ' ' . $item['record'];
+					}
+					$dataRow[] = trim($tmpNote);
 
 					if($item['so']>0) {
 						$dataRow[] = "T. " . $item['gold'] . ";" . $item['xnine'];
@@ -122,7 +127,7 @@ if(count($rankData['sections'])) {
 				$tmpRow[]=$dataRow;
 			}
 
-			$pdf->samePage(count($tmpRow), 3.5, $pdf->lastY);
+			$pdf->samePage(count($tmpRow)+1, 3.5, $pdf->lastY);
 			foreach($tmpRow as $row) {
 				$pdf->printDataRow($row);
 			}

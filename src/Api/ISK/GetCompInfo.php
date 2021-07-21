@@ -42,7 +42,7 @@ require_once('Common/Fun_Sessions.inc.php');
 			}
 		}
 
-		$json_array["compcode"] = $TourRow->ToCode;
+		$json_array["compcode"] = $TourRow->ToCode . (empty($CompPin) ? '' : '|'.$CompPin);
 		$json_array["compname"] = $TourRow->ToName;
 		$json_array["compdesc1"] = $TourRow->ToCommitee . ' - ' . $TourRow->ToComDescr;
 		$json_array["compdesc2"] = $TourRow->ToWhere . ", " . $TourRow->DtFrom . " - " . $TourRow->DtTo;

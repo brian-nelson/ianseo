@@ -177,196 +177,77 @@ function GetSessions($type=null,$extend=false,$ids=null,$tour=null)
 		return ($r!==false);
 	}
 
-	function ResetElimRows($event, $elim, $CompId='')
-	{
+	function ResetElimRows($event, $elim, $CompId='') {
 		$e=$elim-1;
-		if(!$CompId) $CompId=$_SESSION['TourId'];
+		if(!$CompId) {
+		    $CompId=$_SESSION['TourId'];
+        }
 
 		CreateElimRows($event, $elim, true, $CompId);
-		$q="
-			UPDATE Eliminations SET ElId=0,ElScore=0,ElHits=0,ElGold=0,ElXnine=0,ElArrowString='',ElTiebreak='',ElRank=0,ElSO=0
-			WHERE
-				ElElimPhase={$e} AND	ElEventCode='{$event}' AND 	ElTournament={$CompId}
-		";
-		$r=safe_w_sql($q);
-		//print $q.'<br><br>';
-		return ($r!==false);
+		$q=safe_w_sql("UPDATE Eliminations SET ElId=0,ElScore=0,ElHits=0,ElGold=0,ElXnine=0,ElArrowString='',ElTiebreak='', ElTbDecoded='', ElTbClosest=0, ElRank=0,ElSO=0 WHERE ElElimPhase={$e} AND	ElEventCode='{$event}' AND 	ElTournament={$CompId}");
+		return ($q !== false);
 	}
 
 /**
  * ResetShootoff().
- * resetta gli shootoff di un evento e le IndRankFinal e TeamRankFinal (ora non presente)
+ * reset Shootoof flags and IndRankFinal/TeamRankFinal
  *
- * Una combinazione senza senso di parametri verrà ignorata
  *
- * @param string $event: evento interessato
- * @param string $team: 0 evento ind 1 evento team
- * @param int[] $type: tipo di shootoff
- * 		 0: azzera tutto
- * 		 1: azzera partendo dal II girone
- * 		 2: azzera solo le finali
- * 		 3: azzera solo le finali e ignora il reset della rankfinal dei gironi
- * @return bool: true se ok false altrimenti.
+ * @param string $event: EventCode
+ * @param int $team: 0 individual - 1 team
+ * @param int $type: shootoff type
+ * 		 0: reset all of then
+ * 		 1: reset from 2nd elim
+ * 		 2: reset only matches
+ * 		 3: reset only matches and DO NOT reset rankfinal coming from pools - Teo NOTE: I am not sure it's used and it works....
+ * @return bool: success or not
  */
-	function ResetShootoff($event,$team=0,$type=0,$ToId=0)
-	{
-		$ret=true;
+	function ResetShootoff($event,$team=0,$type=0,$ToId=0) {
+		if(empty($ToId)) {
+		    $ToId=$_SESSION['TourId'];
+        }
 
-		if(!$ToId) $ToId=$_SESSION['TourId'];
-
-		if ($event=='')
-		{
-			$ret=false;
+		if (empty($event) OR !preg_match("/^[01]$/",$team) OR !preg_match("/^[0123]$/",$type)){
+			return false;
+		} else {
+            $event=preg_replace('#^\'(.*)\'$#','$1',$event);
+            $q="UPDATE Events SET ";
+            switch ($type) {
+                case 0:
+                    $q.="EvShootOff='0',EvE1ShootOff='0',EvE2ShootOff='0' ";
+                    break;
+                case 1:
+                    $q.="EvShootOff='0',EvE2ShootOff='0' ";
+                    break;
+                case 2:
+                case 3:
+                    $q.="EvShootOff='0' ";
+                    break;
+            }
+            $q.="WHERE EvTournament={$ToId} AND EvTeamEvent={$team} AND EvCode='{$event}'";
+            safe_w_sql($q);
+            //Delete Final Rank. $type: 0-all rank of the event, 1- elim round from first one and exists only ind, 2-elim round from second one and exists only ind
+            $date=date('Y-m-d H:i:s');
+            $q="";
+            if ($type==0 || $type==3) {
+                if ($team==0) {
+                    $q = "UPDATE Individuals  SET IndRankFinal=0, IndTimestampFinal='{$date}' " .
+                        "WHERE IndTournament={$ToId} AND IndEvent='{$event}'";
+                } else {
+                    $q = "UPDATE Teams SET TeFinal=0, TeRankFinal=0, TeTimeStampFinal='{$date}' " .
+                        "WHERE TeTournament={$ToId} AND TeEvent='{$event}' AND TeFinEvent=1 ";
+                }
+            } elseif ($type==1 AND $team==0) {
+                $q = "UPDATE Individuals INNER JOIN Eliminations ON IndTournament=ElTournament AND IndId=ElId AND IndEvent=ElEventCode AND ElElimPhase=0 SET IndRankFinal=0, IndTimestampFinal='{$date}' ".
+                    "WHERE IndTournament={$ToId} AND IndEvent='{$event}'";
+            } elseif ($type==2 AND $team==0) {
+                $q = "UPDATE Individuals INNER JOIN Eliminations ON IndTournament=ElTournament AND IndId=ElId AND IndEvent=ElEventCode AND ElElimPhase=1 SET IndRankFinal=0, IndTimestampFinal='{$date}' ".
+                    "WHERE IndTournament={$ToId} AND IndEvent='{$event}'";
+            }
+            safe_w_sql($q);
+            set_qual_session_flags();
+            return true;
 		}
-		else
-		{
-			if (!in_array($team,array(0,1)))
-			{
-				$ret=false;
-			}
-			else
-			{
-				if (!in_array($type,array(0,1,2,3)))
-				{
-					$ret=false;
-				}
-				else
-				{
-					// rimuovi le virgolette singole!!!!
-					$event=preg_replace('#^\'(.*)\'$#','$1',$event);
-					$q="
-						UPDATE
-							Events
-						SET
-					";
-
-					if ($type==0)
-					{
-						$q.="EvShootOff='0',EvE1ShootOff='0',EvE2ShootOff='0' ";
-					}
-					elseif ($type==1)
-					{
-						$q.="EvShootOff='0',EvE2ShootOff='0' ";
-					}
-					elseif ($type==2 || $type==3)
-					{
-						$q.="EvShootOff='0' ";
-					}
-
-					$q.="
-						WHERE
-							EvTournament={$ToId} AND EvTeamEvent={$team} AND EvCode='{$event}'
-					";
-					//print $q.'<br><br>';
-
-
-//					$mtime = microtime();
-//					$mtime = explode(' ', $mtime);
-//					$mtime = $mtime[1] + $mtime[0];
-//					$starttime = $mtime;
-
-
-					$r=safe_w_sql($q);
-
-//					$mtime = microtime();
-//					$mtime = explode(" ", $mtime);
-//					$mtime = $mtime[1] + $mtime[0];
-//					$endtime = $mtime;
-//					print $event . ' ' . $team . ' Reset flag: ' .($endtime - $starttime).'<br>';
-
-					if (!$r)
-					{
-						$ret=false;
-					}
-					else
-					{
-					/*
-					 *  Sego le RankFinal	(e segherò le TeamRankFinal).
-					 *  A seconda dei tipi richiesti dovrò azzerare certi pezzi di rank.
-					 *
-					 *  Se $type==0 devo distruggere tutta la rank dell'evento
-					 *
-					 *  Se $type==1 devo azzerare la rank partendo dal II girone elim
-					 *
-					 *  Se $type==2 devo azzerare solo la rank delle finali
-					 */
-
-
-						$date=date('Y-m-d H:i:s');
-						$q="";
-						if ($type==0 || $type==3)
-						{
-							if ($team==0)
-							{
-								$q
-									= "UPDATE Individuals "
-									. "SET "
-										. "IndRankFinal=0, "
-										. "IndTimestampFinal='{$date}' "
-									. "WHERE "
-										. "IndTournament={$ToId} AND IndEvent='{$event}' "
-								;
-							}
-							elseif ($team==1)
-							{
-								$q
-									= "UPDATE Teams "
-									. "SET "
-										. "TeFinal=0, "
-										. "TeRankFinal=0,"
-										. "TeTimeStampFinal=0 "
-									. "WHERE "
-										. "TeTournament={$ToId} AND TeEvent='{$event}' AND TeFinEvent=1 "
-								;
-							}
-						}
-						elseif ($type==1)
-						{
-						// non ho team!
-
-							if ($team==0)
-							{
-								$q
-									= "UPDATE Individuals INNER JOIN Eliminations ON IndTournament=ElTournament AND IndId=ElId AND IndEvent=ElEventCode AND ElElimPhase=0 "
-									. "SET "
-										. "IndRankFinal=0, "
-										. "IndTimestampFinal='{$date}' "
-									. "WHERE "
-										. "IndTournament={$ToId} AND IndEvent='{$event}' "
-								;
-							}
-						}
-						elseif ($type==2)
-						{
-						// non ho team!
-
-							if ($team==0)
-							{
-								$q
-									= "UPDATE Individuals INNER JOIN Eliminations ON IndTournament=ElTournament AND IndId=ElId AND IndEvent=ElEventCode AND ElElimPhase=1 "
-									. "SET "
-										. "IndRankFinal=0, "
-										. "IndTimestampFinal='{$date}' "
-									. "WHERE "
-										. "IndTournament={$ToId} AND IndEvent='{$event}' "
-								;
-							}
-						}
-
-						//print $q.'<br><br>';
-						$ret=(safe_w_sql($q)!==false);
-//						$mtime = microtime();
-//						$mtime = explode(" ", $mtime);
-//						$mtime = $mtime[1] + $mtime[0];
-//						$endtime = $mtime;
-//						print $event . ' ' . $team . ' Reset rank finals: ' .($endtime - $starttime).'<br>';
-						set_qual_session_flags();
-					}
-				}
-			}
-		}
-
-		return $ret;
 	}
 
 function getArrowEnds($Session=1, $Dist=0, $TourId=0) {

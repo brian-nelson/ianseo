@@ -15,7 +15,7 @@
 
 
 define ("ProgramName","Ianseo");	// Nome del programma
-define ("ProgramVersion","2019-05-04"); // "Potlhbe’chugh yay qatlh pe’’eghlu’ [Lieutenant Worf]"
+define ("ProgramVersion","2020-11-10"); // "Team Work"
 
 define ("TargetNoPadding",3);		// Padding del targetno
 
@@ -51,6 +51,8 @@ define('MAX_HEIGHT',400);
 define('PROPORTION',400/300);
 define('MAX_SIZE',50);	// kilobytes
 
+// Upload System Version
+define('UploadVersion', 3);
 
 /*****************************
 
@@ -117,9 +119,13 @@ if(empty($_SESSION['COLLATION'])) set_collation();
 	}
 
 // funzione per l'internazionalizzazione
-function get_text($text, $module='Common', $a='', $translate=false, $force=false, $ForceLang='', $Verbose=true) {
+function get_text($text, $module='Common', $a=null, $translate=false, $force=false, $ForceLang='', $Verbose=true) {
 	static $_LANG;
 	global $Arr_StrStatus, $CFG;
+
+	if(strlen($text)==0) {
+		return '';
+	}
 
 	if($module=='ReturnLangArray') return $_LANG;
 
@@ -187,7 +193,20 @@ function get_text($text, $module='Common', $a='', $translate=false, $force=false
 
 	if(isset($_LANG[$lingua][$module][$text])) {
 		// se esiste il testo manda il testo con i parametri
-		eval("\$result".' = "' . str_replace('"', '\"', $_LANG[$lingua][$module][$text]) . '";');
+		$result=$_LANG[$lingua][$module][$text];
+		if(!is_null($a)) {
+			if(is_scalar($a)) {
+				$result=str_replace(array('{$a}','$a'), $a , $result);
+			} elseif(is_object($a)) {
+				foreach($a as $k=>$v) {
+					$result=str_replace(array('{$a->'.$k.'}','$a->'.$k), $v , $result);
+				}
+			} elseif(is_array($a)) {
+				foreach($a as $k=>$v) {
+					$result=str_replace(array('{$a['.$k.']}','$a['.$k.']'), $v , $result);
+				}
+			}
+		}
 		return $result;
 	} elseif($Verbose) {
 		// oppure un avviso che manca il testo e il modulo
@@ -231,9 +250,9 @@ function set_qual_session_flags() {
 	$ConstToStore['MenuFinI']=array();
 	$ConstToStore['MenuFinT']=array();
 
-    $q = safe_r_sql("select EvCode, EvTeamEvent, EvShootOff, EvE1ShootOff, EvE2ShootOff, EvElimType, EvElim1, EvElim2
+    $q = safe_r_sql("select EvCode, EvTeamEvent, EvFinalFirstPhase,  EvShootOff, EvE1ShootOff, EvE2ShootOff, EvElimType, EvElim1, EvElim2
 		from Events 
-		where EvTournament={$_SESSION['TourId']} AND EvFinalFirstPhase!=0 AND EvCodeParent=''");
+		where EvTournament={$_SESSION['TourId']} AND EvCodeParent=''");
 	while($r=safe_fetch($q)) {
 		$ConstToStore['MenuElimOn']=($ConstToStore['MenuElimOn'] or $r->EvE1ShootOff or $r->EvE2ShootOff);
         switch($r->EvElimType) {
@@ -249,11 +268,11 @@ function set_qual_session_flags() {
 				$ConstToStore['MenuElimPoolDo']=true;
                 break;
         }
-        if ($r->EvTeamEvent == 1) {
+        if ($r->EvTeamEvent == 1 and $r->EvFinalFirstPhase!=0) {
 			$ConstToStore['MenuFinTDo']=true;
 			$ConstToStore['MenuFinTOn']=($ConstToStore['MenuFinTOn'] or $r->EvShootOff);
 			if(!$r->EvShootOff) $ConstToStore['MenuFinT'][]=$r->EvCode;
-        } elseif ($r->EvTeamEvent == 0) {
+        } elseif ($r->EvTeamEvent == 0 and $r->EvFinalFirstPhase!=0) {
 			$ConstToStore['MenuFinIDo']=true;
 			$ConstToStore['MenuFinIOn']=($ConstToStore['MenuFinIOn'] or $r->EvShootOff);
 			if(!$r->EvShootOff) $ConstToStore['MenuFinI'][]=$r->EvCode;
@@ -312,10 +331,11 @@ function Set_Tournament_Option($key, $value, $unset=false, $TourId=0) {
 
 
 
-/*
-	- CheckToutSession()
-	Ritorna true se c'� una sessione di tornao attiva; false altrimenti
-*/
+/**
+ * @param bool $PrintCrack if true prints a standard message
+ * @param bool $popup
+ * @return bool true if a competition is open
+ */
 function CheckTourSession($PrintCrack=false, $popup=false)
 {
 	global $CFG;
@@ -343,6 +363,14 @@ function PrintCrackError($popup=false, $errore='CrackError', $Module='Common', $
 	include('Common/Templates/head'.($popup?'-popup':'').'.php');
 	echo get_text($errore, $Module, $a);
 	include('Common/Templates/tail'.($popup?'-popup':'').'.php');
+	exit;
+}
+
+function OutputError($errore) {
+	global $CFG;
+	include('Common/Templates/head.php');
+	echo '<div class="alert alert-warning">'.$errore.'</div>';
+	include('Common/Templates/tail.php');
 	exit;
 }
 /*
@@ -427,6 +455,7 @@ function CreateTourSession($TourId) {
 		$_SESSION['TourType']=$MyRow->ToType;
 		$_SESSION['TourLocRule']=$MyRow->ToLocRule;
 		$_SESSION['TourLocSubRule']=$MyRow->ToTypeSubRule;
+		$_SESSION['TourField3D']=($MyRow->ToElabTeam==1 ? 'FIELD' : ($MyRow->ToElabTeam==2 ? '3D' : ''));
 		$_SESSION['TourCode']=$MyRow->ToCode;
 		$_SESSION['TourCodeSafe']=preg_replace('/[^a-z0-9_.-]+/sim', '', $MyRow->ToCode);
 		$_SESSION['TourCollation']=$MyRow->ToCollation;
@@ -961,4 +990,22 @@ function deleteArcher($EnId=0, $Division=false, $Limit=false) {
 		safe_w_sql("DELETE FROM ElabQualifications WHERE EqId=$EnId");
 		safe_w_sql("DELETE FROM ExtraData WHERE EdId=$EnId");
 	}
+}
+
+/**
+ * @param string $Type the type of log... Email, PDF, etc
+ * @param string $Message the message to log
+ * @param string $Title the title of the type (eg email title for type Email)
+ * @param int $Entry the entry related to the log entry
+ * @param int $TourId tour ID, defaults to the open session
+ */
+function insertLog($Type, $Message, $Title='', $Entry=0, $TourId=0) {
+	safe_w_sql("insert ignore into Logs set 
+		LogTournament=".(empty($TourId) ? $_SESSION['TourId'] : $TourId).",
+		LogType=".StrSafe_DB($Type).",
+		LogTitle=".StrSafe_DB($Title).",
+		LogEntry=".StrSafe_DB($Entry).",
+		LogMessage=".StrSafe_DB($Message).",
+		LogTimestamp='".date('Y-m-d H:i:s.u')."',
+		LogIP='".$_SERVER['REMOTE_ADDR']."'");
 }

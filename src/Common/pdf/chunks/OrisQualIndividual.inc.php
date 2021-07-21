@@ -44,20 +44,22 @@ if(count($rankData['sections'])) {
 		$Rows = array();
 
 		// Calcolo Le Misure per i Campi
-		if($section['meta']['numDist']>=4) $DistSize = 60/$section['meta']['numDist'];
-		else $AddSize = (60-($section['meta']['numDist']*15));
-
+		if($section['meta']['numDist']>=4) {
+			$DistSize = 60 / $section['meta']['numDist'];
+		} else  {
+			$AddSize = (60-($section['meta']['numDist']*15));
+		}
 		$snapDistance = ($PdfData->family=='Snapshot' ? $section['meta']['snapDistance']: 0);
 
 		//Preparo l'array di header di stampa
-		$arrTitles=array("Rank","Back No.#", "Name", "NOC");
+		$arrTitles=array("@Rank","@Back No.#", "@Name", "@NOC");
 		$arrSizes=array();
-		if($section['meta']['running'])
-			$arrSizes=array(11,10,40 + $AddSize,10);
-		else
+		if($section['meta']['running']) {
+			$arrSizes=array(10,10,35 + $AddSize,10);
+		} else {
 			$arrSizes=array(13,15,40 + $AddSize,15);
-		for($i=1; $i<=$section['meta']['numDist']; $i++)
-		{
+		}
+		for($i=1; $i<=$section['meta']['numDist']; $i++) {
 			$arrTitles[] = "@" . (is_null($section['meta']['fields']['dist_'. $i]) ? '.' . $i . '.' : $section['meta']['fields']['dist_'. $i]) . "#";
 			$arrSizes[] = (!$snapDistance ? array($DistSize-5,5) : $DistSize);
 		}
@@ -79,7 +81,7 @@ if(count($rankData['sections'])) {
 		if($section['meta']['running'])
 			$arrSizes[] = 2;
 		else
-			$arrSizes[] = array(5,7);
+			$arrSizes[] = 20;
 
 		$pdf->SetDataHeader($arrTitles, $arrSizes);
 		$pdf->setEvent($section['meta']['descr']);
@@ -87,8 +89,8 @@ if(count($rankData['sections'])) {
 		$pdf->Records=$section['records'];
 
 		//Aggiungo Pagina
-		$pdf->setOrisCode($PdfData->Code, ($section['meta']['running'] ? 'Running ' : '') . 'Results');
 		$pdf->AddPage();
+		$pdf->setOrisCode($PdfData->Code, ($section['meta']['running'] ? 'Running ' : '') . 'Results');
 		if($First and (empty($pdf->CompleteBookTitle) or $pdf->CompleteBookTitle!=$PdfData->IndexName)) {
 			$pdf->Bookmark($PdfData->IndexName, 0);
 			$pdf->CompleteBookTitle=$PdfData->IndexName;
@@ -96,16 +98,23 @@ if(count($rankData['sections'])) {
 		$First=false;
 		$pdf->Bookmark($section['meta']['descr'], 1);
 
-		$EndQualified = false;
+		$EndQualified = ($section['meta']['qualifiedNo']==0);
+		$StartQualified = ($section['meta']['firstQualified']==1);
+		$FirstIrm=false;
 		foreach($section['items'] as $item) {
-			if(!$EndQualified && $item['rank']>$section['meta']['qualifiedNo'])
-			{
+			if(!$StartQualified AND ($section['meta']['finished'] ? $item['rank']: $item['rankBeforeSO']+$item['ct'])>=$section['meta']['firstQualified']) {
+				$pdf->addSpacer();
+				$StartQualified = true;
+			} else if(!$EndQualified && $item['rank']>($section['meta']['qualifiedNo']+$section['meta']['firstQualified']-1)) {
 				$pdf->addSpacer();
 				$EndQualified = true;
+			} else if(!$FirstIrm && strlen($item['rank'])==0) {
+				$pdf->addSpacer();
+				$FirstIrm = true;
 			}
 			$dataRow = array(
 				$item['rank'] . " #" ,
-				$item['target'] . " #",
+				ltrim($item['target'], '0') . " #",
 				$item['athlete'],
 				$item['countryCode']);
 
@@ -115,7 +124,7 @@ if(count($rankData['sections'])) {
 				if($snapDistance==0)
 				{
 					$dataRow[] = $score . "#";
-					$dataRow[] = "/" . str_pad($rank,2," ", STR_PAD_LEFT) . "#";
+					$dataRow[] = $rank ? "/" . str_pad($rank,2," ", STR_PAD_LEFT) . "#" : '';
 				}
 				elseif($i<$snapDistance)
 					$dataRow[] = $score . "#";
@@ -137,29 +146,28 @@ if(count($rankData['sections'])) {
 				$dataRow[] = $item['hits'] . "#";
 			}
 			$dataRow[] = (!$snapDistance ?  $item['score'] : $item['scoreSnap']). "#";
-			if($item['notes']) {
-				$dataRow[] = $item['notes'] . "#";
-			}
 
-			if($snapDistance)
+			if($snapDistance) {
 				$dataRow[] = ($item['scoreSnap']!=$item['score'] ? $item['score'] : "") . "#";
-			elseif($section['meta']['running'])
+			} elseif($section['meta']['running']) {
 				$dataRow[] = '';
-			else
-			{
-				if($item['so']>0)  //Spareggio
-				{
-					$dataRow[] = $pdf->ShotOffShort;
-					if(strlen(trim($item['tiebreak'])))
-					{
-						$dataRow[] = $item['tiebreakDecoded'];
+			} else {
+				$tmpNote = '';
+				if($item['so']>0) { //Spareggio
+					$tmpNote .=  $pdf->ShotOffShort;
+					if(strlen(trim($item['tiebreak']))) {
+						$tmpNote .= ' ' . $item['tiebreakDecoded'];
 					}
+				} else if($item['ct']>1) {
+					$tmpNote .=  $pdf->CoinTossShort;
 				}
-				elseif($item['ct']>1) {
-					$dataRow[] = $pdf->CoinTossShort;
-				} else {
-					$dataRow[] = '';
+				if($item['notes']) {
+					$tmpNote .= ' ' . $item['notes'];
 				}
+				if(!empty($item['record'])) {
+					$tmpNote .= ' ' . $item['record'];
+				}
+				$dataRow[] = trim($tmpNote);
 			}
 			$pdf->printDataRow($dataRow);
 		}

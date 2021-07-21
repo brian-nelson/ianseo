@@ -1064,7 +1064,7 @@ function UpdateTournament($Gara) {
 		foreach($Gara['Countries'] as $key => $val) {
             $Gara['Countries'][$key]['CoCode'] = mb_convert_case($val['CoCode'], MB_CASE_UPPER, "UTF-8");
             $Gara['Countries'][$key]['CoName']=AdjustCaseTitle($val['CoName']);
-            $Gara['Countries'][$key]['CoNameComplete']=AdjustCaseTitle($val['CoNameComplete']);
+            $Gara['Countries'][$key]['CoNameComplete']=AdjustCaseTitle($val['CoNameComplete'] ? $val['CoNameComplete'] : $val['CoName']);
 		}
 
 		// updates Entries
@@ -1215,13 +1215,53 @@ function UpdateTournament($Gara) {
         }
 	}
 
-/*
-
-	if($Gara['Tournament']['ToDbVersion']<'YYYY-MM-DD HH:MM:SS') {
-		// procedura di aggiornamento della gara alla versione attuale del database
+	if($Gara['Tournament']['ToDbVersion']<'2020-11-01 15:13:01') {
+		// update records to the correct things...
+		foreach($Gara['RecTournament'] as $k => &$r) {
+			switch($r['RtRecType'].'-'.$r['RtRecCode']) {
+				case 'WR-WA': $r['RtRecCode']='WR'; unset($r['RtRecType']); break;
+				case 'OR-WA': $r['RtRecCode']='OR'; unset($r['RtRecType']); break;
+				case 'CR-EMAU': $r['RtRecCode']='WAE-CR'; unset($r['RtRecType']); break;
+				case 'CR-WAE': $r['RtRecCode']='WAE-CR'; unset($r['RtRecType']); break;
+				case 'CR-WAAM': $r['RtRecCode']='WAAM-CR'; unset($r['RtRecType']); break;
+				case 'CR-WAAS': $r['RtRecCode']='WAAS-CR'; unset($r['RtRecType']); break;
+				case 'GR-WAE-CG': $r['RtRecCode']='WAE-CG-GR'; unset($r['RtRecType']); break;
+				case 'GR-WAAM-CG': $r['RtRecCode']='WAAM-CG-GR'; unset($r['RtRecType']); break;
+				case 'GR-WAAS-CG': $r['RtRecCode']='WAAS-CG-GR'; unset($r['RtRecType']); break;
+				case 'GR-FISU': $r['RtRecCode']='FISU-GR'; unset($r['RtRecType']); break;
+			}
+		}
+		foreach($Gara['TourRecords'] as $k => &$r) {
+			switch($r['TrRecType'].'-'.$r['TrRecCode']) {
+				case 'WR-WA': $r['TrRecCode']='WR'; unset($r['TrRecType']); break;
+				case 'OR-WA': $r['TrRecCode']='OR'; unset($r['TrRecType']); break;
+				case 'CR-EMAU': $r['TrRecCode']='WAE-CR'; unset($r['TrRecType']); break;
+				case 'CR-WAE': $r['TrRecCode']='WAE-CR'; unset($r['TrRecType']); break;
+				case 'CR-WAAM': $r['TrRecCode']='WAAM-CR'; unset($r['TrRecType']); break;
+				case 'CR-WAAS': $r['TrRecCode']='WAAS-CR'; unset($r['TrRecType']); break;
+				case 'GR-WAE-CG': $r['TrRecCode']='WAE-CG-GR'; unset($r['TrRecType']); break;
+				case 'GR-WAAM-CG': $r['TrRecCode']='WAAM-CG-GR'; unset($r['TrRecType']); break;
+				case 'GR-WAAS-CG': $r['TrRecCode']='WAAS-CG-GR'; unset($r['TrRecType']); break;
+				case 'GR-FISU': $r['TrRecCode']='FISU-GR'; unset($r['TrRecType']); break;
+			}
+		}
 	}
 
-*/
+	if($Gara['Tournament']['ToDbVersion']<'2021-01-14 17:13:01') {
+		// add the necessary "key" to the emails
+		$key=1;
+		foreach($Gara['Emails'] as $k => &$r) {
+			$r['EmKey']=$key++;
+		}
+	}
+
+	/*
+
+		if($Gara['Tournament']['ToDbVersion']<'YYYY-MM-DD HH:MM:SS') {
+			// procedura di aggiornamento della gara alla versione attuale del database
+		}
+
+	*/
 	return $Gara;
 }
 

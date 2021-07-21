@@ -7,7 +7,7 @@ checkACL(AclQualification, AclReadWrite);
 require_once('Common/Fun_Sessions.inc.php');
 
 $JS_SCRIPT = array(
-    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
     '<script type="text/javascript" src="SnapshotConf.js"></script>',
     );
 $PAGE_TITLE=get_text('SnapshotConf');

@@ -74,7 +74,6 @@ function CreateStandardClasses($TourId, $SubRule, $Type='TARGET') {
 }
 
 function CreateStandardEvents($TourId, $SubRule, $Outdoor=true) {
-	global $useOldRules;
 	$TargetR=($Outdoor?5:2);
 	$TargetC=($Outdoor?9:4);
 	$TargetSizeR=($Outdoor ? 122 : 40);

@@ -96,58 +96,41 @@ function updateScore(obj) {
 
 }
 
-function SendToServer(obj, value) {
+function SendToServer(obj) {
 	// will use the original call to WriteScore_Bra.php
 	var split=obj.id.split('_');
 	var qs;
 	switch(split[0]) {
-	case 'bye':
-		qs='d_T_';
-		break;
-	case 'note':
-		qs='d_N_';
-		break;
-	case 'tie':
-		qs='d_t_';
-		value='';
-        $('[id^="tie_'+split[1]+'_'+split[2]+'_'+split[3]+'_"').each(function() {value += (this.value+'|')});
-		break;
+		case 'irm':
+			qs='d_T_'+split[2]+'_'+split[3];
+			break;
+		case 'note':
+			qs='d_N_'+split[2]+'_'+split[3];
+			break;
+		case 'tie':
+			qs='d_t_'+split[2]+'_'+split[3]+'_'+split[4];
+			break;
+		case 'cl':
+			qs='d_cl_'+split[2]+'_'+split[3];
+			break;
 	}
-
-	qs += split[2]+'_'+split[3];
 
 	$(obj).css('backgroundColor', '#ffff00');
 
-	$.get((split[1]=='1' ? 'Team' : 'Individual')+'/WriteScore_Bra.php?'+qs+'='+value, function(data) {
-		var XMLRoot = data.documentElement;
-
-		var Error=XMLRoot.getElementsByTagName('error').item(0).firstChild.data;
-
-		if (Error==0) {
+	$.getJSON((split[1]=='1' ? 'Team' : 'Individual')+'/WriteScore_Bra.php?'+qs+'='+(obj.type=='checkbox' ? (obj.checked ? 1 : 0) : obj.value), function(data) {
+		if(data.error==0) {
 			// check if the bye has been "accepted"
-			if($(XMLRoot).find('ath[matchno="'+split[3]+'"]').attr('tie')==2) {
-				if(split[3]%2 == 0) {
-					// opponent is the next match
-					var opponent=parseInt(split[3])+1;
-				} else {
-					// opponent is the previous
-					var opponent=parseInt(split[3])-1;
-				}
-				var k1=split[1]+'_'+split[2]+'_'+split[3];
-				var k2=split[1]+'_'+split[2]+'_'+opponent;
-
-				// empty all arrows and total (of both)
-				$('[id^="s_'+k1+'_"]').each(function() {this.value=''});
-				$('#tot_'+k1).each(function() {$(this).html('')});
-				$('[id^="s_'+k2+'_"]').each(function() {this.value=''});
-				$('#tot_'+k2).each(function() {$(this).html('')});
-
-				// sets/removes the bye class to the correct line
-				$(obj).closest('tr').toggleClass('Bye', true);
-				$('#tot_'+k2).closest('tr').toggleClass('Bye', false);
-			}
+			$(data.ath).each(function() {
+				// sets the bye/irm select
+				$('#irm_'+split[1]+'_'+split[2]+'_'+this.matchno).val(this.tie);
+				// sets the final score
+				$('#set_'+split[1]+'_'+split[2]+'_'+this.matchno).html(this.score);
+				// sets the closest
+				$('#cl_'+split[1]+'_'+split[2]+'_'+this.matchno).prop('checked', this.closest==1);
+			});
 
 			$(obj).css('backgroundColor', '');
+
 		}
 	});
 }

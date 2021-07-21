@@ -31,7 +31,7 @@ $JS_SCRIPT=array(
         'StrResetElim' => get_text('ChangeElimWarning'),
         'EVENT' => $_REQUEST['Event'],
         )),
-    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
     '<script type="text/javascript" src="ListEvents-Eliminations.js"></script>',
     );
 

@@ -1,14 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 05/04/17
- * Time: 8.07
- */
 
 if($_SESSION['UseApi']==2) {
     if ($acl[AclISKServer] == AclReadWrite) {
-        $ret['API'][] = get_text('ISK-Configuration') . '|' . $CFG->ROOT_DIR . 'Api/ISK/';
+		$ret['API'][] = get_text('ISK-Configuration') . '|' . $CFG->ROOT_DIR . 'Api/ISK/';
         $ret['API'][] = get_text('ISK-Results') . '|' . $CFG->ROOT_DIR . 'Api/ISK/Results.php';
     }
     if ($acl[AclISKServer] >= AclReadOnly) {
@@ -22,5 +16,9 @@ if($_SESSION['UseApi']==2) {
     }
 }
 if ($acl[AclISKServer] >= AclReadWrite) {
+    $ret['API'][] = get_text('ManageLockedSessions', 'ISK') . '|' . $CFG->ROOT_DIR . 'Api/ISK/Sessions.php';
+    if($_SESSION['UseApi']==1) {
+        $ret['API'][] = get_text('AutoImportSettings', 'ISK') . '|' . $CFG->ROOT_DIR . 'Api/ISK/';
+    }
     $ret['API'][] = get_text('API-TargetGrouping', 'Api') . '|' . $CFG->ROOT_DIR . 'Api/ISK/ApiGrouping.php';
 }

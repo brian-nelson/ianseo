@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 09/05/17
- * Time: 18.51
- */
 
 require_once(dirname(dirname(__FILE__)).'/config.php');
 checkACL(AclRoot, AclReadWrite);
@@ -31,7 +25,7 @@ if(!empty($_REQUEST['delete']) and $ToId=intval($_REQUEST['delete'])) {
 
 $PAGE_TITLE=get_text('MenuLM_GateControl');
 $JS_SCRIPT=array(
-	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 	'<script type="text/javascript" src="./GateControl.js"></script>',
 );
 
@@ -39,10 +33,10 @@ require_once('Common/Templates/head.php');
 
 
 echo '<table class="Tabella">';
-
+echo '<tr><th class="Title" colspan="3">' . get_text('MenuLM_GateControl') . '</th></tr>';
 // ask to insert a new competition
 echo '<tr>';
-echo '<th>'.get_text('AclCompetition', 'Tournament').'</th>';
+echo '<th>'.get_text('AddTournament', 'Tournament').'</th>';
 echo '<td colspan="2"><select onchange="location.href=\'?addTour=\'+this.value">';
 echo '<option value="0">---</option>';
 $q=safe_r_sql("select ToId, ToCode, ToName, ToWhere, ToWhenFrom, ToWhenTo from Tournament 

@@ -51,7 +51,6 @@ $lang['BgImage']='背景图像';
 $lang['Bold']='粗体';
 $lang['Category']='类别';
 $lang['CharColor']='字体颜色';
-$lang['CharSize']='字体大小';
 $lang['CharType']='字体类型';
 $lang['CheckBarcodeSeparator']='检查条形码分隔符';
 $lang['Club']='国家/俱乐部细节';

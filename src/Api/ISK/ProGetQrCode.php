@@ -12,7 +12,7 @@ $tgtReq = (empty($_REQUEST['tar']) ? 0 : $_REQUEST['tar']);
 $JsonResponse=array("error"=>0,"qrcode"=>"", "msg"=>"");
 
 safe_w_SQL("UPDATE IskDevices SET
-	IskDvTargetReq='{$tgtReq}', IskDvBattery='{$battLevel}'
+	IskDvBattery='{$battLevel}'
 	WHERE IskDvDevice='{$DeviceId}'");
 
 $q=safe_r_sql("SELECT IskDvState, IskDvTournament FROM IskDevices WHERE IskDvDevice='{$DeviceId}'");
@@ -26,7 +26,7 @@ if(safe_num_rows($q)==1) {
 		if($tmp=getQrCode('2,3')) { // asks for a code to be sent or already sent
 			$JsonResponse["qrcode"] = $tmp;
 			// device goes in "qrcode sent, waiting for confirmation" state
-			$q=safe_r_sql("update IskDevices set IskDvState=3, IskDvAuthRequest=0  WHERE IskDvDevice='{$DeviceId}'");
+			$q=safe_r_sql("update IskDevices set IskDvState=3, IskDvAuthRequest=0, IskDvRunningConf=".StrSafe_DB(json_encode($tmp))."  WHERE IskDvDevice='{$DeviceId}'");
 		}
 	}
 }

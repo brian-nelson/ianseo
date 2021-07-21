@@ -11,12 +11,10 @@
 
 	$Events=isset($_REQUEST['Events']) ? $_REQUEST['Events'] : array();
 
-	$Select
-		= "SELECT EvCode,EvTournament,	EvEventName, EvElimType, EvElim1, EvElim2 "
-		. "FROM Events "
-		. "WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent='0' "
-		. "AND (EvElim1>0 OR EvElim2>0) "
-		. "ORDER BY EvProgr ASC ";
+	$Select = "SELECT EvCode, EvTournament, EvEventName, EvElimType, EvElim1, EvElim2
+	    FROM Events
+	    WHERE EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent=0 AND (EvElim1>0 OR EvElim2>0)
+	    ORDER BY EvProgr ASC ";
 	$Rs=safe_r_sql($Select);
 
 	$CheckEvent1='';
@@ -159,6 +157,7 @@ if(count($PoolEvents)) {
         while($r2=safe_fetch($q2)) {
             $MatchSchedule[$r2->FSMatchNo] = array($r2->ScheduledDate, $r2->ScheduledTime, $r2->FSScheduledLen, $r2->FSTarget);
         }
+        $Rows=array();
         foreach ($MatchArray as $kMatch => $vMatch) {
             if(!array_key_exists($kMatch,$MatchSchedule)) {
                 $MatchSchedule[$kMatch] = array('','','','');
@@ -166,15 +165,15 @@ if(count($PoolEvents)) {
             echo '<tr>
                 <td>'.$vMatch.'</td>
                 <td>
-                    <input type="text" tabindex="'.($tabIndex++).'" maxlength="10" size="10" name="d_FSScheduledDate_'.$r->EvCode.'_'.$kMatch.'" id="d_FSScheduledDate_'.$r->EvCode.'_'.$kMatch.'" value="'.$MatchSchedule[$kMatch][0].'" onblur="javascript:WriteSchedule(this);" class="">
+                    <input type="text" tabindex="'.($tabIndex++).'" maxlength="10" size="10" name="d_FSScheduledDate_'.$r->EvCode.'_'.$kMatch.'" id="d_FSScheduledDate_'.$r->EvCode.'_'.$kMatch.'" value="'.$MatchSchedule[$kMatch][0].'" onblur="WriteSchedule(this);" class="">
                     @
-                    <input type="text" tabindex="'.($tabIndex++).'" maxlength="5" size="4" name="d_FSScheduledTime_'.$r->EvCode.'_'.$kMatch.'" id="d_FSScheduledTime_'.$r->EvCode.'_'.$kMatch.'" value="'.$MatchSchedule[$kMatch][1].'" onblur="javascript:WriteSchedule(this);">
+                    <input type="text" tabindex="'.($tabIndex++).'" maxlength="5" size="4" name="d_FSScheduledTime_'.$r->EvCode.'_'.$kMatch.'" id="d_FSScheduledTime_'.$r->EvCode.'_'.$kMatch.'" value="'.$MatchSchedule[$kMatch][1].'" onblur="WriteSchedule(this);">
                     &nbsp;/&nbsp;
-                    <input type="text" tabindex="'.($tabIndex++).'" maxlength="3" size="2" name="d_FSScheduledLen_'.$r->EvCode.'_'.$kMatch.'" id="d_FSScheduledLen_'.$r->EvCode.'_'.$kMatch.'" value="'.$MatchSchedule[$kMatch][2].'" onblur="javascript:WriteSchedule(this);">
+                    <input type="text" tabindex="'.($tabIndex++).'" maxlength="3" size="2" name="d_FSScheduledLen_'.$r->EvCode.'_'.$kMatch.'" id="d_FSScheduledLen_'.$r->EvCode.'_'.$kMatch.'" value="'.$MatchSchedule[$kMatch][2].'" onblur="WriteSchedule(this);">
                 </td>
                 
                 <td>
-                    <input type="text" tabindex="'.($tabIndex++).'" maxlength="7" size="3" name="d_FSTarget_'.$r->EvCode.'_'.$kMatch.'_1" id="d_FSTarget_'.$r->EvCode.'_'.$kMatch.'_1" value="'.$MatchSchedule[$kMatch][3].'" onblur="javascript:WriteTarget(\'d_FSTarget_'.$r->EvCode.'_'.$kMatch.'_1\');" class="">                   
+                    <input type="text" tabindex="'.($tabIndex++).'" maxlength="7" size="3" name="d_FSTarget_'.$r->EvCode.'_'.$kMatch.'_1" id="d_FSTarget_'.$r->EvCode.'_'.$kMatch.'_1" value="'.$MatchSchedule[$kMatch][3].'" onblur="WriteTarget(\'d_FSTarget_'.$r->EvCode.'_'.$kMatch.'_1\');" class="">                   
                 </td>
                 </tr>';
         }
@@ -184,23 +183,16 @@ if(count($PoolEvents)) {
 }
 
 if(count($in)) {
-    $Select
-        = "SELECT "
-        . "ElElimPhase,ElEventCode,EvEventName,ElQualRank,ElTournament,ElTargetNo AS TargetNo,ElSession,CoCode, CoName,"
-        . "EnCode,EnName,EnFirstName,EnDivision,EnClass,EnCountry "
-        . "FROM "
-        . "Eliminations "
-        . "INNER JOIN Events ON ElEventCode=EvCode AND ElTournament=EvTournament AND EvTeamEvent=0 "
-        . "LEFT JOIN "
-        . "Entries "
-        . "ON ElId=EnId AND ElTournament=EnTournament "
-        . "LEFT JOIN "
-        . "Countries "
-        . "ON EnCountry=CoId AND ElTournament=CoTournament "
-        . "WHERE "
-        . "ElTournament=" . StrSafe_DB($_SESSION['TourId']) . "  " . $EventsFilter . " ";
-
-    $Select .= "ORDER BY ElElimPhase ASC, ElEventCode ASC,ElQualRank ASC ";
+    // target assignment for "old style" 1st/2nd elimination rounds
+    $Select = "SELECT
+        ElElimPhase,ElEventCode,EvEventName,ElQualRank,ElTournament,ElTargetNo AS TargetNo,ElSession,CoCode, CoName,
+        EnCode,EnName,EnFirstName,EnDivision,EnClass,EnCountry
+        FROM Eliminations
+        INNER JOIN Events ON ElEventCode=EvCode AND ElTournament=EvTournament AND EvTeamEvent=0
+        LEFT JOIN Entries ON ElId=EnId AND ElTournament=EnTournament
+        LEFT JOIN Countries ON EnCountry=CoId AND ElTournament=CoTournament
+        WHERE ElTournament=" . StrSafe_DB($_SESSION['TourId']) . "  " . $EventsFilter . " 
+        ORDER BY ElElimPhase ASC, ElEventCode ASC,ElQualRank ASC ";
 
     $Rs = safe_r_sql($Select);
 
@@ -212,13 +204,13 @@ if(count($in)) {
                 if ($curEvent != '') {
                     print '</table>';
                 }
-                print '<table class="Tabella">' . "\n";
+                print '<table class="Tabella">' ;
                 print '<tr>';
                 print '<th class="Title "colspan="6">' . get_text('Eliminations_' . ($MyRow->ElElimPhase + 1)) . " - " . $MyRow->ElEventCode . '</th>';
                 print '<th colspan="2">';
                 print '<div align="left">';
-                $id = $MyRow->ElElimPhase . '_' . $MyRow->ElEventCode . '_' . $MyRow->ElTournament;
-                print get_text('Session') . '&nbsp;&nbsp;<select id="d_q_ElSession_' . $id . '" onChange="UpdateSession(\'d_q_ElSession_' . $id . '\');">';
+                $id = $MyRow->ElElimPhase . '_' . $MyRow->ElEventCode;
+                print get_text('Session') . '&nbsp;&nbsp;<select id="d_q_ElSession_' . $id . '" onChange="UpdateSession(this);">';
                 print '<option value="0">---</option>';
                 foreach ($sessions as $s) {
                     print '<option value="' . $s->SesOrder . '"' . ($s->SesOrder == $MyRow->ElSession ? ' selected' : '') . '>' . $s->Descr . '</option>';
@@ -239,7 +231,7 @@ if(count($in)) {
                 print '</tr>' . "\n";
             }
 
-            $id = $MyRow->ElElimPhase . '_' . $MyRow->ElEventCode . '_' . $MyRow->ElQualRank . '_' . $MyRow->ElTournament;
+            $id = $MyRow->ElElimPhase . '_' . $MyRow->ElEventCode . '_' . $MyRow->ElQualRank;
 
             print '<tr>';
 
@@ -252,7 +244,7 @@ if(count($in)) {
             print '</td>';
 
             print '<td class="Center">';
-            print '<input type="text" size="4"  name="d_q_ElTargetNo_' . $id . '" id="d_q_ElTargetNo_' . $id . '" value="' . $MyRow->TargetNo . '"' . ' onBlur="javascript:UpdateTargetNo(\'d_q_ElTargetNo_' . $id . '\');">';
+            print '<input type="text" size="4"  name="d_q_ElTargetNo_' . $id . '" id="d_q_ElTargetNo_' . $id . '" value="' . $MyRow->TargetNo . '"' . ' onchange="UpdateTargetNo(this);">';
             //print $MyRow->TargetNo;
             print '</td>';
 

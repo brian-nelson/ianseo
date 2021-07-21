@@ -129,10 +129,4 @@ class Score {
 
 		include('Common/Templates/tail' . (isset($_REQUEST["hideMenu"]) ? '-min' : '') . '.php');
 	}
-
-
-
-
-
-
 }

@@ -56,6 +56,7 @@ $Select
     = "SELECT ToId,ToType,ToCode,ToName,ToCommitee,ToComDescr,ToWhere,DATE_FORMAT(ToWhenFrom,'" . get_text('DateFmtDB') . "') AS DtFrom, "
     . "DATE_FORMAT(ToWhenTo,'" . get_text('DateFmtDB') . "') AS DtTo,ToTypeName AS TtName,ToNumDist AS TtNumDist "
     . "FROM Tournament "
+    . (($CFG->USERAUTH AND !empty($_SESSION['AUTH_ENABLE']) AND empty($_SESSION['AUTH_ROOT'])) ? 'WHERE FIND_IN_SET(ToCode, \'' . implode(',',$_SESSION["AUTH_COMP"]) . '\') != 0 ' : '')
     . "ORDER BY ToWhenTo DESC, ToWhenFrom DESC, ToCode ASC";
 $Rs=safe_r_sql($Select);
 //print $Select;

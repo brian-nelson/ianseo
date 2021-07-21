@@ -121,37 +121,24 @@
 				(
 					SELECT 1,
 						CoId, TeSubTeam, CoCode, CoName, if(CoNameComplete>'', CoNameComplete, CoName) as CoNameComplete,
-						EvProgr, TeEvent, EvEventName, EvMaxTeamPerson,
+						EvProgr, TeEvent, EvEventName, EvMaxTeamPerson, EvNumQualified, EvFirstQualified,
 						EvFinalPrintHead as PrintHeader,
-						EvFinalFirstPhase, EvMatchMode, EvMedals, EvCodeParent, 
-						EnId,EnCode, EnSex, EnNameOrder,EnFirstName,upper(EnFirstName) EnFirstNameUpper,EnName,tc.TfcOrder AS personOrder,
+						EvFinalFirstPhase, EvMatchMode, EvMedals, EvCodeParent, EvMixedTeam,
+						EnId,EnCode, EnSex, EnNameOrder,EnFirstName,upper(EnFirstName) EnFirstNameUpper,EnName,tc.TfcOrder AS personOrder, IndIrm.IrmType as IndIrmType,
 						TeRank as QualRank, IF(EvFinalFirstPhase=0, TeRank, TeRankFinal) as FinalRank, TeScore,
 						TeTimestamp,TeTimestampFinal,
 						ifnull(concat(DV2.DvMajVersion, '.', DV2.DvMinVersion) ,concat(DV1.DvMajVersion, '.', DV1.DvMinVersion)) as DocVersion,
 						date_format(ifnull(DV2.DvPrintDateTime, DV1.DvPrintDateTime), '%e %b %Y %H:%i UTC') as DocVersionDate,
-						ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes, EvOdfCode, EvOdfGender, ifnull(EdExtra, EnCode) as LocalBib, EnNOC, EnDob
+						ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes, EvOdfCode, EvOdfGender, ifnull(EdExtra, EnCode) as LocalBib, EnNOC, EnDob, TeIrmTypeFinal, TeIrm.IrmType, TeIrm.IrmShowRank, TeNotes
 					FROM
 						Tournament
-
-						INNER JOIN
-							Teams
-						ON ToId=TeTournament AND TeFinEvent=1
-
-						INNER JOIN
-							Countries
-						ON TeCoId=CoId AND TeTournament=CoTournament
-
-						INNER JOIN
-							TeamFinComponent AS tc
-						ON Teams.TeCoId=tc.TfcCoId AND Teams.TeSubTeam=tc.TfcSubTeam AND  Teams.TeEvent=tc.TfcEvent AND Teams.TeTournament=tc.TfcTournament AND Teams.TeFinEvent=1
-
-						INNER JOIN (select Entries.*, CoCode as EnNOC from 
-							Entries inner join Countries on CoId=EnCountry) e
-						ON TfcId=EnId
-
-						INNER JOIN
-							Events
-						ON TeEvent=EvCode AND ToId=EvTournament AND EvTeamEvent=1
+						INNER JOIN Teams ON ToId=TeTournament AND TeFinEvent=1
+						INNER JOIN IrmTypes TeIrm ON TeIrm.IrmId=greatest(TeIrmTypeFinal, TeIrmType)
+						INNER JOIN Countries ON TeCoId=CoId AND TeTournament=CoTournament
+						INNER JOIN TeamFinComponent AS tc ON Teams.TeCoId=tc.TfcCoId AND Teams.TeSubTeam=tc.TfcSubTeam AND  Teams.TeEvent=tc.TfcEvent AND Teams.TeTournament=tc.TfcTournament AND Teams.TeFinEvent=1
+						INNER JOIN IrmTypes IndIrm ON IndIrm.IrmId=TfcIrmType
+						INNER JOIN (select Entries.*, CoCode as EnNOC from Entries inner join Countries on CoId=EnCountry and CoTournament=EnTournament) e ON TfcId=EnId
+						INNER JOIN Events ON TeEvent=EvCode AND ToId=EvTournament AND EvTeamEvent=1
 						LEFT JOIN DocumentVersions DV1 on EvTournament=DV1.DvTournament AND DV1.DvFile = 'R-TEAM' and DV1.DvEvent=''
 						LEFT JOIN DocumentVersions DV2 on EvTournament=DV2.DvTournament AND DV2.DvFile = 'R-TEAM' and DV2.DvEvent=EvCode
 						left join ExtraData on EdId=EnId and EdType='Z'
@@ -165,37 +152,24 @@
 				(
 					SELECT 2,
 						CoId,TeSubTeam,CoCode,CoName, if(CoNameComplete>'', CoNameComplete, CoName) as CoNameComplete,
-						EvProgr,TeEvent,EvEventName,EvMaxTeamPerson,
+						EvProgr,TeEvent,EvEventName,EvMaxTeamPerson, EvNumQualified, EvFirstQualified,
 						EvFinalPrintHead as PrintHeader,
-						EvFinalFirstPhase,EvMatchMode,EvMedals, EvCodeParent, 
-						EnId,EnCode, EnSex, EnNameOrder,EnFirstName,upper(EnFirstName) EnFirstNameUpper,EnName,tc.TcOrder,
+						EvFinalFirstPhase,EvMatchMode,EvMedals, EvCodeParent, EvMixedTeam,
+						EnId,EnCode, EnSex, EnNameOrder,EnFirstName,upper(EnFirstName) EnFirstNameUpper,EnName,tc.TcOrder, IndIrm.IrmType as IndIrmType,
 						TeRank as QualRank, IF(EvFinalFirstPhase=0, TeRank, TeRankFinal) as FinalRank, TeScore,
 						TeTimestamp,TeTimestampFinal,
 						ifnull(concat(DV2.DvMajVersion, '.', DV2.DvMinVersion) ,concat(DV1.DvMajVersion, '.', DV1.DvMinVersion)) as DocVersion,
 						date_format(ifnull(DV2.DvPrintDateTime, DV1.DvPrintDateTime), '%e %b %Y %H:%i UTC') as DocVersionDate,
-						ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes, EvOdfCode, EvOdfGender, ifnull(EdExtra, EnCode) as LocalBib, EnNOC, EnDob
+						ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes, EvOdfCode, EvOdfGender, ifnull(EdExtra, EnCode) as LocalBib, EnNOC, EnDob, TeIrmTypeFinal, TeIrm.IrmType, TeIrm.IrmShowRank, TeNotes
 					FROM
 						Tournament
-
-						INNER JOIN
-							Teams
-						ON ToId=TeTournament AND TeFinEvent=1
-
-						INNER JOIN
-							Countries
-						ON TeCoId=CoId AND TeTournament=CoTournament
-
-						INNER JOIN
-							TeamComponent AS tc
-						ON Teams.TeCoId=tc.TcCoId AND Teams.TeSubTeam=tc.TcSubTeam AND  Teams.TeEvent=tc.TcEvent AND Teams.TeTournament=tc.TcTournament AND Teams.TeFinEvent=tc.TcFinEvent AND Teams.TeFinEvent=1
-
-						INNER JOIN (select Entries.*, CoCode as EnNOC from 
-							Entries inner join Countries on CoId=EnCountry) e
-						ON TcId=EnId
-
-						INNER JOIN
-							Events
-						ON TeEvent=EvCode AND ToId=EvTournament AND EvTeamEvent=1
+						INNER JOIN Teams ON ToId=TeTournament AND TeFinEvent=1
+						INNER JOIN IrmTypes TeIrm ON TeIrm.IrmId=greatest(TeIrmType,TeIrmTypeFinal)
+						INNER JOIN Countries ON TeCoId=CoId AND TeTournament=CoTournament
+						INNER JOIN TeamComponent AS tc ON Teams.TeCoId=tc.TcCoId AND Teams.TeSubTeam=tc.TcSubTeam AND  Teams.TeEvent=tc.TcEvent AND Teams.TeTournament=tc.TcTournament AND Teams.TeFinEvent=tc.TcFinEvent AND Teams.TeFinEvent=1
+						INNER JOIN IrmTypes IndIrm ON IndIrm.IrmId=TcIrmType
+						INNER JOIN (select Entries.*, CoCode as EnNOC from Entries inner join Countries on CoId=EnCountry) e ON TcId=EnId
+						INNER JOIN Events ON TeEvent=EvCode AND ToId=EvTournament AND EvTeamEvent=1
 						LEFT JOIN DocumentVersions DV1 on EvTournament=DV1.DvTournament AND DV1.DvFile = 'R-TEAM' and DV1.DvEvent=''
 						LEFT JOIN DocumentVersions DV2 on EvTournament=DV2.DvTournament AND DV2.DvFile = 'R-TEAM' and DV2.DvEvent=EvCode
 						left join ExtraData on EdId=EnId and EdType='Z'
@@ -206,13 +180,14 @@
 						{$EnFilter}
 				)
 				ORDER BY
-					EvProgr, TeEvent,/*rowType ASC,*/ FinalRank ASC, CoCode ASC, TeSubTeam, EnSex desc, {$Order} EnFirstName, EnName
+					EvProgr, TeEvent, if(IrmShowRank=1, 0, TeIrmTypeFinal), FinalRank ASC, CoCode ASC, TeSubTeam, EnSex desc, {$Order} EnFirstName, EnName
 			";
 
 			$r=safe_r_sql($q);
 
 			$this->data['meta']['title']=get_text('TeamFinEvent','Tournament');
 			$this->data['meta']['lastUpdate']='0000-00-00 00:00:00';
+			$this->data['meta']['notAwarded']=get_text('NotAwarded','ODF');
 			$this->data['sections']=array();
 
 			$myEv='';
@@ -281,6 +256,8 @@
 								'descr' => get_text($myRow->EvEventName, '', '', true),
 								'printHeader'=>get_text($myRow->PrintHeader, '', '', true),
 								'firstPhase'=>$myRow->EvFinalFirstPhase,
+								'lastQualified'=>$myRow->EvNumQualified+$myRow->EvFirstQualified-1,
+								'jumpLines' => array(5,9),
 								'matchMode'=>$myRow->EvMatchMode,
 								'parent'=>$myRow->EvCodeParent,
 								'hasChildren' => getChildrenEvents($myEv, 1,$this->tournament),
@@ -292,9 +269,12 @@
 								'version' => $myRow->DocVersion,
 								'versionDate' => $myRow->DocVersionDate,
 								'versionNotes' => $myRow->DocNotes,
+								'mixedTeam' => $myRow->EvMixedTeam,
+								'OrisCode' => 'C76B',
 							),
 							'items'=>array()
 						);
+						$section['meta']['jumpLines'] = getJumpLines($myRow->EvFinalFirstPhase);
 					}
 
 
@@ -309,8 +289,11 @@
                             'athletes'		=> array(),
                             'qualScore'		=> $myRow->TeScore,
                             'qualRank'		=> $myRow->QualRank,
-                            'rank'			=> ($myRow->FinalRank == 9999 ? 'DSQ' : $myRow->FinalRank),
-                            'finals'		=> array()
+                            'rank'			=> $myRow->IrmShowRank ? $myRow->FinalRank : $myRow->IrmType,
+                            'notes'		    => $myRow->TeNotes,
+                            'irm'   		=> $myRow->TeIrmTypeFinal,
+                            'irmText'   	=> $myRow->IrmType,
+                            'finals'		=> array(),
                         );
 
                         $section['items'][$myRow->CoId.'_'.$myRow->TeSubTeam]=$item;
@@ -336,6 +319,7 @@
                             'gender' => $myRow->EnSex,
                             'birthDate' => $myRow->EnDob,
                             'NOC' => $myRow->EnNOC,
+                            'irm' => $myRow->IndIrmType,
                         );
                         $section['items'][$myRow->CoId.'_'.$myRow->TeSubTeam]['athletes'][]=$athlete;
 					}
@@ -356,24 +340,18 @@
 
 			$q="
 				SELECT
-					f1.TfEvent AS `event`,CONCAT(f1.TfTeam,'_',f1.TfSubTeam) AS `athlete`,f1.TfMatchNo AS `matchNo`,f1.TfScore AS `score`,f1.TfSetScore AS `setScore`,f1.TfSetPoints AS `setPoints`,f1.TfSetPointsByEnd AS `setPointsByEnd`,f1.TfTie AS `tie`,f1.TfArrowstring AS `arrowstring`,f1.TfTiebreak AS `tiebreak`,
-					CONCAT(f2.TfTeam,'_',f2.TfSubTeam) AS `oppAthlete`,f2.TfMatchNo AS `oppMatchNo`,f2.TfScore AS `oppScore`,f2.TfSetScore AS `oppSetScore`,f2.TfSetPoints AS `oppSetPoints`,f2.TfSetPointsByEnd AS `oppSetPointsByEnd`,f2.TfTie AS `oppTie`,f2.TfArrowstring AS `oppArrowstring`,f2.TfTiebreak AS `oppTiebreak`,
-					GrPhase, EvMaxTeamPerson, f1.TfNotes as Notes, f2.TfNotes as oppNotes
+					f1.TfEvent AS `event`,CONCAT(f1.TfTeam,'_',f1.TfSubTeam) AS `athlete`,f1.TfMatchNo AS `matchNo`,f1.TfScore AS `score`,f1.TfSetScore AS `setScore`,f1.TfSetPoints AS `setPoints`,f1.TfSetPointsByEnd AS `setPointsByEnd`,f1.TfTie AS `tie`,f1.TfArrowstring AS `arrowstring`,f1.TfTiebreak AS `tiebreak`,f1.TfTbClosest AS `closest`,f1.TfTbDecoded AS `decoded`,
+					CONCAT(f2.TfTeam,'_',f2.TfSubTeam) AS `oppAthlete`,f2.TfMatchNo AS `oppMatchNo`,f2.TfScore AS `oppScore`,f2.TfSetScore AS `oppSetScore`,f2.TfSetPoints AS `oppSetPoints`,f2.TfSetPointsByEnd AS `oppSetPointsByEnd`,f2.TfTie AS `oppTie`,f2.TfArrowstring AS `oppArrowstring`,f2.TfTiebreak AS `oppTiebreak`,f2.TfTbClosest AS `oppClosest`,f2.TfTbDecoded AS `oppDecoded`,
+					GrPhase, EvMaxTeamPerson, f1.TfNotes as Notes, f2.TfNotes as oppNotes, 
+			       f1.TfIrmType IrmType, f2.TfIrmType OppIrmType, i1.IrmType IrmText, i2.IrmType OppIrmText
 				FROM
 					Teams
-					INNER JOIN
-						TeamFinals AS f1
-					ON TeTournament=f1.TfTournament AND TeEvent=f1.TfEvent AND CONCAT(TeCoId,'_',TeSubTeam)=CONCAT(f1.TfTeam,'_',f1.TfSubTeam)
-					INNER JOIN
-						TeamFinals AS f2
-					ON f1.TfEvent=f2.TfEvent AND f1.TfMatchNo=IF((f1.TfMatchNo % 2)=0,f2.TfMatchNo-1,f2.TfMatchNo+1) AND f1.TfTournament=f2.TfTournament
-
-					INNER JOIN
-						Grids
-					ON f1.TfMatchNo=GrMatchNo
-					INNER JOIN
-						Events
-					ON f1.TfTournament=EvTournament AND f1.TfEvent=EvCode AND EvTeamEvent=1
+					INNER JOIN TeamFinals AS f1 ON TeTournament=f1.TfTournament AND TeEvent=f1.TfEvent AND CONCAT(TeCoId,'_',TeSubTeam)=CONCAT(f1.TfTeam,'_',f1.TfSubTeam)
+					INNER JOIN TeamFinals AS f2 ON f1.TfEvent=f2.TfEvent AND f1.TfMatchNo=IF((f1.TfMatchNo % 2)=0,f2.TfMatchNo-1,f2.TfMatchNo+1) AND f1.TfTournament=f2.TfTournament
+					INNER JOIN Grids ON f1.TfMatchNo=GrMatchNo
+					INNER JOIN Events ON f1.TfTournament=EvTournament AND f1.TfEvent=EvCode AND EvTeamEvent=1
+					inner join IrmTypes i1 on i1.IrmId=f1.TfIrmType
+					inner join IrmTypes i2 on i2.IrmId=f2.TfIrmType
 				WHERE
 					f1.TfTournament={$this->tournament}
 					{$filter}
@@ -422,25 +400,6 @@
 						}
 					}
 
-					$tmpArr=array();
-					$oppArr=array();
-					if($row->tiebreak) {
-						for($countArr=0; $countArr<strlen(trim($row->tiebreak)); $countArr+=$row->EvMaxTeamPerson) {
-							$tmp=ValutaArrowString(substr(trim($row->tiebreak),$countArr,$row->EvMaxTeamPerson));
-							if(!ctype_upper(trim($row->tiebreak)))
-								$tmp .=  "*";
-							$tmpArr[] = $tmp;
-						}
-					}
-					if($row->oppTiebreak) {
-						for($countArr=0; $countArr<strlen(trim($row->oppTiebreak)); $countArr+=$row->EvMaxTeamPerson) {
-							$tmp=ValutaArrowString(substr(trim($row->oppTiebreak),$countArr,$row->EvMaxTeamPerson));
-							if(!ctype_upper(trim($row->oppTiebreak)))
-								$tmp .=  "*";
-							$oppArr[] = $tmp;
-						}
-					}
-
 					if(isset($this->data['sections'][$row->event]['items'][$row->athlete]['finals'])) {
 						$this->data['sections'][$row->event]['items'][$row->athlete]['finals'][$row->GrPhase]=array(
 							'score'=>$row->score,
@@ -450,8 +409,10 @@
 							'tie'=>$row->tie,
 							'arrowstring'=>implode('|',$arrowstring),
 						 	'tiebreak'=>implode('|',$tiebreak),
-						 	'tiebreakDecoded'=>implode(',',$tmpArr),
+						 	'tiebreakDecoded'=> $row->decoded,
 						 	'notes'=>$row->Notes,
+							'irm'=>$row->IrmType,
+							'irmText'=>$row->IrmText,
 
 							'oppAthlete'=>$row->oppAthlete,
 							'oppScore'=>$row->oppScore,
@@ -461,8 +422,10 @@
 							'oppTie'=>$row->oppTie,
 							'oppArrowstring'=>implode('|',$oppArrowstring),
 						 	'oppTiebreak'=>implode('|',$oppTiebreak),
-						 	'oppTiebreakDecoded'=>implode(',',$oppArr),
+						 	'oppTiebreakDecoded'=>$row->oppDecoded,
 						 	'oppNotes'=>$row->oppNotes,
+							'oppIrm'=>$row->OppIrmType,
+							'oppIrmText'=>$row->OppIrmText,
 						);
 					}
 				}

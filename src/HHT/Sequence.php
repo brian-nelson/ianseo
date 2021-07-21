@@ -4,10 +4,12 @@
 	require_once('Common/Fun_FormatText.inc.php');
 	require_once('serial.php');
 	require_once('Fun_HHT.local.inc.php');
+    require_once('Common/Lib/CommonLib.php');
+    require_once('Common/Lib/Fun_Phases.inc.php');
 
 	$RowTour=RowTour();
 	$ComboHHT=ComboHHT();
-	$ComboSes=ComboSes($RowTour);
+	$ComboSes=ComboSession();
 
 	$xSession=0;
 	$DbSeqParam='';

@@ -10,16 +10,16 @@
 
 	switch($EventType) {
 		case 'T':
-			$SQL="SELECT EvCode, EvEventName, EvFinalFirstPhase, EvElimEnds, EvElimArrows, EvElimSO, EvFinEnds, EvFinArrows, EvFinSO FROM Events WHERE EvTournament=$CompId AND EvTeamEvent=1 AND EvFinalFirstPhase!=0 order by EvProgr";
+			$SQL="SELECT EvCode, EvEventName, EvFinalFirstPhase, EvElimType, EvElimEnds, EvElimArrows, EvElimSO, EvFinEnds, EvFinArrows, EvFinSO FROM Events WHERE EvTournament=$CompId AND EvTeamEvent=1 AND EvFinalFirstPhase!=0 order by EvProgr";
 			break;
 		case 'E1':
-			$SQL="SELECT EvCode, EvEventName, EvFinalFirstPhase, EvElimEnds, EvElimArrows, EvElimSO, EvFinEnds, EvFinArrows, EvFinSO FROM Events WHERE EvTournament=$CompId AND EvTeamEvent=0 and EvElim1>0 AND EvFinalFirstPhase!=0 order by EvProgr";
+			$SQL="SELECT EvCode, EvEventName, EvFinalFirstPhase, EvElimType, EvElimEnds, EvElimArrows, EvElimSO, EvFinEnds, EvFinArrows, EvFinSO FROM Events WHERE EvTournament=$CompId AND EvTeamEvent=0 and EvElim1>0 AND EvFinalFirstPhase!=0 order by EvProgr";
 			break;
 		case 'E2':
-			$SQL="SELECT EvCode, EvEventName, EvFinalFirstPhase, EvElimEnds, EvElimArrows, EvElimSO, EvFinEnds, EvFinArrows, EvFinSO FROM Events WHERE EvTournament=$CompId AND EvTeamEvent=0 and EvElim2>0 AND EvFinalFirstPhase!=0 order by EvProgr";
+			$SQL="SELECT EvCode, EvEventName, EvFinalFirstPhase, EvElimType, EvElimEnds, EvElimArrows, EvElimSO, EvFinEnds, EvFinArrows, EvFinSO FROM Events WHERE EvTournament=$CompId AND EvTeamEvent=0 and EvElim2>0 AND EvFinalFirstPhase!=0 order by EvProgr";
 			break;
 		default:
-			$SQL="SELECT EvCode, EvEventName, EvFinalFirstPhase, EvElimEnds, EvElimArrows, EvElimSO, EvFinEnds, EvFinArrows, EvFinSO FROM Events WHERE EvTournament=$CompId AND EvTeamEvent=0 AND EvFinalFirstPhase!=0 order by EvProgr";
+			$SQL="SELECT EvCode, EvEventName, EvFinalFirstPhase, EvElimType, EvElimEnds, EvElimArrows, EvElimSO, EvFinEnds, EvFinArrows, EvFinSO FROM Events WHERE EvTournament=$CompId AND EvTeamEvent=0 AND EvFinalFirstPhase!=0 order by EvProgr";
 	}
 
 	// Retrieve the Event List
@@ -39,9 +39,16 @@
 			}
 		} else {
 			$phases = getPhasesId($r->EvFinalFirstPhase);
+            if($EventType=='I' AND $r->EvElimType==4) {
+                $poolMatches = getPoolMatchesHeadersWA();
+                foreach ($poolMatches as $kPM=>$vPM) {
+                    $tmpPhases[]=Array("code"=>strval($kPM), "name"=>$vPM);
+                }
+            }
 			foreach ($phases as $ph) {
 				$tmpPhases[]=Array("code"=>bitwisePhaseId($ph), "name"=>$ph."_Phase");
 			}
+
 		}
 		$json_array[] = Array("code"=>$r->EvCode, "name"=>$r->EvEventName, 'ends'=>$r->EvElimEnds, 'arrows'=>$r->EvElimArrows, "phases"=>$tmpPhases);
 	}

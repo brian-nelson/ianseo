@@ -260,12 +260,11 @@ function selectMatch() {
 function selectSession() {
     $.getJSON(WebDir+'Final/Viewer/index-getSessions.php', function (data) {
         if (data.error == 0) {
-            evListData = data.data;
             $('#selectSession').empty();
             $('#selectSession').append('<option value="">---</option>');
             $('#selectSessionMatch').empty();
             $('#selectSessionMatch').append('<option value="">---</option>');
-            $.each(evListData, function (i, item) {
+            $.each(data.data, function (i, item) {
                 $('#selectSession').append('<option value="'+i+'"'+(oldSession==i ? ' selected="selected"' : '')+'>'+item+'</option>');
             });
             updateComboSessionMatches();

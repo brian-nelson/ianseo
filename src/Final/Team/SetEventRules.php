@@ -10,7 +10,7 @@ require_once('Qualification/Fun_Qualification.local.inc.php');
 require_once('Common/Fun_Sessions.inc.php');
 require_once('Common/Fun_Various.inc.php');
 
-if (isset($_REQUEST['DelRow']) && !IsBlocked(BIT_BLOCK_TOURDATA)) {
+if (isset($_REQUEST['DelRow']) AND !IsBlocked(BIT_BLOCK_TOURDATA)) {
     list($EcClass,$EcDivision,$EcSubClass) = explode('~',$_REQUEST['DelRow']);
     //print $EcClass . ' - ' . $EcDivision . '<br>';exit;
     $Delete
@@ -60,7 +60,7 @@ if (isset($_REQUEST['DelRow']) && !IsBlocked(BIT_BLOCK_TOURDATA)) {
 
 $JS_SCRIPT=array(
     '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/ajax/ObjXMLHttpRequest.js"></script>',
-    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-3.2.1.min.js"></script>',
+    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
     '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Final/Team/Fun_AJAX_SetEventRules.js"></script>',
     '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/Fun_JS.inc.js"></script>',
     '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Final/Team/Fun_JS.js"></script>',
@@ -112,7 +112,7 @@ $Select = "SELECT * FROM Events WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode'])
 			$MyGroup = -1;
 
 			while ($MyRow=safe_fetch($Rs)) {
-				if ($MyGroup!=$MyRow->EcTeamEvent && $MyGroup!=-1)
+				if ($MyGroup!=$MyRow->EcTeamEvent AND $MyGroup!=-1)
 					print '<tr id="Div_' . $MyRow->EcCode . '_' . $MyRow->EcTeamEvent . '" class="Divider"><td colspan="6"></td></tr>' . "\n";
 
 				print '<tr id="Row_' . $MyRow->EcCode . '_' . $MyRow->EcTeamEvent . '_' . $MyRow->EcDivision . '_' . $MyRow->EcClass . '_' . $MyRow->EcSubClass . '">';
@@ -135,35 +135,26 @@ $Select = "SELECT * FROM Events WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode'])
 	}
 ?>
 </tbody>
-</table>
-<br>
-
-<table class="Tabella">
-<tr><td class="Center">
-<?php echo get_text('MixedTeamEvent') ?>&nbsp;
+    <tr class="Divider"><th colspan="6"></th></tr>
+    <tr><td class="Right" width="20%"><?php echo get_text('MixedTeamEvent') ?></td><td class="Left" colspan="5">
 <select name="d_EvMixedTeam" id="d_EvMixedTeam" onChange="SetMixedTeam('<?php print $RowEv->EvCode; ?>');">
-	<option value="0"<?php print ($RowEv!=null && $RowEv->EvMixedTeam==0 ? ' selected' : ''); ?>><?php print get_text('No'); ?></option>
-	<option value="1"<?php print ($RowEv!=null && $RowEv->EvMixedTeam==1 ? ' selected' : ''); ?>><?php print get_text('Yes'); ?></option>
+	<option value="0"<?php print (($RowEv!=null AND $RowEv->EvMixedTeam==0) ? ' selected' : ''); ?>><?php print get_text('No'); ?></option>
+	<option value="1"<?php print (($RowEv!=null AND $RowEv->EvMixedTeam==1) ? ' selected' : ''); ?>><?php print get_text('Yes'); ?></option>
 </select>
 </td></tr>
-<tr><td class="Center">
-<?php echo get_text('AllowPartialTeams') ?>&nbsp;
-<select name="d_EvPartialTeam" id="d_EvPartialTeam" onChange="SetPartialTeam('<?php print $RowEv->EvCode; ?>');">
-	<option value="0"<?php print ($RowEv!=null && $RowEv->EvPartialTeam==0 ? ' selected' : ''); ?>><?php print get_text('No'); ?></option>
-	<option value="1"<?php print ($RowEv!=null && $RowEv->EvPartialTeam==1 ? ' selected' : ''); ?>><?php print get_text('Yes'); ?></option>
-</select>
-</td></tr>
-<tr><td class="Center">
-<?php echo get_text('AllowMultiTeam') ?>&nbsp;
+    <tr class="Divider"><th colspan="6"></th></tr>
+<tr><td class="Right" width="20%"><?php echo get_text('AllowMultiTeam') ?></td><td class="Left" >
 <select name="d_EvMultiTeam" id="d_EvMultiTeam" onChange="SetMultiTeam('<?php print $RowEv->EvCode; ?>');">
-	<option value="0"<?php print ($RowEv!=null && $RowEv->EvMultiTeam==0 ? ' selected' : ''); ?>><?php print get_text('No'); ?></option>
-	<option value="1"<?php print ($RowEv!=null && $RowEv->EvMultiTeam==1 ? ' selected' : ''); ?>><?php print get_text('Yes'); ?></option>
+	<option value="0"<?php print (($RowEv!=null AND $RowEv->EvMultiTeam==0) ? ' selected' : ''); ?>><?php print get_text('No'); ?></option>
+	<option value="1"<?php print (($RowEv!=null AND $RowEv->EvMultiTeam!=0) ? ' selected' : ''); ?>><?php print get_text('Yes'); ?></option>
 </select>
+</td>
+<td class="Right" width="20%" colspan="2"><?php echo get_text('MultiTeamMaxNo') ?></td><td class="Left" colspan="2">
+   <input type="number" step="1" min="0" max="999" name="d_EvMultiTeamNo" id="d_EvMultiTeamNo"  onChange="SetMultiTeam('<?php print $RowEv->EvCode; ?>');" value="<?php print ($RowEv->EvMultiTeam!=0 ? $RowEv->EvMultiTeamNo : 0); ?>">
 </td></tr>
-
 <tr>
-	<td class="Center">
-		<?php print get_text('TeamCreationMode','Tournament');?>&nbsp;
+	<td class="Right" width="20%">
+		<?php print get_text('TeamCreationMode','Tournament');?>&nbsp;</td><td class="Left" colspan="2">
 		<?php
 			$comboTeamCreationMode=ComboFromRs(
 				array(
@@ -187,16 +178,17 @@ $Select = "SELECT * FROM Events WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode'])
 			print $comboTeamCreationMode;
 		?>
 	</td>
-</tr>
-
-</table>
-<br/>
-
-<table class="Tabella">
+<td class="Right" width="20%"><?php echo get_text('AllowPartialTeams') ?></td><td class="Left" colspan="2">
+    <select name="d_EvPartialTeam" id="d_EvPartialTeam" onChange="SetPartialTeam('<?php print $RowEv->EvCode; ?>');">
+        <option value="0"<?php print (($RowEv!=null AND $RowEv->EvPartialTeam==0) ? ' selected' : ''); ?>><?php print get_text('No'); ?></option>
+        <option value="1"<?php print (($RowEv!=null AND $RowEv->EvPartialTeam==1) ? ' selected' : ''); ?>><?php print get_text('Yes'); ?></option>
+    </select>
+</td></tr>
+<tr class="Divider"><th colspan="6"></th></tr>
 <tr><td colspan="6" class="Center"><?php print get_text('PressCtrl2SelectAll'); ?></td></tr>
 <tr>
 <td width="20%" class="Center" valign="top">
-<input type="text" name="New_EcNumber" id="New_EcNumber" size="3" maxlength="3" value="">
+<input type="number" step="1" min="0" max="999" name="New_EcNumber" id="New_EcNumber"  value="">
 </td>
 <td width="20%" class="Center" valign="top">
 <?php
@@ -277,6 +269,7 @@ echo '<table class="Tabella">';
         echo '<th>'.get_text('MaxTeamPersons', 'Tournament').'</th>';
         echo '<th>'.get_text('WaCategory', 'Tournament').'</th>';
         echo '<th>'.get_text('RecordCategory', 'Tournament').'</th>';
+        echo '<th>'.get_text('OdfEventCode', 'ODF').'</th>';
         echo '</tr>';
 
     echo '<tr>';

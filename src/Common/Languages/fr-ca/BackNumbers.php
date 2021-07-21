@@ -36,7 +36,6 @@ $lang['BgImage']='Image de fond';
 $lang['Bold']='Gras';
 $lang['Category']='Catégorie';
 $lang['CharColor']='Charte des couleurs';
-$lang['CharSize']='Charte des grandeurs';
 $lang['CharType']='Type de charactère';
 $lang['CheckBarcodeSeparator']='Vérifier séparateur barre code';
 $lang['Club']='Pays/Détails du Club';

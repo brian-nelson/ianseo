@@ -15,7 +15,7 @@ $IskSequence=getModuleParameter('ISK', 'Sequence', array('type' => '', 'session'
 
 foreach(getScheduledSessions('API', $_SESSION['TourId'], !empty($_REQUEST["onlyToday"])) as $myRow) {
     // skip elimination for now
-    if($myRow->keyValue[0]=='E') continue;
+    //if($myRow->keyValue[0]=='E') continue;
     $MaxEnds=$myRow->MaxEnds;
     $desc='';
     $selected=0;

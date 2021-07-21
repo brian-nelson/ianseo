@@ -1,4 +1,5 @@
 <?php
+$lang['ArcPara']='Feil Para status';
 $lang['ErrArcherCodeExists']='Skytter-Id finnes allerede';
 $lang['ErrArcherCodeFree']='Feltet for Skytter-Id kan ikke være tomt';
 $lang['ErrArcherCodeTooLong']='Skytter-ID er for langt';
@@ -49,6 +50,7 @@ $lang['ErrPassToSet']='Skriv inn et nytt passord';
 $lang['ErrSubClass']='Ugyldig underklasse';
 $lang['ErrSubClassNotFound']='Underklasse ble ikke funnet';
 $lang['ErrWronglevel']='Feil nivå klubb/skytter';
+$lang['InvalidData']='Ugyldig data';
 $lang['LoginTooManyArchers']='Mer enn en skytter har denne e-posten. Vennligst bruk Skytter-Id';
 $lang['WrongType']='Feil type';
 ?>

@@ -4,7 +4,6 @@ define("CellH",7);
 
 $pdf->SetLineWidth(0.1);
 
-$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 $pdf->setDocUpdate($PdfData->LastUpdate);
 $pdf->setPhase($PdfData->Phase);
 
@@ -13,6 +12,7 @@ if($PdfData->Version) {
 }
 
 $pdf->AddPage();
+$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 $pdf->Bookmark($PdfData->IndexName, 0);
 
 $pdf->SetXY(OrisPDF::leftMargin, OrisPDF::topStart);

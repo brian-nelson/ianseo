@@ -9,6 +9,7 @@ $lang['CmdImport']='Tuo';
 $lang['CmdReplace']='Korvaa';
 $lang['CmdTruncateHTTData']='Tyhjennä väliaikaistaulu';
 $lang['Country']='Maa';
+$lang['DateTime']='Pvm/Aika';
 $lang['Distance']='Matka';
 $lang['Download']='Kerää tiedot';
 $lang['EnableHHT']='HHT-järjestelmä käyttössä';

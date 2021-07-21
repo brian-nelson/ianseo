@@ -90,7 +90,6 @@ $lang['LocalSubRule']='Alareegel';
 $lang['LogoL']='Vasak ülemine pildifail';
 $lang['LogoManagement']='Logod';
 $lang['LogoR']='Parem ülemine pildifail';
-$lang['MailTitle']='Nimi';
 $lang['MakeTeams']='Pane võistkonnad uuesti kokku';
 $lang['ManDivClass']='Võistlusklassid';
 $lang['ManPrices']='Võistlusmaksude määramine/muutmine';

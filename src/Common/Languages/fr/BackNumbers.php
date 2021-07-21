@@ -50,7 +50,6 @@ $lang['BgImage']='Image de fond';
 $lang['Bold']='Gras';
 $lang['Category']='Catégorie';
 $lang['CharColor']='Couleur Car.';
-$lang['CharSize']='Dimension Car.';
 $lang['CharType']='Type de caractères';
 $lang['CheckBarcodeSeparator']='Vérifier le séparateur de Code Barre';
 $lang['Club']='Détails Pays / Club';

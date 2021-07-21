@@ -49,7 +49,6 @@ $lang['BgImage']='Εικόνα Φόντου';
 $lang['Bold']='Έντονα';
 $lang['Category']='Κατηγορία';
 $lang['CharColor']='Χρώμα Χαρακτήρων';
-$lang['CharSize']='Μέγεθος Χαρακτήρων';
 $lang['CharType']='Τύπος Χαρακτήρα';
 $lang['CheckBarcodeSeparator']='Έλεγχος διαχωρισμού Βarcode';
 $lang['Club']='Λεπτομέρειες Χώρας/Σωματείου';

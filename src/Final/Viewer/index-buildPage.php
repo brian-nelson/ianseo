@@ -1,9 +1,7 @@
 <?php
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once('./Lib.php');
 require_once('Common/Lib/Obj_RankFactory.php');
 require_once('Common/Lib/CommonLib.php');
-//require_once('Final/Spot/Common/Config.inc.php');
 
 $JSON=array('error' => 1, 'time' => '');
 
@@ -17,6 +15,9 @@ if (!isset($_REQUEST['time']) or checkACL(array((empty($_REQUEST['Team']) ? AclI
 }
 
 $JSON['error']=0;
+if(empty($_REQUEST['time'])) {
+    $_REQUEST['time'] = '0000-00-00 00:00:00';
+}
 
 // start checking if there is a modification
 $q=safe_r_sql("(Select FinDateTime LastUpdate from Finals where FinTournament={$TourId} and FinDateTime>'{$_REQUEST['time']}')"
@@ -57,11 +58,13 @@ $LiveExists=false;
 $Live=false;
 
 
-if ($x=FindLive($TourId)) {
+if ($x=getMatchLive($TourId)) {
 	if(!$Lock) {
-	    list($Event, $MatchNo, $Team)=$x;
+		$Event=$x->Event;
+		$MatchNo=$x->MatchNo;
+		$Team=$x->Team;
     }
-	$Live=($Event==$x[0] and $MatchNo==$x[1] and $Team==$x[2]);
+	$Live=($Event==$x->Event and $MatchNo==$x->MatchNo and $Team==$x->Team);
 	$LiveExists=(!$Live and $Lock);
 }
 
@@ -203,7 +206,7 @@ $TotR=ValutaArrowString($ArrR);
 foreach(DecodeFromString(str_pad($ArrL, $NumArrows, ' ', STR_PAD_RIGHT), false, true) as $k => $Point) {
     $JSON['ScoreLeft'].='<div class="badge badge-primary">'.$Point.(($IsSO and !empty($Match[$PosL][$IndexL+$k])) ? ' ('.$Match[$PosL][$IndexL+$k]['D'].')' : '').'</div>';
 }
-$JSON['ScoreLeft'].='<div class="badge badge-info">'.$TotL.'</div>';
+$JSON['ScoreLeft'].='<div class="badge badge-info">'.$TotL.(($IsSO AND $Match['closest']!=0 AND $k==($NumArrows-1)) ? '+':'').'</div>';
 if(!$IsSO) {
     $JSON['ScoreLeft'].='<div class="badge badge-secondary total">'.($Section['meta']['matchMode'] ? $Match['setScore'] : $Match['score']).'</div>';
 }
@@ -211,7 +214,7 @@ if(!$IsSO) {
 foreach(DecodeFromString(str_pad($ArrR, $NumArrows, ' ', STR_PAD_RIGHT), false, true) as $k => $Point) {
     $JSON['ScoreRight'].='<div class="badge badge-primary">'.$Point.(($IsSO and !empty($Match[$PosR][$IndexR+$k])) ? ' ('.$Match[$PosR][$IndexR+$k]['D'].')' : '').'</div>';
 }
-$JSON['ScoreRight'].='<div class="badge badge-info">'.$TotR.'</div>';
+$JSON['ScoreRight'].='<div class="badge badge-info">'.$TotR.(($IsSO AND $Match['oppClosest']!=0 AND $k==($NumArrows-1)) ? '+':'').'</div>';
 if(!$IsSO) {
     $JSON['ScoreRight'] .= '<div class="badge badge-secondary total">' . ($Section['meta']['matchMode'] ? $Match['oppSetScore'] : $Match['oppScore']) . '</div>';
 }
@@ -280,8 +283,8 @@ switch ($_REQUEST["View"]) {
                     $JSON['TgtRight'] .= '<td class="text-center whiteBg">' . DecodeFromLetter($oppSo[($r * $so) + $c]) . '</td>';
                 }
                 if ($so < $cols) {
-                    $JSON['TgtLeft'] .= '<td class="text-center whiteBg" colspan="' . ($cols - $so) . '">&nbsp;</td>';
-                    $JSON['TgtRight'] .= '<td class="text-center whiteBg" colspan="' . ($cols - $so) . '">&nbsp;</td>';
+                    $JSON['TgtLeft'] .= '<td class="text-center whiteBg closestText" colspan="' . ($cols - $so) . '">' . ($Match['closest']!=0 ? '+':'&nbsp;') . '</td>';
+                    $JSON['TgtRight'] .= '<td class="text-center whiteBg closestText" colspan="' . ($cols - $so) . '">' . ($Match['oppClosest']!=0 ? '+':'&nbsp;') . '</td>';
                 }
                 $JSON['TgtLeft'] .= '<td class="text-right table-warning">' . ValutaArrowString(substr($arrSo, ($r * $so), $so)) . '</td>';
                 $JSON['TgtRight'] .= '<td class="text-right table-warning">' . ValutaArrowString(substr($oppSo, ($r * $so), $so)) . '</td>';
@@ -352,6 +355,9 @@ switch ($_REQUEST["View"]) {
                         '</span>';
                 }
                 $JSON['TgtLeft'] .= '</li>';
+            }
+            if($vPh['items'][0]['irm']) {
+	            $JSON['TgtLeft'] .= '<li><span class="font-weight-bold">'.$vPh['items'][0]['irmText'].'</span></li>';
             }
             $JSON['TgtLeft'] .= '</ul>' .
                 '</div>';

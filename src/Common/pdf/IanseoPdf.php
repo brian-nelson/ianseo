@@ -5,7 +5,7 @@ require_once('Common/Lib/Fun_DateTime.inc.php');
 
 define('EURO', chr(128));
 
-error_reporting(0);
+//error_reporting(0);
 //error_reporting(E_ALL);
 
 class IanseoPdf extends TCPDF {
@@ -61,6 +61,7 @@ class IanseoPdf extends TCPDF {
 	var $angle=0;
 	var $BarcodeHeader=0;
 	var $BarcodeHeaderX=0;
+	var $IsField3D=false;
 
 	var $Version='';
 
@@ -69,147 +70,36 @@ class IanseoPdf extends TCPDF {
 	function __construct($DocTitolo, $Portrait=true, $Headers='', $StaffVisibility=true) {
 		global $CFG;
 		$this->ShowStaff = $StaffVisibility;
+		$isOnline=false;
 		if($Headers and is_file($Headers)) {
+			$isOnline=true;
 			$tmp=unserialize(file_get_contents($Headers));
-			foreach($tmp as $k => $v) $this->{$k}=$v;
-			if(!defined('ProgramVersion')) define('ProgramVersion', $tmp->ProgramVersion);
-			if(!defined('ProgramBuild')) define('ProgramBuild', $tmp->ProgramBuild);
-			if(!defined('ProgramRelease')) define('ProgramRelease', $tmp->ProgramRelease);
+		} elseif(CheckTourSession()) {
+			require_once('Common/OrisFunctions.php');
+			$tmp=getPdfHeader(false);
+		} else {
+			CD_redirect($CFG->ROOT_DIR);
+		}
+
+		foreach($tmp as $k => $v) $this->{$k}=$v;
+		if(!defined('ProgramVersion')) define('ProgramVersion', $tmp->ProgramVersion);
+		if(!defined('ProgramBuild')) define('ProgramBuild', $tmp->ProgramBuild);
+		if(!defined('ProgramRelease')) define('ProgramRelease', $tmp->ProgramRelease);
+		if($isOnline) {
 			if(file_exists($this->TourPath.'/topleft.png')) $this->ToPaths['ToLeft']=$this->TourPath.'/topleft.png';
 			if(file_exists($this->TourPath.'/topright.png')) $this->ToPaths['ToRight']=$this->TourPath.'/topright.png';
 			if(file_exists($this->TourPath.'/bottom.png')) $this->ToPaths['ToBottom']=$this->TourPath.'/bottom.png';
-		}
-		elseif(CheckTourSession())
-		{
-			$Sql = "SELECT ToCode, ToName, ToComDescr, ToWhere, ToTimeZone, ToIsOris, ".
-				"date_format(ToWhenFrom, '".get_text('DateFmtDB')."') as ToWhenFrom, date_format(ToWhenTo, '".get_text('DateFmtDB')."') as ToWhenTo," .
-			// riga di patch
-				"ToWhenFrom AS DtFrom,ToWhenTo AS DtTo," .
-				"(ToImgL) as ImgL, (ToImgR) as ImgR, (ToImgB) as ImgB, ToGolds AS TtGolds, ToXNine AS TtXNine,ToGoldsChars,ToXNineChars, " .
-				"ToPrintPaper, ToPrintChars, ToCurrency, ToPrintLang " .
-				"FROM Tournament   WHERE ToId = " . StrSafe_DB($_SESSION['TourId']);
-			$Rs=safe_r_sql($Sql);
-			//print $Sql;exit;
-			if(safe_num_rows($Rs)==1)
-			{
-				$r=safe_fetch($Rs);
-				$this->TzOffset	= $r->ToTimeZone;
-				$this->Code		= $r->ToCode;
-				$this->Name		= $r->ToName;
-				$this->Oc		= $r->ToComDescr;
-				$this->Where	= $r->ToWhere;
-				$this->WhenF	= $r->ToWhenFrom;
-				$this->WhenT	= $r->ToWhenTo;
-				$this->imgL		= $r->ImgL;
-				$this->imgR		= $r->ImgR;
-				$this->imgB		= $r->ImgB;
-				$this->prnGolds = $r->TtGolds;
-				$this->prnXNine = $r->TtXNine;
-				$this->IsOris   = $r->ToIsOris;
-				$this->goldsChars = $r->ToGoldsChars;
-				$this->xNineChars = $r->ToXNineChars;
-				$this->docUpdate=date('Ymd.His e');
-
-			// patch
-				$this->DtFrom=$r->DtFrom;
-				$this->DtTo=$r->DtTo;
-				$this->TournamentDate2String = TournamentDate2String($this->WhenF, $this->WhenT);
-
-				// texts
-				$this->Continue=get_text('Continue');
-				$this->LegendSO=get_text('LegendSO','Tournament');
-				$this->CoinTossShort=get_text('CoinTossShort','Tournament');
-				$this->CoinToss=get_text('CoinToss','Tournament');
-				$this->ShotOffShort=get_text('ShotOffShort','Tournament');
-				$this->ShotOff=get_text('ShotOff','Tournament');
-				$this->LegendStatus=get_text('LegendStatus','Tournament');
-				$this->Partecipation=get_text('Partecipation');
-				$this->IndQual=get_text('IndQual', 'Tournament');
-				$this->IndFin=get_text('IndFin', 'Tournament');
-				$this->TeamQual=get_text('TeamQual', 'Tournament');
-				$this->TeamFin=get_text('TeamFin', 'Tournament');
-				$this->MixedTeamFinEvent=get_text('MixedTeamFinEvent', 'Tournament');
-				$this->Yes=get_text('Yes');
-				$this->No=get_text('No');
-				// ---
-
-				if($r->ToPrintPaper)
-					$this->PageSize = 'LETTER';
-				switch($r->ToPrintChars)
-				{
-					case 0:		 // helvetica & standard european fonts
-						$this->FontStd='helvetica';
-						break;
-					case 1:
-						// cyrillic support
-						$this->FontStd='freesans';
-						$this->FontFix='freemono';
-						break;
-					case 2:
-// 						This font is more chinese friendly -- by uian2000@gmail.com
-						$this->FontStd='droidsansfallback';
-						$this->FontFix='droidsansfallback';
-						break;
-                    case 3:
-                        // This font is more japanese friendly
-                        $this->FontStd='arialuni';
-                        $this->FontFix='arialuni';
-                        break;
-				}
-
-				if(is_null($r->ToCurrency))
-					$this->Currency = '€';
-				else
-					$this->Currency = $r->ToCurrency;
-
-				// defines a constant that overrides printing if not empty
-				@define('PRINTLANG', $r->ToPrintLang);
-
-				if($r->ToPrintLang=='tlh') {
-					$this->addTTFfont(K_PATH_FONTS . 'klingonpiqadhasta.ttf');
-                    $this->FontStd='klingonpiqadhasta';
-                    $this->FontFix='klingonpiqadhasta';
-				}
-
-				safe_free_result($Rs);
-
-				if(file_exists($CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToLeft.jpg')) $this->ToPaths['ToLeft']=$CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToLeft.jpg';
-				if(file_exists($CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToRight.jpg')) $this->ToPaths['ToRight']=$CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToRight.jpg';
-				if(file_exists($CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToBottom.jpg')) $this->ToPaths['ToBottom']=$CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToBottom.jpg';
-			}
-
-			$Ses=StrSafe_DB($_SESSION['TourId']);
-			$Select="
-				SELECT ti.*, it.*,IF(ItJudge!=0,'CatJudge',IF(ItDoS!=0,'CatDos',IF(ItJury!=0,'CatJury','CatOC'))) AS `Category`
-				FROM TournamentInvolved AS ti LEFT JOIN InvolvedType AS it ON ti.TiType=it.ItId
-				WHERE ti.TiTournament={$Ses} AND it.ItId IS NOT NULL
-				ORDER BY IF(ItJudge!=0,1,IF(ItDoS!=0,2,IF(ItJury!=0,3,4))) ASC, IF(ItJudge!=0,ItJudge,IF(ItDoS!=0,ItDoS,IF(ItJury!=0,ItJury,ItOC))) ASC,ti.TiName ASC
-			";
-			$Rs=safe_r_sql($Select);
-
-			$CurCategory='';
-
-			if(safe_num_rows($Rs)>0)
-			{
-				while($MyRow = safe_fetch($Rs))
-				{
-					if ($CurCategory!=$MyRow->Category)
-					{
-						$this->StaffCategories[get_text($MyRow->Category,'Tournament')]=array();
-						$CurCategory=$MyRow->Category;
-						$tmp=array();
-					}
-
-					$this->StaffCategories[get_text($MyRow->Category,'Tournament')][] = $MyRow->TiName;
-				}
-				foreach($this->StaffCategories as $cat => $members) $this->StaffCategories[$cat] = implode(', ', $members);
-			}
+		} else {
+			if(file_exists($CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToLeft.jpg')) $this->ToPaths['ToLeft']=$CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToLeft.jpg';
+			if(file_exists($CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToRight.jpg')) $this->ToPaths['ToRight']=$CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToRight.jpg';
+			if(file_exists($CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToBottom.jpg')) $this->ToPaths['ToBottom']=$CFG->DOCUMENT_PATH.'TV/Photos/'.$_SESSION['TourCodeSafe'].'-ToBottom.jpg';
 		}
 
 		parent::__construct(($Portrait ? 'P' : 'L'),'mm',$this->PageSize);
+
 		$this->setJPEGQuality(100);
-		$this->AliasNbPages();
 		$this->SetSubject($DocTitolo);
+		$this->Title=$DocTitolo;
 		$this->Titolo=$DocTitolo;
 		$this->SetDefaultColor();
 		$this->SetMargins(IanseoPdf::sideMargin,IanseoPdf::topMargin + 3.0*count($this->StaffCategories) ,IanseoPdf::sideMargin);
@@ -220,7 +110,7 @@ class IanseoPdf extends TCPDF {
 		$this->SetFont($this->FontStd,'',8);
 		$this->SetLineWidth(0.1);
 		$this->pushMargins();
-		$this->setFontSubsetting(($r->ToPrintChars >= 2));
+		$this->setFontSubsetting(empty($r) ? false : ($r->ToPrintChars >= 2));
 		$this->setViewerPreferences(array('PrintScaling' => 'none'));
 	}
 
@@ -285,9 +175,9 @@ class IanseoPdf extends TCPDF {
 			$RightStart += ($im[0] * $ImgSizeReq / $im[1]);
 		}
 
-		if($this->BarcodeHeader) {
-			$RightStart += $this->BarcodeHeader + 10;
-		}
+		//if($this->BarcodeHeader) {
+			//$RightStart += $this->BarcodeHeader + 10;
+		//}
 
     	$this->SetFont($this->FontStd,'B',13);
 		$this->SetXY($LeftStart,5);

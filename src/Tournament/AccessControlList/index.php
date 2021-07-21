@@ -13,7 +13,7 @@ $JS_SCRIPT = array(
         'CmdDelete' => get_text('CmdDelete', 'Tournament'),
         'AreYouSure' => get_text('MsgAreYouSure')
         )),
-    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
     '<script type="text/javascript" src="Fun_AJAX_index.js"></script>',
 );
 

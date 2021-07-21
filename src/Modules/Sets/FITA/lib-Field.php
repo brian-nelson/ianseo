@@ -41,7 +41,7 @@ function CreateStandardFieldEvents($TourId, $SubRule) {
 		case '2':
 			$SettingsInd=array(
 				'EvFinalFirstPhase' => '2',
-				'EvFinalTargetType'=>6,
+				'EvFinalTargetType'=>TGT_FIELD,
 				'EvElimEnds'=>12,
 				'EvElimArrows'=>3,
 				'EvElimSO'=>1,
@@ -63,7 +63,7 @@ function CreateStandardFieldEvents($TourId, $SubRule) {
 			$SettingsTeam=array(
 				'EvTeamEvent' => '1',
 				'EvFinalFirstPhase' => '4',
-				'EvFinalTargetType'=>6,
+				'EvFinalTargetType'=>TGT_FIELD,
 				'EvElimEnds'=>8,
 				'EvElimArrows'=>3,
 				'EvElimSO'=>3,
@@ -71,8 +71,22 @@ function CreateStandardFieldEvents($TourId, $SubRule) {
 				'EvFinArrows'=>3,
 				'EvFinSO'=>3,
 				'EvFinalAthTarget'=>15,
-				'EvMatchArrowsNo'=>248,
+				'EvMatchArrowsNo'=>FINAL_FROM_2,
 			);
+            $SettingsMixedTeam=array(
+                'EvTeamEvent' => '1',
+                'EvMixedTeam' => '1',
+                'EvFinalFirstPhase' => '4',
+                'EvFinalTargetType'=>TGT_FIELD,
+                'EvElimEnds'=>8,
+                'EvElimArrows'=>4,
+                'EvElimSO'=>2,
+                'EvFinEnds'=>4,
+                'EvFinArrows'=>4,
+                'EvFinSO'=>2,
+                'EvFinalAthTarget'=>15,
+                'EvMatchArrowsNo'=>FINAL_FROM_2,
+            );
 			$i=1;
 			CreateEventNew($TourId,'RM',  'Recurve Men',          $i++, $SettingsInd);
 			CreateEventNew($TourId,'RW',  'Recurve Women',        $i++, $SettingsInd);
@@ -107,20 +121,33 @@ function CreateStandardFieldEvents($TourId, $SubRule) {
 			$i=1;
 			CreateEventNew($TourId, 'MT', 'Men Team',          $i++, $SettingsTeam);
 			CreateEventNew($TourId, 'WT', 'Women Team',        $i++, $SettingsTeam);
+            CreateEventNew($TourId, 'RX', 'Recurve Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'CX', 'Compound Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'BX', 'Barebow Mixed Team', $i++, $SettingsMixedTeam);
 			CreateEventNew($TourId, 'MJT','Men Junior Team',   $i++, $SettingsTeam);
 			CreateEventNew($TourId, 'WJT','Women Junior Team', $i++, $SettingsTeam);
-			if($SubRule==1) {
-				CreateEventNew($TourId, 'MCT','Men Cadet Team',    $i++, $SettingsTeam);
-				CreateEventNew($TourId, 'WCT','Women Cadet Team',  $i++, $SettingsTeam);
+            CreateEventNew($TourId, 'RJX', 'Recurve Junior Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'CJX', 'Compound Junior Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'BJX', 'Barebow Junior Mixed Team', $i++, $SettingsMixedTeam);
+
+        if($SubRule==1) {
+                CreateEventNew($TourId, 'MCT','Men Cadet Team',    $i++, $SettingsTeam);
+                CreateEventNew($TourId, 'WCT','Women Cadet Team',  $i++, $SettingsTeam);
+                CreateEventNew($TourId, 'RCX', 'Recurve Cadet Mixed Team', $i++, $SettingsMixedTeam);
+                CreateEventNew($TourId, 'CCX', 'Compound Cadet Mixed Team', $i++, $SettingsMixedTeam);
+                CreateEventNew($TourId, 'BCX', 'Barebow Cadet Mixed Team', $i++, $SettingsMixedTeam);
 				CreateEventNew($TourId, 'MMT','Men Master Team',   $i++, $SettingsTeam);
 				CreateEventNew($TourId, 'WMT','Women Master Team', $i++, $SettingsTeam);
+                CreateEventNew($TourId, 'RMX', 'Recurve Master Mixed Team', $i++, $SettingsMixedTeam);
+                CreateEventNew($TourId, 'CMX', 'Compound Master Mixed Team', $i++, $SettingsMixedTeam);
+                CreateEventNew($TourId, 'BMX', 'Barebow Master Mixed Team', $i++, $SettingsMixedTeam);
 			}
 			break;
 		case '3':
 		case '4':
 			$SettingsInd=array(
 				'EvFinalFirstPhase' => '2',
-				'EvFinalTargetType'=>6,
+				'EvFinalTargetType'=>TGT_FIELD,
 				'EvElimEnds'=>6,
 				'EvElimArrows'=>3,
 				'EvElimSO'=>1,
@@ -130,12 +157,12 @@ function CreateStandardFieldEvents($TourId, $SubRule) {
 				'EvElimType'=>4,
 				'EvElim2'=>22,
 				'EvFinalAthTarget'=>0,
-				'EvMatchArrowsNo'=>248,
+				'EvMatchArrowsNo'=>FINAL_FROM_2,
 			);
 			$SettingsTeam=array(
 				'EvTeamEvent' => '1',
 				'EvFinalFirstPhase' => '4',
-				'EvFinalTargetType'=>6,
+				'EvFinalTargetType'=>TGT_FIELD,
 				'EvElimEnds'=>8,
 				'EvElimArrows'=>3,
 				'EvElimSO'=>3,
@@ -145,6 +172,20 @@ function CreateStandardFieldEvents($TourId, $SubRule) {
 				'EvFinalAthTarget'=>15,
 				'EvMatchArrowsNo'=>0,
 			);
+            $SettingsMixedTeam=array(
+                'EvTeamEvent' => '1',
+                'EvMixedTeam' => '1',
+                'EvFinalFirstPhase' => '4',
+                'EvFinalTargetType'=>TGT_FIELD,
+                'EvElimEnds'=>8,
+                'EvElimArrows'=>4,
+                'EvElimSO'=>2,
+                'EvFinEnds'=>4,
+                'EvFinArrows'=>4,
+                'EvFinSO'=>2,
+                'EvFinalAthTarget'=>15,
+                'EvMatchArrowsNo'=>FINAL_FROM_2,
+            );
 			$i=1;
 			CreateEventNew($TourId,'RM',  'Recurve Men',          $i++, $SettingsInd);
 			CreateEventNew($TourId,'RW',  'Recurve Women',        $i++, $SettingsInd);
@@ -178,102 +219,105 @@ function CreateStandardFieldEvents($TourId, $SubRule) {
 			}
 			$i=1;
 			CreateEventNew($TourId, 'MT', 'Men Team',          $i++, $SettingsTeam);
-			CreateEventNew($TourId, 'WT', 'Women Team',        $i++, $SettingsTeam);
+            CreateEventNew($TourId, 'WT', 'Women Team',        $i++, $SettingsTeam);
+            CreateEventNew($TourId, 'RX', 'Recurve Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'CX', 'Compound Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'BX', 'Barebow Mixed Team', $i++, $SettingsMixedTeam);
 			CreateEventNew($TourId, 'MJT','Men Junior Team',   $i++, $SettingsTeam);
 			CreateEventNew($TourId, 'WJT','Women Junior Team', $i++, $SettingsTeam);
+            CreateEventNew($TourId, 'RJX', 'Recurve Junior Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'CJX', 'Compound Junior Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'BJX', 'Barebow Junior Mixed Team', $i++, $SettingsMixedTeam);
 			if($SubRule==3) {
 				CreateEventNew($TourId, 'MCT','Men Cadet Team',    $i++, $SettingsTeam);
 				CreateEventNew($TourId, 'WCT','Women Cadet Team',  $i++, $SettingsTeam);
+                CreateEventNew($TourId, 'RCX', 'Recurve Cadet Mixed Team', $i++, $SettingsMixedTeam);
+                CreateEventNew($TourId, 'CCX', 'Compound Cadet Mixed Team', $i++, $SettingsMixedTeam);
+                CreateEventNew($TourId, 'BCX', 'Barebow Cadet Mixed Team', $i++, $SettingsMixedTeam);
 				CreateEventNew($TourId, 'MMT','Men Master Team',   $i++, $SettingsTeam);
 				CreateEventNew($TourId, 'WMT','Women Master Team', $i++, $SettingsTeam);
+                CreateEventNew($TourId, 'RMX', 'Recurve Master Mixed Team', $i++, $SettingsMixedTeam);
+                CreateEventNew($TourId, 'CMX', 'Compound Master Mixed Team', $i++, $SettingsMixedTeam);
+                CreateEventNew($TourId, 'BMX', 'Barebow Master Mixed Team', $i++, $SettingsMixedTeam);
 			}
 			break;
 	}
 }
 
 function InsertStandardFieldEvents($TourId, $SubRule) {
-	switch($SubRule) {
-		case '1':
-		case '3':
-			InsertClassEvent($TourId, 0, 1, 'RM',  'R',  'M');
-			InsertClassEvent($TourId, 0, 1, 'RJM', 'R', 'JM');
-			InsertClassEvent($TourId, 0, 1, 'RCM', 'R', 'CM');
-			InsertClassEvent($TourId, 0, 1, 'RMM', 'R', 'MM');
-			InsertClassEvent($TourId, 0, 1, 'RW',  'R',  'W');
-			InsertClassEvent($TourId, 0, 1, 'RJW', 'R', 'JW');
-			InsertClassEvent($TourId, 0, 1, 'RCW', 'R', 'CW');
-			InsertClassEvent($TourId, 0, 1, 'RMW', 'R', 'MW');
-			InsertClassEvent($TourId, 0, 1, 'CM',  'C',  'M');
-			InsertClassEvent($TourId, 0, 1, 'CJM', 'C', 'JM');
-			InsertClassEvent($TourId, 0, 1, 'CCM', 'C', 'CM');
-			InsertClassEvent($TourId, 0, 1, 'CMM', 'C', 'MM');
-			InsertClassEvent($TourId, 0, 1, 'CW',  'C',  'W');
-			InsertClassEvent($TourId, 0, 1, 'CJW', 'C', 'JW');
-			InsertClassEvent($TourId, 0, 1, 'CCW', 'C', 'CW');
-			InsertClassEvent($TourId, 0, 1, 'CMW', 'C', 'MW');
-			InsertClassEvent($TourId, 0, 1, 'BM',  'B',  'M');
-			InsertClassEvent($TourId, 0, 1, 'BJM', 'B', 'JM');
-			InsertClassEvent($TourId, 0, 1, 'BCM', 'B', 'CM');
-			InsertClassEvent($TourId, 0, 1, 'BMM', 'B', 'MM');
-			InsertClassEvent($TourId, 0, 1, 'BW',  'B',  'W');
-			InsertClassEvent($TourId, 0, 1, 'BJW', 'B', 'JW');
-			InsertClassEvent($TourId, 0, 1, 'BCW', 'B', 'CW');
-			InsertClassEvent($TourId, 0, 1, 'BMW', 'B', 'MW');
+    InsertClassEvent($TourId, 0, 1, 'RM',  'R',  'M');
+    InsertClassEvent($TourId, 0, 1, 'RJM', 'R', 'JM');
+    InsertClassEvent($TourId, 0, 1, 'RCM', 'R', 'CM');
+    InsertClassEvent($TourId, 0, 1, 'RMM', 'R', 'MM');
+    InsertClassEvent($TourId, 0, 1, 'RW',  'R',  'W');
+    InsertClassEvent($TourId, 0, 1, 'RJW', 'R', 'JW');
+    InsertClassEvent($TourId, 0, 1, 'RCW', 'R', 'CW');
+    InsertClassEvent($TourId, 0, 1, 'RMW', 'R', 'MW');
+    InsertClassEvent($TourId, 0, 1, 'CM',  'C',  'M');
+    InsertClassEvent($TourId, 0, 1, 'CJM', 'C', 'JM');
+    InsertClassEvent($TourId, 0, 1, 'CCM', 'C', 'CM');
+    InsertClassEvent($TourId, 0, 1, 'CMM', 'C', 'MM');
+    InsertClassEvent($TourId, 0, 1, 'CW',  'C',  'W');
+    InsertClassEvent($TourId, 0, 1, 'CJW', 'C', 'JW');
+    InsertClassEvent($TourId, 0, 1, 'CCW', 'C', 'CW');
+    InsertClassEvent($TourId, 0, 1, 'CMW', 'C', 'MW');
+    InsertClassEvent($TourId, 0, 1, 'BM',  'B',  'M');
+    InsertClassEvent($TourId, 0, 1, 'BJM', 'B', 'JM');
+    InsertClassEvent($TourId, 0, 1, 'BCM', 'B', 'CM');
+    InsertClassEvent($TourId, 0, 1, 'BMM', 'B', 'MM');
+    InsertClassEvent($TourId, 0, 1, 'BW',  'B',  'W');
+    InsertClassEvent($TourId, 0, 1, 'BJW', 'B', 'JW');
+    InsertClassEvent($TourId, 0, 1, 'BCW', 'B', 'CW');
+    InsertClassEvent($TourId, 0, 1, 'BMW', 'B', 'MW');
 
-			InsertClassEvent($TourId, 1, 1, 'MT',  'R',  'M');
-			InsertClassEvent($TourId, 2, 1, 'MT',  'C',  'M');
-			InsertClassEvent($TourId, 3, 1, 'MT',  'B',  'M');
-			InsertClassEvent($TourId, 1, 1, 'MJT', 'R', 'JM');
-			InsertClassEvent($TourId, 2, 1, 'MJT', 'C', 'JM');
-			InsertClassEvent($TourId, 3, 1, 'MJT', 'B', 'JM');
-			InsertClassEvent($TourId, 1, 1, 'MCT', 'R', 'CM');
-			InsertClassEvent($TourId, 2, 1, 'MCT', 'C', 'CM');
-			InsertClassEvent($TourId, 3, 1, 'MCT', 'B', 'CM');
-			InsertClassEvent($TourId, 1, 1, 'MMT', 'R', 'MM');
-			InsertClassEvent($TourId, 2, 1, 'MMT', 'C', 'MM');
-			InsertClassEvent($TourId, 3, 1, 'MMT', 'B', 'MM');
-			InsertClassEvent($TourId, 1, 1, 'WT',  'R',  'W');
-			InsertClassEvent($TourId, 2, 1, 'WT',  'C',  'W');
-			InsertClassEvent($TourId, 3, 1, 'WT',  'B',  'W');
-			InsertClassEvent($TourId, 1, 1, 'WJT', 'R', 'JW');
-			InsertClassEvent($TourId, 2, 1, 'WJT', 'C', 'JW');
-			InsertClassEvent($TourId, 3, 1, 'WJT', 'B', 'JW');
-			InsertClassEvent($TourId, 1, 1, 'WCT', 'R', 'CW');
-			InsertClassEvent($TourId, 2, 1, 'WCT', 'C', 'CW');
-			InsertClassEvent($TourId, 3, 1, 'WCT', 'B', 'CW');
-			InsertClassEvent($TourId, 1, 1, 'WMT', 'R', 'MW');
-			InsertClassEvent($TourId, 2, 1, 'WMT', 'C', 'MW');
-			InsertClassEvent($TourId, 3, 1, 'WMT', 'B', 'MW');
-			break;
-		case '2':
-		case '4':
-			InsertClassEvent($TourId, 0, 1, 'RM',  'R',  'M');
-			InsertClassEvent($TourId, 0, 1, 'RJM', 'R', 'JM');
-			InsertClassEvent($TourId, 0, 1, 'RW',  'R',  'W');
-			InsertClassEvent($TourId, 0, 1, 'RJW', 'R', 'JW');
-			InsertClassEvent($TourId, 0, 1, 'CM',  'C',  'M');
-			InsertClassEvent($TourId, 0, 1, 'CJM', 'C', 'JM');
-			InsertClassEvent($TourId, 0, 1, 'CW',  'C',  'W');
-			InsertClassEvent($TourId, 0, 1, 'CJW', 'C', 'JW');
-			InsertClassEvent($TourId, 0, 1, 'BM',  'B',  'M');
-			InsertClassEvent($TourId, 0, 1, 'BJM', 'B', 'JM');
-			InsertClassEvent($TourId, 0, 1, 'BW',  'B',  'W');
-			InsertClassEvent($TourId, 0, 1, 'BJW', 'B', 'JW');
-
-			InsertClassEvent($TourId, 1, 1, 'MT',  'R',  'M');
-			InsertClassEvent($TourId, 2, 1, 'MT',  'C',  'M');
-			InsertClassEvent($TourId, 3, 1, 'MT',  'B',  'M');
-			InsertClassEvent($TourId, 1, 1, 'MJT', 'R', 'JM');
-			InsertClassEvent($TourId, 2, 1, 'MJT', 'C', 'JM');
-			InsertClassEvent($TourId, 3, 1, 'MJT', 'B', 'JM');
-			InsertClassEvent($TourId, 1, 1, 'WT',  'R',  'W');
-			InsertClassEvent($TourId, 2, 1, 'WT',  'C',  'W');
-			InsertClassEvent($TourId, 3, 1, 'WT',  'B',  'W');
-			InsertClassEvent($TourId, 1, 1, 'WJT', 'R', 'JW');
-			InsertClassEvent($TourId, 2, 1, 'WJT', 'C', 'JW');
-			InsertClassEvent($TourId, 3, 1, 'WJT', 'B', 'JW');
-			break;
-	}
+    InsertClassEvent($TourId, 1, 1, 'MT',  'R',  'M');
+    InsertClassEvent($TourId, 2, 1, 'MT',  'C',  'M');
+    InsertClassEvent($TourId, 3, 1, 'MT',  'B',  'M');
+    InsertClassEvent($TourId, 1, 1, 'WT',  'R',  'W');
+    InsertClassEvent($TourId, 2, 1, 'WT',  'C',  'W');
+    InsertClassEvent($TourId, 3, 1, 'WT',  'B',  'W');
+    InsertClassEvent($TourId, 1, 1, 'RX',  'R',  'W');
+    InsertClassEvent($TourId, 2, 1, 'RX',  'R',  'M');
+    InsertClassEvent($TourId, 1, 1, 'CX',  'C',  'W');
+    InsertClassEvent($TourId, 2, 1, 'CX',  'C',  'M');
+    InsertClassEvent($TourId, 1, 1, 'BX',  'B',  'W');
+    InsertClassEvent($TourId, 2, 1, 'BX',  'B',  'M');
+    InsertClassEvent($TourId, 1, 1, 'MJT', 'R', 'JM');
+    InsertClassEvent($TourId, 2, 1, 'MJT', 'C', 'JM');
+    InsertClassEvent($TourId, 3, 1, 'MJT', 'B', 'JM');
+    InsertClassEvent($TourId, 1, 1, 'WJT', 'R', 'JW');
+    InsertClassEvent($TourId, 2, 1, 'WJT', 'C', 'JW');
+    InsertClassEvent($TourId, 3, 1, 'WJT', 'B', 'JW');
+    InsertClassEvent($TourId, 1, 1, 'RJX',  'R',  'JW');
+    InsertClassEvent($TourId, 2, 1, 'RJX',  'R',  'JM');
+    InsertClassEvent($TourId, 1, 1, 'CJX',  'C',  'JW');
+    InsertClassEvent($TourId, 2, 1, 'CJX',  'C',  'JM');
+    InsertClassEvent($TourId, 1, 1, 'BJX',  'B',  'JW');
+    InsertClassEvent($TourId, 2, 1, 'BJX',  'B',  'JM');
+    InsertClassEvent($TourId, 1, 1, 'MCT', 'R', 'CM');
+    InsertClassEvent($TourId, 2, 1, 'MCT', 'C', 'CM');
+    InsertClassEvent($TourId, 3, 1, 'MCT', 'B', 'CM');
+    InsertClassEvent($TourId, 1, 1, 'WCT', 'R', 'CW');
+    InsertClassEvent($TourId, 2, 1, 'WCT', 'C', 'CW');
+    InsertClassEvent($TourId, 3, 1, 'WCT', 'B', 'CW');
+    InsertClassEvent($TourId, 1, 1, 'RCX',  'R',  'CW');
+    InsertClassEvent($TourId, 2, 1, 'RCX',  'R',  'CM');
+    InsertClassEvent($TourId, 1, 1, 'CCX',  'C',  'CW');
+    InsertClassEvent($TourId, 2, 1, 'CCX',  'C',  'CM');
+    InsertClassEvent($TourId, 1, 1, 'BCX',  'B',  'CW');
+    InsertClassEvent($TourId, 2, 1, 'BCX',  'B',  'CM');
+    InsertClassEvent($TourId, 1, 1, 'MMT', 'R', 'MM');
+    InsertClassEvent($TourId, 2, 1, 'MMT', 'C', 'MM');
+    InsertClassEvent($TourId, 3, 1, 'MMT', 'B', 'MM');
+    InsertClassEvent($TourId, 1, 1, 'RMX',  'R',  'MW');
+    InsertClassEvent($TourId, 2, 1, 'RMX',  'R',  'MM');
+    InsertClassEvent($TourId, 1, 1, 'CMX',  'C',  'MW');
+    InsertClassEvent($TourId, 2, 1, 'CMX',  'C',  'MM');
+    InsertClassEvent($TourId, 1, 1, 'BMX',  'B',  'MW');
+    InsertClassEvent($TourId, 2, 1, 'BMX',  'B',  'MM');
+    InsertClassEvent($TourId, 1, 1, 'WMT', 'R', 'MW');
+    InsertClassEvent($TourId, 2, 1, 'WMT', 'C', 'MW');
+    InsertClassEvent($TourId, 3, 1, 'WMT', 'B', 'MW');
 }
 
 function InsertStandardFieldEliminations($TourId, $SubRule){

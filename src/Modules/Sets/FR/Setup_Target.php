@@ -30,55 +30,52 @@ switch($TourType) {
 		switch($SubRule) {
 			case 8:
 				// FEDERAL
-				CreateDistance($TourId, $TourType, 'CLS_', '50m-1', '50m-2');
-				CreateDistance($TourId, $TourType, 'CLV_', '50m-1', '50m-2');
-				CreateDistance($TourId, $TourType, 'CLW_', '50m-1', '50m-2');
-				CreateDistance($TourId, $TourType, 'CLJ_', '50m-1', '50m-2');
-				CreateDistance($TourId, $TourType, 'CLC_', '50m-1', '50m-2');
-				CreateDistance($TourId, $TourType, 'CLM_', '30m-1', '30m-2');
-				CreateDistance($TourId, $TourType, 'CLB_', '20m-1', '20m-2');
-				CreateDistance($TourId, $TourType, 'CLP_', '20m-1', '20m-2');
-				CreateDistance($TourId, $TourType, 'CO%', '50m-1', '50m-2');
+				CreateDistanceNew($TourId, $TourType, 'CLS_', array(array('50m-1',50), array('50m-2',50)));
+				CreateDistanceNew($TourId, $TourType, 'CLV_', array(array('50m-1',50), array('50m-2',50)));
+				CreateDistanceNew($TourId, $TourType, 'CLW_', array(array('50m-1',50), array('50m-2',50)));
+				CreateDistanceNew($TourId, $TourType, 'CLJ_', array(array('50m-1',50), array('50m-2',50)));
+				CreateDistanceNew($TourId, $TourType, 'CLC_', array(array('50m-1',50), array('50m-2',50)));
+				CreateDistanceNew($TourId, $TourType, 'CLM_', array(array('30m-1',30), array('30m-2',30)));
+				CreateDistanceNew($TourId, $TourType, 'CLB_', array(array('20m-1',20), array('20m-2',20)));
+				CreateDistanceNew($TourId, $TourType, 'CLP_', array(array('20m-1',20), array('20m-2',20)));
+				CreateDistanceNew($TourId, $TourType, 'CO%', array(array('50m-1',50), array('50m-2',50)));
 				break;
 			case 11:
 				// Coupe France: mix of international and federal
-				CreateDistance($TourId, $TourType, 'CL1H', '70m-1', '70m-2');
-				CreateDistance($TourId, $TourType, 'CL2H', '70m-1', '70m-2');
-				CreateDistance($TourId, $TourType, 'CL3H', '60m-1', '60m-2');
-				CreateDistance($TourId, $TourType, 'CLJH', '70m-1', '70m-2');
-				CreateDistance($TourId, $TourType, 'CLCH', '70m-1', '70m-2');
-				CreateDistance($TourId, $TourType, 'CL1F', '70m-1', '70m-2');
-				CreateDistance($TourId, $TourType, 'CL2F', '70m-1', '70m-2');
-				CreateDistance($TourId, $TourType, 'CL3F', '60m-1', '60m-2');
-				CreateDistance($TourId, $TourType, 'CLJF', '70m-1', '70m-2');
-				CreateDistance($TourId, $TourType, 'CLCF', '60m-1', '60m-2');
-				CreateDistance($TourId, $TourType, 'CL_W', '50m-1', '50m-2');
-				CreateDistance($TourId, $TourType, 'CL_M', '50m-1', '50m-2');
-				CreateDistance($TourId, $TourType, 'CO%', '50m-1', '50m-2');
+				CreateDistanceNew($TourId, $TourType, 'CL1H', array(array('70m-1',70), array('70m-2',70)));
+				CreateDistanceNew($TourId, $TourType, 'CL2H', array(array('70m-1',70), array('70m-2',70)));
+				CreateDistanceNew($TourId, $TourType, 'CL3H', array(array('60m-1',60), array('60m-2',60)));
+				CreateDistanceNew($TourId, $TourType, 'CLJH', array(array('70m-1',70), array('70m-2',70)));
+				CreateDistanceNew($TourId, $TourType, 'CLCH', array(array('70m-1',70), array('70m-2',70)));
+				CreateDistanceNew($TourId, $TourType, 'CL1F', array(array('70m-1',70), array('70m-2',70)));
+				CreateDistanceNew($TourId, $TourType, 'CL2F', array(array('70m-1',70), array('70m-2',70)));
+				CreateDistanceNew($TourId, $TourType, 'CL3F', array(array('60m-1',60), array('60m-2',60)));
+				CreateDistanceNew($TourId, $TourType, 'CLJF', array(array('70m-1',70), array('70m-2',70)));
+				CreateDistanceNew($TourId, $TourType, 'CLCF', array(array('60m-1',60), array('60m-2',60)));
+				CreateDistanceNew($TourId, $TourType, 'CL_W', array(array('50m-1',50), array('50m-2',50)));
+				CreateDistanceNew($TourId, $TourType, 'CL_M', array(array('50m-1',50), array('50m-2',50)));
+				CreateDistanceNew($TourId, $TourType, 'CO%', array(array('50m-1',50), array('50m-2',50)));
 				break;
 			default:
-				CreateDistance($TourId, $TourType, 'CL1_', '70m-1', '70m-2');
-				CreateDistance($TourId, $TourType, 'CL2_', '70m-1', '70m-2');
-				CreateDistance($TourId, $TourType, 'CL3_', '70m-1', '70m-2');
-				CreateDistance($TourId, $TourType, 'CLJ_', '70m-1', '70m-2');
-				CreateDistance($TourId, $TourType, 'CLC_', '60m-1', '60m-2');
-				CreateDistance($TourId, $TourType, 'CLM_', '40m-1', '40m-2');
-				CreateDistance($TourId, $TourType, 'CLB_', '30m-1', '30m-2');
-				CreateDistance($TourId, $TourType, 'CLP_', '20m-1', '20m-2');
-				CreateDistance($TourId, $TourType, 'CO%', '50m-1', '50m-2');
+				CreateDistanceNew($TourId, $TourType, 'CL1_', array(array('70m-1',70), array('70m-2',70)));
+				CreateDistanceNew($TourId, $TourType, 'CL2_', array(array('70m-1',70), array('70m-2',70)));
+				CreateDistanceNew($TourId, $TourType, 'CL3_', array(array('70m-1',70), array('70m-2',70)));
+				CreateDistanceNew($TourId, $TourType, 'CLJ_', array(array('70m-1',70), array('70m-2',70)));
+				CreateDistanceNew($TourId, $TourType, 'CLC_', array(array('60m-1',60), array('60m-2',60)));
+				CreateDistanceNew($TourId, $TourType, 'CLM_', array(array('40m-1',40), array('40m-2',40)));
+				CreateDistanceNew($TourId, $TourType, 'CLB_', array(array('30m-1',30), array('30m-2',30)));
+				CreateDistanceNew($TourId, $TourType, 'CLP_', array(array('20m-1',20), array('20m-2',20)));
+				CreateDistanceNew($TourId, $TourType, 'CO%', array(array('50m-1',50), array('50m-2',50)));
 		}
 		break;
-	//case 5:
-	//	CreateDistance($TourId, $TourType, '%', '60 m', '50 m', '40 m');
-	//	break;
 	case 6:
-		CreateDistance($TourId, $TourType, '%', '18m-1', '18m-2');
+		CreateDistanceNew($TourId, $TourType, '%', array(array('18m-1',18), array('18m-2',18)));
 		break;
 	case 7:
-		CreateDistance($TourId, $TourType, '%', '25m-1', '25m-2');
+		CreateDistanceNew($TourId, $TourType, '%', array(array('25m-1',25), array('25m-2',25)));
 		break;
 	case 8:
-		CreateDistance($TourId, $TourType, '%', '25m-1', '25m-2', '18m-1', '18m-2');
+		CreateDistanceNew($TourId, $TourType, '%', array(array('25m-1',25), array('25m-2',25), array('18m-1',18), array('18m-2',18)));
 		break;
 }
 

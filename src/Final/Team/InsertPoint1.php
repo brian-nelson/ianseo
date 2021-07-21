@@ -2,7 +2,8 @@
 	require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 	require_once('Common/Fun_FormatText.inc.php');
 	require_once('Common/Lib/CommonLib.php');
-	require_once('HHT/Fun_HHT.local.inc.php');
+	require_once('Common/Lib/Fun_Phases.inc.php');
+	//require_once('HHT/Fun_HHT.local.inc.php');
 
 	CheckTourSession(true);
     checkACL(AclTeams, AclReadOnly);
@@ -10,7 +11,9 @@
 	$JS_SCRIPT=array(
 		phpVars2js(array("WebDir" => $CFG->ROOT_DIR)),
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/ajax/ObjXMLHttpRequest.js"></script>',
+		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Final/Fun_AJAX.js"></script>',
+        '<script>$(function() {ChangeEvent(1);});</script>',
 		);
 
 	$PAGE_TITLE=get_text('TeamFinal');
@@ -27,7 +30,7 @@
 	<th class="TitleLeft" colspan="2"><?php print get_text('ScheduledMatches', 'Tournament');?></th>
 </tr>
 <tr>
-	<td colspan="2"><?php echo ComboSes(RowTour(), 'Teams'); ?></td>
+	<td colspan="2"><?php echo ComboSession('Teams'); ?></td>
 </tr>
 <tr>
 <th class="TitleLeft" colspan="2"><?php print get_text('Event');?></th>
@@ -35,14 +38,13 @@
 <tr>
 <td colspan="2">
 <?php
-	$Select
-		= "SELECT EvCode,EvEventName "
-		. "FROM Events "
-		. "WHERE EvTournament = " . StrSafe_DB($_SESSION['TourId']) . "	AND EvTeamEvent='1' AND EvFinalFirstPhase!=0 "
-		. "ORDER BY EvProgr ASC ";
+	$Select = "SELECT EvCode,EvEventName
+	    FROM Events
+	    WHERE EvShootOff=1 and EvTournament = " . StrSafe_DB($_SESSION['TourId']) . "	AND EvTeamEvent='1' AND EvFinalFirstPhase!=0
+	    ORDER BY EvProgr ASC ";
 	$Rs=safe_r_sql($Select);
 
-	print '<select name="d_Event[]" id="d_Event" multiple="multiple" onChange="javascript:ChangeEvent(1);">';
+	print '<select name="d_Event[]" id="d_Event" multiple="multiple" onChange="ChangeEvent(1);">';
 	if (safe_num_rows($Rs)>0)
 	{
 		while ($Row=safe_fetch($Rs))
@@ -83,7 +85,6 @@
 </table>
 </form>
 <div id="idOutput"></div>
-<script type="text/javascript">ChangeEvent(1);</script>
 <?php
 	include('Common/Templates/tail.php');
 ?>

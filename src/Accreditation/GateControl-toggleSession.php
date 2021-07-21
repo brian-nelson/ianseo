@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 09/05/17
- * Time: 18.51
- */
 
 require_once(dirname(dirname(__FILE__)).'/config.php');
 checkACL(AclRoot, AclReadWrite);

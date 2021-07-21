@@ -238,12 +238,12 @@
 					EnId,EnCode, EnSex, EnNameOrder, EnName AS Name, upper(EnFirstName) AS FirstNameUpper, EnFirstName AS FirstName, SUBSTRING(QuTargetNo,1,1) AS Session,
 					SUBSTRING(QuTargetNo,2) AS TargetNo, ".($SnapDistance ? 'EqArrowNo' : $RealArrowNo)." as ArrowNo, ".($isAbs ? "IndEvent" : "concat(EnDivision, EnClass)")." as IndEvent,
 					ToNumEnds,ToNumDist,ToMaxDistScore,
-					CoCode, CoName, EnClass, EnDivision,EnAgeClass, EnSubClass, ClDescription, DivDescription,
+					CoCode, CoName, CoCaCode, CoMaCode, EnClass, EnDivision,EnAgeClass, EnSubClass, ClDescription, DivDescription,
 					IFNULL(Td1,'.1.') as Td1, IFNULL(Td2,'.2.') as Td2, IFNULL(Td3,'.3.') as Td3, IFNULL(Td4,'.4.') as Td4, IFNULL(Td5,'.5.') as Td5, IFNULL(Td6,'.6.') as Td6, IFNULL(Td7,'.7.') as Td7, IFNULL(Td8,'.8.') as Td8,
 					QuD1Score, QuD2Score, QuD3Score, QuD4Score, QuD5Score, QuD6Score, QuD7Score, QuD8Score,
 					QuD1Rank, QuD2Rank, QuD3Rank, QuD4Rank, QuD5Rank, QuD6Rank, QuD7Rank, QuD8Rank,
 					QuD1Gold, QuD2Gold, QuD3Gold, QuD4Gold, QuD5Gold, QuD6Gold, QuD7Gold, QuD8Gold,
-					QuD1Xnine, QuD2Xnine, QuD3Xnine, QuD4Xnine, QuD5Xnine, QuD6Xnine, QuD7Xnine, QuD8Xnine, ";
+					QuD1Xnine, QuD2Xnine, QuD3Xnine, QuD4Xnine, QuD5Xnine, QuD6Xnine, QuD7Xnine, QuD8Xnine, IrmId, IrmType, IrmShowRank, ";
 			if($isAbs) {
 				$q .= "IndD1Rank, IndD2Rank, IndD3Rank, IndD4Rank, IndD5Rank, IndD6Rank, IndD7Rank, IndD8Rank, EvCode,EvEventName,
 					ifnull(concat(DV2.DvMajVersion, '.', DV2.DvMinVersion) ,concat(DV1.DvMajVersion, '.', DV1.DvMinVersion)) as DocVersion,
@@ -252,7 +252,7 @@
 			} else {
 				$q.="'' as DocVersion,
 					'' as DocVersionDate,
-					'' as DocNotes,";
+					'' as DocNotes, ";
 			}
 			if($SnapDistance==0) {
 				$q .= "QuScore as OrderScore, QuGold as OrderGold, QuXnine as OrderXnine, '0' as EqDistance, '0' as EqScore, '0' as EqGold, '0' as EqXNine, ";
@@ -290,10 +290,13 @@
 			if($isAbs) {
 				$q .= "
 					INNER JOIN Individuals ON EnId=IndId AND EnTournament=IndTournament 
+					inner join IrmTypes on IrmId=IndIrmType
 					INNER JOIN Events ON EvCode=IndEvent AND EvTeamEvent=0 AND EvTournament=IndTournament
 					LEFT JOIN DocumentVersions DV1 on EvTournament=DV1.DvTournament AND DV1.DvFile = 'QUAL-IND' and DV1.DvEvent=''
 					LEFT JOIN DocumentVersions DV2 on EvTournament=DV2.DvTournament AND DV2.DvFile = 'QUAL-IND' and DV2.DvEvent=EvCode
 					";
+			} else {
+				$q.=" inner join IrmTypes on IrmId=QuIrmType ";
 			}
 			if($SnapDistance!=0) {
 				if(is_array($ArrowNo)) {
@@ -322,7 +325,7 @@
 				$q .= "EvProgr, EvCode, ";
 			else
 				$q .= "DivViewOrder, EnDivision, ClViewOrder, EnClass,  ";
-			$q .= "OrderScore DESC, OrderGold DESC, OrderXNine DESC, QuScore Desc, FirstName, Name";
+			$q .= "if(IrmShowRank=1, 0, IrmId), OrderScore DESC, OrderGold DESC, OrderXNine DESC, QuScore Desc, FirstName, Name";
 
 			$r=safe_r_sql($q);
 
@@ -460,8 +463,12 @@
 						'ageclass' => $myRow->EnAgeClass,
 						'subclass' => $myRow->EnSubClass,
 						'countryCode' => $myRow->CoCode,
+						'contAssoc' => $myRow->CoCaCode,
+						'memberAssoc' => $myRow->CoMaCode,
 						'countryName' => $myRow->CoName,
-						'rank' => $myRank,
+						'rank' => $myRow->IrmShowRank ? $myRank : $myRow->IrmType,
+						'irm' => $myRow->IrmId,
+						'irmText' => $myRow->IrmType,
 						'score' => $myRow->Score,
 						'completeScore' => $myRow->Score,
 						'recordGap' => ($myRow->ArrowNo*10)-$myRow->OrderScore,

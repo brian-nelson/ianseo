@@ -176,6 +176,7 @@ $lang['RWA']='Ruanda';
 $lang['SAM']='Samoa';
 $lang['SEN']='Senegal';
 $lang['SEY']='Seychelles';
+$lang['SGP']='Singapore';
 $lang['SIN']='Singapore';
 $lang['SKN']='Saint Kitts e Nevis';
 $lang['SLE']='Sierra Leone';

@@ -1,4 +1,7 @@
 <?php
+$lang['ArcClassified']='ערך סיווג שגוי';
+$lang['ArcNative']='מצב מדינה ראשונה שגוי';
+$lang['ArcPara']='מצב נכה שגוי';
 $lang['ErrArcherCodeExists']='מספר זיהוי קשת כבר קיים';
 $lang['ErrArcherCodeFree']='מספר זיהוי קשת פנוי';
 $lang['ErrArcherCodeTooLong']='מספר זיהוי קשת ארוך מידי';
@@ -49,6 +52,7 @@ $lang['ErrPassToSet']='הזינו סיסמה חדשה';
 $lang['ErrSubClass']='קטגוריית משנה לא חוקית';
 $lang['ErrSubClassNotFound']='לא נמצאה קבוצת משנה';
 $lang['ErrWronglevel']='רמת מועדון/קשת שגויה';
+$lang['InvalidData']='נתונים לא חוקיים';
 $lang['LoginTooManyArchers']='כתובת דואר אלקטרוני זו קיימת עבור יותר מקשת אחד. נא השתמשו בזיהוי החברות';
 $lang['WrongType']='סוג לא תקין';
 ?>

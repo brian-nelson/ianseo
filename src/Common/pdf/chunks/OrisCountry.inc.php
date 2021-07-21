@@ -3,13 +3,13 @@
 $pdf->SetDataHeader($PdfData->Header, $PdfData->HeaderWidth);
 $pdf->setPhase('Entries');
 
-$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 $Version='';
 if($PdfData->DocVersion) {
 	$Version=trim('Vers. '.$PdfData->DocVersion . " ($PdfData->DocVersionDate) $PdfData->DocVersionNotes");
 }
 $pdf->setComment($Version);
 $pdf->AddPage();
+$pdf->setOrisCode($PdfData->Code, $PdfData->Description);
 $pdf->Bookmark($PdfData->IndexName, 0);
 
 $ONLINE=isset($PdfData->HTML);
@@ -38,7 +38,7 @@ foreach($PdfData->Data['Items'] as $Rows) {
 		$NationCode=$MyRow->NationCode;
 		$tmp=array(
 			$MyRow->NationCode,
-			$MyRow->Nation,
+			$MyRow->NationComplete,
 			$MyRow->Athlete,
 			$MyRow->IsAthlete && $PdfData->IsRanked ? ($MyRow->Ranking ? $MyRow->Ranking : '-') . '    #' : '',
 			$MyRow->DOB . "   #",

@@ -104,8 +104,16 @@ if($field) {
 			if($ID) {
 				// update
 				safe_w_sql("insert into ExtraData set $FIELD=".StrSafe_DB($value).  ", EdId=$ID, EdType='E' on duplicate key update $FIELD=".StrSafe_DB($value).  "");
+				$up=safe_w_affected_rows();
 				if($SelectEnId) {
 					LogAccBoothQuerry("insert into ExtraData set $FIELD=".StrSafe_DB($value).  ", EdId=($SelectEnId), EdType='E' on duplicate key update $FIELD=".StrSafe_DB($value), $ENTRY->ToCode);
+				}
+				if($up) {
+					// updates the entry timestamp as well
+					safe_w_SQL("update Entries set EnTimestamp='".date('Y-m-d H:i:s')."' where EnId={$ID}");
+					if($SelectEnId) {
+						LogAccBoothQuerry("update Entries set EnTimestamp='" . date('Y-m-d H:i:s') . "' where EnId=($SelectEnId)");
+					}
 				}
 			}
 		}

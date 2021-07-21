@@ -1,5 +1,5 @@
 <?php
-$lang['Category']='カテゴリ';
+$lang['Category']='カテゴリー';
 $lang['Cert-Instructor']='講師';
 $lang['Cert-Level1']='入門編';
 $lang['Cert-Level2']='初級編';

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: deligant
- * Date: 08/08/18
- * Time: 17.44
- */
 
 $JSON=array('error' => 1);
 

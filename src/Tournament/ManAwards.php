@@ -101,9 +101,18 @@ if (isset($_REQUEST['Command'])) {
 			$RsSwitch = safe_w_sql($Switch);
 		}
 	} elseif ($_REQUEST['Command']=='OPTION') {
-		if(isset($_REQUEST['OptSwitch']) && in_array($_REQUEST["OptSwitch"],array('RepresentCountry','PlayAnthem','SecondLanguage','ShowPoints'))) {
-			$tmp = getModuleParameter('Awards', $_REQUEST["OptSwitch"], 1);
-			setModuleParameter('Awards', $_REQUEST["OptSwitch"], ($tmp ? 0 : 1));
+		if(isset($_REQUEST['OptSwitch']) && in_array($_REQUEST["OptSwitch"],array('RepresentCountry','PlayAnthem','SecondLanguage','ShowPoints','ShowPdfFlags'))) {
+		    if($_REQUEST["OptSwitch"]=='ShowPdfFlags') {
+		        // check if the RepresentCountry is on!
+                if(!getModuleParameter('Awards', 'RepresentCountry', 1)) {
+                    CD_redirect();
+                }
+            }
+            $tmp = getModuleParameter('Awards', $_REQUEST["OptSwitch"], in_array($_REQUEST["OptSwitch"], array('ShowPoints','ShowPdfFlags','SecondLanguage') ? 0 : 1));
+            setModuleParameter('Awards', $_REQUEST["OptSwitch"], ($tmp ? 0 : 1));
+		    if($_REQUEST["OptSwitch"]=='RepresentCountry' and $tmp) {
+                setModuleParameter('Awards', 'ShowPdfFlags', 0);
+            }
 		}
 	} elseif ($_REQUEST['Command']=='DELETE') {
 		if (isset($_REQUEST['EvDel']) && isset($_REQUEST['FinEv']) && isset($_REQUEST['TeamEv'])) {
@@ -293,6 +302,10 @@ $CustomAwards=0;
 	$tmp = getModuleParameter('Awards','RepresentCountry',1);
 	echo '<tr><td class="Center" onclick="switchOption(\'RepresentCountry\')"><img src="' . $CFG->ROOT_DIR . 'Common/Images/Enabled' . $tmp. '.png" width="20" alt="' .  get_text($tmp ? 'Yes' : 'No'). '"></td>';
 	echo '<td colspan="10">'. get_text('AwardRepresentCountry','Tournament') . '</td></tr>';
+
+	$tmp = getModuleParameter('Awards','ShowPdfFlags',0);
+	echo '<tr><td class="Center" onclick="switchOption(\'ShowPdfFlags\')"><img src="' . $CFG->ROOT_DIR . 'Common/Images/Enabled' . $tmp. '.png" width="20" alt="' .  get_text($tmp ? 'Yes' : 'No'). '"></td>';
+	echo '<td colspan="10">'. get_text('ShowPdfFlags','Tournament') . '</td></tr>';
 
 	$tmp = getModuleParameter('Awards','ShowPoints', 0);
 	echo '<tr><td class="Center" onclick="switchOption(\'ShowPoints\')"><img src="' . $CFG->ROOT_DIR . 'Common/Images/Enabled' . $tmp. '.png" width="20" alt="' .  get_text($tmp ? 'Yes' : 'No'). '"></td>';

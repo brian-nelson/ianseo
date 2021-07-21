@@ -1,10 +1,5 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: deligant
- * Date: 09/05/17
- * Time: 16.13
- *
  * Called through GetAcPerson.php?id=XXX[&pic=1]
  *
  * JSON returned:
@@ -53,23 +48,26 @@ if(empty($Options)) {
 $JSON['error']=0;
 
 // get all the accreditation QRcodes for this competition...
-$q=safe_r_sql("select IdCardElements.*, ToCode from IdCardElements inner join Tournament on ToId=IceTournament where IceType='AthQrCode' and IceContent!='' and IceTournament in (".implode(',', array_keys($Options)).")");
-while($r=safe_fetch($q)) {
-    $replacements=array(
-        '\\{ENCODE\\}'=>'(.+?)',
-        '\\{COUNTRY\\}'=>'(.+?)',
-        '\\{DIVISION\\}'=>'(.+?)',
-        '\\{CLASS\\}'=>'(.+?)',
-        '\\{TOURNAMENT\\}'=>'(.+?)',
+$q=safe_r_sql("select IceContent, ToCode from IdCardElements inner join Tournament on ToId=IceTournament where IceType IN ('AthQrCode','AthBarCode') and IceTournament in (".implode(',', array_keys($Options)).")");
+while ($r = safe_fetch($q)) {
+    $replacements = array(
+        '\\{ENCODE\\}' => '(.+?)',
+        '\\{COUNTRY\\}' => '(.+?)',
+        '\\{DIVISION\\}' => '(.+?)',
+        '\\{CLASS\\}' => '(.+?)',
+        '\\{TOURNAMENT\\}' => '(.+?)',
     );
-    $RegExp=preg_quote($r->IceContent, '/');
-	$RegExp='^'.str_replace(array_keys($replacements), array_values($replacements), $RegExp).'$';
-	$RegArray=getIceRegExpMatches($r->IceContent);
-	$RegArray['formula'] = $RegExp;
+    $RegExp = preg_quote('{ENCODE}-{DIVISION}-{CLASS}', '/');
+    if ($r->IceContent != '') {
+        $RegExp = preg_quote($r->IceContent, '/');
+    }
+    $RegExp = '^' . str_replace(array_keys($replacements), array_values($replacements), $RegExp) . '$';
+    $RegArray = getIceRegExpMatches($r->IceContent);
+    $RegArray['formula'] = $RegExp;
     $RegArray['competition'] = $r->ToCode;
-	if(!in_array($RegArray, $JSON['regexp'])) {
-		$JSON['regexp'][$r->ToCode]= $RegArray;
-	}
+    if (!in_array($RegArray, $JSON['regexp'])) {
+        $JSON['regexp'][$r->ToCode] = $RegArray;
+    }
 }
 
 // get all entries allowed by the setup
@@ -129,7 +127,10 @@ while($r=safe_fetch($q)) {
             $Caption=$r->ClDescription;
         }
     }
-    $Template['key']=$r->ToCode.'|'.$r->EnCode.($JSON['regexp'][$r->ToCode]["country"]!=-1  ? '|'.$r->CoCode : '').($JSON['regexp'][$r->ToCode]["division"]!=-1 ? '|'.$r->DivId : '');
+    $Template['key'] = $r->ToCode . '|' . $r->EnCode  . '|' . $r->CoCode . '|' . $r->DivId;
+    if(array_key_exists($r->ToCode,$JSON['regexp'])) {
+        $Template['key'] = $r->ToCode . '|' . $r->EnCode . ($JSON['regexp'][$r->ToCode]["country"] != -1 ? '|' . $r->CoCode : '') . ($JSON['regexp'][$r->ToCode]["division"] != -1 ? '|' . $r->DivId : '');
+    }
     $Template['enCode']=$r->EnCode;
     $Template['famName']=$r->EnFirstName;
     $Template['givName']=$r->EnName;
@@ -154,16 +155,21 @@ while($r=safe_fetch($q)) {
 //Search for specific option competitions
 foreach ($Options as $ToId=>$Sessions) {
     if(!empty($Sessions)) {
+        $ToCode=getCodeFromId($ToId);
+        $Template['key'] = "ToCode,'|',EnCode,'|',CoCode,'|',EnDivision";
+        if(array_key_exists($ToCode,$JSON['regexp'])) {
+            $tmpKeyStr = "ToCode,'|',EnCode" . ($JSON['regexp'][$ToCode]["country"] != -1 ? ",'|',CoCode" : "") . ($JSON['regexp'][$ToCode]["division"] != -1 ? ",'|',EnDivision" : "");
+        }
         $SQL = "
             (
-                SELECT DISTINCT CONCAT(ToCode,'|',EnCode,'|',CoCode,'|',EnDivision) as keyValue, EnCountry as cntOff
+                SELECT DISTINCT CONCAT({$tmpKeyStr}) as keyValue, EnCountry as cntOff
                 FROM Entries 
                 inner join Countries on CoTournament=EnTournament and CoId=EnCountry
                 inner join Qualifications on QuId=EnId 
                 INNER JOIN Tournament ON ToId=EnTournament
                 WHERE EnTournament=$ToId AND EnAthlete=1 AND CONCAT('Q',ToNumDist,QuSession) IN ('" . implode("','", $Sessions) . "')
             ) UNION ALL (
-                SELECT DISTINCT CONCAT(ToCode,'|',EnCode,'|',CoCode,'|',EnDivision) as keyValue, EnCountry as cntOff
+                SELECT DISTINCT CONCAT({$tmpKeyStr}) as keyValue, EnCountry as cntOff
                 FROM Eliminations 
                 INNER JOIN Entries ON ElId=EnId
                 inner join Countries on CoTournament=EnTournament and CoId=EnCountry
@@ -171,7 +177,7 @@ foreach ($Options as $ToId=>$Sessions) {
                 INNER JOIN Events ON EvTournament=ElTournament and EvCode=ElEventCode and EvTeamEvent=0 and EvElim1>0
             WHERE ElTournament=$ToId AND EnAthlete=1 AND CONCAT('E1',ElSession) IN ('" . implode("','", $Sessions) . "') and ElElimPhase=0
             ) UNION ALL (
-                SELECT DISTINCT CONCAT(ToCode,'|',EnCode,'|',CoCode,'|',EnDivision) as keyValue, EnCountry as cntOff
+                SELECT DISTINCT CONCAT({$tmpKeyStr}) as keyValue, EnCountry as cntOff
                 FROM Eliminations 
                 INNER JOIN Entries ON ElId=EnId
                 inner join Countries on CoTournament=EnTournament and CoId=EnCountry
@@ -179,7 +185,7 @@ foreach ($Options as $ToId=>$Sessions) {
                 INNER JOIN Events ON EvTournament=ElTournament and EvCode=ElEventCode and EvTeamEvent=0 and EvElim1>0
                 WHERE ElTournament=$ToId AND EnAthlete=1 AND CONCAT('E2',ElSession) IN ('" . implode("','", $Sessions) . "') and ElElimPhase=1
             ) UNION ALL (
-                SELECT DISTINCT CONCAT(ToCode,'|',EnCode,'|',CoCode,'|',EnDivision) AS keyValue, EnCountry as cntOff
+                SELECT DISTINCT CONCAT({$tmpKeyStr}) AS keyValue, EnCountry as cntOff
                 FROM Finals
                 INNER JOIN Entries ON FinAthlete=EnId
                 inner join Countries on CoTournament=EnTournament and CoId=EnCountry
@@ -187,7 +193,7 @@ foreach ($Options as $ToId=>$Sessions) {
                 inner join FinSchedule on FSEvent=FinEvent and FSTeamEvent=0 and FsTournament=FinTournament and FsMatchNo=FinMatchNo
                 WHERE FinTournament=$ToId AND EnAthlete=1 AND CONCAT('I', FSScheduledDate, FSScheduledTime) IN ('" . implode("','", $Sessions) . "')
             ) UNION ALL (
-                SELECT DISTINCT CONCAT(ToCode,'|',EnCode,'|',CoCode,'|',EnDivision) AS keyValue, EnCountry as cntOff
+                SELECT DISTINCT CONCAT({$tmpKeyStr}) AS keyValue, EnCountry as cntOff
                 FROM TeamFinComponent
                 INNER JOIN Entries ON TfcId=EnId
                 inner join Countries on CoTournament=EnTournament and CoId=EnCountry
@@ -199,12 +205,14 @@ foreach ($Options as $ToId=>$Sessions) {
         $cntList = Array();
         $q = safe_r_sql($SQL);
         while ($r = safe_fetch($q)) {
-            $tmpList[$r->keyValue]['status'] = 1;
+            if(array_key_exists($r->keyValue, $tmpList)) {
+                $tmpList[$r->keyValue]['status'] = 1;
+            }
             if (!in_array($r->cntOff, $cntList)) {
                 $cntList[] = $r->cntOff;
             }
         }
-        $SQL = "SELECT DISTINCT CONCAT(ToCode,'|',EnCode,'|',CoCode,'|',EnDivision) as keyValue
+        $SQL = "SELECT DISTINCT CONCAT({$tmpKeyStr}) as keyValue
             FROM Entries 
             inner join Qualifications on QuId=EnId 
             inner join Countries on CoTournament=EnTournament and CoId=EnCountry
@@ -215,7 +223,9 @@ foreach ($Options as $ToId=>$Sessions) {
         }
         $q = safe_r_sql($SQL);
         while ($r = safe_fetch($q)) {
-            $tmpList[$r->keyValue]['status'] = 1;
+            if(array_key_exists($r->keyValue, $tmpList)) {
+                $tmpList[$r->keyValue]['status'] = 1;
+            }
         }
     }
 }

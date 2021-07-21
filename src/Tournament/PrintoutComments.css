@@ -1,0 +1,23 @@
+.smallContainer {
+    width: 2vw;
+    padding: 0.5em;
+}
+
+.evContainer {
+    min-width: 20vw;
+    padding-left: 0.5vw !important;
+}
+
+.evCodeContainer {
+    width: 5vw;
+    font-weight: bold;
+    text-align: center;
+}
+
+.txtContainer {
+    min-width: 35vw;
+}
+
+.txtContainer input[type="text"] {
+    width: 75%;
+}

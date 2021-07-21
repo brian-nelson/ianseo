@@ -51,6 +51,12 @@ $JSON['error']=0;
 $JSON['winner']=$Match['winner'] ? 'L' : ($Match['oppWinner'] ? 'R' : '');
 $JSON['confirmed']=($Match['status']==1 and $Match['oppStatus']==1);
 
+$JSON['irmL']=$Match['irm'];
+$JSON['irmR']=$Match['oppIrm'];
+
+$JSON['matchnoL']=$Match['matchNo'];
+$JSON['matchnoR']=$Match['oppMatchNo'];
+
 $JSON['isAlternate']=($Match['shootFirst'] or $Match['oppShootFirst']);
 $JSON['isLive']=($Match['liveFlag']>0);
 
@@ -166,50 +172,9 @@ $totL=0;
 $totR=0;
 $ShootsFirstL=$Match['shootFirst'] & pow(2, $JSON['config']['ends']);
 $ShootsFirstR=$Match['oppShootFirst'] & pow(2, $JSON['config']['ends']);
-/*
-$JSON['scoreL'].='<tr class="SO" so="1" end="0">';
-$JSON['scoreR'].='<tr class="SO" so="1" end="0">';
-$JSON['scoreL'].='<th class="Alternate" rowspan="'.($JSON['config']['soEnds']).'"><input class="ShootsFirst" so="1" type="radio" id="first[' . $TeamEvent.']['.$Event.']['.$MatchIdL.']['.$JSON['config']['ends'].']" name="first[so]" onclick="setShootingFirst(this)" '.($ShootsFirstL ? 'checked="checked"' : '').'></th>';
-$JSON['scoreR'].='<th class="Alternate" rowspan="'.($JSON['config']['soEnds']).'"><input class="ShootsFirst" so="1" type="radio" id="first[' . $TeamEvent.']['.$Event.']['.$MatchIdR.']['.$JSON['config']['ends'].']" name="first[so]" onclick="setShootingFirst(this)" '.($ShootsFirstR ? 'checked="checked"' : '').'></th>';
-$JSON['scoreL'].='<th rowspan="'.($JSON['config']['soEnds']).'">S.O.</th>';
-$JSON['scoreR'].='<th rowspan="'.($JSON['config']['soEnds']).'">S.O.</th>';
-$JSON['scoreL'].='<td class="Center" colspan="' . $JSON['config']['arrows'] . '">';
-$JSON['scoreR'].='<td class="Center" colspan="' . $JSON['config']['arrows'] . '">';
-for($i = 0; $i < $JSON['config']['so']; ++$i) {
-	if($JSON['isAlternate']) {
-		if($ShootsFirstR) {
-			$tabIndexL=$JSON['config']['ends']*$JSON['config']['arrows']*2 + $i*2 + 2;
-			$tabIndexR=$JSON['config']['ends']*$JSON['config']['arrows']*2 + $i*2 + 1;
-		} else {
-			$tabIndexL=$JSON['config']['ends']*$JSON['config']['arrows']*2 + $i*2 + 1;
-			$tabIndexR=$JSON['config']['ends']*$JSON['config']['arrows']*2 + $i*2 + 2;
-		}
-	} else {
-        $tabIndexL=$JSON['config']['ends']*$JSON['config']['arrows']*2 + 3*$JSON['config']['so'] + $i + 1;
-		$tabIndexR=$JSON['config']['ends']*$JSON['config']['arrows']*2 + 3*$JSON['config']['so'] + $i + 2;
-	}
-	$arIndex=$i;
-	$JSON['scoreL'].='<div><input type="text" id="Arrow['.$MatchIdL.'][1][0]['.$i.']" tabindex="'.($TabIndexOffset + $tabIndexL).'" onfocus="selectArrow(this)" onblur="updateArrow(this)" value="'.trim(DecodeFromLetter($Match['tiebreak'][$arIndex])).'"></div>';
-	$JSON['scoreR'].='<div><input type="text" id="Arrow['.$MatchIdR.'][1][0]['.$i.']" tabindex="'.($TabIndexOffset + $tabIndexR).'" onfocus="selectArrow(this)" onblur="updateArrow(this)" value="'.trim(DecodeFromLetter($Match['oppTiebreak'][$arIndex])).'"></div>';
-}
-$JSON['scoreL'].='</td>';
-$JSON['scoreR'].='</td>';
-$JSON['scoreL'] .= '<td class="Bold" id="EndTotalL_SO_0">'.$Match['tiebreakDecoded'][0].'</td>';
-$JSON['scoreR'] .= '<td class="Bold" id="EndTotalR_SO_0">'.$Match['oppTiebreakDecoded'][0].'</td>';
-if ($Section['meta']['matchMode']) {
-	$JSON['scoreL'] .= '<td class="Right" rowspan="'.($JSON['config']['soEnds']).'">' . get_text('Total') . '</td>';
-	$JSON['scoreR'] .= '<td class="Right" rowspan="'.($JSON['config']['soEnds']).'">' . get_text('Total') . '</td>';
-	$JSON['scoreL'] .= '<td class="Bold" rowspan="'.($JSON['config']['soEnds']).'" id="EndSetL_SO">'.$Match['setScore'].'</td>';
-	$JSON['scoreR'] .= '<td class="Bold" rowspan="'.($JSON['config']['soEnds']).'" id="EndSetR_SO">'.$Match['oppSetScore'].'</td>';
-} else {
-	$JSON['scoreL'] .= '<td class="Bold" rowspan="'.($JSON['config']['soEnds']).'" id="TotalL_SO"></td>';
-	$JSON['scoreR'] .= '<td class="Bold" rowspan="'.($JSON['config']['soEnds']).'" id="TotalR_SO"></td>';
-}
-$JSON['scoreL'].='</tr>';
-$JSON['scoreR'].='</tr>';
-*/
-for($pSo=0; $pSo<$JSON['config']['soEnds']; $pSo++ ) {
 
+// Shoot Off ends/arrows, one more than necessary
+for($pSo=0; $pSo<$JSON['config']['soEnds']; $pSo++ ) {
 	$JSON['scoreL'].='<tr class="SO" so="1" end="'.$pSo.'">';
 	$JSON['scoreR'].='<tr class="SO" so="1" end="'.$pSo.'">';
 	if($pSo==0) {
@@ -220,8 +185,8 @@ for($pSo=0; $pSo<$JSON['config']['soEnds']; $pSo++ ) {
 
     }
 
-	$JSON['scoreL'].='<td class="Center" colspan="' . $JSON['config']['arrows'] . '">';
-	$JSON['scoreR'].='<td class="Center" colspan="' . $JSON['config']['arrows'] . '">';
+	//$JSON['scoreL'].='<td class="Center" colspan="' . $JSON['config']['arrows'] . '">';
+	//$JSON['scoreR'].='<td class="Center" colspan="' . $JSON['config']['arrows'] . '">';
 	for ($i = 0; $i < $JSON['config']['so']; $i++) {
 		if($JSON['isAlternate']) {
 			if($ShootsFirstR) {
@@ -236,13 +201,17 @@ for($pSo=0; $pSo<$JSON['config']['soEnds']; $pSo++ ) {
             $tabIndexR=$JSON['config']['ends']*$JSON['config']['arrows']*2 + 3*$JSON['config']['so'] + $pSo*$JSON['config']['so'] + $i + $JSON['config']['so'] +1;
 		}
 		$arIndex=$pSo*$JSON['config']['so'] + $i;
-		$JSON['scoreL'].='<div class="arrowcell"><input type="text" id="Arrow['.$MatchIdL.'][1]['.$pSo.']['.$i.']" tabindex="'.($TabIndexOffset + $tabIndexL).'" onfocus="selectArrow(this)" onblur="updateArrow(this)" value="'.(strlen($Match['tiebreak'])>$arIndex ? trim(DecodeFromLetter($Match['tiebreak'][$arIndex])) : '').'">'.
-            ($pSo == ($JSON['config']['soEnds']-1) ? '<div class="newSoNeeded" style="display: none;"><input type="button" value="*"  onclick="addStar(\'Arrow['.$MatchIdL.'][1]['.$pSo.']['.$i.']\')"><input type="button" value="+1" onclick="addPoint(\'Arrow['.$MatchIdL.'][1]['.$pSo.']['.$i.']\')"></div>' : ''). '</div>';
-		$JSON['scoreR'].='<div class="arrowcell"><input type="text" id="Arrow['.$MatchIdR.'][1]['.$pSo.']['.$i.']" tabindex="'.($TabIndexOffset + $tabIndexR).'" onfocus="selectArrow(this)" onblur="updateArrow(this)" value="'.(strlen($Match['oppTiebreak'])>$arIndex ? trim(DecodeFromLetter($Match['oppTiebreak'][$arIndex])):'').'">'.
-            ($pSo == ($JSON['config']['soEnds']-1) ? '<div class="newSoNeeded" style="display: none;"><input type="button" value="*"  onclick="addStar(\'Arrow['.$MatchIdR.'][1]['.$pSo.']['.$i.']\')"><input type="button" value="+1"  onclick="addPoint(\'Arrow['.$MatchIdR.'][1]['.$pSo.']['.$i.']\')"></div>' : ''). '</div>';
+		//$JSON['scoreL'].='<td class="arrowcell" colspan="'.($JSON['config']['arrows']/$JSON['config']['so']).'"><input type="text" id="Arrow['.$MatchIdL.'][1]['.$pSo.']['.$i.']" tabindex="'.($TabIndexOffset + $tabIndexL).'" onfocus="selectArrow(this)" onblur="updateArrow(this)" value="'.(strlen($Match['tiebreak'])>$arIndex ? trim(DecodeFromLetter($Match['tiebreak'][$arIndex])) : '').'">'.
+        //    ($pSo == ($JSON['config']['soEnds']-1) ? '<div class="newSoNeeded" style="display: none;"><input type="checkbox" onclick="toggleClosest(this)" ref="'.$MatchIdL.'">'.get_text('ClosestShort', 'Tournament').'<input type="button" value="+1" onclick="addPoint(\'Arrow['.$MatchIdL.'][1]['.$pSo.']['.$i.']\')"></div>' : ''). '</td>';
+		//$JSON['scoreR'].='<td class="arrowcell" colspan="'.($JSON['config']['arrows']/$JSON['config']['so']).'"><input type="text" id="Arrow['.$MatchIdR.'][1]['.$pSo.']['.$i.']" tabindex="'.($TabIndexOffset + $tabIndexR).'" onfocus="selectArrow(this)" onblur="updateArrow(this)" value="'.(strlen($Match['oppTiebreak'])>$arIndex ? trim(DecodeFromLetter($Match['oppTiebreak'][$arIndex])):'').'">'.
+        //    ($pSo == ($JSON['config']['soEnds']-1) ? '<div class="newSoNeeded" style="display: none;"><input type="checkbox" onclick="toggleClosest(this)" ref="'.$MatchIdR.'">'.get_text('ClosestShort', 'Tournament').'<input type="button" value="+1"  onclick="addPoint(\'Arrow['.$MatchIdR.'][1]['.$pSo.']['.$i.']\')"></div>' : ''). '</td>';
+		$JSON['scoreL'].='<td class="arrowcell" colspan="'.($JSON['config']['arrows']/$JSON['config']['so']).'"><input type="text" id="Arrow['.$MatchIdL.'][1]['.$pSo.']['.$i.']" tabindex="'.($TabIndexOffset + $tabIndexL).'" onfocus="selectArrow(this)" onblur="updateArrow(this)" value="'.(strlen($Match['tiebreak'])>$arIndex ? trim(DecodeFromLetter($Match['tiebreak'][$arIndex])) : '').'"></td>';
+		$JSON['scoreR'].='<td class="arrowcell" colspan="'.($JSON['config']['arrows']/$JSON['config']['so']).'"><input type="text" id="Arrow['.$MatchIdR.'][1]['.$pSo.']['.$i.']" tabindex="'.($TabIndexOffset + $tabIndexR).'" onfocus="selectArrow(this)" onblur="updateArrow(this)" value="'.(strlen($Match['oppTiebreak'])>$arIndex ? trim(DecodeFromLetter($Match['oppTiebreak'][$arIndex])):'').'"></td>';
 	}
 	$JSON['scoreL'] .= '<td class="Bold" id="EndTotalL_SO_'.$pSo.'">'.(array_key_exists($pSo,$Match['tiebreakDecoded']) ? $Match['tiebreakDecoded'][$pSo] : '').'</td>';
 	$JSON['scoreR'] .= '<td class="Bold" id="EndTotalR_SO_'.$pSo.'">'.(array_key_exists($pSo,$Match['oppTiebreakDecoded']) ? $Match['oppTiebreakDecoded'][$pSo] : '').'</td>';
+	//$JSON['scoreL'].='</td>';
+	//$JSON['scoreR'].='</td>';
 
     if($pSo==0) {
         if ($Section['meta']['matchMode']) {
@@ -256,12 +225,49 @@ for($pSo=0; $pSo<$JSON['config']['soEnds']; $pSo++ ) {
         }
     }
 
-	$JSON['scoreL'].='</td>';
-	$JSON['scoreR'].='</td>';
 	$JSON['scoreL'].='</tr>';
 	$JSON['scoreR'].='</tr>';
 }
 
+// Star Raising row for normal arrows
+$JSON['scoreL'].='<tbody class="StarRaiserArrows">';
+$JSON['scoreR'].='<tbody class="StarRaiserArrows">';
+$JSON['scoreL'].='<tr class="SoRaiser"><td class="Alternate"></td><td></td>';
+$JSON['scoreR'].='<tr class="SoRaiser"><td class="Alternate"></td><td></td>';
+for($i=0;$i<$JSON['config']['arrows'];$i++) {
+	$JSON['scoreL'].='<td><input type="button" ref="" value="+1" id="Star-'.$MatchIdL.'-'.$i.'" class="Hidden" onclick="raiseStar(this)"></td>';
+	$JSON['scoreR'].='<td><input type="button" ref="" value="+1" id="Star-'.$MatchIdR.'-'.$i.'" class="Hidden" onclick="raiseStar(this)"></td>';
+}
+$JSON['scoreL'].='<td colspan="'.($Section['meta']['matchMode'] ? 3 : 2).'"><input type="button" id="StarRemoveL" ref="ScorecardL" class="Hidden" onclick="removeStars(this)" value="'.get_text('RemoveStars', 'Tournament').'"></td>';
+$JSON['scoreR'].='<td colspan="'.($Section['meta']['matchMode'] ? 3 : 2).'"><input type="button" id="StarRemoveR" ref="ScorecardR" class="Hidden" onclick="removeStars(this)" value="'.get_text('RemoveStars', 'Tournament').'"></td>';
+$JSON['scoreL'].='</tr>';
+$JSON['scoreR'].='</tr>';
+$JSON['scoreL'].='</tbody>';
+$JSON['scoreR'].='</tbody>';
+
+// Star Raising row for SO arrows and Closest to Center
+$JSON['scoreL'].='<tbody class="StarRaiserSO">';
+$JSON['scoreR'].='<tbody class="StarRaiserSO">';
+$JSON['scoreL'].='<tr class="SoRaiser"><td class="Alternate"></td><td></td>';
+$JSON['scoreR'].='<tr class="SoRaiser"><td class="Alternate"></td><td></td>';
+for($i=0;$i<$JSON['config']['so'];$i++) {
+	$JSON['scoreL'].='<td colspan="'.($JSON['config']['arrows']/$JSON['config']['so']).'"><input type="button" ref="" value="+1" id="StarSO-'.$MatchIdL.'-'.$i.'" class="Hidden" onclick="raiseStar(this)"></td>';
+	$JSON['scoreR'].='<td colspan="'.($JSON['config']['arrows']/$JSON['config']['so']).'"><input type="button" ref="" value="+1" id="StarSO-'.$MatchIdR.'-'.$i.'" class="Hidden" onclick="raiseStar(this)"></td>';
+}
+$JSON['scoreL'].='<td colspan="'.($Section['meta']['matchMode'] ? 3 : 2).'">
+	<input type="button" id="StarSORemoveL" ref="ScorecardL" class="Hidden" onclick="removeStars(this)" value="'.get_text('RemoveStars', 'Tournament').'">
+	<span class="ClosestSpan"><input id="ClosestL" class="Closest" type="checkbox" onclick="toggleClosest(this)" value="'.$MatchIdL.'"'.($Match['closest'] ? ' checked="checked"' : '').'>'.get_text('ClosestShort', 'Tournament').'</span>
+	</td>';
+$JSON['scoreR'].='<td colspan="'.($Section['meta']['matchMode'] ? 3 : 2).'">
+	<input type="button" id="StarSORemoveR" ref="ScorecardR" class="Hidden" onclick="removeStars(this)" value="'.get_text('RemoveStars', 'Tournament').'">
+	<span class="ClosestSpan"><input id="ClosestR" class="Closest" type="checkbox" onclick="toggleClosest(this)" value="'.$MatchIdR.'"'.($Match['oppClosest'] ? ' checked="checked"' : '').'>'.get_text('ClosestShort', 'Tournament').'</span>
+	</td>';
+$JSON['scoreL'].='</tr>';
+$JSON['scoreR'].='</tr>';
+$JSON['scoreL'].='</tbody>';
+$JSON['scoreR'].='</tbody>';
+
+// Last row: Confirm End, New SO...
 $JSON['scoreL'].='<tr><td align="center" colspan="'.(6+$JSON['config']['arrows']).'">'.
 	'<input '.(($Match['status'] & 1) ? 'disabled="disabled"' : '').' type="button" id="confirm['.$MatchIdL.']" ref="ConfirmL" onclick="ConfirmEnd(this)" value="'.get_text('ConfirmEnd', 'Tournament').'">'.
 	'<input class="newSoNeeded" style="display: none; margin-left: 10px;" type="button" onclick="buildScorecard()" value="'.get_text('NewSORequired', 'Tournament').'"></td>'.
@@ -324,6 +330,16 @@ if($Arrows) {
 	$JSON['targetSize']=$target->Diameter;
 	$JSON['targetZoom']=round(sqrt($target->TargetRadius)/7, 1);
 	$JSON['target']=$target->OutputStringSVG();
+}
+
+// check if it is a show match...
+if(isset($Section['meta']['elimType']) and $Section['meta']['elimType']==3 and $MatchIdL==128) {
+	$JSON['move2next'] = '<select id="moveWinner" onchange="moveToNextPhase(this.value)">
+		<option value="0">'.get_text('Select','Tournament').'</option>
+		<option value="A">'.get_text('MoveWinner2PoolA','Tournament').'</option>
+		<option value="B">'.get_text('MoveWinner2PoolB','Tournament').'</option></select>';
+} else {
+	$JSON['move2next']='<input type="button" id="moveWinner" onclick="moveToNextPhase()" value="'.get_text('MoveWinner2NextPhase','Tournament').'">';
 }
 
 JsonOut($JSON);

@@ -21,9 +21,17 @@ if($_FILES and !empty($_FILES['Gara']['tmp_name'])){
 
 	include('Common/Fun_TourDelete.php');
 
-	$TourId = getIdFromCode(tour_getCode($_FILES['Gara']['tmp_name']));
+
+	$TourId = getIdFromCode(($importedToCode = tour_getCode($_FILES['Gara']['tmp_name'])));
 	if($TourId ) {
         checkACL(AclRoot, AclReadWrite, true, $TourId);
+    }
+
+    if($CFG->USERAUTH AND !empty($_SESSION['AUTH_ENABLE']) AND empty($_SESSION['AUTH_ROOT'])) {
+        if(!in_array($importedToCode,$_SESSION["AUTH_COMP"])){
+            CD_redirect($CFG->ROOT_DIR);
+            exit;
+        }
     }
 
 	$TourId = tour_import($_FILES['Gara']['tmp_name']);

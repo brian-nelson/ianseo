@@ -3,7 +3,7 @@ require_once(dirname(dirname(__FILE__)) . '/config.php');
 
 $PAGE_TITLE=get_text('MenuLM_TV Channels');
 $JS_SCRIPT=array(
-	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-2.1.4.min.js"></script>',
+	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 	'<script type="text/javascript" src="./ChannelSetup.js"></script>'
 );
 

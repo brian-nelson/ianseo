@@ -1,5 +1,22 @@
 <?php
 $lang['Aggiorna']='Güncelle';
+$lang['CA-C']='Makaralı Yay';
+$lang['CA-Cl-M']='Erkek';
+$lang['CA-Cl-W']='Kadın';
+$lang['CA-Ev-CM']='Makaralı Yay Erkek';
+$lang['CA-Ev-CMT']='Makaralı Yay Erkek Takım';
+$lang['CA-Ev-CW']='Makaralı Yay Kadın';
+$lang['CA-Ev-CWT']='Makaralı Yay Kadın Takım';
+$lang['CA-Ev-CX']='Makaralı Yay Karışık Takım';
+$lang['CA-Ev-MT']='Ekek Takım';
+$lang['CA-Ev-RM']='Klasik Yay Erkek';
+$lang['CA-Ev-RMT']='Klasik Yay Erkek Takım';
+$lang['CA-Ev-RW']='Klasik Yay Kadın';
+$lang['CA-Ev-RWT']='Klasik Yay Kadın Takım';
+$lang['CA-Ev-RX']='Klasik Yay Karışık Takım';
+$lang['CA-Ev-WT']='Kadın Takım';
+$lang['CA-R']='Klasik Yay';
+$lang['CA-T']='Geleneksel';
 $lang['CmdSearch']='Modül bul';
 $lang['Create']='oluştur';
 $lang['CreateDescr']='Tercüme edilmiş dosyayı oluşturmanız gerekmektedir';

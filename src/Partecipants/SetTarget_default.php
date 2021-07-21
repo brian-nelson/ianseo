@@ -22,10 +22,11 @@
 <?php
 	$QueryString = $_SERVER['QUERY_STRING'];
 	$Arr = explode('&',$QueryString);
-	foreach ($Arr as $Key => $Value)
-	{
+	foreach ($Arr as $Key => $Value) {
 		list($ff,$vv)=explode('=',$Value);
-		print '<input type="hidden" name="' . $ff . '" value="' . $vv . '">';
+		if($ff!='Event') {
+		    print '<input type="hidden" name="' . $ff . '" value="' . $vv . '">';
+		}
 	}
 ?>
 <table class="Tabella">
@@ -107,7 +108,7 @@
 			. "INNER JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament "
 			. "WHERE EnTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EnAthlete=1  "
 			. ($_REQUEST['Ses']!='*' ? "AND QuSession in (0," . intval($_REQUEST['Ses']) . ") " : ' ') ;
-			if(isset($_REQUEST["Event"]) && preg_match("/^[0-9A-Z_]{1,4}$/i",$_REQUEST["Event"]))
+			if(isset($_REQUEST["Event"]) && preg_match("/^[0-9A-Z%_]{1,4}$/i",$_REQUEST["Event"]))
 				$Select.= " AND CONCAT(TRIM(EnDivision),TRIM(EnClass)) LIKE " . StrSafe_DB($_REQUEST["Event"]). " ";
 			//. "ORDER BY QuSession ASC,QuTargetNo ASC ";
 			$Select.= "ORDER BY " . $OrderBy;

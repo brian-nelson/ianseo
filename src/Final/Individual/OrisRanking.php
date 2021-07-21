@@ -11,10 +11,12 @@ $EventRequested=(!empty($EventRequested) ? $EventRequested : '');
 
 $PdfData=getRankingIndividual($EventRequested, true);
 
-if(!isset($isCompleteResultBook))
+if(!isset($isCompleteResultBook)) {
 	$pdf = new OrisPDF('C76A', $PdfData->Description);
-else
+} else {
 	$pdf->setOrisCode('', $PdfData->Description);
+	$pdf->SetAutoPageBreak(true,(OrisPDF::bottomMargin+$pdf->extraBottomMargin));
+}
 
 require_once(PdfChunkLoader('OrisRankIndividual.inc.php'));
 

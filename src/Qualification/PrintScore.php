@@ -27,6 +27,7 @@
 
 	$JS_SCRIPT=array(
 		phpVars2js(array('MsgAreYouSure' => get_text('MsgAreYouSure'), "nDist"=> $RowTour->TtNumDist)),
+		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/ajax/ObjXMLHttpRequest.js"></script>',
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/Fun_JS.inc.js"></script>',
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Qualification/Fun_AJAX_index.js"></script>',
@@ -50,7 +51,7 @@
     		}
 		
             function CheckAction() {
-                var action="' . ($RowTour->TtElabTeam==0 ? 'PDFScore.php' : ($RowTour->TtElabTeam==1 ? 'PDFScoreField.php' : 'PDFScore3D.php')) . '";
+                var action="PDFScore.php";
                 if(document.getElementById("ScoreCollector") && document.getElementById("ScoreCollector").checked) {
                     action="PDFScoreCollect.php";
                     if(document.getElementById("ScoreCollector6").checked) action="PDFScoreCollect.php?arr=6";
@@ -73,6 +74,7 @@
                 }
             }
 		</script>',
+		'<style>#x_Coalesce_div {display:inline-block;margin-left:2em;vertical-align:middle;text-align: left;}#x_Coalesce_div div {font-size:0.8em}</style>'
 		);
 
 	$PAGE_TITLE=get_text('PrintScore', 'Tournament');
@@ -92,9 +94,7 @@
 	echo '<input name="ScoreDraw" type="radio" value="Data" onClick="manageDistances(true);">&nbsp;' . get_text('ScoreData','Tournament') . '<br>';
 	echo '<input name="ScoreDraw" type="radio" value="TargetNo" onClick="manageDistances(true);">&nbsp;' . get_text('ScoreTargetNo','Tournament') . '<br>';
 	echo '<input name="ScoreDraw" type="radio" value="Draw" onClick="manageDistances(true);">&nbsp;' . get_text('ScoreDrawing') . '<br>';
-	echo '<input name="ScoreDraw" type="radio" value="Single" onClick="manageDistances(true);">&nbsp;' . get_text('ScoreSingle','Tournament') . '<br>';
 	echo '<input name="ScoreDraw" type="radio" value="FourScoresNFAA" onClick="manageDistances(true);">&nbsp;' . get_text('FourScoresNFAA','Tournament') . '<br>';
-    echo '<input name="ScoreDraw" type="radio" value="SinglAllDistances" onClick="manageDistances(false);">&nbsp;' . get_text('ScoreSingleAllDistances','Tournament') . '<br>';
 	if($RowTour->TtElabTeam==0) {
 		echo '<input name="ScoreCollector" id="ScoreCollector" type="checkbox" value="Collector">&nbsp;' . get_text('ScoreCollector', 'Tournament') ;
 		echo '<input name="ScoreCollectorArrows" id="ScoreCollector6" type="radio" value="6" checked="checked">6 - ';
@@ -111,17 +111,16 @@
 		echo '<input name="ScoreBarcode" type="checkbox" checked value="1" >&nbsp;' . get_text('ScoreBarcode','Tournament') . '<br>';
 	}
 	foreach(AvailableApis() as $Api) {
-		if(!($tmp=getModuleParameter($Api, 'Mode')) || $tmp=='live' ) {
+		if(!($tmp=getModuleParameter($Api, 'Mode')) || $tmp=='live') {
 			continue;
 		}
-		echo '<input name="QRCode[]" type="checkbox" checked value="'.$Api.'" >&nbsp;' . get_text($Api.'-QRCode','Api') . '<br>';
+		echo '<input name="QRCode[]" type="checkbox" '.($tmp=='pro' ? '' : 'checked="checked"').' value="'.$Api.'" >&nbsp;' . get_text($Api.'-QRCode','Api') . '<br>';
 	}
-	if($RowTour->TtElabTeam==0)
-	{
+	if($RowTour->TtElabTeam==0) {
 		if($RowTour->TtElabTeam==0) echo '&nbsp;<br>';
+	}
 		echo '&nbsp;<br>';
 		echo '<input name="PersonalScore" type="checkbox" value="1" >&nbsp;' . get_text('Score1PageAllDist','Tournament') . '<br>';
-	}
 	echo '</td>';
 	echo '</tr>';
 
@@ -140,7 +139,7 @@
 		echo '<tr>';
 		echo '<td colspan="2" align="Center"><br>';
 		echo '<input type="hidden" name="chk_BlockAutoSave" id="chk_BlockAutoSave" value="1">';
-		echo get_text('Session') . '&nbsp;<select name="x_Session" id="x_Session" onChange="javascript:SelectSession();">' . "\n";
+		echo get_text('Session') . '&nbsp;<select name="x_Session" id="x_Session" onChange="SelectSession_JSON(this)">' . "\n";
 		echo '<option value="-1">---</option>' . "\n";
 		foreach ($sessions as $s)
 		{
@@ -154,6 +153,7 @@
 		echo  get_text('To','Tournament') . '&nbsp;<input type="text" name="x_To" id="x_To" size="5" maxlength="' . (TargetNoPadding +1) . '" value="' . (isset($_REQUEST['x_To']) ? $_REQUEST['x_To'] : '') . '">';
 		echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 		echo '<input id="x_noEmpty" name="noEmpty" type="checkbox" value="1">' . get_text('StartlistSessionNoEmpty', 'Tournament');
+		echo '<div id="x_Coalesce_div"></div>';
 // 		if($RowTour->ToCategory==8) {
 // 			// 3D => 2 Arrows score!;
 // 			echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
@@ -162,7 +162,7 @@
 		echo '</td>';
 		echo '</tr>';
 //Distanze
-		if($RowTour->TtElabTeam==0)	{
+		if(true or $RowTour->TtElabTeam==0)	{
 			echo '<tr><th class="SubTitle" colspan="2">' . get_text('Distance','Tournament')  . '</th></tr>';
 			echo '<tr>';
 			echo '<td colspan="2" align="Center"><br>';

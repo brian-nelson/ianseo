@@ -10,11 +10,17 @@
 	if (isset($_REQUEST['TourCode']))
 		$TourId=getIdFromCode($_REQUEST['TourCode']);
 
-	if (empty($TourId))
-	{
+	if (empty($TourId)) {
 		print get_text('CrackError');
 		exit;
 	}
+
+    if($CFG->USERAUTH AND !empty($_SESSION['AUTH_ENABLE']) AND empty($_SESSION['AUTH_ROOT'])) {
+        if(!in_array(getCodeFromId($TourId),$_SESSION["AUTH_COMP"])){
+            CD_redirect($CFG->ROOT_DIR);
+            exit;
+        }
+    }
 
 	include('Common/Fun_Export.php');
 

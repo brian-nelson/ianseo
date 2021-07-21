@@ -9,7 +9,7 @@ require_once('Common/Lib/ArrTargets.inc.php');
 
 $JS_SCRIPT=array(
     //'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/ajax/ObjXMLHttpRequest.js"></script>',
-    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/jQuery/jquery-3.2.1.min.js"></script>',
+    '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
     '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Final/Individual/Fun_AJAX_SetEventRules.js"></script>',
     //'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/Fun_JS.inc.js"></script>',
     //'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Final/Individual/Fun_JS.js"></script>',
@@ -126,6 +126,7 @@ if (safe_num_rows($RsEv)==1 and $RowEv=safe_fetch($RsEv)) {
 	echo '<th>'.get_text('EventWinnerFinalRank', 'Tournament').'</th>';
 	echo '<th>'.get_text('WaCategory', 'Tournament').'</th>';
 	echo '<th>'.get_text('RecordCategory', 'Tournament').'</th>';
+	echo '<th>'.get_text('OdfEventCode', 'ODF').'</th>';
     echo '</tr>';
 
     echo '<tr>';

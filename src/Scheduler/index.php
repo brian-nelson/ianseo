@@ -90,6 +90,7 @@ if(!empty($_REQUEST['ods'])) {
 $edit=(empty($_REQUEST['key']) ? '' : preg_replace('#[^0-9:| -]#sim', '', $_REQUEST['key']));
 
 $JS_SCRIPT=array(
+	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/ajax/ObjXMLHttpRequest.js"></script>',
 	'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Scheduler/Fun_AJAX_Scheduler.js"></script>',
 	'<link href="'.$CFG->ROOT_DIR.'Scheduler/Scheduler.css" media="screen" rel="stylesheet" type="text/css">',
@@ -106,7 +107,7 @@ echo '<table class="Tabella">
 	<tr class="Divider"><td colspan="10"></td></tr>
 	<tr class="Divider"><td colspan="3"><form action="./PrnScheduler.php" target="PDF">
 			<b>'.get_text('MenuLM_PrintScheduling').' (<a href="'.$CFG->ROOT_DIR.'Final/ManTraining.php" target="Warmup">'.get_text('MenuLM_Training').'</a>):</b><br/>
-			<input type="checkbox" name="Finalists">'.get_text('SchIncFinalists','Tournament').'&nbsp;&nbsp;
+			<input type="checkbox" name="Finalists" checked="checked">'.get_text('SchIncFinalists','Tournament').'&nbsp;&nbsp;
 			<input type="checkbox" name="Ranking">'.get_text('SchAddRank','Tournament').'&nbsp;&nbsp;
 			<input type="checkbox" name="Daily">'.get_text('DailySchedule', 'Tournament').'&nbsp;&nbsp;
 			<input type="checkbox" name="NoLocations">'.get_text('NoLocations', 'Tournament').'&nbsp;&nbsp;

@@ -13,13 +13,13 @@ if(isset($_REQUEST['CompCode']) && preg_match("/^[a-z0-9_.-]+$/i", $_REQUEST['Co
 
 $json_array=array("Error"=>1, "Info"=>"");
 
-$speed = 0;
+$speed = '0.0';
 $unit = '';
 $direction = 0;
 
 
 if(isset($_REQUEST['Speed']) AND preg_match("/^[0-9.]+$/", $_REQUEST['Speed'])) {
-    $speed = round(floatval($_REQUEST['Speed']),1);
+    $speed = number_format($_REQUEST['Speed'],1);
     if(isset($_REQUEST['Unit']) AND preg_match("/^(m\/s|km\/h|fps|mph)$/i", $_REQUEST['Unit'])) {
         $unit = mb_convert_case($_REQUEST['Unit'],MB_CASE_LOWER);
         if(isset($_REQUEST['Direction']) AND preg_match("/^[0-9]+$/", $_REQUEST['Direction'])) {

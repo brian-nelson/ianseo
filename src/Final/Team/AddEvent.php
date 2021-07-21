@@ -33,9 +33,10 @@
     }
 
     $Insert
-        = "INSERT INTO Events (EvCode,EvTeamEvent,EvTournament,EvEventName,EvProgr,EvShootOff,EvFinalFirstPhase, EvNumQualified, EvFinalTargetType,EvTargetSize,EvDistance,EvMatchMode) "
+        = "INSERT INTO Events (EvCode,EvIsPara,EvTeamEvent,EvTournament,EvEventName,EvProgr,EvShootOff,EvFinalFirstPhase, EvNumQualified, EvFinalTargetType,EvTargetSize,EvDistance,EvMatchMode) "
         . "VALUES("
         . StrSafe_DB($_REQUEST['New_EvCode']) . ","
+        . (empty($_REQUEST['New_EvIsPara']) ? 0 : 1) . ","
         . StrSafe_DB('1') . ","
         . StrSafe_DB($_SESSION['TourId']) . ","
         . StrSafe_DB($_REQUEST['New_EvEventName']) . ","
@@ -59,7 +60,7 @@
 
     $values=array(
         0 => "EvElimEnds=4,EvElimArrows=6,EvElimSO=3,EvFinEnds=4,EvFinArrows=6,EvFinSO=3 ",
-        1 => "EvElimEnds=4,EvElimArrows=6,EvElimSO=3,EvFinEnds=6,EvFinArrows=6,EvFinSO=3 "
+        1 => "EvElimEnds=4,EvElimArrows=6,EvElimSO=3,EvFinEnds=4,EvFinArrows=6,EvFinSO=3 "
     );
 
     $MySql = "UPDATE "

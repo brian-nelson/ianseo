@@ -2,6 +2,9 @@
 $lang['Activate']='Ativar';
 $lang['BoinxLayer']='Camada do Boinx (layer)';
 $lang['BoinxSchedule']='Agendador de camadas do Boinx';
+$lang['CssVegasSOTarget']='Alvo';
+$lang['CssWindSpeed']='Painel de Velocidade do Vento';
+$lang['DirNotWriteable']='O Diretório está protegido contra escrita';
 $lang['Download']='Download';
 $lang['HowToUse']='Como integrar o Ianseo e o Boinx';
 $lang['IanseoStanding.qtz']='Chamada para Cerimônia de Premiação. Medalhas e Nomes dos Vencedores (virão em pouco tempo) direto do Ianseo.';
