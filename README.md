@@ -15,21 +15,14 @@ software is http://www.ianseo.net/index.php.
 At the time of the creation of this repository 10/17/2015 we were unable
 to locate an repository from which to fork so this repo was created.
 
-This repo has been updated with the 07/01/2019 IANSEO source.
-
-
-### Goal of this Repository
-
-This repo is currently focused on developing utilities and extensions to
-the base IANSEO software.  See the utilities and modules section for the
-extensions that are currently  being developed.
-
-### Note by ecelis
+##### Notes by ecelis
 
 My fork is a fork from `brian-nelson/ianseo` but mixed with the official
 release, since there seem to be missing some files in Brian's
 repository. So it will be a mess until I figure out why and somehow get
 in sync with the original sources.
+
+This fork is also focused on running ianseo in Docker.
 
 ## Set up
 
@@ -37,17 +30,26 @@ In order to run ianseo in docker and keep secrets safe some
 configuration values are read from environment variables on the host
 running the software.
 
-**IANSEO_R_HOST**, Read host
-**IANSEO_R_USER**, Read user
-**IANSEO_R_PASS**, Read password
-**IANSEO_W_HOST**, Write host
-**IANSEO_W_USER**, Read user
-**IANSEO_W_PASS**, Read password
-**IANSEO_DB**, The database name
+- **IANSEO_R_HOST**, Read host
+- **IANSEO_R_USER**, Read user
+- **IANSEO_R_PASS**, Read password
+- **IANSEO_W_HOST**, Write host
+- **IANSEO_W_USER**, Read user
+- **IANSEO_W_PASS**, Read password
+- **IANSEO_DB**, The database name
 
 You can copy the `env.sample` file to `.env` and edit it to suit your
 environment.
 
+### Podman
+
+```
+podman pod create --name ianseo-pod -p 8080:80
+podman run --name ianseodb --pod ianseo-pod --env-file=.env -d mariadb:10
+podman run --name ianseo --pod ianseo-pod --env-file=.env -d arqueria/ianseo
+```
+
+Browse to http://127.0.0.1:8080/ianseo/
 
 ### Docker
 
@@ -60,14 +62,11 @@ creation of the database.
 
 ```
 docker run -d --name ianseodb \
-    -e MYSQL_ROOT_PASSWORD=verysecret \
-    -e MYSQL_DATABASE=ianseo \
-    -e MYSQL_USER=ianseo \
-    -e MYSQL_PASSWORD=ianseo \
+    --env-file=.env \
     -v /srv/ianseo:/var/lib/mysql \
     -v "$(pwd)/src/Install":/docker-entrypoint-initdb.d \
     -p 3306:3306 \
-    mariadb:5.5
+    mariadb:10
 ```
 
 Now launch the ianseo container linked to the database container. Some
@@ -82,3 +81,15 @@ docker run -it --name ianseo \
 ```
 
 Browse to http://127.0.0.1:8080/ianseo/
+
+## Build the docker image
+
+```
+podman build -t arqueria/ianseo .
+```
+
+or
+
+```
+docker build -t arqueria/ianseo
+```
