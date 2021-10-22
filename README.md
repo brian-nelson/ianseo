@@ -32,7 +32,9 @@ First launch a MariaDB (MySQL) container. We will mount a host's
 directory to keep the database files.
 
 ```
-docker run -d --name ianseodb -e MARIADB_ROOT_PASSWORD=my-secret-pw mariadb:10
+docker run -d --name ianseodb -e MARIADB_USER=ianseo \
+  -e MARIADB_DATABASE=ianseo -e MARIADB_PASSWORD=ianseo \
+  -e MARIADB_ROOT_PASSWORD=ianseo mariadb:10
 ```
 
 Now launch the ianseo container linked to the database container. Some
@@ -59,5 +61,5 @@ To learn more about MariaDB optional environment variables go here https://hub.d
 ## Build the docker image
 
 ```
-docker build -t arqueria/ianseo
+docker build -t arqueria/ianseo .
 ```
