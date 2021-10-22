@@ -19,8 +19,6 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install zip \
     && yes '' | pecl install mcrypt-1.0.2 \
     && yes '' | pecl install imagick \
-#    && sh -c "echo -e '\n' | pecl install mcrypt-1.0.2" \
-#    && sh -c "echo -e '\n' | pecl install imagick" \
     && docker-php-ext-enable mcrypt imagick \
     && apt-get clean all
 # ianseo setup
