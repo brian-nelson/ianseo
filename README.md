@@ -47,6 +47,8 @@ docker run -d --name ianseo --link ianseodb:mysql -p 8080:80 arqueria/ianseo
 
 Browse to http://127.0.0.1:8080/ianseo/
 
+**Use the same value as the MariaDB container for Host** in the **Step 2: Database connection data** while installing Ianseo. `ianseodb` in the example above. Ianseo has a default of `localhost` change it.
+
 ## Environment Variables
 
 One of `MARIADB_ROOT_PASSWORD`, `MARIADB_ALLOW_EMPTY_ROOT_PASSWORD`, or `MARIADB_RANDOM_ROOT_PASSWORD` (or equivalents, including `*_FILE`), is required.
