@@ -1,0 +1,37 @@
+name: ianseo-automation
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.*'
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  release:
+    permissions:
+      contents: write
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set RELEASE_VERSION ENV var
+        run: echo "RELEASE_VERSION=${GITHUB_REF:10}" >> $GITHUB_ENV
+      - name: generate release notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X POST 'repos/{owner}/{repo}/releases/generate-notes' \
+            -F commitish=${{ env.RELEASE_VERSION }} \
+            -F tag_name=${{ env.RELEASE_VERSION }} \
+            > tmp-release-notes.json
+      - name: create release
+        env:
+          OUT_BASE: ./bin/${{ env.RELEASE_VERSION }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          jq -r .body tmp-release-notes.json > tmp-release-notes.md
+          gh release create ${{ env.RELEASE_VERSION }} \
+            -t "$(jq -r .name tmp-release-notes.json)" \
+            -F tmp-release-notes.md
