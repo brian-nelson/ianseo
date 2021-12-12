@@ -60,6 +60,5 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: |
-            ghcr.io/ecelis/ianseo:${{ env.RELEASE_VERSION }}
-            ghcr.io/ecelis/ianseo:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
