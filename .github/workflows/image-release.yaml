@@ -2,7 +2,7 @@ name: release image
 on:
   push:
     tags:
-      - 'image-v*' # push events for tags matching image-v for version (image-v1.0, etc)
+      - '[0-9]+.[0-9]+.*' # push events for tags matching image-v for version (image-v1.0, etc)
 permissions:
   contents: read
   packages: write
