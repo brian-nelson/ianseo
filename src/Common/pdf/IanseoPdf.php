@@ -110,7 +110,7 @@ class IanseoPdf extends TCPDF {
 		$this->SetFont($this->FontStd,'',8);
 		$this->SetLineWidth(0.1);
 		$this->pushMargins();
-		$this->setFontSubsetting(empty($r) ? false : ($r->ToPrintChars >= 2));
+		$this->setFontSubsetting(empty(($tmp) OR empty($tmp->ToPrintChars)) ? false : ($tmp->ToPrintChars >= 2));
 		$this->setViewerPreferences(array('PrintScaling' => 'none'));
 	}
 

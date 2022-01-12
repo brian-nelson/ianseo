@@ -147,7 +147,7 @@ if(empty($_REQUEST["Download"])
 	}
 	echo '<tr><th colspan="8">';
 	echo '<input type="checkbox" name="PrevWaId"'.(empty($_REQUEST['PrevWaId'])? '' : ' checked="checked"').' onclick="window.location.href=\''.basename(__FILE__).'?CatWaId=\'+document.getElementById(\'CatWaId\').value+\''.(empty($_REQUEST['PrevWaId'])? '&PrevWaId=on' : '').'\'">'.get_text('CheckWaIds','Tournament');
-	echo '&nbsp;-&nbsp;'.get_text('FilterOnDivCl', 'Tournament').':&nbsp;<input type="text" size="8" maxlength="4" value="'.(empty($_REQUEST['CatWaId'])? '' : $_REQUEST['CatWaId']).'" id="CatWaId" onchange="window.location.href=\''.basename(__FILE__).'?PrevWaId=on&CatWaId=\'+document.getElementById(\'CatWaId\').value">';
+	echo '&nbsp;-&nbsp;'.get_text('FilterOnDivCl', 'Tournament').':&nbsp;<input type="text" size="12" maxlength="10" value="'.(empty($_REQUEST['CatWaId'])? '' : $_REQUEST['CatWaId']).'" id="CatWaId" onchange="window.location.href=\''.basename(__FILE__).'?PrevWaId=on&CatWaId=\'+document.getElementById(\'CatWaId\').value">';
 	echo '</th></tr>';
 	// check if there are some matching WAIDs...
 	if(!empty($_REQUEST['PrevWaId'])) {

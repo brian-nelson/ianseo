@@ -808,7 +808,9 @@ function ChangeFinComment($Request, $Team='0') {
 		foreach($Dates as $OldDate => $Times) {
 			foreach($Times as $OldTime => $WarmTimes) {
 				foreach($WarmTimes as $WarmTime => $Value) {
-					if(strlen($WarmTime)!=5) return;
+					if(strlen($WarmTime)!=5) {
+						return array('error' => 1);
+					}
 					safe_w_sql("update FinWarmup
 							set FwOptions=".StrSafe_DB($Value)."
 							where
@@ -866,23 +868,23 @@ function getScheduleTexts() {
 			<th class="Title" colspan="10">'.get_text('Z-Session', 'Tournament').'</th>
 		</tr>
 		<tr>
-			<th class="Title" width="10%"><img src="'.$CFG->ROOT_DIR.'Common/Images/Tip.png" title="'.get_Text('TipDate', 'Tournament').'" align="right">'.get_text('Date', 'Tournament').'</th>
-			<th class="Title" width="10%">'.get_text('Time', 'Tournament').'</th>
-			<th class="Title" width="10%">'.get_text('Order', 'Tournament').'</th>
-			<th class="Title" width="10%">'.get_text('Length', 'Tournament').'</th>
-			<th class="Title" width="10%">'.get_text('Delayed', 'Tournament').'</th>
-			<th class="Title" width="10%">'.get_text('Title', 'Tournament').'</th>
-			<th class="Title" width="10%">'.get_text('SubTitle', 'Tournament').'</th>
-			<th class="Title" width="10%">'.get_text('Text', 'Tournament').'</th>
-			<th class="Title" width="10%">'.get_text('Targets', 'Tournament').'<br/>#1-#N@Dist<br>[@Cat[@Face]]</th>
+			<th class="Title w-10"><img src="'.$CFG->ROOT_DIR.'Common/Images/Tip.png" title="'.get_Text('TipDate', 'Tournament').'" align="right">'.get_text('Date', 'Tournament').'</th>
+			<th class="Title w-10">'.get_text('Time', 'Tournament').'</th>
+			<th class="Title w-10">'.get_text('Order', 'Tournament').'</th>
+			<th class="Title w-10">'.get_text('Length', 'Tournament').'</th>
+			<th class="Title w-10">'.get_text('Delayed', 'Tournament').'</th>
+			<th class="Title w-10">'.get_text('Title', 'Tournament').'</th>
+			<th class="Title w-10">'.get_text('SubTitle', 'Tournament').'</th>
+			<th class="Title w-10">'.get_text('Text', 'Tournament').'</th>
+			<th class="Title w-10">'.get_text('Targets', 'Tournament').'<br/>#1-#N@Dist<br>[@Cat[@Face]]</th>
 				<th class="Title"></th>
 		</tr>';
 	$ret.= '<tr>
-			<td><input size="10" type="text" name="Fld[Day]"></td>
-			<td><input size="5"  type="text" name="Fld[Start]"></td>
-			<td><input size="3"  type="text" name="Fld[Order]"></td>
-			<td><input size="3"  type="text" name="Fld[Duration]"></td>
-			<td><input size="5"  type="text" name="Fld[Shift]"></td>
+			<td><input size="10" type="date" name="Fld[Day]"></td>
+			<td><input size="5" type="time" name="Fld[Start]"></td>
+			<td><input size="3" max="999" min="0" type="number" name="Fld[Order]"></td>
+			<td><input size="3" max="999" min="0" type="number" name="Fld[Duration]"></td>
+			<td><input size="5" max="999" min="0" type="number" name="Fld[Shift]"></td>
 			<td><input size="20" type="text" name="Fld[Title]"></td>
 			<td><input size="20" type="text" name="Fld[SubTitle]"></td>
 			<td><input size="20" type="text" name="Fld[Text]"></td>
@@ -891,11 +893,11 @@ function getScheduleTexts() {
 		</tr>';
 	while($r=safe_fetch($q)) {
 		$ret.= '<tr>
-				<td><input size="10" type="text" name="Fld[Z][Day]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.$r->SchDay.'" onchange="DiUpdate(this)"></td>
-				<td><input size="5"  type="text" name="Fld[Z][Start]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.$r->Start.'" onchange="DiUpdate(this)"></td>
-				<td><input size="3"  type="text" name="Fld[Z][Order]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.$r->SchOrder.'" onchange="DiUpdate(this)"></td>
-				<td><input size="3"  type="text" name="Fld[Z][Duration]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.$r->SchDuration.'" onchange="DiUpdate(this)"></td>
-				<td><input size="5"  type="text" name="Fld[Z][Shift]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.$r->SchShift.'" onchange="DiUpdate(this)"></td>
+				<td><input size="10" type="date" name="Fld[Z][Day]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.$r->SchDay.'" onchange="DiUpdate(this)"></td>
+				<td><input size="5" type="time" name="Fld[Z][Start]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.$r->Start.'" onchange="DiUpdate(this)"></td>
+				<td><input size="3" max="999" min="0" type="number" name="Fld[Z][Order]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.$r->SchOrder.'" onchange="DiUpdate(this)"></td>
+				<td><input size="3" max="999" min="0" type="number" name="Fld[Z][Duration]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.$r->SchDuration.'" onchange="DiUpdate(this)"></td>
+				<td><input size="5" max="999" min="0" type="number" name="Fld[Z][Shift]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.$r->SchShift.'" onchange="DiUpdate(this)"></td>
 				<td><input size="20" type="text" name="Fld[Z][Title]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.htmlentities($r->SchTitle).'" onchange="DiUpdate(this)"></td>
 				<td><input size="20" type="text" name="Fld[Z][SubTitle]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.htmlentities($r->SchSubTitle).'" onchange="DiUpdate(this)"></td>
 				<td><input size="20" type="text" name="Fld[Z][Text]['.$r->SchDay.']['.$r->SchStart.']['.$r->SchOrder.']" value="'.htmlentities($r->SchText).'" onchange="DiUpdate(this)"></td>

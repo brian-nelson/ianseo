@@ -150,7 +150,6 @@ $lang['Setup-ARLEF']='  ';
 $lang['Setup-CA']=' ';
 $lang['Setup-CH']=' ';
 $lang['Setup-Default']=' ';
-$lang['Setup-F2F']='';
 $lang['Setup-NFAA']=' ';
 $lang['Setup-NL']=' ';
 $lang['Setup-NO']='  (  )';

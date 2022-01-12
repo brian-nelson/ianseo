@@ -80,7 +80,7 @@ if(CheckTourSession()) {
 			if(!is_array($_REQUEST['Event'])) $_REQUEST['Event']= array($_REQUEST['Event']);
 
 			foreach($_REQUEST['Event'] as $event) {
-				if(preg_match("/^[0-9A-Z]{1,4}$/i",$event)) $events[]=strSafe_db($event);
+				if(preg_match("/^[0-9A-Z]+$/i",$event)) $events[]=strSafe_db($event);
 			}
 
 			if($events) {

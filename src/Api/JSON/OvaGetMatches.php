@@ -132,7 +132,10 @@ foreach($rankData['sections'] as $IdEvent => $section) {
                         $oppArrValue = array_fill(0, $objParam->so, '');
                     }
                     $oppArrValue = array_map('trim', $oppArrValue);
-
+                    for($filler=$objParam->so; $filler<$objParam->arrows; $filler++) {
+                        $arrValue[]='';
+                        $oppArrValue[]='';
+                    }
                     $end[] = array('EndNum' => 'S.O.'.strval($i+1), 'EndScore' => strval(ValutaArrowString(substr($item['tiebreak'], $i*$objParam->so, $objParam->so))),
                             'PointAssigned' => strval(($SoShot==($i+1) AND $item['tie']) ? 1 : 0), 'RunningScore' => $item['setScore'], 'ShootFirst' => ($item["shootFirst"] & pow(2, $objParam->arrows)) != 0, 'Arrows' => $arrValue);
                     $oppEnd[] = array('EndNum' => 'S.O.'.strval($i+1), 'EndScore' => strval(ValutaArrowString(substr($item['oppTiebreak'], $i*$objParam->so, $objParam->so))),
@@ -177,6 +180,10 @@ foreach($rankData['sections'] as $IdEvent => $section) {
                         $oppArrValue = array_fill(0, $objParam->so, '');
                     }
                     $oppArrValue = array_map('trim', $oppArrValue);
+                    for($filler=$objParam->so; $filler<$objParam->arrows; $filler++) {
+                        $arrValue[]='';
+                        $oppArrValue[]='';
+                    }
 
                     $end[] = array('EndNum' => 'S.O.'.strval($i+1), 'EndScore' => strval(ValutaArrowString(substr($item['tiebreak'], $i*$objParam->so, $objParam->so))),
                             'RunningScore' => strval($running[0]), 'ShootFirst' => ($item["shootFirst"] & pow(2, $objParam->arrows)) != 0, 'Arrows' => $arrValue);

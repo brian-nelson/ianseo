@@ -70,6 +70,7 @@ function searchAthletes() {
 					+"&country="+(document.getElementById("x_Country").checked ? 1 : 0)
 					+"&athlete="+(document.getElementById("x_Athlete").checked ? 1 : 0)
 					+"&noprint="+(document.getElementById("x_NoPrint").checked ? 1 : 0)
+					+"&noacc="+(document.getElementById("x_noAcc").checked ? 1 : 0)
 					+"&nophoto="+(document.getElementById("x_noPhoto").checked ? 1 : 0);
 				var srcTours=document.querySelectorAll('.x_Tours');
 				if(srcTours.length>0) {

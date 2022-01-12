@@ -146,7 +146,9 @@
 					$this->y+=45;
 					$H -= 45;
 				}
-				$this->Cell(60, $H, $MyRow->Rank, 1, 1, 'C', 0, null, 1);
+				if($MyRow->Rank) {
+					$this->Cell(60, $H, $MyRow->Rank, 1, 1, 'C', 0, null, 1);
+				}
 				$this->SetCellPaddings($tmpPad['L'], $tmpPad['T'], $tmpPad['R'], $tmpPad['B']);
 
 				// box Atleta/Country
@@ -192,7 +194,11 @@
                     }
 					for($i=2; $i<=valueFirstPhase($MyRow->GrPhase);$i=$i*2) {
 						$this->setColorArray('draw', $this->BigNameColors[$i]);
-						$this->Cell($this->BoxWidth, 10, '1/' . namePhase($MyRow->EvFinalFirstPhase,$i) . ': ' . ltrim($MyRow->{'s' . $i},'0'),1,0,'C',0);
+						if(isset($MyRow->{'s' . $i})) {
+							$this->Cell($this->BoxWidth, 10, '1/' . namePhase($MyRow->EvFinalFirstPhase,$i) . ': ' . ltrim($MyRow->{'s' . $i},'0'),1,0,'C',0);
+						} else {
+							$this->Cell($this->BoxWidth, 10, '',1,0,'C',0);
+						}
                         if(empty($MyRow->{'s' . $i})) { //} OR is_null($MyRow->{'s' . $i})) {
 						    $this->line($this->getX(), $this->getY(),$this->getX()-$this->BoxWidth, $this->GetY()+10);
                         }

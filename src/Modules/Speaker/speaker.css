@@ -66,3 +66,7 @@
 }
 
 #x_Schedule {max-width:25em; overflow:hidden;}
+
+#tbody tr:hover {
+    background-color: #FFD000;
+}

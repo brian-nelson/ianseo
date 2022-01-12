@@ -1,7 +1,7 @@
 <?php
-$version='2020-06-23 23:00:00';
+$version='2021-06-30 00:00:00';
 
-$AllowedTypes=array(1,2,3,6,7,9,11);
+$AllowedTypes=array(1,2,3,6,7,8,9,11,44);
 
 $SetType['CH']['descr']=get_text('Setup-CH', 'Install');
 $SetType['CH']['types']=array();
@@ -31,7 +31,7 @@ foreach($AllowedTypes as $val) {
 				'Set24+24');
 			break;
 		default:
-			$SetType['CH']['types']["$val"]=($val!=9 ? $TourTypes[$val] : get_text('TrgField'));
+			$SetType['CH']['types']["$val"]=$TourTypes[$val];
 
 	}
 }

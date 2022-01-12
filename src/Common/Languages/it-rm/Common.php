@@ -165,7 +165,6 @@ $lang['MenuLM_Export Text File']='Esportazzione d\'er fail de testo';
 $lang['MenuLM_Export Tournament']='Esporta Gara';
 $lang['MenuLM_Extended Table']='Tabbella Estesa';
 $lang['MenuLM_Fees setup']='Impostazzione de li Prezzi';
-$lang['MenuLM_Field Crew']='Perzonale sur Campo';
 $lang['MenuLM_Final Field of Play Layout']='Leiautte der Campo de Gara de le Finali';
 $lang['MenuLM_Final report']='Verbale Arbitri';
 $lang['MenuLM_Final Rounds']='Fasi Finali';

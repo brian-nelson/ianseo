@@ -28,14 +28,14 @@ function CreateStandardFieldEvents($TourId, $SubRule) {
 				'EvE2Ends'=>8,
 				'EvE2Arrows'=>3,
 				'EvE2SO'=>1,
-				'EvFinalAthTarget'=>0,
+				'EvFinalAthTarget'=>MATCH_NO_SEP,
 				'EvMatchArrowsNo'=>0,
 			);
 			$SettingsTeam=array(
 				'EvTeamEvent' => '1',
 				'EvFinalFirstPhase' => '4',
 				'EvFinalTargetType'=>6,
-				'EvElimEnds'=>8,
+				'EvElimEnds'=>4,
 				'EvElimArrows'=>3,
 				'EvElimSO'=>3,
 				'EvFinEnds'=>4,
@@ -52,7 +52,7 @@ function CreateStandardFieldEvents($TourId, $SubRule) {
                 'EvMixedTeam' => '1',
                 'EvFinalFirstPhase' => '4',
                 'EvFinalTargetType'=>TGT_FIELD,
-                'EvElimEnds'=>8,
+                'EvElimEnds'=>4,
                 'EvElimArrows'=>4,
                 'EvElimSO'=>2,
                 'EvFinEnds'=>4,
@@ -65,26 +65,24 @@ function CreateStandardFieldEvents($TourId, $SubRule) {
                 'EvPartialTeam'=>0
             );
             $i = 1;
-            CreateEventNew($TourId,'RM', 'Recurve männlich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'RW', 'Recurve weiblich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'CM', 'Compound männlich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'CW', 'Compound weiblich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'BM', 'Blankbogen männlich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'BW', 'Blankbogen weiblich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'LM', 'Langbogen männlich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'LW', 'Langbogen weiblich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'IM', 'Instinktivbogen männlich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'IW', 'Instinktivbogen weiblich', $i, $SettingsInd);
-
+            CreateEventNew($TourId,'LW', 'Langbogen Damen', $i++, $SettingsInd);
+            CreateEventNew($TourId,'LM', 'Langbogen Herren', $i++, $SettingsInd);
+            CreateEventNew($TourId,'TW', 'Traditional Damen', $i, $SettingsInd);
+            CreateEventNew($TourId,'TM', 'Traditional Herren', $i++, $SettingsInd);
+            CreateEventNew($TourId,'BW', 'Blankbogen Damen', $i++, $SettingsInd);
+            CreateEventNew($TourId,'BM', 'Blankbogen Herren', $i++, $SettingsInd);
+            CreateEventNew($TourId,'CW', 'Compound Damen', $i++, $SettingsInd);
+            CreateEventNew($TourId,'CM', 'Compound Herren', $i++, $SettingsInd);
+            CreateEventNew($TourId,'RW', 'Recurve Damen', $i++, $SettingsInd);
+            CreateEventNew($TourId,'RM', 'Recurve Herren', $i++, $SettingsInd);
             $i = 1;
-            CreateEventNew($TourId, 'MT', 'Herren Team', $i++, $SettingsTeam);
-            CreateEventNew($TourId, 'WT', 'Damen Team', $i++, $SettingsTeam);
-            CreateEventNew($TourId, 'RX', 'Recurve Mixed Team', $i++, $SettingsMixedTeam);
-            CreateEventNew($TourId, 'CX', 'Compound Mixed Team', $i++, $SettingsMixedTeam);
-            CreateEventNew($TourId, 'BX', 'Blankbogen Mixed Team', $i++, $SettingsMixedTeam);
             CreateEventNew($TourId, 'LX', 'Langbogen Mixed Team', $i++, $SettingsMixedTeam);
-            CreateEventNew($TourId, 'IX', 'Instinktivbogen Mixed Team', $i, $SettingsMixedTeam);
-
+            CreateEventNew($TourId, 'TX', 'Traditional Mixed Team', $i, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'BX', 'Blankbogen Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'CX', 'Compound Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'RX', 'Recurve Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'WT', 'Damen Team', $i++, $SettingsTeam);
+            CreateEventNew($TourId, 'MT', 'Herren Team', $i++, $SettingsTeam);
 			break;
 		case '3':
 		case '4':
@@ -99,7 +97,7 @@ function CreateStandardFieldEvents($TourId, $SubRule) {
 				'EvFinSO'=>1,
 				'EvElimType'=>4,
 				'EvElim2'=>22,
-				'EvFinalAthTarget'=>0,
+				'EvFinalAthTarget'=>MATCH_NO_SEP,
 				'EvMatchArrowsNo'=>248,
 			);
 			$SettingsTeam=array(
@@ -136,36 +134,31 @@ function CreateStandardFieldEvents($TourId, $SubRule) {
                 'EvPartialTeam'=>0
             );
             $i = 1;
-            CreateEventNew($TourId,'RM', 'Recurve männlich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'RW', 'Recurve weiblich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'CM', 'Compound männlich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'CW', 'Compound weiblich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'BM', 'Blankbogen männlich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'BW', 'Blankbogen weiblich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'LM', 'Langbogen männlich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'LW', 'Langbogen weiblich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'IM', 'Instinktivbogen männlich', $i++, $SettingsInd);
-            CreateEventNew($TourId,'IW', 'Instinktivbogen weiblich', $i, $SettingsInd);
-
+            CreateEventNew($TourId,'LW', 'Langbogen Damen', $i++, $SettingsInd);
+            CreateEventNew($TourId,'LM', 'Langbogen Herren', $i++, $SettingsInd);
+            CreateEventNew($TourId,'TW', 'Traditional Damen', $i, $SettingsInd);
+            CreateEventNew($TourId,'TM', 'Traditional Herren', $i++, $SettingsInd);
+            CreateEventNew($TourId,'BW', 'Blankbogen Damen', $i++, $SettingsInd);
+            CreateEventNew($TourId,'BM', 'Blankbogen Herren', $i++, $SettingsInd);
+            CreateEventNew($TourId,'CW', 'Compound Damen', $i++, $SettingsInd);
+            CreateEventNew($TourId,'CM', 'Compound Herren', $i++, $SettingsInd);
+            CreateEventNew($TourId,'RW', 'Recurve Damen', $i++, $SettingsInd);
+            CreateEventNew($TourId,'RM', 'Recurve Herren', $i++, $SettingsInd);
             $i = 1;
-            CreateEventNew($TourId, 'MT', 'Herren Team', $i++, $SettingsTeam);
-            CreateEventNew($TourId, 'WT', 'Damen Team', $i++, $SettingsTeam);
-            CreateEventNew($TourId, 'RX', 'Recurve Mixed Team', $i++, $SettingsMixedTeam);
-            CreateEventNew($TourId, 'CX', 'Compound Mixed Team', $i++, $SettingsMixedTeam);
-            CreateEventNew($TourId, 'BX', 'Blankbogen Mixed Team', $i++, $SettingsMixedTeam);
             CreateEventNew($TourId, 'LX', 'Langbogen Mixed Team', $i++, $SettingsMixedTeam);
-            CreateEventNew($TourId, 'IX', 'Instinktivbogen Mixed Team', $i, $SettingsMixedTeam);
-
-            break;
+            CreateEventNew($TourId, 'TX', 'Traditional Mixed Team', $i, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'BX', 'Blankbogen Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'CX', 'Compound Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'RX', 'Recurve Mixed Team', $i++, $SettingsMixedTeam);
+            CreateEventNew($TourId, 'WT', 'Damen Team', $i++, $SettingsTeam);
+            CreateEventNew($TourId, 'MT', 'Herren Team', $i++, $SettingsTeam);
+    break;
 	}
 }
 
 function InsertStandardFieldEvents($TourId, $SubRule) {
-    foreach (array('R'=>'R','C'=>'C','B'=>'B','L'=>'L','I'=>'I') as $kDiv=>$vDiv) {
-        $clsTmpArr = array('W','JW','MW','VW','CW');
-        if($SubRule==2 OR $SubRule==4) {
-            $clsTmpArr = array('W');
-        }
+    foreach (array('R'=>'R','C'=>'C','B'=>'B','L'=>'L','T'=>'T') as $kDiv=>$vDiv) {
+        $clsTmpArr = array('W','U18W','U21W','50W','65W');
         foreach($clsTmpArr as $kClass=>$vClass) {
             if($vClass=='CW' and $kDiv!='L') {
                 continue;
@@ -176,10 +169,7 @@ function InsertStandardFieldEvents($TourId, $SubRule) {
             }
             InsertClassEvent($TourId, 1, 1, $vDiv.'X', $kDiv, $vClass);
         }
-        $clsTmpArr = array('M','JM','MU','MM','VU','VM','CM');
-        if($SubRule==2 OR $SubRule==4) {
-            $clsTmpArr = array('M');
-        }
+        $clsTmpArr = array('M','U18M','U21M','50','50M','65','65M');
         foreach($clsTmpArr as $kClass=>$vClass) {
             if($vClass=='CM' and $kDiv!='L') {
                 continue;
@@ -197,7 +187,7 @@ function InsertStandardFieldEvents($TourId, $SubRule) {
 
 function InsertStandardFieldEliminations($TourId, $SubRule){
     if($SubRule==1 OR $SubRule==2) {
-        foreach (array('R','C', 'B', 'L', 'I') as $kDiv) {
+        foreach (array('R','C', 'B', 'L', 'T') as $kDiv) {
             foreach (array('M','W') as $kCl) {
                 for($n=1; $n<=16; $n++) {
                     safe_w_SQL("INSERT INTO Eliminations set ElId=0, ElElimPhase=0, ElEventCode='{$kDiv}{$kCl}', ElTournament={$TourId}, ElQualRank={$n}");

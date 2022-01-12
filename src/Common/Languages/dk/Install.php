@@ -172,7 +172,6 @@ $lang['Setup-CA']='Canadiske regler';
 $lang['Setup-CH']='Schweiziske regler';
 $lang['Setup-Default']='International turnering (WA regler)';
 $lang['Setup-DK']='Danske regler';
-$lang['Setup-F2F']='Face2Face';
 $lang['Setup-FR']='Franske regler';
 $lang['Setup-IT']='Italienske regler';
 $lang['Setup-NFAA']='NFAA regler';

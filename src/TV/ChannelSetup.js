@@ -1,49 +1,156 @@
-function saveChannel() {
-	var name = $('#Name\\[0\\]').val();
-	var message = $('#Message\\[0\\]').val();
-	var url = $('#Url\\[0\\]').val();
-	var tour = $('#Tournament\\[0\\]').val();
-	var rule = $('#Rule\\[0\\]').val();
-	var status = $('#Status\\[0\\]').val();
-
-	$.getJSON("ChannelsUpdate.php?act=save&name="+encodeURIComponent(name)+"&msg="+encodeURIComponent(message)+"&url="+encodeURIComponent(url)+"&tour="+tour+"&rule="+rule+"&status="+status,
-		function(data) {
-			if(data.error==0) {
-				var rowClone=$('#newRow').clone();
-				rowClone[0].id='';
-				// changes the id in inputs textareas and selects, and attaches the update event
-				rowClone.find('input').each(function(i, item) {
-					item.onclick=function() {update(this);};
-					item.id=item.id.replace('[0]', '['+data.newID+']');
-				});
-				rowClone.find('textarea').each(function(i, item) {
-					item.onclick=function() {update(this);};
-					item.id=item.id.replace('[0]', '['+data.newID+']');
-				});
-				rowClone.find('select').each(function(i, item) {
-					if(item.id!='Tournament[0]') item.onclick=function() {update(this);};
-					item.id=item.id.replace('[0]', '['+data.newID+']');
-				});
-
-				$('#newRow').before(rowClone);
-
+function deleteChannel(obj) {
+	$.confirm({
+		title:'',
+		content:MsgDelChannel,
+		boxWidth: '50%',
+		useBootstrap: false,
+		type:'red',
+		buttons: {
+			cancel: {
+				text: CmdCancel,
+				btnClass: 'btn-blue' // class for the button
+			},
+			unset: {
+				text: CmdConfirm,
+				btnClass: 'btn-red', // class for the button
+				action: function () {
+					$.getJSON("ChannelsUpdate.php?act=delchannel&id="+$(obj).closest('tr').attr('refid'),
+						function(data) {
+							if(data.error==0) {
+								location.reload();
+							}
+						});
+				}
 			}
-		});
+		},
+		escapeKey: true,
+		backgroundDismiss: true
+	});
 }
 
-function update(obj) {
-	$.getJSON("ChannelsUpdate.php?act=update&"+obj.id+"="+encodeURIComponent(obj.value),
+function deleteSplit(obj) {
+	$.confirm({
+		title:'',
+		content:MsgDelSplit,
+		boxWidth: '50%',
+		useBootstrap: false,
+		type:'red',
+		buttons: {
+			cancel: {
+				text: CmdCancel,
+				btnClass: 'btn-blue' // class for the button
+			},
+			unset: {
+				text: CmdConfirm,
+				btnClass: 'btn-red', // class for the button
+				action: function () {
+					$.getJSON("ChannelsUpdate.php?act=delsplit&id="+$(obj).closest('tr').attr('refid')+"&side="+$(obj).closest("tr").attr('refside'),
+						function(data) {
+							if(data.error==0) {
+								location.reload();
+							}
+						});
+				}
+			}
+		},
+		escapeKey: true,
+		backgroundDismiss: true
+	});
+}
+
+function AddSplit(obj) {
+	$.confirm({
+		title:'',
+		content:MsgAddSplit,
+		boxWidth: '50%',
+		type:'red',
+		useBootstrap: false,
+		buttons: {
+			cancel: {
+				text: CmdCancel,
+				btnClass: 'btn-blue' // class for the button
+			},
+			unset: {
+				text: CmdConfirm,
+				btnClass: 'btn-red', // class for the button
+				action: function () {
+					$.getJSON("ChannelsUpdate.php?act=newsplit&id="+$(obj).closest('tr').attr('refid'),
+						function(data) {
+							if(data.error==0) {
+								location.reload();
+							}
+						});
+				}
+			}
+		},
+		escapeKey: true,
+		backgroundDismiss: true
+	});
+}
+
+function AddChannel() {
+	$.confirm({
+		title:'',
+		content:MsgAddChannel,
+		boxWidth: '50%',
+		useBootstrap: false,
+		type:'red',
+		buttons: {
+			cancel: {
+				text: CmdCancel,
+				btnClass: 'btn-blue' // class for the button
+			},
+			unset: {
+				text: CmdConfirm,
+				btnClass: 'btn-red', // class for the button
+				action: function () {
+					$.getJSON("ChannelsUpdate.php?act=newchannel",
+						function(data) {
+							if(data.error==0) {
+								location.reload();
+							}
+						});
+				}
+			}
+		},
+		escapeKey: true,
+		backgroundDismiss: true
+	});
+}
+
+function update(obj, field) {
+	RefId=$(obj).closest('tr').attr('refid');
+	RefSide=$(obj).closest('tr').attr('refside');
+	$.getJSON("ChannelsUpdate.php?act=update&fld="+field+"&val="+encodeURIComponent(obj.value)+'&id='+RefId+'&side='+RefSide,
 		function(data) {
-			if(data.TVRules!=undefined) {
-				// we have TV rules to update!
-				var Select=$(obj).parent().next().children(':first-child');
-				Select[0].options.length=0;
-				$.each(data.TVRules, function (i, item) {
-					Select.append($('<option>', {
-				        value: i,
-				        text : item
-				    }));
+			if(data.error==0) {
+				if(data.NewOrder!=undefined) {
+					$('[refid='+RefId+'][refside='+RefSide+']').attr('refside', data.NewOrder)
+				}
+				if(data.TVRules!=undefined) {
+					// we have TV rules to update!
+					var Select=$(obj).closest('tr').find('.TvoRule');
+					Select.empty();
+					$.each(data.TVRules, function (i, item) {
+						Select.append($('<option>', {
+					        value: i,
+					        text : item
+					    }));
+					});
+				}
+			} else {
+				$.alert({
+					title:'',
+					type:'red',
+					content:data.msg,
+					escapeKey: true,
+					boxWidth: '50%',
+					useBootstrap: false,
+					backgroundDismiss: true
 				});
+				if(obj.defaultValue!=undefined) {
+					$(obj).val(obj.defaultValue);
+				}
 			}
 		});
 }

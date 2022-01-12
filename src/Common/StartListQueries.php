@@ -492,7 +492,7 @@ function getStartListCountryQuery($ORIS=false, $Athletes=false, $orderByName=fal
 				upper(CoCode) AS NationCode, upper(CoName) AS Nation, if(CoNameComplete!='', CoNameComplete, CoName) AS NationComplete,
 				IFNULL(GROUP_CONCAT(EvEventName SEPARATOR ', '), if(DivAthlete and ClAthlete, CONCAT('|',DivDescription, '| |', ClDescription), ClDescription)) as EventName,
 				IFNULL(GROUP_CONCAT(RankRanking order by EvProgr SEPARATOR ', '), '') as Ranking,
-				cNumber, PhPhoto is not null as HasPhoto, EnBadgePrinted>0 as HasAccreditation,
+				cNumber, PhPhoto is not null as HasPhoto, EnBadgePrinted>0 as HasAccreditation, PhToRetake, PhEnId, 
 				concat(DvMajVersion, '.', DvMinVersion) as DocVersion,
 				date_format(DvPrintDateTime, '%e %b %Y %H:%i UTC') as DocVersionDate,
 				DvNotes as DocNotes, edmail.EdEmail, edmail.EdExtra, edbib.EdExtra as Bib2, EnDob
@@ -520,21 +520,21 @@ function getStartListCountryQuery($ORIS=false, $Athletes=false, $orderByName=fal
 		}
 
 		if($Events) {
-			$MyQuery .= "AND IndEvent in (" . implode(',', StrSafe_DB($Events)) . ") ";
+			$MyQuery .= " AND IndEvent in (" . implode(',', StrSafe_DB($Events)) . ") ";
 		} elseif(isset($_REQUEST["Event"])) {
-			$MyQuery .= "AND IndEvent LIKE " . StrSafe_DB($_REQUEST["Event"]) . " ";
+			$MyQuery .= " AND IndEvent LIKE " . StrSafe_DB($_REQUEST["Event"]) . " ";
 		}
 
 		if($Sessions) {
-			$MyQuery .= "AND QuSession in (" . implode(',', $Sessions) . ") ";
+			$MyQuery .= " AND QuSession in (" . implode(',', $Sessions) . ") ";
 		} elseif(isset($_REQUEST["Session"]) && is_numeric($_REQUEST["Session"])) {
-			$MyQuery .= "AND QuSession = " . StrSafe_DB($_REQUEST["Session"]) . " ";
+			$MyQuery .= " AND QuSession = " . StrSafe_DB($_REQUEST["Session"]) . " ";
 		}
 
 		if($TmpWhere != "")
-			$MyQuery .= "AND (" . $TmpWhere . ")";
+			$MyQuery .= " AND (" . $TmpWhere . ")";
 		if(!empty($_REQUEST['Exclude'])) {
-			$MyQuery .= "AND (EnDivision not in ('" . implode("','", $_REQUEST['Exclude']) . "')) ";
+			$MyQuery .= " AND (EnDivision not in ('" . implode("','", $_REQUEST['Exclude']) . "')) ";
 		}
 		$MyQuery.= " GROUP BY SesName, DivDescription, ClDescription, IsAthlete, Bib, Athlete, DOB, Session, TargetNo, NationCode, Nation ";
 		$MyQuery.= " ORDER BY CoCode, EnAthlete desc, ".($Athletes ? 'DivViewOrder, ClViewOrder, ' : '' )."Athlete, TargetNo ";

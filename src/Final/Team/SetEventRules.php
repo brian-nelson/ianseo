@@ -88,12 +88,12 @@ $Select = "SELECT * FROM Events WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode'])
 ?>
 <tr><td class="Title" colspan="6"><?php print get_text($RowEv->EvEventName,'','',true);?></td></tr>
 <tr>
-<th width="20%"><?php print get_text('Number');?></th>
-<th width="20%"><?php print get_text('Division');?></th>
-<th width="20%"><?php print get_text('Class');?></th>
-<th width="20%"><?php print get_text('SubClass','Tournament');?></th>
-<th width="10%">&nbsp;</th>
-<th width="10%">&nbsp;</th>
+<th class="w-20"><?php print get_text('Number');?></th>
+<th class="w-20"><?php print get_text('Division');?></th>
+<th class="w-20"><?php print get_text('Class');?></th>
+<th class="w-20"><?php print get_text('SubClass','Tournament');?></th>
+<th class="w-10">&nbsp;</th>
+<th class="w-10">&nbsp;</th>
 </tr>
 <?php
 		$Select
@@ -136,24 +136,24 @@ $Select = "SELECT * FROM Events WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode'])
 ?>
 </tbody>
     <tr class="Divider"><th colspan="6"></th></tr>
-    <tr><td class="Right" width="20%"><?php echo get_text('MixedTeamEvent') ?></td><td class="Left" colspan="5">
+    <tr><td class="Right w-20"><?php echo get_text('MixedTeamEvent') ?></td><td class="Left" colspan="5">
 <select name="d_EvMixedTeam" id="d_EvMixedTeam" onChange="SetMixedTeam('<?php print $RowEv->EvCode; ?>');">
 	<option value="0"<?php print (($RowEv!=null AND $RowEv->EvMixedTeam==0) ? ' selected' : ''); ?>><?php print get_text('No'); ?></option>
 	<option value="1"<?php print (($RowEv!=null AND $RowEv->EvMixedTeam==1) ? ' selected' : ''); ?>><?php print get_text('Yes'); ?></option>
 </select>
 </td></tr>
     <tr class="Divider"><th colspan="6"></th></tr>
-<tr><td class="Right" width="20%"><?php echo get_text('AllowMultiTeam') ?></td><td class="Left" >
+<tr><td class="Right w-20"><?php echo get_text('AllowMultiTeam') ?></td><td class="Left" >
 <select name="d_EvMultiTeam" id="d_EvMultiTeam" onChange="SetMultiTeam('<?php print $RowEv->EvCode; ?>');">
 	<option value="0"<?php print (($RowEv!=null AND $RowEv->EvMultiTeam==0) ? ' selected' : ''); ?>><?php print get_text('No'); ?></option>
 	<option value="1"<?php print (($RowEv!=null AND $RowEv->EvMultiTeam!=0) ? ' selected' : ''); ?>><?php print get_text('Yes'); ?></option>
 </select>
 </td>
-<td class="Right" width="20%" colspan="2"><?php echo get_text('MultiTeamMaxNo') ?></td><td class="Left" colspan="2">
+<td class="Right w-20" colspan="2"><?php echo get_text('MultiTeamMaxNo') ?></td><td class="Left" colspan="2">
    <input type="number" step="1" min="0" max="999" name="d_EvMultiTeamNo" id="d_EvMultiTeamNo"  onChange="SetMultiTeam('<?php print $RowEv->EvCode; ?>');" value="<?php print ($RowEv->EvMultiTeam!=0 ? $RowEv->EvMultiTeamNo : 0); ?>">
 </td></tr>
 <tr>
-	<td class="Right" width="20%">
+	<td class="Right w-20">
 		<?php print get_text('TeamCreationMode','Tournament');?>&nbsp;</td><td class="Left" colspan="2">
 		<?php
 			$comboTeamCreationMode=ComboFromRs(
@@ -178,7 +178,7 @@ $Select = "SELECT * FROM Events WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode'])
 			print $comboTeamCreationMode;
 		?>
 	</td>
-<td class="Right" width="20%"><?php echo get_text('AllowPartialTeams') ?></td><td class="Left" colspan="2">
+<td class="Right w-20"><?php echo get_text('AllowPartialTeams') ?></td><td class="Left" colspan="2">
     <select name="d_EvPartialTeam" id="d_EvPartialTeam" onChange="SetPartialTeam('<?php print $RowEv->EvCode; ?>');">
         <option value="0"<?php print (($RowEv!=null AND $RowEv->EvPartialTeam==0) ? ' selected' : ''); ?>><?php print get_text('No'); ?></option>
         <option value="1"<?php print (($RowEv!=null AND $RowEv->EvPartialTeam==1) ? ' selected' : ''); ?>><?php print get_text('Yes'); ?></option>
@@ -187,10 +187,10 @@ $Select = "SELECT * FROM Events WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode'])
 <tr class="Divider"><th colspan="6"></th></tr>
 <tr><td colspan="6" class="Center"><?php print get_text('PressCtrl2SelectAll'); ?></td></tr>
 <tr>
-<td width="20%" class="Center" valign="top">
+<td class="Center Top w-20">
 <input type="number" step="1" min="0" max="999" name="New_EcNumber" id="New_EcNumber"  value="">
 </td>
-<td width="20%" class="Center" valign="top">
+<td class="Right Top w-20">
 <?php
 
 	$Select = "SELECT * "
@@ -198,7 +198,7 @@ $Select = "SELECT * FROM Events WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode'])
 		. "WHERE DivTournament = " . StrSafe_DB($_SESSION['TourId']) . " AND DivAthlete=1 "
 		. "ORDER BY DivViewOrder ASC ";
 	$RsSel = safe_r_sql($Select);
-    $ComboDiv = '<select name="New_EcDivision" id="New_EcDivision" multiple="multiple" size="'.min(15,safe_num_rows($RsSel)+2).'">';
+    $ComboDiv = '<select name="New_EcDivision" id="New_EcDivision" class="w-90" multiple="multiple" size="'.min(15,safe_num_rows($RsSel)+2).'">';
 	if (safe_num_rows($RsSel)>0) {
 		while ($Row=safe_fetch($RsSel)) {
 			$ComboDiv.= '<option value="' . $Row->DivId . '">' . $Row->DivId . ' - ' . $Row->DivDescription . '</option>';
@@ -210,14 +210,14 @@ $Select = "SELECT * FROM Events WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode'])
 	print '<br><br><a class="Link" href="javascript:SelectAllOpt(\'New_EcDivision\');">' . get_text('SelectAll') . '</a>';
 ?>
 </td>
-<td width="20%" class="Center" valign="top">
+<td class="Right Top w-20">
 <?php
 	$Select = "SELECT * "
 		. "FROM Classes "
 		. "WHERE ClTournament = " . StrSafe_DB($_SESSION['TourId']) . " AND ClAthlete=1 "
 		. "ORDER BY ClViewOrder ASC ";
 	$RsSel = safe_r_sql($Select);
-    $ComboCl = '<select name="New_EcClass" id="New_EcClass" multiple="multiple" size="'.min(15,safe_num_rows($RsSel)+2).'">';
+    $ComboCl = '<select name="New_EcClass" id="New_EcClass" class="w-90" multiple="multiple" size="'.min(15,safe_num_rows($RsSel)+2).'">';
 	if (safe_num_rows($RsSel)>0) {
 		while ($Row=safe_fetch($RsSel)) {
 			$ComboCl.= '<option value="' . $Row->ClId . '">' . $Row->ClId . ' - ' . $Row->ClDescription . '</option>';
@@ -229,7 +229,7 @@ $Select = "SELECT * FROM Events WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode'])
 	print '<br><br><a class="Link" href="javascript:SelectAllOpt(\'New_EcClass\');">' . get_text('SelectAll') . '</a>';
 ?>
 </td>
-<td width="20%" class="Center" valign="top">
+<td class="Right Top w-20">
     <?php
 
     $Select
@@ -238,7 +238,7 @@ $Select = "SELECT * FROM Events WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode'])
         . "WHERE ScTournament = " . StrSafe_DB($_SESSION['TourId'])
         . "ORDER BY ScViewOrder ASC ";
     $RsSel = safe_r_sql($Select);
-    $ComboSubCl = '<select name="New_EcSubClass" id="New_EcSubClass" multiple="multiple" disabled="disabled" size="'.min(15,safe_num_rows($RsSel)+2).'">';
+    $ComboSubCl = '<select name="New_EcSubClass" id="New_EcSubClass" class="w-90" multiple="multiple" disabled="disabled" size="'.min(15,safe_num_rows($RsSel)+2).'">';
     if (safe_num_rows($RsSel)>0) {
         while ($Row=safe_fetch($RsSel)) {
             $ComboSubCl.= '<option value="' . $Row->ScId . '">' . $Row->ScId . ' - ' . $Row->ScDescription . '</option>';
@@ -250,7 +250,7 @@ $Select = "SELECT * FROM Events WHERE EvCode=" . StrSafe_DB($_REQUEST['EvCode'])
     print '<br><br><input type="checkbox" id="enableSubClass" onclick="enableSubclass(this)">'. get_text('UseSubClasses','Tournament');
 
 echo '</td>';
-echo '<td width="20%" colspan="2" class="Center" valign="top">';
+echo '<td colspan="2" class="Center Top w-20">';
 echo '<input type="button" name="Command" id="Command" value="'.get_text('CmdSave').'" onclick="javascript:AddEventRule(\''.$RowEv->EvCode.'\');">';
 echo '</td>';
 echo '</tr>';
@@ -273,8 +273,8 @@ echo '<table class="Tabella">';
         echo '</tr>';
 
     echo '<tr>';
-        echo '<td class="Center"><input type="number" value="'.$RowEv->EvNumQualified.'" id="fld=num&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
-        echo '<td class="Center"><input type="number" value="'.$RowEv->EvFirstQualified.'" id="fld=first&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
+        echo '<td class="Center"><input type="number" min="0" max="9999" value="'.$RowEv->EvNumQualified.'" id="fld=num&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
+        echo '<td class="Center"><input type="number" min="0" max="9999" value="'.$RowEv->EvFirstQualified.'" id="fld=first&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
         echo '<td class="Center"><select onchange="UpdateData(this)" id="fld=medal&team=1&event='.$_REQUEST['EvCode'].'">
                 <option value="1" '.($RowEv->EvMedals ? ' selected="selected"' : '').'>'.get_text('Yes').'</option>
                 <option value="0" '.($RowEv->EvMedals ? '' : ' selected="selected"').'>'.get_text('No').'</option>
@@ -286,10 +286,10 @@ echo '<table class="Tabella">';
                     echo '<option value="'.$r->EvCode.'" '.($RowEv->EvCodeParent==$r->EvCode ? ' selected="selected"' : '').'>'.$r->EvCode.' - '.$r->EvEventName.'</option>';
                 }
                 echo '</select></td>';
-        echo '<td class="Center"><input type="number" value="'.$RowEv->EvWinnerFinalRank.'" id="fld=final&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
-        echo '<td class="Center"><input type="number" value="'.$RowEv->EvMaxTeamPerson.'" id="fld=persons&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
-        echo '<td class="Center"><input type="text" value="'.$RowEv->EvWaCategory.'" id="fld=wacat&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
-        echo '<td class="Center"><input type="text" value="'.$RowEv->EvRecCategory.'" id="fld=reccat&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
+        echo '<td class="Center"><input type="number" min="0" max="9999" value="'.$RowEv->EvWinnerFinalRank.'" id="fld=final&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
+        echo '<td class="Center"><input type="number" min="0" max="9999" value="'.$RowEv->EvMaxTeamPerson.'" id="fld=persons&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
+        echo '<td class="Center"><input type="text" size="12" maxlength="10" value="'.$RowEv->EvWaCategory.'" id="fld=wacat&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
+        echo '<td class="Center"><input type="text" size="12" maxlength="10" value="'.$RowEv->EvRecCategory.'" id="fld=reccat&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
         echo '<td class="Center"><input type="text" value="'.$RowEv->EvOdfCode.'" id="fld=odfcode&team=1&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
         echo '</tr>';
     echo '</tbody>';

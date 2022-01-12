@@ -22,16 +22,16 @@
 <tr><th class="Title" colspan="10"><?php print get_text('TeamEventList');?></th></tr>
 <tr class="Divider"><td colspan="10"></td></tr>
 <tr>
-<th width="5%"><?php print get_text('EvCode');?></th>
-<th width="30%"><?php print get_text('EvName');?></th>
-<th width="5%"><?php print get_text('Para', 'Records');?></th>
-<th width="5%"><?php print get_text('Progr');?></th>
-<th width="10%"><?php print get_text('MatchModeScoring');?></th>
-<th width="10%"><?php print get_text('FirstPhase');?></th>
-<th width="10%"><?php print get_text('TargetType');?></th>
-<th width="5%">ø (cm)</th>
-<th width="5%"><?php print get_text('Distance', 'Tournament');?></th>
-<th width="5%">&nbsp;</th>
+<th class="w-5"><?php print get_text('EvCode');?></th>
+<th class="w-30"><?php print get_text('EvName');?></th>
+<th class="w-5"><?php print get_text('Para', 'Records');?></th>
+<th class="w-5"><?php print get_text('Progr');?></th>
+<th class="w-10"><?php print get_text('MatchModeScoring');?></th>
+<th class="w-10"><?php print get_text('FirstPhase');?></th>
+<th class="w-10"><?php print get_text('TargetType');?></th>
+<th class="w-5">ø (cm)</th>
+<th class="w-5"><?php print get_text('Distance', 'Tournament');?></th>
+<th class="w-5">&nbsp;</th>
 </tr>
 <?php
 	$ComboPhase = array();
@@ -123,7 +123,7 @@
 ?>
 <tr id="RowDiv" class="Divider"><td colspan="10"></td></tr>
 <tr id="NewRow">
-<td class="Center"><input type="text" name="New_EvCode" id="New_EvCode" size="4" maxlength="4"></td>
+<td class="Center"><input type="text" name="New_EvCode" id="New_EvCode"  size="12" maxlength="10"></td>
 <td class="Center"><input type="text" size="64" maxlength="64" name="New_EvEventName" id="New_EvEventName"></td>
 <td class="Center"><input type="checkbox" name="New_EvIsPara" id="New_EvIsPara"></td>
 <td class="Center"><input type="text" size="3" maxlength="3" name="New_EvProgr" id="New_EvProgr"></td>

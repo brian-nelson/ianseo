@@ -225,7 +225,6 @@ $lang['MenuLM_Export Tournament Photo']='Kilpailu kuvien kera';
 $lang['MenuLM_Extended Table']='Tulosten syöttäminen (laajennettu taulukko)';
 $lang['MenuLM_ExtraCategories']='Tavalliset lisäkategoriat';
 $lang['MenuLM_Fees setup']='Maksujen määritys';
-$lang['MenuLM_Field Crew']='Kenttähenkilöstö';
 $lang['MenuLM_Final Field of Play Layout']='Finaaliradan rakenne';
 $lang['MenuLM_Final report']='Loppuraportti';
 $lang['MenuLM_Final Rounds']='Finaalikierrokset';

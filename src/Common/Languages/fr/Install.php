@@ -136,7 +136,6 @@ $lang['Setup-ARLEF']='Règles de LEF-Archery';
 $lang['Setup-CA']='Règles du Tournoi Canadiennes';
 $lang['Setup-CH']='Règles du Tournoi Suisses';
 $lang['Setup-Default']='Tournoi Règlement World Archery';
-$lang['Setup-F2F']='Facze à Face';
 $lang['Setup-NFAA']='Règles NFAA';
 $lang['Setup-NL']='Règles du Tournoi Néerlandaise';
 $lang['Setup-NO']='Tournoi Norvégien (Norges Bueskytterforbund rules)';

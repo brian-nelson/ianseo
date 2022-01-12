@@ -294,7 +294,6 @@ Class Scheduler {
 					and SchDay>0 and SchStart>0
 					".($this->SingleDay ? " and SchDay='$this->SingleDay'" : '')."
 					".($this->FromDay ? " and SchDay>='$this->FromDay'" : '')."
-				".($ExtraWheres ? ' HAVING '.$ExtraWheres : '')."
 					";
 		}
 
@@ -367,7 +366,6 @@ Class Scheduler {
 						" .($this->FromDay ? " and DiDay>='$this->FromDay'" : '') ."
 						" .(strlen($this->SesFilter) ? " and DiSession='$this->SesFilter'" : '') ."  
 					group by DiDistance, DiSession, DiType 
-					".($ExtraWheres ? ' HAVING '.$ExtraWheres : '')."
 					order by DiDay, DiStart, DiWarmStart, DiSession, DiDistance";
 			} else {
 				for($i=1; $i<=8; $i++) {
@@ -406,7 +404,6 @@ Class Scheduler {
 						".($this->SingleDay ? " and DiDay='$this->SingleDay'" : '')."
 						".($this->FromDay ? " and DiDay>='$this->FromDay'" : '')."
 						".(strlen($this->SesFilter) ? " and DiSession='$this->SesFilter'" : '')."
-					".($ExtraWheres ? ' HAVING '.$ExtraWheres : '')."
 					order by DiDay, DiStart, DiWarmStart, DiSession, DiDistance";
 			}
 
@@ -446,7 +443,6 @@ Class Scheduler {
 					and DiDay>0 and (DiStart>0 or DiWarmStart>0)
 					".($this->SingleDay ? " and DiDay='$this->SingleDay'" : '')."
 					".($this->FromDay ? " and DiDay>='$this->FromDay'" : '')."
-				".($ExtraWheres ? ' HAVING '.$ExtraWheres : '')."
 				order by DiDay, DiStart, DiWarmStart, DiSession, DiDistance";
 		}
 
@@ -482,47 +478,8 @@ Class Scheduler {
 				where FwTournament=$this->TourId
 					and FwMatchTime=0
 				group by FwTeamEvent, FwDay, FwTime
-				".($ExtraWheres ? ' HAVING '.$ExtraWheres : '')."
 				";
 		}
-
-		// Then gets the robin rounds
-		if(!$this->SesType or strstr($this->SesType, 'R')) {
-			$SQL[]="select distinct
-					'' EvShootOff,
-					'1' EvFirstRank,
-					'' EvElimType,
-					'' grPos,
-					'0' Target,
-					'R' Type,
-					date_format(F2FSchedule, '%Y-%m-%d') Day,
-					concat(F2FPhase, '-', F2FRound, '-', F2FGroup) Session,
-					F2FPhase Distance,
-	                EvDistance as RealDistance,
-					'' Medal,
-					if(F2FSchedule=0, '', date_format(F2FSchedule, '%H:%i')) Start,
-					0 Duration,
-					'' WarmStart,
-					0 WarmDuration,
-					0 Options,
-					'' SesName,
-					if(count(*)=2, group_concat(distinct EvEventName order by EvEventName separator ', '), group_concat(distinct F2FEvent order by F2FEvent separator ', ')) Events,
-					group_concat(distinct F2FEvent order by F2FEvent separator '\',\'') Event,
-					'' as Locations,
-					1 OrderPhase,
-					0 SchDelay,
-					'' TD1, '' TD2, '' TD3, '' TD4, '' TD5, '' TD6, '' TD7, '' TD8
-				from F2FFinal
-				inner join Events on F2FEvent=EvCode and EvTeamEvent=0 and F2FTournament=EvTournament
-				where F2FTournament=$this->TourId
-					and F2FSchedule>0
-					".($this->SingleDay ? " and date_format(F2FSchedule, '%Y-%m-%d')='$this->SingleDay'" : '')."
-					".($this->FromDay ? " and date_format(F2FSchedule, '%Y-%m-%d')>='$this->FromDay'" : '')."
-				group by F2FPhase, F2FSchedule
-				".($ExtraWheres ? ' HAVING '.$ExtraWheres : '')."
-				";
-		}
-
 
 		// Get all the matches
 		if(!$this->SesType or strstr($this->SesType, 'F')) {
@@ -557,7 +514,6 @@ Class Scheduler {
 					and SesDtStart>0
 					".($this->SingleDay ? " and date_format(SesDtStart, '%Y-%m-%d')='$this->SingleDay'" : '')."
 					".($this->FromDay ? " and date_format(SesDtStart, '%Y-%m-%d')>='$this->FromDay'" : '')."
-				".($ExtraWheres ? ' HAVING '.$ExtraWheres : '')."
 				order by SesDtStart";
 
 			$SQL[]="select distinct
@@ -594,12 +550,14 @@ Class Scheduler {
 					".($this->SingleDay ? " and FsScheduledDate='$this->SingleDay'" : '')."
 					".($this->FromDay ? " and FsScheduledDate>='$this->FromDay'" : '')."
 				group by if(EvElimType>=3, FsMatchNo, 0), FsTeamEvent, FsScheduledDate, FsScheduledTime, Locations, if(EvWinnerFinalRank>1, EvWinnerFinalRank*100-GrPhase, GrPhase), FwTime
-				".($ExtraWheres ? ' HAVING '.$ExtraWheres : '')."
 				order by FsTeamEvent, FsScheduledDate, FsScheduledTime, EvFirstRank, GrPhase, FwTime
 				";
 		}
 
-		$sql='('.implode(') UNION (', $SQL).') order by Day, if(Start>0, if(WarmStart>0, least(Start, WarmStart), Start), WarmStart), Type!=\'Z\', OrderPhase+0 asc, Distance';
+		$sql='select * from (('.implode(') UNION (', $SQL).')) 
+			as Schedule 
+			'.($ExtraWheres ? ' where '.$ExtraWheres : '').'
+			order by Day, if(Start>0, if(WarmStart>0, least(Start, WarmStart), Start), WarmStart), Type!=\'Z\', OrderPhase+0 asc, Distance';
 
 		$q=safe_r_SQL($sql);
 		$debug=array();
@@ -625,6 +583,7 @@ Class Scheduler {
 	 * Returns the HTML representation of the Schedule
 	 */
 	function getScheduleHTML($Type='IS', $Title='') {
+		$TourCode=(empty($_SESSION['code']) ? '' : '&code='.$_SESSION['code']);
 		$ret=array();
 		if($Title) $ret[]='<tr><th colspan="2" class="SchHeadTitle">'.$Title.'</th></tr>';
 		foreach($this->GetSchedule() as $Date => $Times) {
@@ -756,10 +715,10 @@ Class Scheduler {
 											}
 											if($Type=='IS') {
 												if(!empty($this->RunningEvents[$Item->Session][0])) {
-													$lnk.='<br/><a href="'.$this->ROOT_DIR.'Qualification/?type=0&'.implode('&',$this->RunningEvents[$Item->Session][0]).'">'.get_text('ViewIndividualResults', 'InfoSystem').'</a>';
+													$lnk.='<br/><a href="'.$this->ROOT_DIR.'Qualification/?type=0&'.implode('&',$this->RunningEvents[$Item->Session][0]).$TourCode.'">'.get_text('ViewIndividualResults', 'InfoSystem').'</a>';
 												}
 												if(!empty($this->RunningEvents[$Item->Session][1])) {
-													$lnk.='<br/><a href="'.$this->ROOT_DIR.'Qualification/?type=1&'.implode('&',$this->RunningEvents[$Item->Session][1]).'">'.get_text('ViewTeamResults', 'InfoSystem').'</a>';
+													$lnk.='<br/><a href="'.$this->ROOT_DIR.'Qualification/?type=1&'.implode('&',$this->RunningEvents[$Item->Session][1]).$TourCode.'">'.get_text('ViewTeamResults', 'InfoSystem').'</a>';
 												}
 											}
 											if(count($this->Groups[$Item->Type][$Session])==1) {
@@ -876,43 +835,9 @@ Class Scheduler {
 											if($Type=='SET') {
 												$lnk='<a href="?Activate='.urlencode($key).'">'.strip_tags(str_replace('<br>', ' / ', $lnk), '<div>').'</a>';
 											} elseif($Type=='IS') {
-												$lnk='<a href="'.$this->ROOT_DIR.'Finals/session.php?Session='.urlencode(($Item->Type=='T' ? 1 : 0)."$Item->Day $Item->Start:00").'">'.$lnk.'</a>';
+												$lnk='<a href="'.$this->ROOT_DIR.'Finals/session.php?Session='.urlencode(($Item->Type=='T' ? 1 : 0)."$Item->Day $Item->Start:00").$TourCode.'">'.$lnk.'</a>';
 											}
 											$ret[]='<tr name="'.$key.'" class="'.$Class.($ActiveSession ? ' active' : '').'"><td>'
-												. $timing . ($Item->Shift && $timing ? ($Type=='IS' ? '<span class="SchDelay">' : '') . '&nbsp;+' . $Item->Shift . ($Type=='IS' ? '</span>' : ''): "")
-												.'</td><td class="SchItem">'.$lnk.'</td></tr>';
-											$IsTitle=false;
-											break;
-										case 'R':
-											$lnk=$Item->Text.': '.$Item->Events;
-											if($this->Finalists) {
-												list($Phase, $Round, $Group)=explode('-', $Item->Session);
-												$SQL="select concat(upper(e1.EnFirstname), ' ', e1.EnName, ' (', c1.CoCode, ')') LeftSide,
-													tf1.F2FTarget LeftTgt, tf2.F2FTarget RightTgt,
-													concat('(', c2.CoCode, ') ', upper(e2.EnFirstname), ' ', e2.EnName) RightSide
-													from F2FGrid g
-													inner join F2FFinal tf1 on g.F2FTournament=tf1.F2FTournament and g.F2FPhase=tf1.F2FPhase and g.F2FRound=tf1.F2FRound and g.F2FGroup=tf1.F2FGroup and g.F2FMatchNo1=tf1.F2FMatchNo
-													inner join F2FFinal tf2 on g.F2FTournament=tf2.F2FTournament and g.F2FPhase=tf2.F2FPhase and g.F2FRound=tf2.F2FRound and g.F2FGroup=tf2.F2FGroup and g.F2FMatchNo2=tf2.F2FMatchNo and tf1.F2FEvent=tf2.F2FEvent
-													inner join Entries e1 on e1.EnId=tf1.F2FEnId and tf1.F2FEvent IN ('$Item->Event')
-													inner join Entries e2 on e2.EnId=tf2.F2FEnId and tf2.F2FEvent IN ('$Item->Event')
-													inner join Countries c1 on e1.EnCountry=c1.CoId and c1.CoTournament=$this->TourId
-													inner join Countries c2 on e2.EnCountry=c2.CoId and c2.CoTournament=$this->TourId
-													where g.F2FTournament=$this->TourId and tf1.F2FSchedule='$Date $Time'";
-												$q=safe_r_SQL($SQL);
-												while($r=safe_fetch($q) and trim($r->LeftSide) and trim($r->RightSide)) {
-													if($r->LeftTgt < $r->RightTgt) {
-														$lnk.= '<br>' . $r->LeftSide.' - '.$r->RightSide;
-													} else {
-														$lnk.= '<br>' . $r->RightSide.' - '.$r->LeftSide;
-													}
-												}
-											}
-											if($Type=='SET') {
-												$lnk='<a href="?Activate='.urlencode($key).'">'.strip_tags($lnk).'</a>';
-											} elseif($Type=='IS') {
-												$lnk='<a href="'.$this->ROOT_DIR.'Rounds/?Session='.urlencode("$Item->Day $Item->Start:00").'">'.$lnk.'</a>';
-											}
-											$ret[]='<tr name="'.$key.'"'.($ActiveSession ? ' class="active"' : '').'><td>'
 												. $timing . ($Item->Shift && $timing ? ($Type=='IS' ? '<span class="SchDelay">' : '') . '&nbsp;+' . $Item->Shift . ($Type=='IS' ? '</span>' : ''): "")
 												.'</td><td class="SchItem">'.$lnk.'</td></tr>';
 											$IsTitle=false;
@@ -1178,41 +1103,6 @@ Class Scheduler {
 	                                                        $lnk= $lnk. ': ' . $r->LeftSide.' - '.$r->RightSide;
 	                                                    }
 	                                                }
-                                                }
-                                            }
-                                            $tmpToday[] = array(
-                                                'Start'=>$Item->Start,
-                                                'End'=>addMinutes($Item->Start, $Item->Duration),
-                                                'Duration'=>$Item->Duration,
-                                                'Delay'=>$Item->Shift,
-                                                'Level'=>2,
-                                                'Type'=>$Item->Type,
-                                                'Active'=>$ActiveSession,
-                                                'Text'=>$lnk);
-                                            $IsTitle=false;
-                                            break;
-                                        case 'R':
-                                            $lnk=$Item->Text.': '.$Item->Events;
-                                            if($this->Finalists) {
-                                                list($Phase, $Round, $Group)=explode('-', $Item->Session);
-                                                $SQL="select concat(upper(e1.EnFirstname), ' ', e1.EnName, ' (', c1.CoCode, ')') LeftSide,
-													tf1.F2FTarget LeftTgt, tf2.F2FTarget RightTgt,
-													concat('(', c2.CoCode, ') ', upper(e2.EnFirstname), ' ', e2.EnName) RightSide
-													from F2FGrid g
-													inner join F2FFinal tf1 on g.F2FTournament=tf1.F2FTournament and g.F2FPhase=tf1.F2FPhase and g.F2FRound=tf1.F2FRound and g.F2FGroup=tf1.F2FGroup and g.F2FMatchNo1=tf1.F2FMatchNo
-													inner join F2FFinal tf2 on g.F2FTournament=tf2.F2FTournament and g.F2FPhase=tf2.F2FPhase and g.F2FRound=tf2.F2FRound and g.F2FGroup=tf2.F2FGroup and g.F2FMatchNo2=tf2.F2FMatchNo and tf1.F2FEvent=tf2.F2FEvent
-													inner join Entries e1 on e1.EnId=tf1.F2FEnId and tf1.F2FEvent IN ('$Item->Event')
-													inner join Entries e2 on e2.EnId=tf2.F2FEnId and tf2.F2FEvent IN ('$Item->Event')
-													inner join Countries c1 on e1.EnCountry=c1.CoId and c1.CoTournament=$this->TourId
-													inner join Countries c2 on e2.EnCountry=c2.CoId and c2.CoTournament=$this->TourId
-													where g.F2FTournament=$this->TourId and tf1.F2FSchedule='$Date $Time'";
-                                                $q=safe_r_SQL($SQL);
-                                                while($r=safe_fetch($q) and trim($r->LeftSide) and trim($r->RightSide)) {
-                                                    if($r->LeftTgt < $r->RightTgt) {
-                                                        $lnk.= '<br>' . $r->LeftSide.' - '.$r->RightSide;
-                                                    } else {
-                                                        $lnk.= '<br>' . $r->RightSide.' - '.$r->LeftSide;
-                                                    }
                                                 }
                                             }
                                             $tmpToday[] = array(
@@ -1723,45 +1613,6 @@ Class Scheduler {
 												}
 											} else {
 												$pdf->Cell($descrSize, $CellHeight, $lnk, 0, 1, 'L', 0);
-											}
-											break;
-										case 'R':
-											$lnk=$Item->Text.': '.$Item->Events;
-											if($Item->Shift and $timing) {
-												$pdf->SetX($StartX);
-												$pdf->Cell($DelayWidth, $CellHeight, $timingDelayed, 0, 0);
-												$pdf->Cell($TimingWidth, $CellHeight, $timing, 0, 0);
-											} else {
-												$pdf->SetX($StartX+$DelayWidth);
-												$pdf->Cell($TimingWidth, $CellHeight, $timing, 0, 0);
-											}
-											if($timing and $Item->Duration) {
-												$pdf->SetFont('', 'I');
-												$pdf->setColor('text', 75);
-												$pdf->Cell($DurationWidth, $CellHeight, sprintf('%02d:%02d', $Item->Duration/60, $Item->Duration%60), 0, 0, 'R');
-												$pdf->SetFont('', '');
-												$pdf->setColor('text', 0);
-											}
-											$pdf->SetX($StartX+$TimeColumns);
-											$pdf->Cell($descrSize, $CellHeight, $lnk, 0, 1, 'L', 0);
-											$IsTitle=false;
-											if($this->Finalists) {
-												list($Phase, $Round, $Group)=explode('-', $Item->Session);
-												$SQL="select concat(upper(e1.EnFirstname), ' ', e1.EnName, ' (', c1.CoCode, ')') LeftSide,
-													concat('(', c2.CoCode, ') ', upper(e2.EnFirstname), ' ', e2.EnName) RightSide
-													from F2FGrid g
-													inner join F2FFinal tf1 on g.F2FTournament=tf1.F2FTournament and g.F2FPhase=tf1.F2FPhase and g.F2FRound=tf1.F2FRound and g.F2FGroup=tf1.F2FGroup and g.F2FMatchNo1=tf1.F2FMatchNo
-													inner join F2FFinal tf2 on g.F2FTournament=tf2.F2FTournament and g.F2FPhase=tf2.F2FPhase and g.F2FRound=tf2.F2FRound and g.F2FGroup=tf2.F2FGroup and g.F2FMatchNo2=tf2.F2FMatchNo and tf1.F2FEvent=tf2.F2FEvent
-													inner join Entries e1 on e1.EnId=tf1.F2FEnId and tf1.F2FEvent IN ('$Item->Event')
-													inner join Entries e2 on e2.EnId=tf2.F2FEnId and tf2.F2FEvent IN ('$Item->Event')
-													inner join Countries c1 on e1.EnCountry=c1.CoId and c1.CoTournament=$this->TourId
-													inner join Countries c2 on e2.EnCountry=c2.CoId and c2.CoTournament=$this->TourId
-													where g.F2FTournament=$this->TourId and tf1.F2FSchedule='$Date $Time'";
-												$q=safe_r_SQL($SQL);
-												while($r=safe_fetch($q) and trim($r->LeftSide) and trim($r->RightSide)) {
-													$pdf->SetXY($StartX+$TimingWidth, $pdf->getY()-1.5);
-													$pdf->Cell($descrSize, $CellHeight, $r->LeftSide.' - '.$r->RightSide, 0, 1, 'L', 0);
-												}
 											}
 											break;
 										default:
@@ -2356,39 +2207,6 @@ Class Scheduler {
 												$q=safe_r_SQL($SQL);
 												if(safe_num_rows($q)==1 and $r=safe_fetch($q) and trim($r->LeftSide) and trim($r->RightSide)) {
 													$this->Ods->addCell(htmlspecialchars(strip_tags(($this->Ranking ? '#'.$r->LeftRank.' ' : '') . $r->LeftSide.' - '.$r->RightSide . ($this->Ranking ? ' #'.$r->RightRank : ''))));
-												}
-											}
-											break;
-										case 'R':
-											$lnk=$Item->Text.': '.$Item->Events;
-											$row=array('', '', '', '', htmlspecialchars(strip_tags($lnk)));
-											if($Item->Shift and $timing[1]) {
-												$row[0]=$timing[0];
-											}
-											$row[1]=$timing[1];
-											$row[2]=$timing[2];
-											$row[3]=$timing[3];
-											$timing[3]='';
-											$timing[2]='';
-											$timing[1]='';
-											$this->Ods->setCellStyle('Duration', null, 3);
-											$this->Ods->addRow($row);
-											$IsTitle=false;
-											if($this->Finalists) {
-												list($Phase, $Round, $Group)=explode('-', $Item->Session);
-												$SQL="select concat(upper(e1.EnFirstname), ' ', e1.EnName, ' (', c1.CoCode, ')') LeftSide,
-												concat('(', c2.CoCode, ') ', upper(e2.EnFirstname), ' ', e2.EnName) RightSide
-												from F2FGrid g
-												inner join F2FFinal tf1 on g.F2FTournament=tf1.F2FTournament and g.F2FPhase=tf1.F2FPhase and g.F2FRound=tf1.F2FRound and g.F2FGroup=tf1.F2FGroup and g.F2FMatchNo1=tf1.F2FMatchNo
-												inner join F2FFinal tf2 on g.F2FTournament=tf2.F2FTournament and g.F2FPhase=tf2.F2FPhase and g.F2FRound=tf2.F2FRound and g.F2FGroup=tf2.F2FGroup and g.F2FMatchNo2=tf2.F2FMatchNo and tf1.F2FEvent=tf2.F2FEvent
-												inner join Entries e1 on e1.EnId=tf1.F2FEnId and tf1.F2FEvent IN ('$Item->Event')
-												inner join Entries e2 on e2.EnId=tf2.F2FEnId and tf2.F2FEvent IN ('$Item->Event')
-												inner join Countries c1 on e1.EnCountry=c1.CoId and c1.CoTournament=$this->TourId
-												inner join Countries c2 on e2.EnCountry=c2.CoId and c2.CoTournament=$this->TourId
-												where g.F2FTournament=$this->TourId and tf1.F2FSchedule='$Date $Time'";
-												$q=safe_r_SQL($SQL);
-												while($r=safe_fetch($q) and trim($r->LeftSide) and trim($r->RightSide)) {
-													$this->Ods->addCell($r->LeftSide.' - '.$r->RightSide);
 												}
 											}
 											break;
@@ -3009,41 +2827,6 @@ Class Scheduler {
 												$this->Ods->currentCell=0;
 												$this->Ods->currentRow=$OldRow;
 
-											}
-
-
-											break;
-										case 'R':
-											$lnk=$Item->Text.': '.$Item->Events;
-											$row=array('', '', '', '', htmlspecialchars(strip_tags($lnk)));
-											if($Item->Shift and $timing[1]) {
-												$row[0]=$timing[0];
-											}
-											$row[1]=$timing[1];
-											$row[2]=$timing[2];
-											$row[3]=$timing[3];
-											$timing[3]='';
-											$timing[2]='';
-											$timing[1]='';
-											$this->Ods->setCellStyle('Duration', null, 3);
-											$this->Ods->addRow($row);
-											$IsTitle=false;
-											if($this->Finalists) {
-												list($Phase, $Round, $Group)=explode('-', $Item->Session);
-												$SQL="select concat(upper(e1.EnFirstname), ' ', e1.EnName, ' (', c1.CoCode, ')') LeftSide,
-												concat('(', c2.CoCode, ') ', upper(e2.EnFirstname), ' ', e2.EnName) RightSide
-												from F2FGrid g
-												inner join F2FFinal tf1 on g.F2FTournament=tf1.F2FTournament and g.F2FPhase=tf1.F2FPhase and g.F2FRound=tf1.F2FRound and g.F2FGroup=tf1.F2FGroup and g.F2FMatchNo1=tf1.F2FMatchNo
-												inner join F2FFinal tf2 on g.F2FTournament=tf2.F2FTournament and g.F2FPhase=tf2.F2FPhase and g.F2FRound=tf2.F2FRound and g.F2FGroup=tf2.F2FGroup and g.F2FMatchNo2=tf2.F2FMatchNo and tf1.F2FEvent=tf2.F2FEvent
-												inner join Entries e1 on e1.EnId=tf1.F2FEnId and tf1.F2FEvent IN ('$Item->Event')
-												inner join Entries e2 on e2.EnId=tf2.F2FEnId and tf2.F2FEvent IN ('$Item->Event')
-												inner join Countries c1 on e1.EnCountry=c1.CoId and c1.CoTournament=$this->TourId
-												inner join Countries c2 on e2.EnCountry=c2.CoId and c2.CoTournament=$this->TourId
-												where g.F2FTournament=$this->TourId and tf1.F2FSchedule='$Date $Time'";
-												$q=safe_r_SQL($SQL);
-												while($r=safe_fetch($q) and trim($r->LeftSide) and trim($r->RightSide)) {
-													$this->Ods->addCell($r->LeftSide.' - '.$r->RightSide);
-												}
 											}
 											break;
 										default:
@@ -3700,42 +3483,6 @@ Class Scheduler {
 															$FOP[$Date]['times'][$Time]['targets'][]=$bl;
 														}
 													}
-												}
-											}
-											break;
-										case 'R':
-
-											break; // temporary put there...
-
-											$lnk=$Item->Text.': '.$Item->Events;
-											$row=array('', '', '', '', htmlspecialchars(strip_tags($lnk)));
-											if($Item->Shift and $timing[1]) {
-												$row[0]=$timing[0];
-											}
-											$row[1]=$timing[1];
-											$row[2]=$timing[2];
-											$row[3]=$timing[3];
-											$timing[3]='';
-											$timing[2]='';
-											$timing[1]='';
-											$this->Ods->setCellStyle('Duration', null, 3);
-											$this->Ods->addRow($row);
-											$IsTitle=false;
-											if($this->Finalists) {
-												list($Phase, $Round, $Group)=explode('-', $Item->Session);
-												$SQL="select concat(upper(e1.EnFirstname), ' ', e1.EnName, ' (', c1.CoCode, ')') LeftSide,
-												concat('(', c2.CoCode, ') ', upper(e2.EnFirstname), ' ', e2.EnName) RightSide
-												from F2FGrid g
-												inner join F2FFinal tf1 on g.F2FTournament=tf1.F2FTournament and g.F2FPhase=tf1.F2FPhase and g.F2FRound=tf1.F2FRound and g.F2FGroup=tf1.F2FGroup and g.F2FMatchNo1=tf1.F2FMatchNo
-												inner join F2FFinal tf2 on g.F2FTournament=tf2.F2FTournament and g.F2FPhase=tf2.F2FPhase and g.F2FRound=tf2.F2FRound and g.F2FGroup=tf2.F2FGroup and g.F2FMatchNo2=tf2.F2FMatchNo and tf1.F2FEvent=tf2.F2FEvent
-												inner join Entries e1 on e1.EnId=tf1.F2FEnId and tf1.F2FEvent IN ('$Item->Event')
-												inner join Entries e2 on e2.EnId=tf2.F2FEnId and tf2.F2FEvent IN ('$Item->Event')
-												inner join Countries c1 on e1.EnCountry=c1.CoId and c1.CoTournament=$this->TourId
-												inner join Countries c2 on e2.EnCountry=c2.CoId and c2.CoTournament=$this->TourId
-												where g.F2FTournament=$this->TourId and tf1.F2FSchedule='$Date $Time'";
-												$q=safe_r_SQL($SQL);
-												while($r=safe_fetch($q) and trim($r->LeftSide) and trim($r->RightSide)) {
-													$this->Ods->addCell($r->LeftSide.' - '.$r->RightSide);
 												}
 											}
 											break;
@@ -4457,37 +4204,6 @@ Class Scheduler {
 				and concat_ws('|', FwDay, date_format(FwTime, '%H:%i'), '', '', '') in ($GetSessions)
 			group by FwTeamEvent, FwDay, FwTime
 			";
-
-			// Then gets the robin rounds
-			$SQL[]="select distinct
-			'' EvShootOff,
-			'' grPos,
-				'0' Target,
-				'R' Type,
-				date_format(F2FSchedule, '%Y-%m-%d') Day,
-				concat(F2FPhase, '-', F2FRound, '-', F2FGroup) Session,
-				F2FPhase Distance,
-				'',
-				if(F2FSchedule=0, '', date_format(F2FSchedule, '%H:%i')) Start,
-				0 Duration,
-				'' WarmStart,
-				0 WarmDuration,
-				0 Options,
-				'',
-				if(count(*)=2, group_concat(distinct EvEventName order by EvEventName separator ', '), group_concat(distinct F2FEvent order by F2FEvent separator ', ')) Events,
-				group_concat(distinct F2FEvent order by F2FEvent separator '\',\'') Event,
-				'' as Locations,
-				1 OrderPhase,
-				0 SchDelay,
-				'' TD1, '' TD2, '' TD3, '' TD4, '' TD5, '' TD6, '' TD7, '' TD8
-			from F2FFinal
-			inner join Events on F2FEvent=EvCode and EvTeamEvent=0 and F2FTournament=EvTournament
-			where F2FTournament=$this->TourId
-				and F2FSchedule>0
-				and concat_ws('|', F2FSchedule, if(F2FSchedule=0, '', date_format(F2FSchedule, '%H:%i')), concat(F2FPhase, '-', F2FRound, '-', F2FGroup), F2FPhase, 1) in ($GetSessions)
-			group by F2FPhase, F2FSchedule
-			";
-
 
 			// Get all the matches
 			// get all the named sessions

@@ -1,11 +1,19 @@
 <?php
 
 require_once(dirname(__FILE__) . '/config.php');
+require_once('Common/Lib/CommonLib.php');
 
 CheckTourSession(true);
 
 $JS_SCRIPT[] ='<script src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>';
+$JS_SCRIPT[] ='<script src="'.$CFG->ROOT_DIR.'Common/js/jquery-confirm.min.js"></script>';
+$JS_SCRIPT[] ='<link href="'.$CFG->ROOT_DIR.'Common/css/jquery-confirm.min.css" media="screen" rel="stylesheet" type="text/css">';
 $JS_SCRIPT[]='<script src="./configure.js"></script>';
+$JS_SCRIPT[]=phpVars2js(array(
+	'MsgConfirm' => get_text('ConfirmDescr', 'Tournament'),
+	'CmdCancel' => get_text('CmdCancel'),
+	'CmdConfirm' => get_text('Confirm', 'Tournament'),
+));
 
 include('Common/Templates/head.php');
 
@@ -18,7 +26,7 @@ $Teams=array();
 
 $q=safe_r_sql("select EvCode, EvNumQualified
 	from Events 
-	where EvTeamEvent=1 and EvTournament={$_SESSION['TourId']} 
+	where EvTeamEvent=1 and EvTournament={$_SESSION['TourId']} and EvNumQualified!=4
 	order by EvProgr");
 while($r=safe_fetch($q)) {
 	foreach(range(1,$r->EvNumQualified) as $k) {
@@ -30,6 +38,8 @@ while($r=safe_fetch($q)) {
 
 $SavedBonus=getModuleParameter('FFTA', 'D1Bonus', $Winners);
 $SavedWinners=getModuleParameter('FFTA', 'D1Winners', $Winners);
+$AllInOne=getModuleParameter('FFTA', 'D1AllInOne', 0);
+
 if(!$SavedBonus) {
 	$SavedBonus=$Winners;
 }
@@ -43,8 +53,11 @@ echo '<table class="Tabella" style="margin:auto;width:auto;margin-bottom:1em">';
 
 // default match duration
 echo '<tr><th class="Title">'.get_text('ConnectedCodes','Tournament').'</th><td><input type="text" pos="" cat="" item="CONNECTED" onblur="confUpdate(this)" size="30" value="'.implode(', ', getModuleParameter('FFTA', 'ConnectedCompetitions', array($_SESSION['TourCode']))).'"></td></tr>';
-echo '<tr><th class="Title">'.get_text('StdIndMatchLength','Tournament').'</th><td><input type="text" pos="" cat="" item="DEFIND" onblur="confUpdate(this)" size="10" value="'.getModuleParameter('FFTA', 'DefaultMatchIndividual', 40).'"></td></tr>';
+if(!$AllInOne) {
+	echo '<tr><th class="Title">'.get_text('StdIndMatchLength','Tournament').'</th><td><input type="text" pos="" cat="" item="DEFIND" onblur="confUpdate(this)" size="10" value="'.getModuleParameter('FFTA', 'DefaultMatchIndividual', 40).'"></td></tr>';
+}
 echo '<tr><th class="Title">'.get_text('StdTeamMatchLength','Tournament').'</th><td><input type="text" pos="" cat="" item="DEFTEAM" onblur="confUpdate(this)" size="10" value="'.getModuleParameter('FFTA', 'DefaultMatchTeam', 30).'"></td></tr>';
+echo '<tr><th class="Title">'.get_text('D1AllInOne','Tournament').'</th><td><input type="checkbox" pos="" cat="" item="ALLONE" onclick="alertUpdate(this)" '.(getModuleParameter('FFTA', 'D1AllInOne', 0) ? ' checked="checked"' : '' ).'></td></tr>';
 echo '</table>';
 
 echo '<table class="Tabella" style="margin:auto;width:auto">';
@@ -56,8 +69,11 @@ $Heading2='<tr>';
 echo '<tr>';
 echo '<th class="Title" rowspan="2"></th>';
 foreach($Teams as $Cat => $Rank) {
-	echo '<th class="Title" colspan="2">' . $Cat . '</th>';
-	$Heading2.='<th class="Title">'.get_text('RankYear', 'Tournament', substr($_SESSION['TourRealWhenFrom'], 0, 4)-1).'</th><th class="Title">'.get_text('Bonus', 'Tournament').'</th>';
+	echo '<th class="Title" colspan="'.($AllInOne ? 1 : 2).'">' . $Cat . '</th>';
+	$Heading2.='<th class="Title">'.get_text('RankYear', 'Tournament', substr($_SESSION['TourRealWhenFrom'], 0, 4)-1).'</th>';
+	if(!$AllInOne) {
+		$Heading2 .= '<th class="Title">' . get_text('Bonus', 'Tournament') . '</th>';
+	}
 }
 echo '</tr>';
 echo $Heading2.'</tr>';
@@ -67,10 +83,14 @@ foreach(range(1, max($Teams)) as $pos) {
 	foreach($Teams as $Cat => $MaxRows) {
 		if($pos<=$MaxRows) {
 			echo '<td><input type="text" pos="'.$pos.'" cat="'.$Cat.'" item="CLUB" onblur="confUpdate(this)" value="'.(isset($SavedWinners[$Cat][$pos]) ? $SavedWinners[$Cat][$pos] : '').'" size="10"></td>';
-			echo '<td><input type="text" pos="'.$pos.'" cat="'.$Cat.'" item="BONUS" onblur="confUpdate(this)" value="'.(isset($SavedBonus[$Cat][$pos]) ? intval($SavedBonus[$Cat][$pos]) : 0).'" size="3"></td>';
+			if(!$AllInOne) {
+				echo '<td><input type="text" pos="'.$pos.'" cat="'.$Cat.'" item="BONUS" onblur="confUpdate(this)" value="'.(isset($SavedBonus[$Cat][$pos]) ? intval($SavedBonus[$Cat][$pos]) : 0).'" size="3"></td>';
+			}
 		} else {
 			echo '<td></td>';
-			echo '<td></td>';
+			if(!$AllInOne) {
+				echo '<td></td>';
+			}
 		}
 	}
 	echo '</tr>';

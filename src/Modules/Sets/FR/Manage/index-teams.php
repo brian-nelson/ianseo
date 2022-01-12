@@ -18,7 +18,7 @@ $q=safe_r_sql("select EvNumQualified, EvCode from Events where EvTeamEvent=1 and
 if(!($r=safe_fetch($q))) {
 	JsonOut($JSON);
 }
-
+$AllInOne=getModuleParameter('FFTA', 'D1AllInOne', 0);
 $Matches=array();
 if($r->EvNumQualified==8) {
 	switch($_REQUEST['day']) {
@@ -55,6 +55,39 @@ if($r->EvNumQualified==8) {
 			);
 			$JSON['games']=4;
 			safe_w_SQL("update FinSchedule set FSScheduledDate=0, FSScheduledTime=0, FSScheduledLen=0 where FSMatchNo>=192 and FSEvent like '$r->EvCode%' and FSTournament={$_SESSION['TourId']}");
+			break;
+	}
+} elseif($r->EvNumQualified==6) {
+	switch($_REQUEST['day']) {
+		case 1:
+			$Matches=array(
+				'1' => array(6,5,4,3,2),
+				'2' => array(3,6,5,4,0),
+				'3' => array(0,4,6,0,5),
+				'4' => array(5,0,0,0,6),
+				'5' => array(0,0,0,6,0),
+				'6' => array(0,0,0,0,0),
+			);
+			break;
+		case 2:
+			$Matches=array(
+				'1' => array(5,6,4,3,2),
+				'2' => array(6,3,5,4,0),
+				'3' => array(4,0,6,0,5),
+				'4' => array(0,5,0,0,6),
+				'5' => array(0,0,0,6,0),
+				'6' => array(0,0,0,0,0),
+			);
+			break;
+		case 3:
+			$Matches=array(
+				'1' => array(4,5,6,3,2),
+				'2' => array(5,6,3,4,0),
+				'3' => array(6,4,0,0,5),
+				'4' => array(0,0,5,0,6),
+				'5' => array(0,0,0,6,0),
+				'6' => array(0,0,0,0,0),
+			);
 			break;
 	}
 } else {
@@ -147,37 +180,40 @@ foreach($Matches as $pos => $Opponents) {
 }
 
 foreach($TeamMatches as $MatchNo => $Team) {
-	safe_w_sql("update TeamFinals set TfTeam=$Team, TfSubTeam=0 where TfEvent='$Event' and TfMatchNo=$MatchNo and TfTournament={$_SESSION['TourId']}");
+	safe_w_sql("insert into TeamFinals set TfTeam=$Team, TfSubTeam=0, TfEvent='$Event', TfMatchNo=$MatchNo, TfTournament={$_SESSION['TourId']} 
+		on duplicate key update TfTeam=$Team, TfSubTeam=0");
 }
 
-$SQL="select EnId, EnCountry, IndRank
-	from Individuals
-    inner join Entries on EnId=IndId and EnTournament=IndTournament and EnTeamFEvent=1
-    where IndEvent=".StrSafe_DB($_REQUEST['event'])." and IndTournament={$_SESSION['TourId']}
-    order by EnCountry, IndRank";
-$OldCountry='';
-$q=safe_r_sql($SQL);
-while($r=safe_fetch($q)) {
-	if($OldCountry!=$r->EnCountry) {
-		$i=1;
-		$OldCountry=$r->EnCountry;
-		$OldRank=$r->IndRank;
-	}
-	foreach($TeamMatchnos[$r->EnCountry] as $MatchNo) {
-		safe_w_sql("update Finals set FinAthlete=$r->EnId where FinEvent=".StrSafe_DB($Event.$i)." and FinMatchNo=$MatchNo and FinTournament={$_SESSION['TourId']}");
-	}
-	$i++;
-}
-
-// check the SO of all the involved events
-$q=safe_r_sql("select IndEvent 
-	from Individuals 
-	where IndEvent like '{$Event}_' and IndTournament={$_SESSION['TourId']}
-	group by IndEvent, IndRank
-	having count(*)>1");
 $SOEvent=array();
-while($r=safe_fetch($q)) {
-	$SOEvent[]=$r->IndEvent;
+if(!$AllInOne) {
+	$SQL="select EnId, EnCountry, IndRank
+		from Individuals
+	    inner join Entries on EnId=IndId and EnTournament=IndTournament and EnTeamFEvent=1
+	    where IndEvent=".StrSafe_DB($_REQUEST['event'])." and IndTournament={$_SESSION['TourId']}
+	    order by EnCountry, IndRank";
+	$OldCountry='';
+	$q=safe_r_sql($SQL);
+	while($r=safe_fetch($q)) {
+		if($OldCountry!=$r->EnCountry) {
+			$i=1;
+			$OldCountry=$r->EnCountry;
+			$OldRank=$r->IndRank;
+		}
+		foreach($TeamMatchnos[$r->EnCountry] as $MatchNo) {
+			safe_w_sql("update Finals set FinAthlete=$r->EnId where FinEvent=".StrSafe_DB($Event.$i)." and FinMatchNo=$MatchNo and FinTournament={$_SESSION['TourId']}");
+		}
+		$i++;
+	}
+
+	// check the SO of all the involved events
+	$q=safe_r_sql("select IndEvent 
+		from Individuals 
+		where IndEvent like '{$Event}_' and IndTournament={$_SESSION['TourId']}
+		group by IndEvent, IndRank
+		having count(*)>1");
+	while($r=safe_fetch($q)) {
+		$SOEvent[]=$r->IndEvent;
+	}
 }
 
 if($SOEvent) {
@@ -193,10 +229,39 @@ if($Bonus=getModuleParameter('FFTA', 'D1Bonus') and !empty($Bonus[$Event])) {
 	$q=safe_r_sql("select CoCode, TeRank from Teams inner join Countries on CoId=TeCoId and CoTournament=TeTournament where TeTournament={$_SESSION['TourId']} and TeEvent='$Event' and TeFinEvent=1 order by TeRank");
 	$Now=date('Y-m-d H:i:s');
 	while($r=safe_fetch($q)) {
-		if(isset($Bonus[$Event][$r->TeRank])) {
-			safe_w_SQL("insert into TeamDavis set TeDaEvent='$Event', TeDaTeam='$r->CoCode', TeDaSubTeam=0, TeDaBonusPoints=".intval($Bonus[$Event][$r->TeRank]).", TeDaDateTime='$Now', TeDaTournament={$_SESSION['TourId']}");
+		if($AllInOne or isset($Bonus[$Event][$r->TeRank])) {
+			$Bonus=($AllInOne ? 0 : $Bonus[$Event][$r->TeRank]);
+			safe_w_SQL("insert into TeamDavis set TeDaEvent='$Event', TeDaTeam='$r->CoCode', TeDaSubTeam=0, TeDaBonusPoints=".intval($Bonus).", TeDaDateTime='$Now', TeDaTournament={$_SESSION['TourId']}");
 		}
 	}
+}
+
+// AllInOne in day 3, creates the final event!
+if($AllInOne and $_REQUEST['day']==3) {
+	// creates the events, identical BUT with SO set to 0, firstphase=2, qualified=4
+	$q=safe_r_sql("select * from Events where EvTeamEvent=1 and EvTournament={$_SESSION['TourId']} AND EvCode=".StrSafe_DB($Event));
+	while($r=safe_fetch($q)) {
+		$r->EvFinalFirstPhase=2;
+		$r->EvCode='F'.$r->EvCode;
+		$r->EvNumQualified=4;
+		$r->EvShootOff=0;
+		$r->EvProgr+=4;
+		$SQL2=array();
+		foreach($r as $k=>$v) {
+			$SQL2[]="$k=".StrSafe_DB($v);
+		}
+		safe_w_sql("insert ignore into Events set ".implode(',', $SQL2));
+		safe_w_sql("delete from TeamFinals where TfTournament={$_SESSION['TourId']} and TfEvent=". StrSafe_DB($r->EvCode));
+		$Insert = "INSERT INTO TeamFinals (TfEvent,TfMatchNo,TfTournament,TfDateTime) 
+	        SELECT EvCode,GrMatchNo," . StrSafe_DB($_SESSION['TourId']) . "," . StrSafe_DB(date('Y-m-d H:i:s')) . " 
+	        FROM Events 
+	        INNER JOIN Phases on PhId=EvFinalFirstPhase and (PhIndTeam & pow(2,EvTeamEvent))>0
+	        INNER JOIN Grids ON GrPhase<=greatest(PhId, PhLevel) AND EvTeamEvent='1' AND EvTournament=" . StrSafe_DB($_SESSION['TourId']) . " 
+	        WHERE EvCode=" . StrSafe_DB($r->EvCode) . " ";
+		$RsIns = safe_w_sql($Insert);
+
+	}
+
 }
 
 set_qual_session_flags();

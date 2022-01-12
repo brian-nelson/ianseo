@@ -106,7 +106,6 @@ $lang['SetSE_WaDist']='WA udaljenosti';
 $lang['SetUkJunNationals']='Juniorsko nacionalno prvenstvo';
 $lang['SetUkNationals']='Nacionalno prvenstvo';
 $lang['Setup-ARLEF']='LEF Pravila';
-$lang['Setup-F2F']='Face2Face';
 $lang['Setup-NO']='Norwegian tournament (Norges Bueskytterforbund rules)';
 $lang['Setup-PAR']='Paralimpic turnir (IPC pravila)';
 $lang['Setup-Select']='Odaberite odgovarajuća lokalna pravila';

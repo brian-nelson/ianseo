@@ -42,13 +42,13 @@
 		if (is_array($_REQUEST["Event"])) {
 			$tmp=array();
 			foreach ($_REQUEST["Event"] as $ev) {
-				if(preg_match("/^[0-9A-Z]{1,4}$/i",$ev)) {
+				if(preg_match("/^[0-9A-Z]+$/i",$ev)) {
 					$tmp[]="TfEvent LIKE '" . $ev . "'";
 				}
 			}
 			if ($tmp) $MyQuery.= "AND (" . implode(" OR ",$tmp) . ") ";
 		} else {
-			if( preg_match("/^[0-9A-Z]{1,4}$/i",$_REQUEST["Event"]))
+			if( preg_match("/^[0-9A-Z]+$/i",$_REQUEST["Event"]))
 				$MyQuery.= "AND TfEvent LIKE '" . $_REQUEST['Event'] . "' ";
 		}
 	}

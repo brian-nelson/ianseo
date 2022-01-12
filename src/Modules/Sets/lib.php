@@ -259,8 +259,10 @@ function CreateEventNew($TourId, $Code, $Description, $Order, $Options) {
 }
 
 function InsertClassEvent($TourId, $Team, $Number, $Code, $Division, $Class, $SubClass='') {
-    $q = safe_r_SQL("SELECT EvCode FROM Events WHERE EvCode=".StrSafe_DB($Code)." AND EvTeamEvent='".($Team!=0 ? '1':'0')."' AND EvTournament={$TourId}");
-    if(safe_num_rows($q)!=0) {
+    $q1 = safe_r_SQL("SELECT EvCode FROM Events WHERE EvCode=".StrSafe_DB($Code)." AND EvTeamEvent='".($Team!=0 ? '1':'0')."' AND EvTournament={$TourId}");
+	$q2 = safe_r_SQL("SELECT ClId FROM Classes WHERE ClId=".StrSafe_DB($Class)." AND ClTournament={$TourId}");
+	$q3 = safe_r_SQL("SELECT DivId FROM Divisions WHERE DivId=".StrSafe_DB($Division)." AND DivTournament={$TourId}");
+    if(safe_num_rows($q1)!=0 AND safe_num_rows($q2)!=0 AND safe_num_rows($q3)!=0) {
         safe_w_sql("INSERT INTO EventClass set "
             . " EcTournament=$TourId"
             . ", EcTeamEvent=$Team"

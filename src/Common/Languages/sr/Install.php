@@ -103,7 +103,6 @@ $lang['SetOrdinaryFinals']='Obično takmičenje sa eliminacijama';
 $lang['SetUkJunNationals']='Juniorsko Državno prvenstvo';
 $lang['SetUkNationals']='Državno Prvenstvo';
 $lang['Setup-ARLEF']='LEF pravila';
-$lang['Setup-F2F']='Face2Face';
 $lang['Setup-NO']='Norveško takmičenje (po norveškim pravilima)';
 $lang['Setup-PAR']='Para-olimpijsko takmičenje (IPC pravila)';
 $lang['Setup-Select']='Izaberi odgovarajuće lokalno pravilo';

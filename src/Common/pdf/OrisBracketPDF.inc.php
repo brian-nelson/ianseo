@@ -180,17 +180,30 @@ class OrisBracketPDF extends OrisPDF
 			return;
 		}
 		if($Top) {
-			$StartY=OrisPDF::topStart+12;
+		    $extraH = 0;
+		    if(count($this->Records)) {
+		        foreach ($this->Records as $rec) {
+                    $extraH += count($rec->RtRecExtra);
+                }
+            }
+			$StartY=OrisPDF::topStart+12+($extraH*4);
 			$StartX=155;
 		} else {
 			$StartY=$this->getPageHeight()-100;
 			$StartX=155;
 		}
+		$StartX=max(155, $this->getPageWidth()+1-$this->getSideMargin()-$this->CellHSp*2);
+		$W=$this->getPageWidth()-$StartX-$this->getSideMargin();
+		$W1=$W*0.10;
+		$W2=$W*0.16;
+		$W4=$W*0.11;
+		$W5=$W*0.20;
+		$W3=$W-$W1-$W2-$W4-$W5;
 		$this->SetXY($StartX, $StartY);
 		$this->SetFont('','b');
 		$this->Cell(0,0, $this->FinalRank);
 		$this->SetFont('','');
-		$this->Rect($StartX-1,$StartY-1,$this->getPageWidth()-$StartX-9, min(8, $this->MaxFinalists)*4 + 6);
+		$this->Rect($StartX,$StartY,$W, min(8, $this->MaxFinalists)*4 + 6);
 		$Striked=false;
 		for($n=1;$n<=min(8,$this->MaxFinalists);$n++) {
 			if(isset($this->Finalists[$n])) {
@@ -198,13 +211,15 @@ class OrisBracketPDF extends OrisPDF
 
 				foreach($this->Finalists[$n] as $Fin) {
 					$this->SetxY($StartX, $StartY+$n*4);
-					$this->Cell(5,4, $Fin->ShowRank ? $Fin->FinRank : $Fin->IrmText, '','','R');
-					$this->Cell(8,4, $Fin->Country);
-					$this->Cell(17,4, $Fin->Team);
+					$this->Cell($W1,4, $Fin->ShowRank ? $Fin->FinRank : $Fin->IrmText, '','','R');
+					$this->Cell($W2,4, $Fin->Country);
+					$this->Cell($W3,4, $Fin->Team);
 					if($n>4) {
-						$this->Cell(6,4, $Fin->Score, '','','R');
 						if($Fin->ScoreMatch and $Fin->ScoreMatch!=$Fin->Score) {
-							$this->Cell(10,4, '('.$Fin->ScoreMatch.')');
+							$this->Cell($W4,4, $Fin->Score, '','','R');
+							$this->Cell($W5,4, '('.$Fin->ScoreMatch.')');
+						} else {
+							$this->Cell($W4+$W5,4, $Fin->Score, '','','R');
 						}
 					}
 					$n++;
@@ -457,4 +472,3 @@ class OrisBracketPDF extends OrisPDF
 	}
 
 }
-

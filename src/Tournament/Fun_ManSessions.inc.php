@@ -839,23 +839,13 @@
  * @param int $SesOrder: numero sessione
  * @return mixed: array[SesTar4Session,SesAth4Target] se ok altrimenti false
  */
-	function getQualTargetsInfoForSession($SesTournament,$SesOrder)
-	{
+	function getQualTargetsInfoForSession($SesTournament,$SesOrder) {
 		$SesTar4Session=0;
 		$SesAth4Target=0;
 
-		$q
-			= "SELECT "
-				. "SesTar4Session,SesAth4Target "
-			. "FROM "
-				. "Session "
-			. "WHERE "
-				. "SesTournament=" . StrSafe_DB($SesTournament) . " AND SesOrder=" . StrSafe_DB($SesOrder) . ""
-		;
-		//print $q . '<br><br>';
+		$q = "SELECT SesTar4Session,SesAth4Target FROM Session WHERE SesTournament=" . StrSafe_DB($SesTournament) . " AND SesOrder=" . StrSafe_DB($SesOrder) . " AND SesType='Q'";
 		$rs=safe_r_sql($q);
-		if (!($rs && safe_num_rows($rs)==1))
-		{
+		if (safe_num_rows($rs)!=1) {
 			return false;
 		}
 

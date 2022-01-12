@@ -1,0 +1,51 @@
+* {
+    box-sizing: border-box;
+}
+
+.TvoName {
+    width:10em;
+}
+
+.TvoSide {
+    width:3em;
+}
+
+.TvoHeight {
+    width:4em;
+}
+
+.TvoRow {
+    display:flex;
+    margin-bottom:0.5em;
+}
+
+.TvoRowTitle {
+    flex:1 1 13em;
+    max-width:10%;
+    text-align: right;
+    padding-right:0.5em;
+}
+
+.TvoRowField {
+    flex:3 0 10%;
+}
+
+.TvoMessage,
+.TvoUrl,
+.TvoRule,
+.TvoFile,
+.TvoPath,
+.TvoTournament {
+    width:100%;
+}
+
+.TvoMessage {
+    height:10em;
+}
+
+.float-right {float:right!important}
+.float-left {float:left!important}
+
+.mr-1 {margin-right: .25rem !important;}
+.ml-1 {margin-left: .25rem !important;}
+.mx-1 {margin-left: .25rem !important;margin-right: .25rem !important;}

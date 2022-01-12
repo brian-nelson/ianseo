@@ -54,6 +54,23 @@ if(isset($_REQUEST["featureIP"]) AND $ip = checkValidIP($_REQUEST["featureIP"]) 
     $q = safe_w_SQL($Sql);
 }
 
+if(!empty($_REQUEST['export'])) {
+	$Export=array('ACL' => array(), 'AclDetails' => array());
+	$q=safe_r_sql("select * from ACL where AclTournament={$_SESSION['TourId']}");
+	while($r=safe_fetch($q)) {
+		$Export['ACL'][]=$r;
+	}
+	$q=safe_r_sql("select * from AclDetails where AclDtTournament={$_SESSION['TourId']}");
+	while($r=safe_fetch($q)) {
+		$Export['AclDetails'][]=$r;
+	}
+
+	// We'll be outputting a gzipped TExt File in UTF-8 pretending it's binary
+	header('Content-type: application/octet-stream');
+	header("Content-Disposition: attachment; filename=\"{$_SESSION['TourCode']}-ACL.ianseo\"");
+	echo gzcompress(serialize($Export),9);
+	exit();
+}
 
 if(isset($_REQUEST["AclOnOff"]) AND preg_match("/^[0|1]$/",$_REQUEST["AclOnOff"]) AND isset($_REQUEST["AclRecord"]) AND preg_match("/^[0|1]$/",$_REQUEST["AclRecord"])) {
     if($_REQUEST["AclOnOff"]=="0") {

@@ -469,36 +469,14 @@ function Get_Image($IocCode=null, $Section=null, $Reference=null, $Type=null, $T
  *
  * @return string: script javascript che inizializza le variabili localizzate
  */
-function phpVars2js($vars)
-{
-	$out='';
+function phpVars2js($vars) {
+	$out='<script type="text/javascript">';
 
-	$out.='<script type="text/javascript">' . "\n";
-
-	foreach ($vars as $k => $v)
-	{
-
-		if (is_array($v))		// array
-		{
-
-			$out.='var ' . $k . '=new Array();' . "\n";
-			foreach ($v as $index => $value)
-			{
-				if (!is_numeric($index))
-				{
-					$index="'" . $index . "'";
-				}
-				$out.=$k . '[' . $index . ']="' . addslashes($value) . '";' . "\n";
-			}
-		}
-		else		// var scalare
-		{
-			$out.='var ' . $k . '="' . addslashes($v) . '";' . "\n";
-		}
-
+	foreach ($vars as $k => $v) {
+		$out.='var ' . $k . '='.json_encode($v).';';
 	}
 
-	$out.='</script>' . "\n";
+	$out.='</script>';
 
 	return $out;
 }
@@ -983,7 +961,7 @@ function CheckCredentials($OnlineId, $OnlineAuth, $Return, $LicenseVoucher='') {
 	}
 
 	if(empty($OnlineId) or strlen($OnlineAuth)==0) {
-		return get_text('ErrEmptyFields');
+		return get_text('ErrEmptyFields', 'Errors');
 	}
 
 	$postdata = http_build_query( array(
@@ -1059,4 +1037,200 @@ function CheckCredentials($OnlineId, $OnlineAuth, $Return, $LicenseVoucher='') {
 			break;
 		default:
 	}
+}
+
+function get_Countries() {
+	// get list from WA Countries
+	$Flags=array(
+		'AFG' => 'Afghanistan',
+		'ALB' => 'Albania',
+		'ALG' => 'Algeria',
+		'AND' => 'Andorra',
+		'ARG' => 'Argentina',
+		'ARM' => 'Armenia',
+		'ARU' => 'Aruba',
+		'ASA' => 'American Samoa',
+		'AUS' => 'Australia',
+		'AUT' => 'Austria',
+		'AZE' => 'Azerbaijan',
+		'BAH' => 'Bahamas',
+		'BAN' => 'Bangladesh',
+		'BAR' => 'Barbados',
+		'BEL' => 'Belgium',
+		'BEN' => 'Benin',
+		'BER' => 'Bermuda',
+		'BHU' => 'Bhutan',
+		'BIH' => 'Bosnia and Herzegovina',
+		'BLR' => 'Belarus',
+		'BOL' => 'Bolivia',
+		'BRA' => 'Brazil',
+		'BUL' => 'Bulgaria',
+		'BUR' => 'Burkina Faso',
+		'CAF' => 'Central African Republic',
+		'CAM' => 'Cambodia',
+		'CAN' => 'Canada',
+		'CHA' => 'Chad',
+		'CHI' => 'Chile',
+		'CHN' => 'PR China',
+		'CIV' => 'Cote d Ivoire',
+		'CMR' => 'Cameroon',
+		'COD' => 'DR Congo',
+		'COL' => 'Colombia',
+		'COM' => 'Comoros',
+		'CRC' => 'Costa Rica',
+		'CRO' => 'Croatia',
+		'CUB' => 'Cuba',
+		'CYP' => 'Cyprus',
+		'CZE' => 'Czech Republic',
+		'DEN' => 'Denmark',
+		'DJI' => 'Djibouti',
+		'DMA' => 'Dominica',
+		'DOM' => 'Dominican Republic',
+		'ECU' => 'Ecuador',
+		'EGY' => 'Egypt',
+		'ERI' => 'Eritrea',
+		'ESA' => 'El Salvador',
+		'ESP' => 'Spain',
+		'EST' => 'Estonia',
+		'FIJ' => 'Fiji',
+		'FIN' => 'Finland',
+		'FLK' => 'Falkland Island',
+		'FPO' => 'Tahiti',
+		'FRA' => 'France',
+		'FRO' => 'Faroe Islands',
+		'GAB' => 'Gabon',
+		'GBR' => 'Great Britain',
+		'GEO' => 'Georgia',
+		'GER' => 'Germany',
+		'GHA' => 'Ghana',
+		'GLP' => 'Guadalupe',
+		'GRE' => 'Greece',
+		'GUA' => 'Guatemala',
+		'GUI' => 'Guinea',
+		'GUM' => 'Guam',
+		'GUY' => 'Guyana',
+		'HAI' => 'Haiti',
+		'HKG' => 'Hong Kong, China',
+		'HON' => 'Honduras',
+		'HUN' => 'Hungary',
+		'INA' => 'Indonesia',
+		'IND' => 'India',
+		'IOA' => 'Int. Olympic Archer',
+		'IPA' => 'Int. Paralympic Archer',
+		'IRI' => 'IR Iran',
+		'IRL' => 'Ireland',
+		'IRQ' => 'Iraq',
+		'ISL' => 'Iceland',
+		'ISR' => 'Israel',
+		'ISV' => 'Virgin Islands, US',
+		'ITA' => 'Italy',
+		'IVB' => 'British Virgin Islands',
+		'JOR' => 'Jordan',
+		'JPN' => 'Japan',
+		'KAZ' => 'Kazakhstan',
+		'KEN' => 'Kenya',
+		'KGZ' => 'Kyrgyzstan',
+		'KIR' => 'Kiribati',
+		'KOR' => 'Korea',
+		'KOS' => 'Kosovo',
+		'KSA' => 'Saudi Arabia',
+		'KUW' => 'Kuwait',
+		'LAO' => 'Laos',
+		'LAT' => 'Latvia',
+		'LBA' => 'Libya',
+		'LBR' => 'Liberia',
+		'LES' => 'Lesotho',
+		'LIB' => 'Lebanon',
+		'LIE' => 'Liechtenstein',
+		'LTU' => 'Lithuania',
+		'LUX' => 'Luxembourg',
+		'MAC' => 'Macau, China',
+		'MAD' => 'Madagascar',
+		'MAR' => 'Morocco',
+		'MAS' => 'Malaysia',
+		'MAW' => 'Malawi',
+		'MDA' => 'Moldova',
+		'MEX' => 'Mexico',
+		'MGL' => 'Mongolia',
+		'MKD' => 'North Macedonia',
+		'MLI' => 'Mali',
+		'MLT' => 'Malta',
+		'MNE' => 'Montenegro',
+		'MON' => 'Monaco',
+		'MRI' => 'Mauritius',
+		'MTN' => 'Mauritania',
+		'MTQ' => 'Martinique',
+		'MYA' => 'Myanmar',
+		'NAM' => 'Namibia',
+		'NCA' => 'Nicaragua',
+		'NCL' => 'New Caledonia',
+		'NED' => 'Netherlands',
+		'NEP' => 'Nepal',
+		'NFK' => 'Norfolk Island',
+		'NGR' => 'Nigeria',
+		'NIG' => 'Niger',
+		'NIU' => 'Niue',
+		'NMI' => 'Northern Mariana Islands',
+		'NOR' => 'Norway',
+		'NZL' => 'New Zealand',
+		'PAK' => 'Pakistan',
+		'PAN' => 'Panama',
+		'PAR' => 'Paraguay',
+		'PER' => 'Peru',
+		'PHI' => 'Philippines',
+		'PLW' => 'Palau',
+		'PNG' => 'Papua New Guinea',
+		'POL' => 'Poland',
+		'POR' => 'Portugal',
+		'PRK' => 'DPR Korea',
+		'PUR' => 'Puerto Rico',
+		'QAT' => 'Qatar',
+		'ROU' => 'Romania',
+		'RSA' => 'South Africa',
+		'RUS' => 'Russia',
+		'RWA' => 'Rwanda',
+		'SAM' => 'Samoa',
+		'SCG' => 'Serbia and Montenegro',
+		'SEN' => 'Senegal',
+		'SGP' => 'Singapore',
+		'SKN' => 'Saint Kitts and Nevis',
+		'SLE' => 'Sierra Leone',
+		'SLO' => 'Slovenia',
+		'SMR' => 'San Marino',
+		'SOL' => 'Solomon Islands',
+		'SOM' => 'Somalia',
+		'SRB' => 'Serbia',
+		'SRI' => 'Sri Lanka',
+		'SUD' => 'Sudan',
+		'SUI' => 'Switzerland',
+		'SUN' => 'USSR',
+		'SUR' => 'Suriname',
+		'SVK' => 'Slovakia',
+		'SWE' => 'Sweden',
+		'SYR' => 'Syria',
+		'TGA' => 'Tonga',
+		'THA' => 'Thailand',
+		'TJK' => 'Tajikistan',
+		'TKM' => 'Turkmenistan',
+		'TOG' => 'Togo',
+		'TPE' => 'Chinese Taipei',
+		'TTO' => 'Trinidad and Tobago',
+		'TUN' => 'Tunisia',
+		'TUR' => 'Turkey',
+		'UAE' => 'UAE',
+		'UGA' => 'Uganda',
+		'UKR' => 'Ukraine',
+		'URU' => 'Uruguay',
+		'USA' => 'USA',
+		'UZB' => 'Uzbekistan',
+		'VAN' => 'Vanuatu',
+		'VEN' => 'Venezuela',
+		'VIE' => 'Vietnam',
+		'VIN' => 'St Vincent and the Grenadines',
+		'YEM' => 'Yemen',
+		'YUG' => 'Yugoslavia',
+		'ZAM' => 'Zambia',
+		'ZIM' => 'Zimbabwe',
+	);
+	return $Flags;
 }

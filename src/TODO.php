@@ -3,10 +3,6 @@
 
 TODO: 2020-05-08
 Rank check in all sets
-F2F
-	TODO: Obj_Rank_Abs_21.php
-	TODO: Obj_Rank_FinalInd_21.php
-	TODO: Obj_Rank_GridInd_21.php
 FR
 	TODO: Obj_Rank_FinalInd_3_SetFRChampsD1DNAP.php
 	TODO: Obj_Rank_FinalTeam_3_SetFRChampsD1DNAP.php
@@ -22,10 +18,6 @@ UK
 
 
 Chunks check in all sets
-F2F
-	TODO: QualIndividual.inc.php
-	TODO: StartList.inc.php
-	TODO: StartListMatches.inc.php
 FR
 	TODO: BracketIndividual.inc.php
 	TODO: BracketIndividual_3_SetFRChampsD1DNAP.inc.php

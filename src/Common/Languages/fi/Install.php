@@ -95,7 +95,6 @@ $lang['SetOrdinaryFinals']='Normaali kilpailu finaaleilla';
 $lang['SetUkJunNationals']='UK - juniorimestaruuskilpailut';
 $lang['SetUkNationals']='UK - mestaruuskilpailut';
 $lang['Setup-ARLEF']='LEF-säännöt';
-$lang['Setup-F2F']='Face2Face';
 $lang['Setup-NO']='Norjalainen kilpailu (Norjan jousiammuntaliiton säännöt)';
 $lang['Setup-PAR']='Paralympialainen kilpailu (IPC säännöt)';
 $lang['Setup-Select']='Valitse paikallinen sääntö';

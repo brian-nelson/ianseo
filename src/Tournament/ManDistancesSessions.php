@@ -37,13 +37,13 @@ while($r=safe_fetch($q)) {
 			if(empty($DistInfo[$r->SesOrder][$dist])) $DistInfo[$r->SesOrder][$dist]=array('', '', '', '', '', '', '', '');
 			echo '<tr>
 				<th>.'.$dist.'.</th>
-				<td class="Center"><input size="3" type="text" name="end['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][0].'"></td>
-				<td class="Center"><input size="3" type="text" name="arr['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][1].'"></td>
-				<td class="Center"><input size="8" type="text" name="startday['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][2].'"></td>
-				<td class="Center"><input size="5" type="text" name="warmtime['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][5].'"></td>
-				<td class="Center"><input size="3" type="text" name="warmduration['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][6].'"></td>
-				<td class="Center"><input size="5" type="text" name="starttime['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][3].'"></td>
-				<td class="Center"><input size="3" type="text" name="duration['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][4].'"></td>
+				<td class="Center"><input size="4" maxlength="3" type="text" name="end['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][0].'"></td>
+				<td class="Center"><input size="4" maxlength="3" type="text" name="arr['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][1].'"></td>
+				<td class="Center"><input size="10" maxlength="10" type="date" name="startday['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][2].'"></td>
+				<td class="Center"><input size="5" maxlength="3" type="text" name="warmtime['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][5].'"></td>
+				<td class="Center"><input size="4" maxlength="3" type="text" name="warmduration['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][6].'"></td>
+				<td class="Center"><input size="6" maxlength="5" type="time" name="starttime['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][3].'"></td>
+				<td class="Center"><input size="5" maxlength="3" type="text" name="duration['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][4].'"></td>
 				<td class="Center"><input size="70" type="text" name="comment['.$r->SesOrder.']['.$dist.']" onchange="ChangeInfo(this)" value="'.$DistInfo[$r->SesOrder][$dist][7].'"></td>
 				</tr>';
 		}

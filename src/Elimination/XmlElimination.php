@@ -28,7 +28,7 @@ $XmlDoc->appendChild($XmlRoot);
 $ListHeader = NULL;
 
 $options=array();
-if(isset($_REQUEST["Event"]) && preg_match("/^[0-9A-Z]{1,4}$/i",$_REQUEST["Event"]))
+if(isset($_REQUEST["Event"]) && preg_match("/^[0-9A-Z]+$/i",$_REQUEST["Event"]))
 	$options['events'] = array($_REQUEST["Event"]);
 
 $family='ElimInd';

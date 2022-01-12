@@ -89,7 +89,7 @@ foreach($PdfData->rankData['sections'] as $Event => $section) {
 			$OrgY=$pdf->GetY();
 
 			// Target Numbers
-			if($ShowTargetNo && ($Match['target'] or $Match['oppTarget'])) {
+			if($ShowTargetNo && ($Match['target'] or $Match['oppTarget']) and !($Match['score'] or $Match['setScore']) and !($Match['oppScore'] or $Match['oppSetScore']) and !$Match['tie'] and !$Match['oppTie']) {
 			   	$pdf->SetFont($pdf->FontStd,'I',7);
 				if($FirstPhase) {
 					$pdf->SetX($LineXstart-7);

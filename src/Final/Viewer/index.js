@@ -15,6 +15,7 @@ var Athletes = [[],[]];
 var bioLoaded = false;
 var Ids=[];
 var evListData;
+var oldSelectedEnd='';
 
 $(document).ready(init);
 
@@ -43,10 +44,8 @@ function resetInit(Event, MatchNo, Team, Phase) {
 
 function setView(newView) {
     View = newView;
-    $('.btnViewMenu').addClass('btn-info');
-    $('.btnViewMenu').removeClass('active btn-success');
-    $('#btn'+View).addClass('active btn-success');
-    $('#btn'+View).removeClass('btn-info');
+    $('.btnViewMenu').addClass('btn-info').removeClass('active btn-success');
+    $('#btn'+View).addClass('active btn-success').removeClass('btn-info');
     TimeStamp='';
     BuildPage();
 }
@@ -56,7 +55,7 @@ function getBiography() {
         + '&Id1=' + Ids[0]
         + '&Id2=' + Ids[1]
         + '&Event=' + oldEvent, function(data) {
-        if(data.error==0) {
+        if(data.error===0) {
             Biography=[];
             Biography.push(data.BioL);
             Biography.push(data.BioR);
@@ -67,7 +66,7 @@ function getBiography() {
 }
 
 function getAthBio(Side,Id,index){
-    if(index != 0) {
+    if(index !== 0) {
         if(BioTeam[Id] == undefined) {
             $.getJSON('index-getBio.php?Team=0&Id'+(Side+1)+'=' + Id, function (data) {
                 if (data.error == 0) {
@@ -123,6 +122,7 @@ function BuildPage() {
     // TgtSize=Math.min($(window).width()/2, $(window).height()-parseInt($('.card-header').css("height"))-parseInt($('#OppLeft').css("height"))-parseInt($('#ScoreLeft').css("height"))-8);
     clearTimeout(toReference);
     if(View=='Biography') {
+	    $('#EndSelector').html('');
         if(Biography.length != 0) {
             if(!bioLoaded) {
                 viewBio();
@@ -135,84 +135,123 @@ function BuildPage() {
         bioLoaded = false;
     }
 
-    $.getJSON('index-buildPage.php?time=' + TimeStamp
-        + '&Event=' + oldEvent
-        + '&MatchNo=' + MatchNo
-        + '&Team=' + oldTeam
-        + '&Lock=' + Lock
-        + '&View=' + View, function (data) {
+    form={
+    	time: TimeStamp,
+	    Event: oldEvent,
+	    MatchNo: oldMatchNo,
+	    Team: oldTeam,
+	    Lock: Lock,
+	    View: View,
+	    SelectedEnd:'',
+    };
+    if($('#followLive').hasClass('btn-secondary')) {
+    	// we are not following live anymore so select which end we are following
+	    tmpEnd = $('#EndSelector .EndSelector.btn-success');
+	    if(!tmpEnd.hasClass('disabled')) {
+	    	form.SelectedEnd = tmpEnd.attr('id');
+	    	Lock=1;
+	    	form.Lock=1;
+	    }
+    }
+
+    $.getJSON('index-buildPage.php', form, function (data) {
         if (data.error == 0) {
             if (data.time != '') {
-                TimeStamp = data.time;
-                $('#Event').html(data.Event);
+	            if(data.LiveExists) {
+		            $('#bntGoToLive').show();
+	            } else {
+		            $('#bntGoToLive').hide();
+	            }
+            	if(data.time!=TimeStamp || form.SelectedEnd!=oldSelectedEnd) {
+	                TimeStamp = data.time;
+		            oldSelectedEnd=form.SelectedEnd;
+	                $('#Event').html(data.Event);
 
-                if (oldEvent != data.EvCode || oldMatchNo != data.MatchNo || oldTeam != data.EvTeam) {
-                    resetInit(data.EvCode , data.MatchNo, data.EvTeam, data.Phase);
-                }
+	                if (oldEvent != data.EvCode || oldMatchNo != data.MatchNo || oldTeam != data.EvTeam) {
+	                    resetInit(data.EvCode , data.MatchNo, data.EvTeam, data.Phase);
+	                }
 
-                if(data.LiveExists) {
-                    $('#bntGoToLive').show();
-                } else {
-                    $('#bntGoToLive').hide();
-                }
-                if(data.MatchNo==0 && (data.WinnerL || data.WinnerR)) {
-                    $('#btnCeremony').show();
-                } else {
-                    $('#btnCeremony').hide();
-                }
+	                if(data.MatchNo==0 && (data.WinnerL || data.WinnerR)) {
+	                    $('#btnCeremony').show();
+	                } else {
+	                    $('#btnCeremony').hide();
+	                }
 
-                Ids[0]=data.IdL;
-                Ids[1]=data.IdR;
-                Athletes = [data.AthL, data.AthR];
+	                Ids[0]=data.IdL;
+	                Ids[1]=data.IdR;
+	                Athletes = [data.AthL, data.AthR];
 
-                $('#OppLeft').html(data.OppLeft);
-                $('#ScoreLeft').html(data.ScoreLeft);
-                $('#OppRight').html(data.OppRight);
-                $('#ScoreRight').html(data.ScoreRight);
+	                $('#OppLeft').html(data.OppLeft);
+	                $('#ScoreLeft').html(data.ScoreLeft);
+	                $('#OppRight').html(data.OppRight);
+	                $('#ScoreRight').html(data.ScoreRight);
 
-                if (data.WinnerL && View!='Ceremony') {
-                    $('#TgtLeft').addClass('winner');
-                } else {
-                    $('#TgtLeft').removeClass('winner');
-                }
-                if (data.WinnerR && View!='Ceremony') {
-                    $('#TgtRight').addClass('winner');
-                } else {
-                    $('#TgtRight').removeClass('winner');
-                }
+	                if(data.Judges!='') {
+		                $('#Judges').html(data.Judges).show();
+	                } else {
+		                $('#Judges').hide();
+	                }
 
-                if (View == 'Target') {
-                    $('#TgtLeft').html(data.TgtLeft);
-                    $('#TgtRight').html(data.TgtRight);
+	                if (data.WinnerL && View!='Ceremony') {
+	                    $('#TgtLeft').addClass('winner');
+	                } else {
+	                    $('#TgtLeft').removeClass('winner');
+	                }
+	                if (data.WinnerR && View!='Ceremony') {
+	                    $('#TgtRight').addClass('winner');
+	                } else {
+	                    $('#TgtRight').removeClass('winner');
+	                }
 
-                    Zoom = data.TgtZoom;
-                    TgtOrgSize = data.TgtSize;
-                    $('.SVGTarget')
-                        .width(TgtSize)
-                        .height(TgtSize)
-                        .mouseleave(function (e) {
-                            $(this).attr('viewBox', '0 0 ' + TgtOrgSize + ' ' + TgtOrgSize);
-                        })
-                        .mousemove(function (e) {
-                            var ratio = TgtOrgSize / TgtSize;
-                            var w = parseInt(TgtOrgSize / Zoom);
-                            var x = parseInt(e.offsetX * ratio);
-                            var y = parseInt(e.offsetY * ratio);
-                            $(this).attr('viewBox', (x - x / Zoom) + ' ' + (y - y / Zoom) + ' ' + w + ' ' + w);
-                        });
-                } else if(View!='Biography'){
-                    $('#TgtLeft').html(data.TgtLeft);
-                    $('#TgtRight').html(data.TgtRight);
-                    if(View=='Presentation') {
-                        var maxPicsH = 0;
-                        $('figcaption').each(function () {
-                            maxPicsH = Math.max($(this).outerHeight(true),maxPicsH);
-                        });
-                        $('figcaption').outerHeight(maxPicsH);
-                    }
+	                if (View == 'Target') {
+	                    $('#TgtLeft').html(data.TgtLeft);
+	                    $('#TgtRight').html(data.TgtRight);
 
-                }
-          }
+	                    // End Selector only if we did not ask for a specific end
+		                if(oldSelectedEnd=='') {
+			                EndSelector='';
+			                for(n=0;n<data.NumEnds;n++) {
+			                    EndSelector+='<button type="button" id="EndSelector-End-'+(n+1)+'" class="EndSelector btnViewMenu btn '+((n==data.SelectedEnd-1 && data.isSO==false) ? 'btn-success' : 'btn-warning')+((n>=data.CurEnd && data.isSO==false) ? ' disabled' : '')+'" onclick="selectEnd(this)">End '+(n+1)+'</button>'
+			                }
+			                for(n=0;n<data.NumSO;n++) {
+			                    EndSelector+='<button type="button" id="EndSelector-SO-'+(n+1)+'" class="EndSelector btnViewMenu btn '+(n==0 ? ' mt-1' : '')+((n==data.SelectedEnd-1 && data.isSO==true) ? ' btn-success' : ' btn-warning')+(data.isSO==false ? ' disabled' : '')+'" onclick="selectEnd(this)">SO '+(n+1)+'</button>'
+			                }
+			                if(EndSelector!='') {
+                                EndSelector += '<button id="followLive" class="mt-1 btn btn-info btnViewMenu" onclick="toggleFollow()">Current</button>';
+                                EndSelector += '<button id="followLive" class="mt-1 btn btn-light border-info btnViewMenu" onclick="toggleDistance()">Distance</button>';
+                            }
+							$('#EndSelector').html(EndSelector);
+		                }
+
+	                    Zoom = data.TgtZoom;
+	                    TgtOrgSize = data.TgtSize;
+	                    $('.SVGTarget')
+	                        .width(TgtSize)
+	                        .height(TgtSize)
+	                        .mouseleave(function (e) {
+	                            $(this).attr('viewBox', '0 0 ' + TgtOrgSize + ' ' + TgtOrgSize);
+	                        })
+	                        .mousemove(function (e) {
+	                            var ratio = TgtOrgSize / TgtSize;
+	                            var w = parseInt(TgtOrgSize / Zoom);
+	                            var x = parseInt(e.offsetX * ratio);
+	                            var y = parseInt(e.offsetY * ratio);
+	                            $(this).attr('viewBox', (x - x / Zoom) + ' ' + (y - y / Zoom) + ' ' + w + ' ' + w);
+	                        });
+	                } else if(View!='Biography'){
+		                $('#EndSelector').html('');
+		                $('#TgtLeft').html(data.TgtLeft);
+	                    $('#TgtRight').html(data.TgtRight);
+	                    if(View=='Presentation') {
+	                        var maxPicsH = 0;
+	                        $('figcaption').each(function () {
+	                            maxPicsH = Math.max($(this).outerHeight(true),maxPicsH);
+	                        });
+	                        $('figcaption').outerHeight(maxPicsH);
+	                    }
+	                }
+	            }
+			}
         }
         toReference = setTimeout(BuildPage, TimeCheck);
     });
@@ -342,7 +381,7 @@ function goToMatch() {
         oldEvent = oldEvent.slice(0,-2);
         oldTeam=1;
     }
-    MatchNo = $('#selectMatch').val();
+    oldMatchNo = $('#selectMatch').val();
     Lock = 1;
     BuildPage();
     $('#SelectMatch').modal('hide');
@@ -351,6 +390,8 @@ function goToMatch() {
 function goToLive() {
     TimeStamp=0;
     Lock = 0;
+	oldSelectedEnd='';
+	toggleFollow(true);
     BuildPage();
 }
 
@@ -358,8 +399,69 @@ function setMatchInfo(Event, MaNo, Team) {
     TimeStamp = 0;
     oldEvent = Event;
     oldTeam = Team;
-    MatchNo = MaNo
+    oldMatchNo = MaNo
     Lock = 1;
     BuildPage();
     $('#SelectMatch').modal('hide');
+}
+
+function toggleFollow(status) {
+	if(typeof status == 'undefined') {
+		status = $('#followLive').hasClass('btn-secondary');
+	}
+	if(status==true) {
+		$('#followLive').removeClass('btn-secondary').addClass('btn-info');
+		oldSelectedEnd='';
+		TimeStamp=0;
+		BuildPage();
+	} else {
+		$('#followLive').addClass('btn-secondary').removeClass('btn-info');
+	}
+}
+
+function selectEnd(obj) {
+    // remove the follow status and stop refreshing
+    toggleFollow(false);
+    $('#EndSelector .EndSelector.btn-success').removeClass('btn-success').addClass('btn-warning');
+    $(obj).removeClass('btn-warning').addClass('btn-success');
+    BuildPage();
+}
+
+function showSight(obj) {
+    if(View==='Target') {
+        side = obj.id.slice(-1);
+
+        if ($('#Sighter' + side).attr('opacity') == 1) {
+            $('#Sighter' + side).attr('opacity', 0);
+            return;
+        }
+
+        arr = obj.id.slice(0, -2);
+        sighter = document.getElementById('Sighter' + side).getBBox();
+        tmp = $('#Tgt' + (side == 'L' ? 'Left' : 'Right') + ' svg circle#' + arr);
+        if (tmp.length == 0) {
+            return;
+        }
+
+        arrow = tmp[0].getBBox();
+        $('#Sighter' + side).attr('transform', 'translate(' + (arrow.x - sighter.x - ((sighter.width - arrow.width) / 2)) + ', ' + (arrow.y - sighter.y - ((sighter.height - arrow.height) / 2)) + ')');
+        $('#Sighter' + side).attr('opacity', 1);
+    }
+
+}
+
+function hideSight(obj) {
+	side=obj.id.slice(-1);
+	$('#Sighter'+side).attr('opacity',0);
+}
+
+function toggleDistance() {
+    $('.arrowDist').toggleClass('hidden');
+    if(!$('.arrowDist').hasClass('hidden') && (parseInt($('#scoreLabelL').attr('numArr'))>4 || parseInt($('#scoreLabelR').attr('numArr'))>4)) {
+        $('#ScoreLeft').addClass('reduced');
+        $('#ScoreRight').addClass('reduced');
+    } else {
+        $('#ScoreLeft').removeClass('reduced');
+        $('#ScoreRight').removeClass('reduced');
+    }
 }

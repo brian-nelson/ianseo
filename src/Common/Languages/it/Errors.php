@@ -1,4 +1,5 @@
 <?php
+$lang['AllFieldsMandatory']='Tutti i campi sono obbligatori';
 $lang['AllMailsRedirect']='Tutti i messaggi verranno inviati a';
 $lang['Anomalies']='Anomalie';
 $lang['ClassFromToError']='"Da" e "A" devono essere valori numerici';
@@ -24,6 +25,7 @@ $lang['ErrNoStartDate']='Data di Inizio Mancante';
 $lang['ErrRedCard']='Il comitato organizzatore ha ricevuto un cartellino rosso e non può chiedere, al momento, nessun codice per pubblicare su ianseo. Mandare una email a codes@ianseo.net per ricevere ulteriori chiarimenti.';
 $lang['ErrUnknownNation']='Nazione Sconosciuta';
 $lang['ErrYellowCard']='Il comitato organizzatore ha ricevuto un cartellino giallo perchè non ha pubblicato nessun risultato della gara. Mandare una email a codes@ianseo.net per ricevere ulteriori chiarimenti.';
+$lang['InvalidEmail']='E-mail non valida: Per favore controlla 2 volte prima di effettuare il salvataggio';
 $lang['LockedProcedure']='Questa Procedura è BLOCCATA';
 $lang['MailingAlreadyExists']='Una Email esiste già con il medesimo titolo ({$a}), per favore cambia il titolo o seleziona la Email da modificare dal selettore.';
 $lang['MailingDeleteText']='Conferma di voler eliminare definitivamente questa mail!';

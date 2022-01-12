@@ -169,3 +169,5 @@ function InsertStandard3DEliminations($TourId, $SubRule){
 		}
 	}
 }
+
+?>

@@ -12,6 +12,15 @@ require_once('Common/Rank/Obj_Rank_GridTeam.php');
 
 class Obj_Rank_GridTeam_3_SetFRChampsD1DNAP extends Obj_Rank_GridTeam{
 	public function getQuery($OrderByTarget=false) {
+		if(getModuleParameter('FFTA', 'D1AllInOne', 0) and $this->opts and isset($this->opts['events'])) {
+			if(!is_array($this->opts['events'])) {
+				$this->opts['events']=array($this->opts['events']);
+			}
+			$bits=explode('@', $this->opts['events'][0]);
+			if(strlen($bits[0])==4) {
+				return parent::getQuery($OrderByTarget);
+			}
+		}
 		$filter=$this->safeFilter();
 
 		$ExtraFilter=array();
@@ -36,7 +45,7 @@ class Obj_Rank_GridTeam_3_SetFRChampsD1DNAP extends Obj_Rank_GridTeam{
 			$ExtraFilter = '';
 		}
 
-		$SQL = "SELECT f1.*, f2.*,
+		$SQL = "SELECT f1.*, f2.*, '' as LineJudge, '' as TargetJudge,
 					ifnull(concat(DV2.DvMajVersion, '.', DV2.DvMinVersion) ,concat(DV1.DvMajVersion, '.', DV1.DvMinVersion)) as DocVersion,
 					date_format(ifnull(DV2.DvPrintDateTime, DV1.DvPrintDateTime), '%e %b %Y %H:%i UTC') as DocVersionDate,
 					ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes from ("
@@ -54,28 +63,42 @@ class Obj_Rank_GridTeam_3_SetFRChampsD1DNAP extends Obj_Rank_GridTeam{
 			. " EvProgr,"
 			. " EvShootOff,"
 			. " EvCodeParent,"
+			. " EvMixedTeam,"
 			. " 63 Phase,"
 			. " truncate((FsMatchNo-128)/16,0)+1 as GameNumber,"
 			. " if(GrPhase=0, 1, pow(2, ceil(log2(GrPhase))+1)) & EvMatchArrowsNo!=0 as FinElimChooser,"
 			. " GrPosition Position,"
 			. " GrPosition2 Position2,"
 			. " TfTournament Tournament,"
+			. " '' as Coach,"
 			. " TfTeam Team,"
 			. " TfSubTeam SubTeam,"
 			. " TfMatchNo MatchNo,"
 			. " TeRank QualRank,"
+			. " i2.IrmType IrmTextQual,"
+			. " i2.IrmShowRank ShowRankQual,"
 			. " TeRankFinal FinRank,"
+			. " i3.IrmType IrmTextFin,"
+			. " i3.IrmShowRank ShowRankFin,"
+			. " TfIrmType Irm,"
+			. " i1.IrmType IrmText,"
+			. " i1.IrmShowRank ShowRank,"
 			. " TeScore QualScore, "
 			. " TeNotes QualNotes, "
 			. " TfWinLose Winner, "
 			. " TfDateTime LastUpdated, "
 			. " CONCAT(CoName, IF(TfSubTeam>'1',CONCAT(' (',TfSubTeam,')'),'')) as CountryName,"
 			. " CoCode as CountryCode,"
+			. " CoMaCode as MaCode,"
+			. " CoCaCode as CaCode,"
 			. " TfScore AS Score,"
 			. " TfSetScore as SetScore,"
 			. " TfTie Tie,"
 			. " TfTieBreak TieBreak,"
+			. " TfTbClosest TieClosest,"
+			. " TfTbDecoded TieDecoded,"
 			. " TfStatus Status, "
+			. " TfRecordBitmap  as RecBitLevel, EvIsPara, "
 			. " TfConfirmed Confirmed, "
 			. " TfSetPoints SetPoints, "
 			. " TfSetPointsByEnd SetPointsByEnd, "
@@ -91,7 +114,10 @@ class Obj_Rank_GridTeam_3_SetFRChampsD1DNAP extends Obj_Rank_GridTeam{
 			. " INNER JOIN Events ON TfEvent=EvCode AND TfTournament=EvTournament AND EvTeamEvent=1 AND EvFinalFirstPhase!=0 and EvTournament=$this->tournament "
 			. " INNER JOIN Grids ON TfMatchNo=GrMatchNo "
 			. " INNER JOIN Targets ON EvFinalTargetType=TarId "
+			. " INNER JOIN IrmTypes i1 ON i1.IrmId=TfIrmType "
 			. " LEFT JOIN Teams ON TfTeam=TeCoId AND TfSubTeam=TeSubTeam AND TfEvent=TeEvent AND TfTournament=TeTournament AND TeFinEvent=1 and TeTournament=$this->tournament "
+			. " left JOIN IrmTypes i2 ON i2.IrmId=TeIrmType "
+			. " left JOIN IrmTypes i3 ON i3.IrmId=TeIrmTypeFinal "
 			. " LEFT JOIN Countries ON TfTeam=CoId AND TfTournament=CoTournament and CoTournament=$this->tournament "
 			. " LEFT JOIN FinSchedule fs1 ON TfEvent=FSEvent AND TfMatchNo=FSMatchNo AND TfTournament=FSTournament AND FSTeamEvent='1' and FSTournament=$this->tournament "
 			. " WHERE TfMatchNo%2=0 AND TfTournament = " . $this->tournament . " " . $filter
@@ -102,23 +128,36 @@ class Obj_Rank_GridTeam_3_SetFRChampsD1DNAP extends Obj_Rank_GridTeam{
 			. " GrPosition OppPosition,"
 			. " GrPosition2 OppPosition2,"
 			. " TfTournament OppTournament,"
+			. " '' OppCoach,"
 			. " TfTeam OppTeam,"
 			. " TfSubTeam OppSubTeam,"
 			. " TfMatchNo OppMatchNo,"
 			. " TeRank OppQualRank,"
+			. " i2.IrmType OppIrmTextQual,"
+			. " i2.IrmShowRank OppShowRankQual,"
 			. " TeRankFinal OppFinRank,"
+			. " i3.IrmType OppIrmTextFin,"
+			. " i3.IrmShowRank OppShowRankFin,"
+			. " TfIrmType OppIrm,"
+			. " i1.IrmType OppIrmText,"
+			. " i1.IrmShowRank OppShowRank,"
 			. " TeScore OppQualScore, "
 			. " TeNotes OppQualNotes, "
 			. " TfWinLose OppWinner, "
 			. " TfDateTime OppLastUpdated, "
 			. " CONCAT(CoName, IF(TfSubTeam>'1',CONCAT(' (',TfSubTeam,')'),'')) as OppCountryName,"
 			. " CoCode as OppCountryCode,"
+			. " CoMaCode as OppMaCode,"
+			. " CoCaCode as OppCaCode,"
 			. " TfScore AS OppScore,"
 			. " TfSetScore as OppSetScore,"
 			. " TfTie OppTie,"
 			. " TfTieBreak OppTieBreak,"
+			. " TfTbClosest OppTieClosest,"
+			. " TfTbDecoded OppTieDecoded,"
 			. " TfStatus OppStatus, "
 			. " TfConfirmed OppConfirmed, "
+			. " TfRecordBitmap  as OppRecBitLevel, "
 			. " TfSetPoints OppSetPoints, "
 			. " TfSetPointsByEnd OppSetPointsByEnd, "
 			. " TfArrowstring OppArrowstring, "
@@ -127,7 +166,10 @@ class Obj_Rank_GridTeam_3_SetFRChampsD1DNAP extends Obj_Rank_GridTeam{
 			. " FROM TeamFinals "
 			. " INNER JOIN Events ON TfEvent=EvCode AND TfTournament=EvTournament AND EvTeamEvent=1 AND EvFinalFirstPhase!=0 and EvTournament=$this->tournament "
 			. " INNER JOIN Grids ON TfMatchNo=GrMatchNo "
+			. " INNER JOIN IrmTypes i1 ON i1.IrmId=TfIrmType "
 			. " LEFT JOIN Teams ON TfTeam=TeCoId AND TfSubTeam=TeSubTeam AND TfEvent=TeEvent AND TfTournament=TeTournament AND TeFinEvent=1 and TeTournament=$this->tournament "
+			. " left JOIN IrmTypes i2 ON i2.IrmId=TeIrmType "
+			. " left JOIN IrmTypes i3 ON i3.IrmId=TeIrmTypeFinal "
 			. " LEFT JOIN Countries ON TfTeam=CoId AND TfTournament=CoTournament and CoTournament=$this->tournament "
 			. " LEFT JOIN FinSchedule fs1 ON TfEvent=FSEvent AND TfMatchNo=FSMatchNo AND TfTournament=FSTournament AND FSTeamEvent='1' and FSTournament=$this->tournament "
 			. " WHERE TfMatchNo%2=1 AND TfTournament = " . $this->tournament . " " . $filter

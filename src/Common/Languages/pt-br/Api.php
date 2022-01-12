@@ -1,4 +1,5 @@
 <?php
+$lang['API-AutoGroup']='Criação de grupos';
 $lang['API-ConfirmDeleteRow']='Tem certeza que você quer apagar esta linha?';
 $lang['API-DeviceGrouping']='Agrupamento de dispositivos';
 $lang['API-Group']='Grupo';
@@ -18,6 +19,7 @@ $lang['Desc-Let-Y']='Série pronta para importação';
 $lang['Desc-Let-Z']='Pontuação em progresso';
 $lang['DistanceNum']='distância $a';
 $lang['FlashCodeDistance']='Escaneie este código no app para marcar $a';
+$lang['HitToWin']='Pontuar para vencer';
 $lang['ISK-Anomalies']='Anomalias';
 $lang['ISK-AppList']='Lista de APKs';
 $lang['ISK-AppQrCode']='Imprimir QR Codes de instalação';
@@ -95,6 +97,7 @@ $lang['ISK-WifiSearch']='Buscar melhor Time Out de WiFi';
 $lang['ISK-WifiSSID']='ESSID do Wi-Fi';
 $lang['ISK-WifiSwitchLvl']='Nível de sinal do WiFi (dBm)';
 $lang['ISK-WifiTargetRange']='WiFi preferencial para alvos';
+$lang['ISK-WifiUse']='Wifi habilitado pela aplicação';
 $lang['IskDeviceAssigned']='Dispositivo(s)';
 $lang['IskScoringDevice']='Dispositivo $a não está autorizado a marcar nesta sessão ou competição!';
 $lang['IskSpuriousDevice']='Dispositivo $a[0] enviando pontos indesejados no alvo $a[1]';
@@ -129,4 +132,5 @@ $lang['TVCss3Divider']='Divisor';
 $lang['TVCss3Loser']='Alteração do perdedor';
 $lang['WAToolbox-MissingParams']='Parâmetro faltante';
 $lang['WAToolbox-NoCompCode']='Falta Código de Competição';
+$lang['XToWin']='$a para vencer';
 ?>

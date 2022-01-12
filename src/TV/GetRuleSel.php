@@ -468,42 +468,6 @@ if(!empty($_REQUEST['Id']) and isset($_REQUEST['RuleId'])) {
 			break;
 		case 'RAND':
 			break;
-		case 'F2FLST':
-		case 'F2FABS':
-		case 'NLCLST':
-		case 'NLCABS':
-			$Select
-				= "SELECT DISTINCT EnDivision,EnClass,DivDescription,ClDescription "
-				. "FROM Entries "
-				. "INNER JOIN Divisions ON EnDivision=DivId AND EnTournament=DivTournament AND DivAthlete=1 "
-				. "INNER JOIN Classes ON EnClass=ClId AND EnTournament=ClTournament AND ClAthlete=1 "
-				. "WHERE EnTournament={$_SESSION['TourId']} "
-				. "ORDER BY DivViewOrder, ClViewOrder ";
-			$Rs=safe_r_sql($Select);
-
-			$ResCols[$i]['header']=get_text('TVFilterEventInd','Tournament');
-			if (safe_num_rows($Rs)) {
-				while ($r=safe_fetch($Rs)) {
-					$ResCols[$i]['data'][] = '<input type="checkbox" name="d_TVEventInd[]"'
-						. (in_array($r->EnDivision . $r->EnClass, $Arr_EventIndRule) ? ' checked' : '')
-						. ' value="' . $r->EnDivision . $r->EnClass . '">' . get_text($r->DivDescription,'','',true) . ' - ' . get_text($r->ClDescription,'','',true)
-						. ' (' . $r->EnDivision . $r->EnClass . ')';
-				}
-			}
-
-			$i++;
-
-			$ResCols[$i]['header']=get_text('TVFilterPhaseIndFinal','Tournament');
-			$Select
-				= "SELECT distinct F2FPhase AS Phase FROM F2FEntries where F2FTournament={$_SESSION['TourId']} order by Phase";
-			$Rs=safe_r_sql($Select);
-
-			while($MyRow=safe_fetch($Rs)) {
-				$ResCols[$i]['data'][] = '<input type="checkbox" name="d_TVPhaseInd[]"'
-					. (in_array($MyRow->Phase, $Arr_PhaseIndRule) ? ' checked' : '')
-					. ' value="'.$MyRow->Phase.'">' . get_text('Phase') . ' ' . $MyRow->Phase;
-			}
-			break;
 	}
 	$i++;
 }

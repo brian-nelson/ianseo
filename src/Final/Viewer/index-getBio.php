@@ -19,6 +19,13 @@ $Id1 = (isset($_REQUEST['Id1']) ? $_REQUEST['Id1'] : false);
 $Id2 = (isset($_REQUEST['Id2']) ? $_REQUEST['Id2'] : false);
 $Event = (isset($_REQUEST['Event']) ? $_REQUEST['Event'] : false);
 
+if($Event) {
+	// double check the WA event is correct
+	$q=safe_r_sql("select if(EvWaCategory='', EvCode, EvWaCategory) as Event from Events where EvTournament={$_SESSION['TourId']} and EvTeamEvent=$Team and EvCode=".StrSafe_DB($Event));
+	if($r=safe_fetch($q)) {
+		$Event=$r->Event;
+	}
+}
 
 $H2HMatches = null;
 $CatInformation = null;
@@ -51,7 +58,7 @@ if($Team) {
         $CatInformation = null;
     }
     if($Id1 !== false AND $Id2 !== false) {
-        $rawData = file_get_contents($CFG->WaWrapper . "?v=3&RBP=All&content=ATHLETEMATCHES&Id={$Id1}&Id2={$Id2}");
+        $rawData = file_get_contents($CFG->WaWrapper . "?v=3&RBP=All&IndividualTeam=1&content=ATHLETEMATCHES&Id={$Id1}&Id2={$Id2}");
         $H2HMatches = json_decode($rawData);
     }
     if ($Id1 !== false) {
@@ -259,7 +266,7 @@ function bioTeam($data,$H2HMatches,$Side,$Event) {
     if(!empty($data->Stats->Career)) {
         foreach ($data->Stats->Career as $key => $Stat) {
             if(empty($CatInformation) OR in_array($Stat->DivCode,$CatInformation->DivId)){
-                $tmp .= 'Match won: <b>' . $Stat->MatchWin . '/' . $Stat->MatchTot . '</b> (' . $Stat->MatchWinPercentage . '%)<br>Ties won: <b>' . $Stat->TBWin . '/' . $Stat->TBTot . '</b> (' . $Stat->TBWinPercentage . '%)';
+                $tmp .= 'Match won: <b>' . (empty($Stat->MatchWin) ? 0 : $Stat->MatchWin) . '/' . (empty($Stat->MatchTot) ? 0 : $Stat->MatchTot) . '</b> (' . (empty($Stat->MatchWinPercentage) ? 0 : $Stat->MatchWinPercentage) . '%)<br>Ties won: <b>' . (empty($Stat->TBWin) ? 0 : $Stat->TBWin) . '/' . (empty($Stat->TBTot) ? 0 : $Stat->TBTot) . '</b> (' . (empty($Stat->TBWinPercentage) ? 0 : $Stat->TBWinPercentage) . '%)';
 
                 if (!empty($Stat->AverageArr)) {
                     $overallAvg = max($overallAvg, $Stat->AverageArr);
@@ -274,7 +281,7 @@ function bioTeam($data,$H2HMatches,$Side,$Event) {
     $seasonBest=0;
     if(!empty($data->Stats->Season) AND !empty($data->Stats->{$data->Stats->Season})) {
         foreach ($data->Stats->{$data->Stats->Season} as $key => $Stat) {
-            $seasonBest = max($seasonBest,$Stat->QBest);
+            $seasonBest = max($seasonBest,(empty($Stat->QBest) ? 0 : $Stat->QBest));
         }
     }
     $tmp .= '</td></tr>';

@@ -59,6 +59,9 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 			if(!empty($this->opts['schedule'])) {
 				$ret[]="CONCAT(fs1.FSScheduledDate,' ',fs1.FSScheduledTime)=" . StrSafe_DB($this->opts['schedule']) . "";
 			}
+			if(!empty($this->opts['date'])) {
+				$ret[]="fs1.FSScheduledDate=" . StrSafe_DB($this->opts['date']) . "";
+			}
 			if($ret) return ' AND '.implode(' AND ', $ret);
 			return '';
 		}
@@ -108,7 +111,7 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				$ExtraFilter = '';
 			}
 
-			$SQL = "SELECT f1.*, f2.*, '' as LineJudge, '' as TargetJudge,
+			$SQL = "SELECT f1.*, f2.*, coalesce(JudgeLine,'') as LineJudge, coalesce(JudgeTarget,'') as TargetJudge,
 					ifnull(concat(DV2.DvMajVersion, '.', DV2.DvMinVersion) ,concat(DV1.DvMajVersion, '.', DV1.DvMinVersion)) as DocVersion,
 					date_format(ifnull(DV2.DvPrintDateTime, DV1.DvPrintDateTime), '%e %b %Y %H:%i UTC') as DocVersionDate,
 					ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes from ("
@@ -135,7 +138,7 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				. " GrPosition Position,"
 				. " GrPosition2 Position2,"
 				. " TfTournament Tournament,"
-				. " '' as Coach,"
+				. " IFNULL(concat(ucase(c.EnFirstName), ' ', c.EnName),'') as Coach,"
 				. " TfTeam Team,"
 				. " TfSubTeam SubTeam,"
 				. " TfMatchNo MatchNo,"
@@ -167,6 +170,7 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				. " TfConfirmed Confirmed, "
 				. " TfSetPoints SetPoints, "
 				. " TfSetPointsByEnd SetPointsByEnd, "
+                . " fs1.FsLJudge as jLine, fs1.FsTJudge as jTarget, "
 				. " TfArrowstring Arrowstring, TfLive LiveFlag,"
 				. " if(@BitPhase & EvMatchMultipleMatches!=0 or @BitPhase & EvFinalAthTarget!=0, fs1.FsLetter, fs1.FsTarget) as Target,"
 				. " TfNotes Notes, TfShootFirst as ShootFirst, "
@@ -182,6 +186,7 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				. " INNER JOIN Targets ON EvFinalTargetType=TarId "
 				. " INNER JOIN IrmTypes i1 ON i1.IrmId=TfIrmType "
 				. " LEFT JOIN Teams ON TfTeam=TeCoId AND TfSubTeam=TeSubTeam AND TfEvent=TeEvent AND TfTournament=TeTournament AND TeFinEvent=1 and TeTournament=$this->tournament "
+                . " LEFT JOIN Entries c ON TfCoach=EnId and TfTournament=EnTournament "
 				. " left JOIN IrmTypes i2 ON i2.IrmId=TeIrmType "
 				. " left JOIN IrmTypes i3 ON i3.IrmId=TeIrmTypeFinal "
 				. " LEFT JOIN Countries ON TfTeam=CoId AND TfTournament=CoTournament and CoTournament=$this->tournament "
@@ -197,7 +202,7 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				. " GrPosition OppPosition,"
 				. " GrPosition2 OppPosition2,"
 				. " TfTournament OppTournament,"
-				. " '' OppCoach,"
+				. " IFNULL(concat(ucase(c.EnFirstName), ' ', c.EnName),'') as OppCoach,"
 				. " TfTeam OppTeam,"
 				. " TfSubTeam OppSubTeam,"
 				. " TfMatchNo OppMatchNo,"
@@ -239,6 +244,7 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				. " INNER JOIN Grids ON TfMatchNo=GrMatchNo "
 				. " INNER JOIN IrmTypes i1 ON i1.IrmId=TfIrmType "
 				. " LEFT JOIN Teams ON TfTeam=TeCoId AND TfSubTeam=TeSubTeam AND TfEvent=TeEvent AND TfTournament=TeTournament AND TeFinEvent=1 and TeTournament=$this->tournament "
+                . " LEFT JOIN Entries c ON TfCoach=EnId and TfTournament=EnTournament "
 				. " left JOIN IrmTypes i2 ON i2.IrmId=TeIrmType "
 				. " left JOIN IrmTypes i3 ON i3.IrmId=TeIrmTypeFinal "
 				. " LEFT JOIN Countries ON TfTeam=CoId AND TfTournament=CoTournament and CoTournament=$this->tournament "
@@ -247,7 +253,9 @@ require_once('Common/Lib/Fun_PrintOuts.php');
 				. " WHERE TfMatchNo%2=1 AND TfTournament = " . $this->tournament . " " . $filter
 				. ") f2 on Tournament=OppTournament and Event=OppEvent and MatchNo=OppMatchNo-1
 				LEFT JOIN DocumentVersions DV1 on Tournament=DV1.DvTournament AND DV1.DvFile = 'B-TEAM' and DV1.DvEvent=''
-				LEFT JOIN DocumentVersions DV2 on Tournament=DV2.DvTournament AND DV2.DvFile = 'B-TEAM' and DV2.DvEvent=Event "
+				LEFT JOIN DocumentVersions DV2 on Tournament=DV2.DvTournament AND DV2.DvFile = 'B-TEAM' and DV2.DvEvent=Event 
+                LEFT JOIN (select TiId as JudgeLineId, concat(ucase(TiName), ' ', TiGivenName) as JudgeLine from TournamentInvolved where TiTournament={$this->tournament}) jLine on f1.jLine=JudgeLineId  
+                LEFT JOIN (select TiId as JudgeTargetId, concat(ucase(TiName), ' ', TiGivenName) as JudgeTarget from TournamentInvolved where TiTournament={$this->tournament}) jTarget on f1.jTarget=JudgeTargetId  "
 				. " $ExtraFilter "
 				. " ORDER BY ".($OrderByTarget ? 'Target, ' : '')."EvProgr ASC, event, Phase DESC, MatchNo ASC ";
 			return $SQL;

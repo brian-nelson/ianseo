@@ -402,9 +402,9 @@ function DrawScore(&$pdf, $MyRow, $Side='L') {
 	if($MyRow->EvMatchMode==0) {
 		$pdf->Cell($TotalW,$TmpCellH,get_text('Total'),0,0,'R',0);
 		$pdf->SetFont($pdf->FontStd,'B',12);
-		$pdf->Cell($TotalW+2*$GoldW,$TmpCellH,($FillWithArrows && strlen($MyRow->{$Prefix.'Arrowstring'})? $ScoreTotal : ''),1,0,'C',0);
+		$pdf->Cell($TotalW+2*$GoldW,$TmpCellH,($FillWithArrows && strlen($MyRow->{$Prefix.'Arrowstring'})? $ScoreTotal : ''),1,1,'C',0);
 		if($Errore) {
-			$pdf->Line($x1 = $pdf->getx() - $TotalW, $y1=$pdf->gety()+$CellH, $x1+$TotalW, $y1-$CellH);
+			$pdf->Line($x1 = $TopX+$TotalW, $y1=$pdf->gety()+$CellH, $x1+$TotalW, $y1-$CellH);
 		}
 	} else {
 		$pdf->Cell($TotalW,$TmpCellH,'',0,0,'R',0);
@@ -413,7 +413,7 @@ function DrawScore(&$pdf, $MyRow, $Side='L') {
 		$pdf->SetFont($pdf->FontStd,'B',14);
 		$pdf->Cell($TotalW,$TmpCellH,($FillWithArrows ? $MyRow->{$Prefix.$ScorePrefix.'Score'} : ''),1,1,'C',0);
 		if($Errore) {
-			$pdf->Line($x1 = $pdf->getX() - 2/5*$TotalW, $y1=$pdf->gety()+$TmpCellH, $x1 + 2/5*$TotalW, $y1-$TmpCellH);
+			$pdf->Line($x1 = $TopX+2*$GoldW + $TotalW * 8/5, $y1=$pdf->gety()+$TmpCellH, $x1 + 2/5*$TotalW, $y1-$TmpCellH);
 		}
 	}
 

@@ -5,6 +5,29 @@ require_once('Common/Lib/CommonLib.php');
 checkACL(AclRoot, AclReadWrite);
 CheckTourSession(true);
 
+if(!empty($_FILES['importACL']) and $_FILES['importACL']['error']==0) {
+	if($Import = @unserialize(gzuncompress(file_get_contents($_FILES['importACL']['tmp_name'])))) {
+		foreach($Import['ACL'] as $row) {
+			$row->AclTournament=$_SESSION['TourId'];
+			$SQL=array();
+			foreach($row as $k => $v) {
+				$SQL[]="$k=".StrSafe_DB($v);
+			}
+			safe_w_sql('insert into ACL set '.implode(',', $SQL) . ' ON DUPLICATE KEY UPDATE '.implode(',', $SQL));
+		}
+		foreach($Import['AclDetails'] as $row) {
+			$row->AclDtTournament=$_SESSION['TourId'];
+			$SQL=array();
+			foreach($row as $k => $v) {
+				$SQL[]="$k=".StrSafe_DB($v);
+			}
+			safe_w_sql('insert into AclDetails set '.implode(',', $SQL). ' ON DUPLICATE KEY UPDATE '.implode(',', $SQL));
+		}
+	}
+	unlink($_FILES['importACL']['tmp_name']);
+	CD_redirect('./');
+}
+
 $lockEnabled =  getModuleParameter("ACL","AclEnable","00");
 $JS_SCRIPT = array(
     phpVars2js(array(
@@ -28,7 +51,8 @@ echo '<tr><th colspan="3">'.get_text('EnableAccess','Tournament').'</th><td cols
     <select onchange="ActivateACL()" id="AclEnable">
 		<option value="0" '.(substr($lockEnabled,0,1)=="0" ? 'selected="selected"' : '').'>'.get_text('No').'</option>
 		<option value="1" '.(substr($lockEnabled,0,1)=="1" ? 'selected="selected"' : '').'>'.get_text('Yes').'</option>
-	</select></td></tr>';
+	</select>
+	</td></tr>';
 echo '<tr><th colspan="3">'.get_text('RecordAccess','Tournament').'</th><td colspan="'.count($listACL).'">
     <select onchange="ActivateACL()" id="AclRecord">
 		<option value="0" '.(substr($lockEnabled,1,1)=="0" ? 'selected="selected"' : '').'>'.get_text('No').'</option>
@@ -36,6 +60,9 @@ echo '<tr><th colspan="3">'.get_text('RecordAccess','Tournament').'</th><td cols
 	</select>
 	<input type="button" value="'.get_text('CmdUpdate').'" onclick="updateList()">
 	</td></tr>';
+echo '<tr><th colspan="3">'.get_text('Block_Manage','Tournament').'</th><td colspan="'.count($listACL).'"><input type="button" value="'.get_text('CmdExport','Tournament').'" onclick="exportACL()">
+	&nbsp;&nbsp;&nbsp;<form style="display: inline-block;margin-left:2em" method="post" enctype="multipart/form-data"><input type="file" name="importACL" value="">&nbsp;<input type="submit" value="'.get_text('CmdImport','Tournament').'"></form>
+</td></tr>';
 echo '<tr><td class="divider" colspan="'.(3+count($listACL)).'"></td></tr>';
 
 

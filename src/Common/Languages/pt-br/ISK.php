@@ -141,6 +141,7 @@ $lang['NoArrowScored']='Um valor de flecha precisa ser marcado antes de indicar-
 $lang['NoAthletes']='Não foram encontrados atletas.';
 $lang['NoDist']='Não foram encontradas distâncias';
 $lang['NoLangInfo']='Não recuperou idioma __TEXT__';
+$lang['NoLanguages']='Inglês é o único idioma disponível agora. Use a função Atualizar Idioma no menu de configuração  para adicionar outros idiomas e tente novamente.';
 $lang['NoServerUrl']='Você precisa escanear um QR-code ou digitar a URL do Ianseo manualmente para poder atualizar os idiomas.';
 $lang['NoTargetTypes']='Não foram encontrados tipos de alvo';
 $lang['NotAvailIos']='Não disponível no IOS';

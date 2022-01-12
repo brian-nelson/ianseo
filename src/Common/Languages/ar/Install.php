@@ -5,7 +5,6 @@ $lang['SetOrdinary']='بطولة عادية';
 $lang['SetOrdinaryFinals']='بطورة عادية بها نهائيات';
 $lang['SetUkJunNationals']='بطولة محلية للشباب';
 $lang['SetUkNationals']='بطولة محلية';
-$lang['Setup-F2F']='قواعد بطولة F2F';
 $lang['Setup-NO']='بطولة نرويجية';
 $lang['Setup-PAR']='بطولة للمعاقين';
 $lang['Setup-Select']='اختر القواعد المحلية';

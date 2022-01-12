@@ -1,5 +1,7 @@
 <?php
 
+require_once('Common/Lib/Fun_Phases.inc.php');
+
 //error_reporting(E_ALL);
 $rankData=$PdfData->rankData;
 
@@ -44,7 +46,7 @@ foreach($rankData['sections'] as $Event => $section) {
 	$AddSize=0;
 
 	$numCols=min(6,ceil(log(min(32,$section['meta']['firstPhase']),2))+1);
-	$numRows=min(32,$section['meta']['firstPhase']);
+	$numRows=min(32, valueFirstPhase($section['meta']['firstPhase']));
 	if($numRows==24) $numRows=32;
 
 	$CellHSp=8;

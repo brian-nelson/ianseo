@@ -134,7 +134,6 @@ $lang['Setup-ARLEF']='חוקי קשתות של LEF';
 $lang['Setup-CA']='חוקי תחרות קנדיים';
 $lang['Setup-CH']='חוקי תחרות שוויצריים';
 $lang['Setup-Default']='חוקי תחרות של פדרציית הקשתות העולמית';
-$lang['Setup-F2F']='פנים-אל-פנים';
 $lang['Setup-NL']='חוקי תחרות הולנדית';
 $lang['Setup-NO']='תחרות נורבגית (חוקי Norges Bueskytterforbund)';
 $lang['Setup-PAR']='תחרות נכים (חוקי IPC)';

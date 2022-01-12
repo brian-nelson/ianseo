@@ -111,7 +111,9 @@ function get_which_menu($on=false) {
             $ret['COMP']['EXPT'][] = get_text('MenuLM_Export Tournament') . '|' . $CFG->ROOT_DIR . 'Tournament/TournamentExport.php';
             $ret['COMP']['EXPT'][] = get_text('MenuLM_Export Tournament Photo') . '|' . $CFG->ROOT_DIR . 'Tournament/TournamentExport.php?Complete=1';
             if (ProgramRelease == 'HEAD') $ret['COMP']['EXPT'][] = get_text('MenuLM_Export Entries') . '|' . $CFG->ROOT_DIR . 'Partecipants/EntriesExchange.php';
-            $ret['COMP']['EXPT'][] = get_text('MenuLM_Export BackNumbers') . '|' . $CFG->ROOT_DIR . 'Tournament/BackNumbersExport.php';
+            if($_SESSION['TourType']==6 AND $_SESSION['TourRealWhenFrom']>='2021-11-01' AND $_SESSION['TourRealWhenTo']<='2022-02-06') {
+                $ret['COMP']['EXPT'][] = get_text('MenuLM_ExportIndoorWorldSeries') . '|' . $CFG->ROOT_DIR . 'Qualification/ExportIWS.php';
+            }
             $ret['COMP'][] = MENU_DIVIDER;
         }
         if ($acl[AclInternetPublish] == AclReadWrite) {
@@ -195,9 +197,6 @@ function get_which_menu($on=false) {
         }
         if ($acl[AclQualification] >= AclReadOnly) {
             $ret['QUAL'][] = get_text('MenuLM_Export Text File') . '|' . $CFG->ROOT_DIR . 'Qualification/ExportTSV.php';
-            if (!empty($_SESSION['MenuElimDo'])) {
-                $ret['QUAL'][] = get_text('MenuLM_ExportFieldStatistics') . '|' . $CFG->ROOT_DIR . 'Qualification/ExportCSV.php';
-            }
             $ret['QUAL'][] = MENU_DIVIDER;
             $ret['QUAL'][] = get_text('MenuLM_Scorecard Printout') . '|' . $CFG->ROOT_DIR . 'Qualification/PrintScore.php';
             $ret['QUAL'][] = get_text('MenuLM_NewBacknumbers') . '|' . $CFG->ROOT_DIR . 'Accreditation/IdCards.php?CardType=Q';
@@ -218,10 +217,10 @@ function get_which_menu($on=false) {
             if ($acl[AclEliminations] == AclReadWrite) {
                 $tmp = get_text('MenuLM_Check shoot-off before eliminations') . '';
                 if ($_SESSION['MenuElim1']) {
-                    $tmp .= ' <b style="color:red">(Round 1: ' . implode('-', $_SESSION['MenuElim1']) . ')</b>';
+                    $tmp .= ' <b class="ShootOffMenu">(Round 1: ' . implode('-', $_SESSION['MenuElim1']) . ')</b>';
                 }
                 if ($_SESSION['MenuElim2']) {
-                    $tmp .= ' <b style="color:red">(Round 2: ' . implode('-', $_SESSION['MenuElim2']) . ')</b>';
+                    $tmp .= ' <b class="ShootOffMenu">(Round 2: ' . implode('-', $_SESSION['MenuElim2']) . ')</b>';
                 }
                 $tmp .= '|' . $CFG->ROOT_DIR . 'Final/Individual/AbsIndividual.php';
                 $ret['ELIM'][] = $tmp;
@@ -254,7 +253,7 @@ function get_which_menu($on=false) {
             if ($acl[AclEliminations] == AclReadWrite) {
                 $tmp = get_text('MenuLM_Check shoot-off before eliminations') . '';
                 if ($_SESSION['MenuElimPool']) {
-                    $tmp .= ' <b style="color:red">(Pool: ' . implode('-', $_SESSION['MenuElimPool']) . ')</b>';
+                    $tmp .= ' <b class="ShootOffMenu">(Pool: ' . implode('-', $_SESSION['MenuElimPool']) . ')</b>';
                 }
                 $tmp .= '|' . $CFG->ROOT_DIR . 'Final/Individual/AbsIndividual.php';
                 $ret['ELIMP'][] = $tmp;
@@ -288,7 +287,7 @@ function get_which_menu($on=false) {
             if($acl[AclIndividuals] == AclReadWrite) {
                 $tmp = get_text('MenuLM_Check shoot-off before final phases') . '';
                 if ($_SESSION['MenuFinI']) {
-                    $tmp .= ' <b style="color:red">(' . implode('-', $_SESSION['MenuFinI']) . ')</b>';
+                    $tmp .= ' <b class="ShootOffMenu">(' . implode('-', $_SESSION['MenuFinI']) . ')</b>';
                 }
                 $tmp .= '|' . $CFG->ROOT_DIR . 'Final/Individual/AbsIndividual.php';
                 $ret['FINI'][] = $tmp;
@@ -323,7 +322,7 @@ function get_which_menu($on=false) {
             if ($acl[AclTeams] == AclReadWrite) {
                 $tmp = get_text('MenuLM_Check shoot-off before final phases') . '';
                 if ($_SESSION['MenuFinT']) {
-                    $tmp .= ' <b style="color:red">(' . implode('-', $_SESSION['MenuFinT']) . ')</b>';
+                    $tmp .= ' <b class="ShootOffMenu">(' . implode('-', $_SESSION['MenuFinT']) . ')</b>';
                 }
                 $tmp .= '|' . $CFG->ROOT_DIR . 'Final/Team/AbsTeam.php';
                 $ret['FINT'][] = $tmp;

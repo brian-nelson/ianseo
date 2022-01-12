@@ -23,4 +23,17 @@ PASSO 1:
 *** ATTENZIONE AL CONTROLLO SCORE CHE NON FACCIA PASSARE GENTE NEL MATCHNO SUCCESSIVO
 
 
+Modifica 2021
+
+Solo squadre, no qualifica
+
+RM, RW, CM: 16 squadre, ognuna con 15 scontri
+CW: 6 sqaudre, 3 volte 5 scontri ognuna
+
+Vincitore 2 punti
+pareggio 1 a testa
+
+nel tie, differenza punti nel R, somma di tutto nel C
+
+dalle semifinali, normale
 

@@ -8,6 +8,8 @@ if(CheckTourSession()) {
 
 	$pdf = new LabelPDF();
 
+	error_reporting(E_ALL);
+
 	$ath4target=0;
 	$RowsPerPage=4;
 	$ses=GetSessions('Q');
@@ -21,33 +23,28 @@ if(CheckTourSession()) {
 		}
 	}
 
+	$Session=max(0, intval($_REQUEST['x_Session'] ?? $_REQUEST["Session"] ?? 0));
+	$From=intval($_REQUEST['x_From'] ?? 0);
+	$To=intval($_REQUEST['x_To'] ?? 0);
 
-
-	$MyQuery = "SELECT ToElabTeam, ToNumEnds, EnName AS Name, EnFirstName AS FirstName, SUBSTRING(AtTargetNo,1,1) AS Session, SUBSTRING(AtTargetNo,2," . TargetNoPadding . ") AS TargetNo,  SUBSTRING(AtTargetNo,-1,1) AS BackNo ";
-	$MyQuery.= "FROM AvailableTarget at ";
-	$MyQuery.= "INNER JOIN Tournament AS t ON t.ToId=at.AtTournament ";
-	if((isset($_REQUEST["noEmpty"]) && $_REQUEST["noEmpty"]==1))
-	{
-		$MyQuery .= "INNER JOIN
-				(SELECT DISTINCT EnTournament, SUBSTRING(QuTargetNo,1,4) as TgtNo
+	$MyQuery = "SELECT ToElabTeam, ToNumEnds, EnName AS Name, EnFirstName AS FirstName, AtSession AS Session, AtTarget AS TargetNo,  AtLetter AS BackNo
+		FROM AvailableTarget
+		INNER JOIN Tournament AS t ON t.ToId=AtTournament";
+	if(!empty($_REQUEST["noEmpty"])) {
+		$MyQuery .= " INNER JOIN
+				(SELECT DISTINCT EnTournament, QuTarget, QuSession
 				FROM Qualifications
 				INNER JOIN Entries On QuId=EnId
-				WHERE EnTournament = " . StrSafe_DB($_SESSION['TourId']) . " AND EnAthlete=1 AND QuTargetNo>='" . $_REQUEST['x_Session'] . str_pad($_REQUEST['x_From'],TargetNoPadding,"0",STR_PAD_LEFT) . "A' AND QuTargetNo<='" . $_REQUEST['x_Session'] . str_pad($_REQUEST['x_To'],TargetNoPadding,"0",STR_PAD_LEFT) . "Z'
-				) as Tgt ON at.AtTournament=Tgt.EnTournament AND SUBSTRING(at.AtTargetNo,1,4)=Tgt.TgtNo	";
+				WHERE EnTournament = {$_SESSION['TourId']} ".($Session ? " AND QuSession=$Session" : "").($To>0 ? " and QuTarget between $From and $To" : "")."
+				) as Tgt ON AtTournament=Tgt.EnTournament AND AtTarget=QuTarget and AtSession=QuSession	";
 	}
-	$MyQuery.= "LEFT JOIN ";
-	$MyQuery.= "(SELECT EnName, EnFirstName, EnTournament, QuTargetNo ";
-	$MyQuery.= "FROM Entries AS e INNER JOIN Qualifications AS q ON e.EnId=q.QuId AND e.EnTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EnAthlete=1) sq ";
-	$MyQuery.= "ON at.AtTournament=sq.EnTournament AND at.AtTargetNo=sq.QuTargetNo ";
-	$MyQuery.= "WHERE AtTournament = " . StrSafe_DB($_SESSION['TourId']) . " ";
-	if(isset($_REQUEST["Session"]) && is_numeric($_REQUEST["Session"]))
-		$MyQuery .= "AND SUBSTRING(AtTargetNo,1,1) = " . StrSafe_DB($_REQUEST["Session"]) . " ";
-	elseif ($_REQUEST['x_Session']>0)
-		$MyQuery.= " AND at.AtTargetNo>='" . $_REQUEST['x_Session'] . (strlen($_REQUEST['x_From'])<2 ? '0' : '') . $_REQUEST['x_From'] . "A' AND at.AtTargetNo<='" . $_REQUEST['x_Session'] . (strlen($_REQUEST['x_To'])<2 ? '0' : '') . $_REQUEST['x_To'] . "Z' ";
+	$MyQuery.= "LEFT JOIN (
+					SELECT EnName, EnFirstName, EnTournament, QuTargetNo 
+					FROM Entries AS e INNER JOIN Qualifications AS q ON e.EnId=q.QuId AND e.EnTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND EnAthlete=1
+					) sq ON AtTournament=sq.EnTournament AND AtTargetNo=sq.QuTargetNo 
+				WHERE AtTournament = {$_SESSION['TourId']} ".($Session ? " AND AtSession=$Session" : "").($To>0 ? " and AtTarget between $From and $To" : "");
 
-
-
-	$MyQuery.= "ORDER BY if(ToElabTeam=2, (substr(AtTargetNo,2 , 3)-1)%ToNumEnds, 1), AtTargetNo, Name, FirstName ";
+	$MyQuery.= " ORDER BY if(ToElabTeam=2, (substr(AtTargetNo,2 , 3)-1)%ToNumEnds, 1), AtTargetNo, Name, FirstName ";
 
 	$Rs=safe_r_sql($MyQuery);
 	if($Rs)

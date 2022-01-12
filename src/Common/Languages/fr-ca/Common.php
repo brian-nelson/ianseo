@@ -174,7 +174,6 @@ $lang['MenuLM_Export Results']='Exportations- résultats';
 $lang['MenuLM_Export Tournament']='Exportations - tournoi';
 $lang['MenuLM_Export Tournament Photo']='Exportation tournoi avec images';
 $lang['MenuLM_Fees setup']='Configuration des prix';
-$lang['MenuLM_Field Crew']='Équipe sur le terrain';
 $lang['MenuLM_Final Field of Play Layout']='Aménagement final du terrain de tir';
 $lang['MenuLM_Final report']='Rapport final';
 $lang['MenuLM_Final Rounds']='Rondes finales';

@@ -54,13 +54,17 @@
 					$badDate=false;
 					if ($cc=='FSScheduledDate')
 					{
-						$vv=ConvertDate($Value);
-						$badDate=!($vv>=date('Y-m-d',$_SESSION['ToWhenFromUTS']) && $vv<=date('Y-m-d',$_SESSION['ToWhenToUTS']));
+						if($vv==='0') {
+							// UN-schedule a single match
+						} else {
+							$vv=ConvertDate($Value);
+							$badDate=!($vv>=date('Y-m-d',$_SESSION['ToWhenFromUTS']) && $vv<=date('Y-m-d',$_SESSION['ToWhenToUTS']));
+						}
 					}
 					elseif ($cc=='FSScheduledTime')
 						$vv=Convert24Time($vv);
 
-					if ($vv>0 && !$badDate || ($vv==0 && $cc=='FSScheduledLen'))
+					if (!$badDate || ($vv==0 && $cc=='FSScheduledLen'))
 					{
 					// Scrivo per $mm
 						$Insert

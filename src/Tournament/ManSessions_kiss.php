@@ -21,20 +21,27 @@
 	$maxSessions=9;
 
 	$sesOrders=array();
-	for($i=0;$i<=$maxSessions;++$i)
-	{
+	for($i=0;$i<=$maxSessions;++$i)	{
 		$sesOrders[]=$i;
 	}
 
 /* qui scrivo */
 	$NumErr=0;
 	$Arr_Values2Check_ManSessions=array();
-	foreach ($sesOrders as $o)
-	{
+	foreach ($sesOrders as $o) {
 		if ($o==0) continue;
 		$Arr_Values2Check_ManSessions['d_ToTar_'.$o]=array('Func' => 'GoodNumTarget', 'Error' => false);
 		$Arr_Values2Check_ManSessions['d_ToAth_'.$o]=array('Func' => 'GoodNumAth', 'Error' => false);
 	}
+
+	if(!empty($_REQUEST['Sess2Ath']) AND $wrkSess=intval($_REQUEST['Sess2Ath']) AND isset($_REQUEST['subType'])) {
+        regenerateQualTargetsForSession($_SESSION['TourId'],$wrkSess);
+        if($_REQUEST['subType']=="AC") {
+            $q=safe_w_SQL("UPDATE `AvailableTarget` SET `AtLetter`='C', `AtTargetNo`=CONCAT(SUBSTR(`AtTargetNo`,1,4),'C') WHERE `AtTournament` = {$_SESSION['TourId']} AND `AtSession` = {$wrkSess} AND `AtLetter`='B'");
+        } else if($_REQUEST['subType']=="AD") {
+            $q=safe_w_SQL("UPDATE `AvailableTarget` SET `AtLetter`='D', `AtTargetNo`=CONCAT(SUBSTR(`AtTargetNo`,1,4),'D') WHERE `AtTournament` = {$_SESSION['TourId']} AND `AtSession` = {$wrkSess} AND `AtLetter`='B'");
+        }
+    }
 
 	if (isset($_REQUEST['Command'])) {
 		if ($_REQUEST['Command']=='SAVE') {
@@ -100,19 +107,14 @@
 									0
 								);
 							}
-						}
-						else
-						{
+						} else {
 							deleteSession($_SESSION['TourId'], $o, 'Q');
 						}
 					}
 				}
-
 			}
-			else
-			{
-				foreach ($sesOrders as $o)
-				{
+			else {
+				foreach ($sesOrders as $o) {
 					if ($o==0) continue;
 					$Arr_Values2Check_ManSessions['d_ToTar_'.$o]=array('Func' => 'GoodNumTarget', 'Error' => true);
 					$Arr_Values2Check_ManSessions['d_ToAth_'.$o]=array('Func' => 'GoodNumAth', 'Error' => true);
@@ -129,10 +131,8 @@
 
 	$sessions=array();
 
-	foreach ($allQSessions as $s)
-	{
-		if (in_array($s->SesOrder,$sesOrders))
-		{
+	foreach ($allQSessions as $s) {
+		if (in_array($s->SesOrder,$sesOrders)) {
 			$sessions[$s->SesOrder]=$s;
 		}
 	}
@@ -143,6 +143,7 @@
 */
 	$JS_SCRIPT = array(
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/ajax/ObjXMLHttpRequest.js"></script>',
+		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>',
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Tournament/Fun_JS.js"></script>',
 		'<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Tournament/Fun_AJAX_ManDistances.js"></script>',
 	);
@@ -165,11 +166,11 @@
 					</select>
 				</td>
 				<td>
-					<?php if (!defined('hideSchedulerAndAdvancedSession')){?>
-						<a  class="Link"  href="ManSessions.php">:<?php print get_text('Advanced');?>:</a>
-					<?php } else { ?>
-						&nbsp;
-					<?php } ?>
+					<?php
+                    if (!defined('hideSchedulerAndAdvancedSession')){
+						echo '<a  class="Link"  href="ManSessions.php">:' . get_text('Advanced') . ':</a>';
+					}
+                    ?>
 				</td>
 			</tr>
 		</table>
@@ -180,8 +181,7 @@
 			<?php
 				$StrHeader = '<tr>';
 				$StrValue = '<tr>';
-				foreach ($sesOrders as $o)
-				{
+				foreach ($sesOrders as $o) {
 					if ($o==0) continue;
 					$StrHeader.= '<td class="Title" width="11%">' . get_text('Session') . ' ' . $o . '</td>';
 					$StrValue.='
@@ -191,14 +191,13 @@
 								class="number' . ($o>$numSessions ? ' disabled' : ($Arr_Values2Check_ManSessions['d_ToTar_' . $o]['Error'] ? ' error' : '')) .'"
 								id="d_ToTar_' .$o .'"
 								name="d_ToTar_' . $o.'"
-
 								value="' . (array_key_exists($o,$sessions) ? ($Arr_Values2Check_ManSessions['d_ToTar_' . $o]['Error'] ? $_REQUEST['d_ToTar_' . $o] : $sessions[$o]->SesTar4Session) : 0).'"
 							/>
 						</td>
 					';
 				}
-				$StrHeader.= '</tr>' . "\n";
-				$StrValue.= '</tr>' . "\n";
+				$StrHeader.= '</tr>';
+				$StrValue.= '</tr>';
 
 				print $StrHeader;
 				print $StrValue;
@@ -209,26 +208,26 @@
 			<?php
 				$StrHeader = '<tr>';
 				$StrValue = '<tr>';
-				foreach ($sesOrders as $o)
-				{
+				foreach ($sesOrders as $o) {
 					if ($o==0) continue;
-					$StrHeader.= '<td class="Title" width="11%">' . get_text('Session') . ' ' . $o . '</td>';
-					$StrValue.='
-						<td>
-							<input size="5" ' . ($o>$numSessions ? ' readonly' : '') . '
-								maxlength="2"
-								class="number' . ($o>$numSessions ? ' disabled' : ($Arr_Values2Check_ManSessions['d_ToAth_' . $o]['Error'] ? ' error' : '')) .'"
-								id="d_ToAth_' .$o .'"
-								name="d_ToAth_' . $o.'"
-
-								value="' . (array_key_exists($o,$sessions) ? ($Arr_Values2Check_ManSessions['d_ToAth_' . $o]['Error'] ? $_REQUEST['d_ToAth_' . $o] : $sessions[$o]->SesAth4Target) : 0).'"
-							/>
-						</td>
-					';
-
+					$vToAth = (array_key_exists($o,$sessions) ? ($Arr_Values2Check_ManSessions['d_ToAth_' . $o]['Error'] ? $_REQUEST['d_ToAth_' . $o] : $sessions[$o]->SesAth4Target) : 0);
+					$StrHeader .= '<td class="Title" width="11%">' . get_text('Session') . ' ' . $o . '</td>';
+					$StrValue .= '<td>'.
+                        '<input size="5" ' . ($o>$numSessions ? ' readonly' : '') . ' maxlength="2" class="number' . ($o>$numSessions ? ' disabled' : ($Arr_Values2Check_ManSessions['d_ToAth_' . $o]['Error'] ? ' error' : '')) .'" id="d_ToAth_' .$o .'" name="d_ToAth_' . $o.'" value="' . $vToAth.'"/>';
+                    if($vToAth==2) {
+                        $types = array("AB"=>false, "AC"=>false, "AD"=>false);
+                        $q = safe_r_SQL("SELECT GROUP_CONCAT(DISTINCT AtLetter SEPARATOR '') as Letters FROM `AvailableTarget` WHERE `AtTournament` = {$_SESSION['TourId']} AND `AtSession` = {$o} GROUP BY AtTournament, AtSession ");
+                        if($r=safe_fetch($q)) {
+                            $types[$r->Letters]=true;
+                        }
+                        foreach ($types as $k=>$v) {
+                            $StrValue .= '&nbsp;&nbsp;' . ($v ? '<span class="LetteraGrande">' : '<a class="Link" href="'.$_SERVER["PHP_SELF"].'?Sess2Ath='.$o.'&subType='.$k.'">') . $k . ($v ? '</span>' : '</a>');
+                        }
+                    }
+					$StrValue .= '</td>';
 				}
-				$StrHeader.= '</tr>' . "\n";
-				$StrValue.= '</tr>' . "\n";
+				$StrHeader .= '</tr>';
+				$StrValue .= '</tr>';
 
 				print $StrHeader;
 				print $StrValue;

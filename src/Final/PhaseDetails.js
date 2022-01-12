@@ -31,7 +31,7 @@ function getDetails() {
 					$('.PhaseLegend').html('<div class="Left"><div class="opp-badge1 active">1</div><div class="opp-badge2 active">2</div>'+data.legend1+'</div><div><div class="opp-multimatch"></div><div class="opp-multimatch active"></div>'+data.legend2+'</div>');
 					$.each(data.events, function() {
 						var row='<tr ref="'+this.code+'">' +
-							'<th>'+this.event+'</th>';
+							'<th class="Left">'+this.event+'</th>';
 						$.each(this.phases, function() {
 							var select='';
 							if(this.badge!='') {
@@ -59,7 +59,7 @@ function getDetails() {
 					$('.PhaseLegend').html('<div class="topRow"><i class="fa fa-circle fa-lg active mr-2"></i>'+data.legend1+'</div><div><i class="fa fa-circle fa-lg active mr-2"></i>'+data.legend2+'</div>');
 					$.each(data.events, function() {
 						var row='<tr ref="'+this.code+'" class="topRow">' +
-							'<th rowspan="2">'+this.event+'</th>' +
+							'<th rowspan="2"  class="Left">'+this.event+'</th>' +
 							'<th>'+this.eText+'</th>' +
 							'<td class="Center"><input type="number" onchange="changeValue(this)" name="eEnds" value="'+this.eEnds+'"></td>' +
 							'<td class="Center"><input type="number" onchange="changeValue(this)" name="eArrows" value="'+this.eArrows+'"></td>' +

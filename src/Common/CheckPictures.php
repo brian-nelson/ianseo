@@ -656,6 +656,13 @@ function InsertPhoto($EnId, $Photo, $Booth=false, $Date='', $EnBadgePrinted=0, $
 	if(!$Date) $Date=date('Y-m-d H:i:s');
 	$ToRetake=intval($ToRetake);
 	$sql = "PhEnId=" . Strsafe_DB($EnId) . ", PhPhoto='" . $Photo ."', PhToRetake=$ToRetake";
+
+	// if the picture is already in marked as to retake, update the enbadgeprinted setting to the same date as the picture!
+	$q=safe_r_sql("select PhToRetake, EnBadgePrinted!=0 as Printed from Photos inner join Entries on EnId=PhEnId where PhEnId=$EnId");
+	if($r=safe_fetch($q) and $r->PhToRetake and $r->Printed) {
+		$EnBadgePrinted=$Date;
+	}
+
 	safe_w_sql("insert into Photos set $sql, PhPhotoEntered='$Date' on duplicate key update $sql");
 	if(safe_w_affected_rows()) {
 		safe_w_sql("update Photos set PhPhotoEntered='$Date' where PhEnId=" . Strsafe_DB($EnId));

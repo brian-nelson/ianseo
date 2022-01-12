@@ -57,17 +57,12 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 		'Emails' => 'Em',
 		'EventClass' => 'Ec',
 		'Events' => 'Ev',
-		'F2FGrid' => 'F2F',
-		'F2FEntries' => 'F2F',
-		'F2FFinal' => 'F2F',
 		'FinalReportA' => 'Fra',
 		'Finals' => 'Fin',
 		'FinOdfTiming' => 'FinOdf',
 		'FinSchedule' => 'FS',
 		'FinWarmup' => 'Fw',
         'GateLog' => 'GL',
-		'GuessWho'=>'Gw',
-		'GuessWhoData'=>'Gwd',
 		'HeartBeat'=>'Hb',
 		'HhtData' => 'Hd',
 		'HhtEvents' => 'He',
@@ -83,7 +78,6 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 		'OdfDocuments' => 'OdfDoc',
 		'OdfTranslations' => 'OdfTr',
 		'OdfMessageStatus' => 'Oms',
-		'PrintOutsRules' => 'Por',
 		'Rankings' => 'Rank',
 		'RecBroken' => 'RecBro',
 		'RecTournament' => 'Rt',
@@ -119,11 +113,8 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 			'ElabQualifications' => 'EqId',
 			'Eliminations' => 'ElId',
 			'ExtraData' => 'EdId',
-			'F2FEntries' => 'F2FEnId',
-			'F2FFinal' => 'F2FEnId',
-			'Finals' => 'FinAthlete',
+			'Finals' => array('FinAthlete','FinCoach'),
             'GateLog' => 'GLEntry',
-			'GuessWhoData'=>array('GwdAthlete1','GwdAthlete2'),
 			'HhtData' => 'HdEnId',
 			'Individuals' => 'IndId',
 			'Logs' => 'LogEntry',
@@ -145,6 +136,7 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 			'TeamFinComponent' => 'TfcCoId',
 			'TeamFinals' => 'TfTeam',
 			'Teams' => 'TeCoId',
+			'TournamentInvolved' => 'TiCountry',
 	);
 
 	$Gara['Photos']=array();
@@ -176,7 +168,6 @@ function export_tournament($TourId, $Complete=false, $InfoSystem='') {
 
 	$noIds=array(
 		'AccPrice' => 'APId',
-		'TournamentInvolved' => 'TiId',
 		);
 
 	// prendo le Tabelle definite nell'array che si estraggono sul Tournament

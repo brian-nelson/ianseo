@@ -226,14 +226,24 @@ if($TourType==6 OR $TourType==3 OR $TourType==42) {
 
         //Add Looser Backets if needed
         if (($TourType == 3 and $SubRule == 3) or ($TourType == 6 and $SubRule == 4)) {
+            $TargetR=(($TourType != 6) ? TGT_OUT_FULL : TGT_IND_6_big10);
+            $TargetC=(($TourType != 6) ? TGT_OUT_5_big10 : TGT_IND_6_small10);
+            $TargetB=(($TourType != 6) ? TGT_OUT_FULL : TGT_IND_1_big10);
+            $TargetSizeR=(($TourType != 6) ? 122 : 40);
+            $TargetSizeC=(($TourType != 6) ? 80 : 40);
+            $TargetSizeB=(($TourType != 6) ? 122 : 40);
+            $DistanceR=(($TourType != 6) ? 70 : 18);
+            $DistanceC=(($TourType != 6) ? 50 : 18);
+            $DistanceB=(($TourType != 6) ? 50 : 18);
+
             $i = 10;
-            CreateEvent($TourId, $i++, 0, 0, 8, 5, 5, 3, 1, 5, 3, 1, 'RH-A', 'Recurve Heren - 17e t/n 20e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 70, 'RH', '0', '0', 17);
-            CreateEvent($TourId, $i++, 0, 0, 4, 5, 5, 3, 1, 5, 3, 1, 'RH-1', 'Recurve Heren - 9e t/n 12e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 70, 'RH', '0', '0', 9);
-            CreateEvent($TourId, $i++, 0, 0, 4, 5, 5, 3, 1, 5, 3, 1, 'RH-B', 'Recurve Heren - 25e t/n 28e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 70, 'RH-A', '0', '0', 25);
-            CreateEvent($TourId, $i++, 0, 0, 2, 5, 5, 3, 1, 5, 3, 1, 'RH-2', 'Recurve Heren - 5e t/n 8e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 70, 'RH', '0', '0', 5);
-            CreateEvent($TourId, $i++, 0, 0, 2, 5, 5, 3, 1, 5, 3, 1, 'RH-3', 'Recurve Heren - 13e t/n 16e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 70, 'RH-1', '0', '0', 13);
-            CreateEvent($TourId, $i++, 0, 0, 2, 5, 5, 3, 1, 5, 3, 1, 'RH-C', 'Recurve Heren - 21e t/n 24e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 70, 'RH-A', '0', '0', 21);
-            CreateEvent($TourId, $i++, 0, 0, 2, 5, 5, 3, 1, 5, 3, 1, 'RH-D', 'Recurve Heren - 29e t/n 32e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 70, 'RH-B', '0', '0', 29);
+            CreateEvent($TourId, $i++, 0, 0, 8, $TargetR, 5, 3, 1, 5, 3, 1, 'RH-A', 'Recurve Heren - 17e t/n 20e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeR, $DistanceR, 'RH', '0', '0', 17);
+            CreateEvent($TourId, $i++, 0, 0, 4, $TargetR, 5, 3, 1, 5, 3, 1, 'RH-1', 'Recurve Heren - 9e t/n 12e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeR, $DistanceR, 'RH', '0', '0', 9);
+            CreateEvent($TourId, $i++, 0, 0, 4, $TargetR, 5, 3, 1, 5, 3, 1, 'RH-B', 'Recurve Heren - 25e t/n 28e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeR, $DistanceR, 'RH-A', '0', '0', 25);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetR, 5, 3, 1, 5, 3, 1, 'RH-2', 'Recurve Heren - 5e t/n 8e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeR, $DistanceR, 'RH', '0', '0', 5);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetR, 5, 3, 1, 5, 3, 1, 'RH-3', 'Recurve Heren - 13e t/n 16e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeR, $DistanceR, 'RH-1', '0', '0', 13);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetR, 5, 3, 1, 5, 3, 1, 'RH-C', 'Recurve Heren - 21e t/n 24e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeR, $DistanceR, 'RH-A', '0', '0', 21);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetR, 5, 3, 1, 5, 3, 1, 'RH-D', 'Recurve Heren - 29e t/n 32e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeR, $DistanceR, 'RH-B', '0', '0', 29);
             InsertClassEvent($TourId, 0, 1, 'RH-1', 'R', 'H');
             InsertClassEvent($TourId, 0, 1, 'RH-2', 'R', 'H');
             InsertClassEvent($TourId, 0, 1, 'RH-3', 'R', 'H');
@@ -242,20 +252,20 @@ if($TourType==6 OR $TourType==3 OR $TourType==42) {
             InsertClassEvent($TourId, 0, 1, 'RH-C', 'R', 'H');
             InsertClassEvent($TourId, 0, 1, 'RH-D', 'R', 'H');
 
-            CreateEvent($TourId, $i++, 0, 0, 4, 5, 5, 3, 1, 5, 3, 1, 'RD-1', 'Recurve Dames - 9e t/n 12e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 70, 'RD', '0', '0', 9);
-            CreateEvent($TourId, $i++, 0, 0, 2, 5, 5, 3, 1, 5, 3, 1, 'RD-2', 'Recurve Dames - 5e t/n 8e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 70, 'RD', '0', '0', 5);
-            CreateEvent($TourId, $i++, 0, 0, 2, 5, 5, 3, 1, 5, 3, 1, 'RD-3', 'Recurve Dames - 13e t/n 16e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 70, 'RD-1', '0', '0', 13);
+            CreateEvent($TourId, $i++, 0, 0, 4, $TargetR, 5, 3, 1, 5, 3, 1, 'RD-1', 'Recurve Dames - 9e t/n 12e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeR, $DistanceR, 'RD', '0', '0', 9);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetR, 5, 3, 1, 5, 3, 1, 'RD-2', 'Recurve Dames - 5e t/n 8e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeR, $DistanceR, 'RD', '0', '0', 5);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetR, 5, 3, 1, 5, 3, 1, 'RD-3', 'Recurve Dames - 13e t/n 16e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeR, $DistanceR, 'RD-1', '0', '0', 13);
             InsertClassEvent($TourId, 0, 1, 'RD-1', 'R', 'D');
             InsertClassEvent($TourId, 0, 1, 'RD-2', 'R', 'D');
             InsertClassEvent($TourId, 0, 1, 'RD-3', 'R', 'D');
 
-            CreateEvent($TourId, $i++, 0, 0, 8, 9, 5, 3, 1, 5, 3, 1, 'CH-A', 'Compound Heren - 17e t/n 20e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 80, 50, 'CH', '0', '0', 17);
-            CreateEvent($TourId, $i++, 0, 0, 4, 9, 5, 3, 1, 5, 3, 1, 'CH-1', 'Compound Heren - 9e t/n 12e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 80, 50, 'CH', '0', '0', 9);
-            CreateEvent($TourId, $i++, 0, 0, 4, 9, 5, 3, 1, 5, 3, 1, 'CH-B', 'Compound Heren - 25e t/n 28e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 80, 50, 'CH-A', '0', '0', 25);
-            CreateEvent($TourId, $i++, 0, 0, 2, 9, 5, 3, 1, 5, 3, 1, 'CH-2', 'Compound Heren - 5e t/n 8e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 80, 50, 'CH', '0', '0', 5);
-            CreateEvent($TourId, $i++, 0, 0, 2, 9, 5, 3, 1, 5, 3, 1, 'CH-3', 'Compound Heren - 13e t/n 16e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 80, 50, 'CH-1', '0', '0', 13);
-            CreateEvent($TourId, $i++, 0, 0, 2, 9, 5, 3, 1, 5, 3, 1, 'CH-C', 'Compound Heren - 21e t/n 24e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 80, 50, 'CH-A', '0', '0', 21);
-            CreateEvent($TourId, $i++, 0, 0, 2, 9, 5, 3, 1, 5, 3, 1, 'CH-D', 'Compound Heren - 29e t/n 32e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 80, 50, 'CH-B', '0', '0', 29);
+            CreateEvent($TourId, $i++, 0, 0, 8, $TargetC, 5, 3, 1, 5, 3, 1, 'CH-A', 'Compound Heren - 17e t/n 20e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeC, $DistanceC, 'CH', '0', '0', 17);
+            CreateEvent($TourId, $i++, 0, 0, 4, $TargetC, 5, 3, 1, 5, 3, 1, 'CH-1', 'Compound Heren - 9e t/n 12e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeC, $DistanceC, 'CH', '0', '0', 9);
+            CreateEvent($TourId, $i++, 0, 0, 4, $TargetC, 5, 3, 1, 5, 3, 1, 'CH-B', 'Compound Heren - 25e t/n 28e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeC, $DistanceC, 'CH-A', '0', '0', 25);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetC, 5, 3, 1, 5, 3, 1, 'CH-2', 'Compound Heren - 5e t/n 8e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeC, $DistanceC, 'CH', '0', '0', 5);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetC, 5, 3, 1, 5, 3, 1, 'CH-3', 'Compound Heren - 13e t/n 16e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeC, $DistanceC, 'CH-1', '0', '0', 13);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetC, 5, 3, 1, 5, 3, 1, 'CH-C', 'Compound Heren - 21e t/n 24e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeC, $DistanceC, 'CH-A', '0', '0', 21);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetC, 5, 3, 1, 5, 3, 1, 'CH-D', 'Compound Heren - 29e t/n 32e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeC, $DistanceC, 'CH-B', '0', '0', 29);
             InsertClassEvent($TourId, 0, 1, 'CH-1', 'C', 'H');
             InsertClassEvent($TourId, 0, 1, 'CH-2', 'C', 'H');
             InsertClassEvent($TourId, 0, 1, 'CH-3', 'C', 'H');
@@ -264,20 +274,20 @@ if($TourType==6 OR $TourType==3 OR $TourType==42) {
             InsertClassEvent($TourId, 0, 1, 'CH-C', 'C', 'H');
             InsertClassEvent($TourId, 0, 1, 'CH-D', 'C', 'H');
 
-            CreateEvent($TourId, $i++, 0, 0, 4, 9, 5, 3, 1, 5, 3, 1, 'CD-1', 'Compound Dames - 9e t/n 12e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 80, 50, 'CD', '0', '0', 9);
-            CreateEvent($TourId, $i++, 0, 0, 2, 9, 5, 3, 1, 5, 3, 1, 'CD-2', 'Compound Dames - 5e t/n 8e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 80, 50, 'CD', '0', '0', 5);
-            CreateEvent($TourId, $i++, 0, 0, 2, 9, 5, 3, 1, 5, 3, 1, 'CD-3', 'Compound Dames - 13e t/n 16e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 80, 50, 'CD-1', '0', '0', 13);
+            CreateEvent($TourId, $i++, 0, 0, 4, $TargetC, 5, 3, 1, 5, 3, 1, 'CD-1', 'Compound Dames - 9e t/n 12e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeC, $DistanceC, 'CD', '0', '0', 9);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetC, 5, 3, 1, 5, 3, 1, 'CD-2', 'Compound Dames - 5e t/n 8e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeC, $DistanceC, 'CD', '0', '0', 5);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetC, 5, 3, 1, 5, 3, 1, 'CD-3', 'Compound Dames - 13e t/n 16e plaats', 0, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeC, $DistanceC, 'CD-1', '0', '0', 13);
             InsertClassEvent($TourId, 0, 1, 'CD-1', 'C', 'D');
             InsertClassEvent($TourId, 0, 1, 'CD-2', 'C', 'D');
             InsertClassEvent($TourId, 0, 1, 'CD-3', 'C', 'D');
 
-            CreateEvent($TourId, $i++, 0, 0, 8, 5, 5, 3, 1, 5, 3, 1, 'BH-A', 'Barebow Heren - 17e t/n 20e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 50, 'BH', '0', '0', 17);
-            CreateEvent($TourId, $i++, 0, 0, 4, 5, 5, 3, 1, 5, 3, 1, 'BH-1', 'Barebow Heren - 9e t/n 12e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 50, 'BH', '0', '0', 9);
-            CreateEvent($TourId, $i++, 0, 0, 4, 5, 5, 3, 1, 5, 3, 1, 'BH-B', 'Barebow Heren - 25e t/n 28e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 50, 'BH-A', '0', '0', 25);
-            CreateEvent($TourId, $i++, 0, 0, 2, 5, 5, 3, 1, 5, 3, 1, 'BH-2', 'Barebow Heren - 5e t/n 8e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 50, 'BH', '0', '0', 5);
-            CreateEvent($TourId, $i++, 0, 0, 2, 5, 5, 3, 1, 5, 3, 1, 'BH-3', 'Barebow Heren - 13e t/n 16e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 50, 'BH-1', '0', '0', 13);
-            CreateEvent($TourId, $i++, 0, 0, 2, 5, 5, 3, 1, 5, 3, 1, 'BH-C', 'Barebow Heren - 21e t/n 24e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 50, 'BH-A', '0', '0', 21);
-            CreateEvent($TourId, $i++, 0, 0, 2, 5, 5, 3, 1, 5, 3, 1, 'BH-D', 'Barebow Heren - 29e t/n 32e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 50, 'BH-B', '0', '0', 29);
+            CreateEvent($TourId, $i++, 0, 0, 8, $TargetB, 5, 3, 1, 5, 3, 1, 'BH-A', 'Barebow Heren - 17e t/n 20e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeB, $DistanceB, 'BH', '0', '0', 17);
+            CreateEvent($TourId, $i++, 0, 0, 4, $TargetB, 5, 3, 1, 5, 3, 1, 'BH-1', 'Barebow Heren - 9e t/n 12e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeB, $DistanceB, 'BH', '0', '0', 9);
+            CreateEvent($TourId, $i++, 0, 0, 4, $TargetB, 5, 3, 1, 5, 3, 1, 'BH-B', 'Barebow Heren - 25e t/n 28e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeB, $DistanceB, 'BH-A', '0', '0', 25);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetB, 5, 3, 1, 5, 3, 1, 'BH-2', 'Barebow Heren - 5e t/n 8e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeB, $DistanceB, 'BH', '0', '0', 5);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetB, 5, 3, 1, 5, 3, 1, 'BH-3', 'Barebow Heren - 13e t/n 16e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeB, $DistanceB, 'BH-1', '0', '0', 13);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetB, 5, 3, 1, 5, 3, 1, 'BH-C', 'Barebow Heren - 21e t/n 24e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeB, $DistanceB, 'BH-A', '0', '0', 21);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetB, 5, 3, 1, 5, 3, 1, 'BH-D', 'Barebow Heren - 29e t/n 32e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeB, $DistanceB, 'BH-B', '0', '0', 29);
             InsertClassEvent($TourId, 0, 1, 'BH-1', 'B', 'H');
             InsertClassEvent($TourId, 0, 1, 'BH-2', 'B', 'H');
             InsertClassEvent($TourId, 0, 1, 'BH-3', 'B', 'H');
@@ -286,9 +296,9 @@ if($TourType==6 OR $TourType==3 OR $TourType==42) {
             InsertClassEvent($TourId, 0, 1, 'BH-C', 'B', 'H');
             InsertClassEvent($TourId, 0, 1, 'BH-D', 'B', 'H');
 
-            CreateEvent($TourId, $i++, 0, 0, 4, 5, 5, 3, 1, 5, 3, 1, 'BD-1', 'Barebow Dames - 9e t/n 12e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 50, 'BD', '0', '0', 9);
-            CreateEvent($TourId, $i++, 0, 0, 2, 5, 5, 3, 1, 5, 3, 1, 'BD-2', 'Barebow Dames - 5e t/n 8e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 50, 'BD', '0', '0', 5);
-            CreateEvent($TourId, $i++, 0, 0, 2, 5, 5, 3, 1, 5, 3, 1, 'BD-3', 'Barebow Dames - 13e t/n 16e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', 122, 50, 'BD-1', '0', '0', 13);
+            CreateEvent($TourId, $i++, 0, 0, 4, $TargetB, 5, 3, 1, 5, 3, 1, 'BD-1', 'Barebow Dames - 9e t/n 12e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeB, $DistanceB, 'BD', '0', '0', 9);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetB, 5, 3, 1, 5, 3, 1, 'BD-2', 'Barebow Dames - 5e t/n 8e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeB, $DistanceB, 'BD', '0', '0', 5);
+            CreateEvent($TourId, $i++, 0, 0, 2, $TargetB, 5, 3, 1, 5, 3, 1, 'BD-3', 'Barebow Dames - 13e t/n 16e plaats', 1, FINAL_NO_ELIM, MATCH_SEP_FROM_4, 0, 0, '', '', $TargetSizeB, $DistanceB, 'BD-1', '0', '0', 13);
             InsertClassEvent($TourId, 0, 1, 'BD-1', 'B', 'D');
             InsertClassEvent($TourId, 0, 1, 'BD-2', 'B', 'D');
             InsertClassEvent($TourId, 0, 1, 'BD-3', 'B', 'D');

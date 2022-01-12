@@ -116,7 +116,6 @@ $lang['Setup-ARLEF']='Reguły LEF';
 $lang['Setup-CA']='Reguły kanadyjskie';
 $lang['Setup-CH']='Reguły szwajcarskie';
 $lang['Setup-Default']='<b>Reguły WORLD ARCHERY<b>';
-$lang['Setup-F2F']='Face2Face';
 $lang['Setup-NL']='Reguły holenderskie';
 $lang['Setup-NO']='Reguły norweskie';
 $lang['Setup-PAR']='Reguły paraolimpijskie (IPC)';

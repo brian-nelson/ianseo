@@ -434,7 +434,7 @@ if($DataSource) {
 	                    $tmpString[2]='';
                     }
                 }
-                $Preferred=($tmpString[2] ? 'P' : '');
+                $Preferred=($tmpString[2] ? '1' : '0');
 
                 // check the email is formally correct
 				if(!preg_match('/^[a-z0-9._#-]+@[a-z0-9._-]+$/sim', $tmpString[6])) {
@@ -449,22 +449,21 @@ if($DataSource) {
                     'GivenName' => $tmpString[5],
                     'Email' => $tmpString[6],
                     'Phone' => empty($tmpString[7]) ? '' : trim($tmpString[7]),
+                    'Preferred' => $Preferred,
                 );
 
                 // Insert/updates the ExtraDataCountries, type is 'E', "event" field is P for preferred, O for other
                 // first get the record if existing... only adding is allowed!
 				$Extra=array();
-                $q=safe_r_SQL("select EdcExtra from ExtraDataCountries where EdcType='E' and EdcId=$CoId and EdcEvent='$Preferred'");
+                $q=safe_r_SQL("select EdcExtra from ExtraDataCountries where EdcType='E' and EdcId=$CoId");
                 if($r=safe_fetch($q)) {
                     if($r->EdcExtra) {
                         $Extra=unserialize($r->EdcExtra);
                     }
                 }
-                if(!in_array($tmp, $Extra)) {
-                    $Extra[]=$tmp;
-                }
+                $Extra[$tmpString[3]]=$tmp;
                 // then inserts the new one
-                safe_w_sql("insert into ExtraDataCountries set EdcId=$CoId, EdcType='E', EdcEvent='$Preferred', EdcExtra=".StrSafe_DB(serialize($Extra))."
+                safe_w_sql("insert into ExtraDataCountries set EdcId=$CoId, EdcType='E', EdcExtra=".StrSafe_DB(serialize($Extra))."
                     on duplicate key update EdcExtra=".StrSafe_DB(serialize($Extra)));
 
                 $ImportResult['Inserted'][]='<tr><td>Inserted/updated</td><td>'.$tmpString[1].'</td><td>'.($Preferred ? 'Preferred' : '').'</td></tr>';

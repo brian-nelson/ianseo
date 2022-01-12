@@ -1,4 +1,5 @@
 <?php
+$lang['A-Badge']='Akreditasyon kartı';
 $lang['Access']='Erişim Alanları';
 $lang['Accomodation']='Konaklama, Yemek, Ulaşım';
 $lang['AccreditationKO']='Akreditasyon sorunu... LÜTFEN MASAYA BAŞVURUN';
@@ -52,11 +53,13 @@ $lang['Coloured']='Renkli';
 $lang['CompDetails']='Yarışma Ayrıntıları';
 $lang['CompName']='Yarışma Adı';
 $lang['Content']='Kapsam';
-$lang['CountryCodeAndLong']='Ülke kodu ve uzun adı';
-$lang['CountryCodeOnly']='Yalnızca ülke kodu';
-$lang['CountryFlagAndLong']='Ülke bayrağı ve uzun adı';
-$lang['CountryFlagOnly']='Yalnızca ülke bayrağı';
-$lang['CountryLongName']='Yalnızca ülke uzun adı';
+$lang['CountryCodeAndLong']='Kulüp kodu ve uzun adı';
+$lang['CountryCodeOnly']='Yalnız Kulüp kodu';
+$lang['CountryFlagAndLong']='Kulüp logosu ve uzun adı';
+$lang['CountryFlagOnly']='Yalnız kulüp bayrağı';
+$lang['CountryLongName']='Yalnız kulüp uzun adı';
+$lang['EvDescr']='Yarışma Açıklaması';
+$lang['EvDescrUpper']='Yarışma Açıklaması';
 $lang['FamCamel']='Soyad';
 $lang['FamCamel-GAlone']='Soyad A.';
 $lang['FamCamel-GivCamel']='Soyad Ad';

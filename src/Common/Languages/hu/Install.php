@@ -120,7 +120,6 @@ $lang['Setup-ARLEF']='LEF Szabályok';
 $lang['Setup-CA']='Kanadai szabályzat';
 $lang['Setup-CH']='Svájci szabályzat';
 $lang['Setup-Default']='Nemzetközi Verseny (WA szabályok)';
-$lang['Setup-F2F']='Párbaj';
 $lang['Setup-NL']='Holland verseny';
 $lang['Setup-NO']='Norvég verseny';
 $lang['Setup-PAR']='Paralimpiai verseny (IPC szabályzat)';

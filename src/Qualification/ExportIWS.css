@@ -1,0 +1,48 @@
+.divStatus {
+    font-size: 10px;
+    display:inline-block;
+    width:2em;
+    height:2em;
+    border-radius: 1.1em;
+    border:solid 1px darkred;
+    text-align:center;
+    color:#bbb;
+    background-color:grey;
+    line-height: 2em;
+    font-weight: bold;
+    margin:0 0.25em;
+}
+
+.divStatus.notValid {
+    background-color:red;
+}
+
+.divStatus.isValid {
+    background-color:darkgreen;
+}
+
+.smallContainer {
+    width: 2vw;
+    padding: 0.5em;
+}
+
+.divCodeContainer {
+    width: 5vw;
+    font-weight: bold;
+    text-align: center;
+}
+
+.divContainer {
+    min-width: 20vw;
+}
+
+.exportButton {
+    background-color:darkblue;
+    border:1px solid darkblue;
+    color: white;
+    border-radius:0.25em;
+    font-size: 1.5em;
+    padding: 0.5em 3em;
+    font-weight: bold;
+
+}

@@ -753,3 +753,34 @@ function updateTbDecoded_20200519($ToId=0)  {
     }
 }
 
+function updateContacts_20210515($ToId=0) {
+	if($ToId) {
+		$q=safe_r_sql("select ExtraDataCountries.* from ExtraDataCountries inner join Countries on CoId=EdcId and CoTournament=$ToId where EdcType='E' order by EdcId");
+	} else {
+		$q=safe_r_sql("select * from ExtraDataCountries where EdcType='E' order by EdcId");
+	}
+
+	$OldCountry=0;
+	$Edc=array();
+	while($r=safe_fetch($q)) {
+		if(!$r->EdcExtra) {
+			continue;
+		}
+		foreach(unserialize($r->EdcExtra) as $extra) {
+			if(empty($extra['EnCode'])) {
+				$t=safe_r_sql("select * from Entries where EnFirstName=".StrSafe_DB($extra['FamilyName'])." and EnName=".StrSafe_DB($extra['GivenName']));
+				if($u=safe_fetch($t)) {
+					$extra['EnCode']=$u->EnCode;
+				}
+			}
+			$extra['Preferred']=($r->EdcEvent=='P');
+			$Edc[$r->EdcId][$extra['EnCode']]=$extra;
+		}
+	}
+
+	// delete the old system and replace with the new
+	foreach($Edc as $CoId => $Items) {
+		safe_w_sql("delete from ExtraDataCountries where EdcId=$CoId and EdcType='E'");
+		safe_w_sql("insert into ExtraDataCountries set EdcId=$CoId, EdcType='E', EdcExtra=".StrSafe_DB(serialize($Items)));
+	}
+}

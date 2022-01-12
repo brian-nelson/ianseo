@@ -458,7 +458,7 @@ function DrawScore(&$pdf, $MyRow, $Side='L') {
 		$pdf->SetFont($pdf->FontStd,'B',11);
 		$pdf->Cell($TotalW+2*$GoldW,$pdf->ScoreCellHeight,($FillWithArrows ? $ScoreTotal : ''),1,1,'C',0);
 		if($Errore) {
-			$pdf->Line($x1 = $pdf->getx() - $TotalW, $y1=$pdf->gety()+$pdf->ScoreCellHeight, $x1+$TotalW, $y1-$pdf->ScoreCellHeight);
+			$pdf->Line($x1 = $TopX+$TotalW, $y1=$pdf->gety()+$pdf->ScoreCellHeight, $x1+$TotalW, $y1-$pdf->ScoreCellHeight);
 		}
 		$pdf->SetFont($pdf->FontStd,'',10);
 	} else {
@@ -468,7 +468,7 @@ function DrawScore(&$pdf, $MyRow, $Side='L') {
 		$pdf->SetFont($pdf->FontStd,'B',14);
 		$pdf->Cell($TotalW,$pdf->ScoreCellHeight,($FillWithArrows ? $MyRow->{$Prefix.'SetScore'} : ''),1,1,'C',0);
 		if($Errore) {
-			$pdf->Line($x1 = $pdf->getx() - 2/5*$TotalW, $y1=$pdf->gety()+$pdf->ScoreCellHeight, $x1 + 2/5*$TotalW, $y1-$pdf->ScoreCellHeight);
+			$pdf->Line($x1 = $TopX+2*$GoldW + $TotalW * 8/5, $y1=$pdf->gety()+$pdf->ScoreCellHeight, $x1 + 2/5*$TotalW, $y1-$pdf->ScoreCellHeight);
 		}
 	}
 

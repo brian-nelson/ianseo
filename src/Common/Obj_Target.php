@@ -195,11 +195,12 @@ class Obj_Target
 		return $this->OutputStringSVG();
 	}
 
-	public function drawSVGArrows($Arrows=array(), $JudgesView=false, $DrawSighter=false) {
-		$this->SVGArrows='';
+	public function drawSVGArrows($Arrows=array(), $JudgesView=false, $DrawSighter=false, $return=false) {
+		$tmp='';
+		//$JudgesView=true;
 		if($Arrows) {
 			// draws the arrows
-			foreach($Arrows as $ar) {
+			foreach($Arrows as $ArId => $ar) {
 				if($JudgesView) {
 					// for the judges view (Final/Viewer/) the arrow radius is parametric and assigned as 1/80 of the visualized target radius
 					$newArRadius = $this->TargetData['TargetRadius']/65;
@@ -210,25 +211,34 @@ class Obj_Target
 					$ar['Y']=$ar['Y']*$R2/$R1;
 					$ar['R']=$newArRadius;
 				}
-				$this->SVGArrows.='<circle class="svgArrow" cx="'.round(($this->Ratio*$this->Expand*$ar['X'])+$this->CenterX, 2).'" cy="'.round($this->CenterY+($this->Ratio*$this->Expand*$ar['Y']), 2).'" r="'.($this->Ratio*$this->Expand*$ar['R']).'" fill="url(#gradArrow)" />';
+				$tmp.='<circle class="svgArrow" id="'.$ArId.'" cx="'.round(($this->Ratio*$this->Expand*$ar['X'])+$this->CenterX, 2).'" cy="'.round($this->CenterY+($this->Ratio*$this->Expand*$ar['Y']), 2).'" r="'.($this->Ratio*$this->Expand*$ar['R']).'" fill="url(#gradArrow)" />';
 			}
 
 			if($JudgesView and !empty($ar) and $DrawSighter) {
-				$StartX=round(($this->Ratio*$this->Expand*$ar['X'])+$this->CenterX, 2);
-				$StartY=round($this->CenterY+($this->Ratio*$this->Expand*$ar['Y']), 2);
-				$R=round($this->Ratio*$this->Expand*$ar['R'], 2);
-				$this->SVGArrows.='<path class="svgLastArrow" d="M '.$StartX.', '.($StartY-2*$R).' l -'.$R.',-' . (2*$R) . ' l '.(2*$R).',0 l -'.($R).','.(2*$R).' z M '.$StartX.', '.($StartY+2*$R).' l -'.$R.',' . (2*$R) . ' l '.(2*$R).',0 l -'.($R).',-'.(2*$R).' z M '.($StartX-2*$R).', '.($StartY).' l -'.(2*$R).',-' . ($R) . ' l 0,'.(2*$R).' l '.(2*$R).',-'.($R).' z M '.($StartX+2*$R).', '.($StartY).' l '.(2*$R).',-' . ($R) . ' l 0,'.(2*$R).' l -'.(2*$R).',-'.($R).' z" fill="#00ff00" stroke="#000000" opacity="0" stroke-width="2" />';
+				$tmp.=$this->DrawSVGSighter($ar, true);
 			}
 		}
+		if($return) {
+			return $tmp;
+		}
+		$this->SVGArrows=$tmp;
+	}
+
+	public function DrawSVGSighter($ar, $return=false, $id='svgLastArrow') {
+		$StartX=round(($this->Ratio*$this->Expand*$ar['X'])+$this->CenterX, 2);
+		$StartY=round($this->CenterY+($this->Ratio*$this->Expand*$ar['Y']), 2);
+		$R=round($this->Ratio*$this->Expand*$this->TargetData['TargetRadius']/65, 2);
+		if($return) {
+			return  '<path class="svgLastArrow" '.($id ? 'id="'.$id.'" ' : '').'d="M '.$StartX.', '.($StartY-2*$R).' l -'.$R.',-' . (2*$R) . ' l '.(2*$R).',0 l -'.($R).','.(2*$R).' z M '.$StartX.', '.($StartY+2*$R).' l -'.$R.',' . (2*$R) . ' l '.(2*$R).',0 l -'.($R).',-'.(2*$R).' z M '.($StartX-2*$R).', '.($StartY).' l -'.(2*$R).',-' . ($R) . ' l 0,'.(2*$R).' l '.(2*$R).',-'.($R).' z M '.($StartX+2*$R).', '.($StartY).' l '.(2*$R).',-' . ($R) . ' l 0,'.(2*$R).' l -'.(2*$R).',-'.($R).' z" fill="#00ff00" stroke="#000000" opacity="0" stroke-width="2" />';
+		}
+		$this->SVGArrows.='<path '.($id ? 'id="'.$id.'" ' : '').' d="M '.$StartX.', '.($StartY-2*$R).' l -'.$R.',-' . (2*$R) . ' l '.(2*$R).',0 l -'.($R).','.(2*$R).' z M '.$StartX.', '.($StartY+2*$R).' l -'.$R.',' . (2*$R) . ' l '.(2*$R).',0 l -'.($R).',-'.(2*$R).' z M '.($StartX-2*$R).', '.($StartY).' l -'.(2*$R).',-' . ($R) . ' l 0,'.(2*$R).' l '.(2*$R).',-'.($R).' z M '.($StartX+2*$R).', '.($StartY).' l '.(2*$R).',-' . ($R) . ' l 0,'.(2*$R).' l -'.(2*$R).',-'.($R).' z" fill="#00ff00" stroke="#000000" opacity="0" stroke-width="2" />';
 	}
 
 	public function drawSVGArrowsGroups($GroupId='', $Arrows=array()) {
 		$tmp='';
 		if($Arrows) {
 			// draws the arrows
-			foreach($Arrows as $ArId => $ar) {
-				$tmp.='<circle class="svgArrow" id="'.$ArId.'" cx="'.round(($this->Ratio*$this->Expand*$ar['X'])+$this->CenterX, 2).'" cy="'.round($this->CenterY+($this->Ratio*$this->Expand*$ar['Y']), 2).'" r="'.($this->Ratio*$this->Expand*($ar['R'])).'" fill="url(#gradArrow)" />';
-			}
+			$tmp.=$this->drawSVGArrows($Arrows, true, false, true);
 		}
 		if($GroupId) {
 			$tmp='<g id="'.$GroupId.'">'.$tmp.'</g>';

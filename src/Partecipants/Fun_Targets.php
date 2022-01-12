@@ -1,6 +1,6 @@
 <?php
 
-function getTargets($ByDiv=true) {
+function getTargets($ByDiv=true, $Prefix='') {
 	$ar=array();
 
 	$MySql="select"
@@ -32,14 +32,14 @@ function getTargets($ByDiv=true) {
 	if($ByDiv) {
 		while($r=safe_fetch($q)) {
 			if(!$r->TfDefault or empty($ar[$r->DivId][$r->ClId])) {
-				$ar[$r->DivId][$r->ClId][$r->TfId] = get_text($r->TfName, 'Tournament', '', true);
+				$ar[$r->DivId][$r->ClId][$Prefix.$r->TfId] = get_text($r->TfName, 'Tournament', '', true);
 			}
 		}
 	} else {
 		$divs=array();
 		while($r=safe_fetch($q)) {
 			if(!$r->TfDefault or empty($divs[$r->DivId][$r->ClId])) {
-				$ar[$r->TfId][$r->DivId][$r->ClId] = $r->TfDefault;
+				$ar[$r->TfId][$r->DivId][$Prefix.$r->ClId] = $r->TfDefault;
 				$divs[$r->DivId][$r->ClId]='done';
 			}
 		}
@@ -49,18 +49,6 @@ function getTargets($ByDiv=true) {
 }
 
 function getTargetsScript() {
-	$ret="<script>var TargetFaces = new Array();\n";
-	foreach(getTargets() as $div => $c) {
-		$ret.="TargetFaces['$div']=new Array();\n";
-		foreach($c as $cl => $faces) {
-			$ret.="TargetFaces['$div']['$cl']=new Array();\n";
-			foreach($faces as $id => $face) {
-				$ret .= "TargetFaces['$div']['$cl']['p$id']='".str_replace("'","\\'",$face)."';\n";
-			}
-		}
-	}
-
-	$ret.='</script>';
-	return $ret;
+	return "<script>var TargetFaces = ".json_encode(getTargets(true, 'p')).'</script>';
 }
 ?>

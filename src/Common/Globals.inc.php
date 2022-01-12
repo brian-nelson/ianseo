@@ -15,7 +15,7 @@
 
 
 define ("ProgramName","Ianseo");	// Nome del programma
-define ("ProgramVersion","2020-11-10"); // "Team Work"
+define ("ProgramVersion","2022-01-01"); // "Improve a mechanical device and you may double productivity. But improve man, you gain a thousandfold. – Khan Noonien Singh"
 
 define ("TargetNoPadding",3);		// Padding del targetno
 

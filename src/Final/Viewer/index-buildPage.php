@@ -2,8 +2,9 @@
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once('Common/Lib/Obj_RankFactory.php');
 require_once('Common/Lib/CommonLib.php');
+require_once('Common/Lib/Fun_DateTime.inc.php');
 
-$JSON=array('error' => 1, 'time' => '');
+$JSON=array('error' => 1, 'time' => '', 'force' => false);
 
 if(!CheckTourSession()) {
 	JsonOut($JSON);
@@ -15,7 +16,7 @@ if (!isset($_REQUEST['time']) or checkACL(array((empty($_REQUEST['Team']) ? AclI
 }
 
 $JSON['error']=0;
-if(empty($_REQUEST['time'])) {
+if(empty($_REQUEST['time']) or !empty($_REQUEST['SelectedEnd'])) {
     $_REQUEST['time'] = '0000-00-00 00:00:00';
 }
 
@@ -82,6 +83,7 @@ $options = array(
     'tournament' => $TourId,
     'matchno' => $MatchNo,
     'events' => $Event,
+    'records' => true,
     'extended' => true,
 );
 if($Team) {
@@ -99,6 +101,12 @@ if(!$rankData['sections']) {
 }
 
 $JSON['time']=$rankData['meta']['lastUpdate'];
+
+if($rankData['meta']['lastUpdate'] <= $_REQUEST['time']) {
+    //nothing changed so stay put
+	$JSON['error']==0;
+	JsonOut($JSON);
+}
 
 require_once("Common/Obj_Target.php");
 
@@ -120,10 +128,19 @@ $JSON['IdR']=$Match[($Team ? 'oppCountryCode':'oppBib')];
 // check if we are running SO or normal match
 $IsSO=false;
 
+$SelectedEndNum=0;
+$SelectedEndType='';
+if(!empty($_REQUEST['SelectedEnd'])) {
+	list($dummy, $SelectedEndType, $SelectedEndNum)=explode('-', $_REQUEST['SelectedEnd']);
+}
+$JSON['SelectedEnd']=$SelectedEndNum;
+
 // actual ends number is not that important in case of SO!
 $NumEnds=$Phase['meta']['FinElimChooser'] ? $Section['meta']['elimEnds'] : $Section['meta']['finEnds'];
+$JSON['NumEnds']=(integer) $NumEnds;
+$JSON['NumSO']=1;
 
-if(trim($Match['tiebreak']) or trim($Match['oppTiebreak'])) {
+if($SelectedEndType!='End' and (trim($Match['tiebreak']) or trim($Match['oppTiebreak']))) {
     $IsSO=true;
     $NumArrows=$Phase['meta']['FinElimChooser'] ? $Section['meta']['elimSO'] : $Section['meta']['finSO'];
     $ArrowstrinL=strlen(trim($Match['tiebreak']));
@@ -168,6 +185,8 @@ if($EndL>$NumEnds and $EndR>$NumEnds) {
     $PosR='oppTiePosition';
 
     $EndL=ceil(max($ArrowstrinL, $ArrowstrinR)/$NumArrows);
+	$JSON['NumSO']=$EndL;
+
     $EndR=$EndL;
 
     if(!$EndL or $Match['status']==3) {
@@ -182,8 +201,13 @@ if($IsSO) {
     $EndL=-$EndL;
     $EndR=-$EndR;
 }
+$JSON['isSO']=$IsSO;
+$JSON['Event']=$Event.'<br/>'.$Phase['meta']['phaseName'];
 
-$JSON['Event']=$Section['meta']['eventName'].'<br/>'.$Phase['meta']['matchName'];
+$JSON['CurEnd']=max($EndL, $EndR);
+if(!$JSON['SelectedEnd']) {
+    $JSON['SelectedEnd']=$JSON['CurEnd'];
+}
 
 if($Team) {
 	$JSON['OppLeft']=$Match['countryName'].get_flag_ianseo($Match['countryCode'], 0, '', $_SESSION['TourCode']);
@@ -196,15 +220,18 @@ if($Team) {
 $ArrL=substr($Match[$ObjL], $IndexL=$NumArrows*(abs($EndL)-1), $NumArrows);
 $ArrR=substr($Match[$ObjR], $IndexR=$NumArrows*(abs($EndR)-1), $NumArrows);
 
-$JSON['ScoreLeft']='<div class="badge badge-danger">'.($EndL<0 ? 'SO '.abs($EndL) : 'End '.$EndL).'</div>';
-$JSON['ScoreRight']='<div class="badge badge-danger">'.($EndR<0 ? 'SO '.abs($EndR) : 'End '.$EndR).'</div>';
+$JSON['ScoreLeft']='<div class="badge badge-danger" id="scoreLabelL" numArr="'.$NumArrows.'">'.($EndL<0 ? 'SO '.abs($EndL) : 'End '.$EndL).'</div>';
+$JSON['ScoreRight']='<div class="badge badge-danger" id="scoreLabelR" numArr="'.$NumArrows.'">'.($EndR<0 ? 'SO '.abs($EndR) : 'End '.$EndR).'</div>';
 
 $TotL=ValutaArrowString($ArrL);
 $TotR=ValutaArrowString($ArrR);
 //$ShowDistance=($IsSO and strlen(trim($ArrL))==strlen(trim($ArrR)) and strlen(trim($ArrL))==$NumArrows and $TotL==$TotR);
 
 foreach(DecodeFromString(str_pad($ArrL, $NumArrows, ' ', STR_PAD_RIGHT), false, true) as $k => $Point) {
-    $JSON['ScoreLeft'].='<div class="badge badge-primary">'.$Point.(($IsSO and !empty($Match[$PosL][$IndexL+$k])) ? ' ('.$Match[$PosL][$IndexL+$k]['D'].')' : '').'</div>';
+    $JSON['ScoreLeft'].='<div class="badge badge-primary" id="'.$k.'-L" onclick="showSight(this)" onmouseover="showSight(this)" onmouseout="hideSight(this)">'.
+        $Point.
+        (!empty($Match[$PosL][$IndexL+$k]) ? '<span class="arrowDist ml-2'.($IsSO ? '': ' hidden d-grid').'">'.$Match[$PosL][$IndexL+$k]['D'].'</span>' : '').
+        '</div>';
 }
 $JSON['ScoreLeft'].='<div class="badge badge-info">'.$TotL.(($IsSO AND $Match['closest']!=0 AND $k==($NumArrows-1)) ? '+':'').'</div>';
 if(!$IsSO) {
@@ -212,7 +239,10 @@ if(!$IsSO) {
 }
 
 foreach(DecodeFromString(str_pad($ArrR, $NumArrows, ' ', STR_PAD_RIGHT), false, true) as $k => $Point) {
-    $JSON['ScoreRight'].='<div class="badge badge-primary">'.$Point.(($IsSO and !empty($Match[$PosR][$IndexR+$k])) ? ' ('.$Match[$PosR][$IndexR+$k]['D'].')' : '').'</div>';
+    $JSON['ScoreRight'].='<div class="badge badge-primary" id="'.$k.'-R" onclick="showSight(this)" onmouseover="showSight(this)" onmouseout="hideSight(this)">'.
+        $Point.
+        (!empty($Match[$PosR][$IndexR+$k]) ? '<span class="arrowDist ml-2'.($IsSO ? '': ' hidden').'">'.$Match[$PosR][$IndexR+$k]['D'].'</span>' : '').
+        '</div>';
 }
 $JSON['ScoreRight'].='<div class="badge badge-info">'.$TotR.(($IsSO AND $Match['oppClosest']!=0 AND $k==($NumArrows-1)) ? '+':'').'</div>';
 if(!$IsSO) {
@@ -308,6 +338,34 @@ switch ($_REQUEST["View"]) {
     case 'Presentation':
         $options['extended'] = false;
         unset($options['matchno']);
+        $J=array();
+        if(!empty($Match['lineJudge'])) {
+            $J[]='<div class="judges">'.get_text('LineJudge','Tournament').': <span class="judge">'.$Match['lineJudge'].'</span></div>';
+        }
+        if(!empty($Match['targetJudge'])) {
+            $J[]='<div class="judges">'.get_text('TargetJudge','Tournament').': <span class="judge">'.$Match['targetJudge'].'</span></div>';
+        }
+        $Records='';
+        if(count($Section['records'])) {
+            $Records = '<br>';
+            foreach ($Section['records'] as $record) {
+                $Records .= '<div class="records"><b>' . $record->TrHeader . '</b> ' . $record->RtRecDistance . ': <b>' . $record->RtRecTotal.($record->RtRecXNine ? '/'.$record->RtRecXNine : '') . '</b>';
+                foreach($record->RtRecExtra as $recDet) {
+                    $arc = array();
+                    foreach($recDet->Archers as $t => $Archer) {
+                        $arc[]=$Archer['Archer'];
+                    }
+                    if($Team) {
+                        $Records .= '<div class="oldrecord">' . $recDet->NocName . ' (' . implode(", ", $arc) . ') - ' . $recDet->EventNOC . ' ' . formatTextDate($record->RtRecDate) . '</div>';
+                    } else {
+                        $Records .= '<div class="oldrecord">' . implode(", ", $arc) . ' (' . $recDet->NOC . ') - ' . $recDet->EventNOC . ' ' . formatTextDate($record->RtRecDate) . '</div>';
+                    }
+
+                }
+                $Records .= '</div>';
+            }
+        }
+
         if($Team) {
             //Left Team
             $options['coid'] = $Match['teamId'];
@@ -323,6 +381,7 @@ switch ($_REQUEST["View"]) {
             }
             $JSON['TgtLeft'] .= '</div>';
             $JSON['TgtLeft'] .= '<div class="text-left">' .
+                $Section['meta']['eventName'].
                 '<ul><li>' . get_text('QualRound') . ': ' . $Match['qualScore'] . ' - #&nbsp;' . $Match['qualRank'] . '</li>';
             foreach ($rankData['sections'][$options['events']]['phases'] as $kPh => $vPh) {
                 if($MatchNo >= $vPh['items'][0]['matchNo']) {
@@ -359,8 +418,15 @@ switch ($_REQUEST["View"]) {
             if($vPh['items'][0]['irm']) {
 	            $JSON['TgtLeft'] .= '<li><span class="font-weight-bold">'.$vPh['items'][0]['irmText'].'</span></li>';
             }
-            $JSON['TgtLeft'] .= '</ul>' .
-                '</div>';
+            $JSON['TgtLeft'] .= '</ul>';
+            if(!empty($Match['coach'])) {
+                $JSON['TgtLeft'] .= '<div id="CoachLeft">' . get_text('Coach', 'Tournament') . ' : <span id="CoachL">'.$Match['coach'].'</span></div>';
+            }
+            if(count($J)) {
+                $JSON['TgtLeft'] .= '<br>'.implode('',$J);
+            }
+            $JSON['TgtLeft'] .= $Records.'</div>';
+
             //Right Team
             $options['coid'] = $Match['oppTeamId'];
             $rank = Obj_RankFactory::create('GridTeam', $options);
@@ -375,6 +441,7 @@ switch ($_REQUEST["View"]) {
             }
             $JSON['TgtRight'] .= '</div>';
             $JSON['TgtRight'] .= '<div class="text-left">' .
+                $Section['meta']['eventName'].
                 '<ul><li>' . get_text('QualRound') . ': ' . $Match['oppQualScore'] . ' - #&nbsp;' . $Match['oppQualRank'] . '</li>';
             foreach ($rankData['sections'][$options['events']]['phases'] as $kPh => $vPh) {
                 if($MatchNo >= $vPh['items'][0]['matchNo']) {
@@ -408,8 +475,14 @@ switch ($_REQUEST["View"]) {
                 }
                 $JSON['TgtRight'] .= '</li>';
             }
-            $JSON['TgtRight'] .= '</ul>' .
-                '</div>';
+            $JSON['TgtRight'] .= '</ul>';
+            if(!empty($Match['oppCoach'])) {
+                $JSON['TgtRight'] .= '<div id="CoachRight">' . get_text('Coach', 'Tournament') . ' : <span id="CoachR">'.$Match['oppCoach'].'</span></div>';
+            }
+            if(count($J)) {
+                $JSON['TgtRight'] .= '<br>'.implode('',$J);
+            }
+            $JSON['TgtRight'] .= $Records.'</div>';
 
         } else {
         //Left Archer
@@ -422,6 +495,7 @@ switch ($_REQUEST["View"]) {
                 '<figcaption class="figure-caption text-center">'.$Match['fullName'].'</figcaption>' .
                 '</figure></div>' .
                 '<div class="text-left">' .
+                $Section['meta']['eventName'].
                 '<ul><li>' . get_text('QualRound') . ': ' . $Match['qualScore'] . ' - #&nbsp;' . $Match['qualRank'] . '</li>';
             foreach ($rankData['sections'][$options['events']]['phases'] as $kPh => $vPh) {
                 if($MatchNo >= $vPh['items'][0]['matchNo']) {
@@ -455,8 +529,14 @@ switch ($_REQUEST["View"]) {
                 }
                 $JSON['TgtLeft'] .= '</li>';
             }
-            $JSON['TgtLeft'] .= '</ul>' .
-                '</div>';
+            $JSON['TgtLeft'] .= '</ul>';
+            if(!empty($Match['coach'])) {
+                $JSON['TgtLeft'] .= '<div id="CoachLeft">' . get_text('Coach', 'Tournament') . ' : <span id="CoachL">'.$Match['coach'].'</span></div>';
+            }
+            if(count($J)) {
+                $JSON['TgtLeft'] .= '<br>'.implode('',$J);
+            }
+            $JSON['TgtLeft'] .= $Records.'</div>';
 
         //Right Archer
             $options['enid'] = $Match['oppId'];
@@ -468,7 +548,7 @@ switch ($_REQUEST["View"]) {
                 '<figcaption class="figure-caption text-center">'.$Match['oppFullName'].'</figcaption>' .
                 '</figure></div>' .
                 '<div class="text-left">' .
-
+                $Section['meta']['eventName'].
                 '<ul><li>' . get_text('QualRound') . ': ' . $Match['oppQualScore'] . ' - #&nbsp;' . $Match['oppQualRank'] . '</li>';
             foreach ($rankData['sections'][$options['events']]['phases'] as $kPh => $vPh) {
                 if($MatchNo >= $vPh['items'][0]['matchNo']) {
@@ -503,8 +583,14 @@ switch ($_REQUEST["View"]) {
                 }
                 $JSON['TgtRight'] .= '</li>';
             }
-            $JSON['TgtRight'] .= '</ul>' .
-                '</div>';
+            $JSON['TgtRight'] .= '</ul>';
+            if(!empty($Match['oppCoach'])) {
+                $JSON['TgtRight'] .= '<div id="CoachRight">' . get_text('Coach', 'Tournament') . ' : <span id="CoachR">'.$Match['oppCoach'].'</span></div>';
+            }
+            if(count($J)) {
+                $JSON['TgtRight'] .= '<br>'.implode('',$J);
+            }
+            $JSON['TgtRight'] .= $Records . '</div>';
             }
         break;
     case 'Ceremony':
@@ -518,6 +604,10 @@ switch ($_REQUEST["View"]) {
 
     case 'Target':
         $target = new Obj_Target();
+
+        // the end to show is the selected end that defaults to the current end!
+        $IndexL=$NumArrows*(abs($JSON['SelectedEnd'])-1);
+        $IndexR=$IndexL;
 
     // we already have most of the data needed for the target!
         $target->initSVG($TourId, $Event, $MatchNo, $Team);
@@ -554,19 +644,25 @@ switch ($_REQUEST["View"]) {
 
         $arrowsL=array();
         $arrowsR=array();
-        foreach(range($IndexL, $IndexL+$NumArrows-1) as $i) {
+        foreach(range($IndexL, $IndexL+$NumArrows-1) as $k => $i) {
         	if(isset($Match[$PosL][$i])) {
-	            $arrowsL[]=$Match[$PosL][$i];
+	            $arrowsL[$k]=$Match[$PosL][$i];
 	        }
         	if(isset($Match[$PosR][$i])) {
-	            $arrowsR[]=$Match[$PosR][$i];
+	            $arrowsR[$k]=$Match[$PosR][$i];
 	        }
         }
+
+        $target2=clone $target;
+
+        $ar=array('X'=>-1000,'Y'=>-1000);
         $target->drawSVGArrows($arrowsL, true, $LastArrow=='L');
+        $target->DrawSVGSighter($ar, false, 'SighterL');
         $JSON['TgtLeft'] = $target->OutputStringSVG();
 
-        $target->drawSVGArrows($arrowsR, true, $LastArrow=='R');
-        $JSON['TgtRight'] = $target->OutputStringSVG();
+        $target2->drawSVGArrows($arrowsR, true, $LastArrow=='R');
+        $target2->DrawSVGSighter($ar, false, 'SighterR');
+        $JSON['TgtRight'] = $target2->OutputStringSVG();
         $JSON['LastArrow'] = $LastArrow;
 }
 

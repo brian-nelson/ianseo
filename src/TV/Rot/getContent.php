@@ -171,37 +171,5 @@ function create_Comp_rot($TVsettings, $RULE) {
 	$ret['NextSubBlock']=$res['NextSubBlock'];
 	$ret['SubBlocks']=$res['SubBlocks'];
 
-
-// 		case 'RAND':
-// 			include('Rot_athl_sch.php');
-// 			break;
-
-// 		case 'F2FLST':
-// 			include('Rot_StartlistF2F.php');
-// 			$RotMatches=true;
-// 			break;
-
-// 		case 'F2FABS':
-// 			include('Rot_ElimF2F.php');
-// 			$RotMatches=true;
-// 			break;
-
-// 		case 'NLCLST':
-// 			include('Rot_StartlistNLChamps.php');
-// 			$RotMatches=true;
-// 			break;
-
-// 		case 'NLCABS':
-// 			include('Rot_ElimNLChamps.php');
-// 			$RotMatches=true;
-// 			break;
-
-// 		case 'MEDL':
-// 			include('Rot_MedalList.php');
-// 			$RotMatches=true;
-// 			break;
-
-// 	}
-
 	return $ret;
 }

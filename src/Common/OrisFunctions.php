@@ -75,6 +75,7 @@ function getPdfHeader($ForOnline=true) {
 	if($r->ToPrintPaper) {
 		$RET->PageSize = 'LETTER';
 	}
+    $RET->ToPrintChars = $r->ToPrintChars;
 	switch($r->ToPrintChars) {
 		case 0:		 // helvetica & standard european fonts
 			$RET->FontStd='helvetica';
@@ -112,7 +113,7 @@ function getPdfHeader($ForOnline=true) {
 	$Rs=safe_r_sql($Select);
 
 	while($MyRow = safe_fetch($Rs)) {
-		$RET->StaffCategories[get_text($MyRow->Category,'Tournament')][] = $MyRow->TiName;
+		$RET->StaffCategories[get_text($MyRow->Category,'Tournament')][] = $MyRow->TiName . ' ' . $MyRow->TiGivenName;
 	}
 	foreach($RET->StaffCategories as $cat => $members) $RET->StaffCategories[$cat] = implode(', ', $members);
 
@@ -564,6 +565,41 @@ function getStatEntriesByCountries($ORIS='', $Athletes=false) {
 	}
 
 	return $Data;
+}
+
+function getCompetitionOfficials($ORIS=false) {
+    $Data=new StdClass();
+    $Data->Code='C35A';
+    $Data->Order='2';
+    $Data->Description='Competition Officials';
+    $Data->Header=array("Function","Name","Organisation","§Gender");
+    $Data->IndexName='Competition Officials';
+    $Data->HeaderWidth=array(55,60,array(10,50),15);
+    $Data->Phase='';
+    $Data->Data=array();
+
+    $Sql = "SELECT TiName, TiGivenName, TiGender, ItDescription, CoCode, CoNameComplete,
+        concat(DvMajVersion, '.', DvMinVersion) as DocVersion, date_format(DvPrintDateTime, '%e %b %Y %H:%i UTC') as DocVersionDate, DvNotes as DocNotes
+	FROM TournamentInvolved
+	LEFT JOIN InvolvedType ON TiType=ItId
+    LEFT JOIN Countries on TiCountry=CoId and TiTournament=CoTournament
+    LEFT JOIN DocumentVersions on TiTournament=DvTournament AND DvFile = 'COMP-OFF'
+	WHERE TiTournament={$_SESSION['TourId']}
+	ORDER BY IF(ItJudge!=0,1,IF(ItDoS!=0,2,IF(ItJury!=0,3,4))) ASC, IF(ItJudge!=0,ItJudge,IF(ItDoS!=0,ItDoS,IF(ItJury!=0,ItJury,ItOC))) ASC, TiName ASC, TiGivenName ASC";
+
+    $Data->DocVersion='';
+    $Data->DocVersionDate='';
+    $Data->DocVersionNotes='';
+    $q=safe_r_sql($Sql);
+    while ($r=safe_fetch($q)) {
+        $Data->Data['Items'][$r->ItDescription][]=$r;
+        if(!empty($r->DocVersion)) {
+            $Data->DocVersion=$r->DocVersion;
+            $Data->DocVersionDate=$r->DocVersionDate;
+            $Data->DocVersionNotes=$r->DocNotes;
+        }
+    }
+    return $Data;
 }
 
 function getStartListByCountries($ORIS=false, $Athletes=false, $orderByName=false, $Events=array(), $Sessions=array()) {

@@ -7,7 +7,8 @@ CheckTourSession(true);
 
 if(empty($_SESSION['OnlineAuth']) or empty($_SESSION['OnlineServices']) or !($_SESSION['OnlineServices']&2)) {
     $return='Modules/UpdateWeb/UpdateWeb.php';
-	if($Credentials=getModuleParameter('SendToIanseo', 'Credentials', '')) {
+    $Credentials=getModuleParameter('SendToIanseo', 'Credentials', (object) array('OnlineId' => 0, 'OnlineAuth' => ''));
+    if($Credentials and $Credentials->OnlineId>0) {
 		require_once('Common/Lib/CommonLib.php');
 		if($ErrorMessage=CheckCredentials($Credentials->OnlineId, $Credentials->OnlineAuth, $return)) {
 			safe_error($ErrorMessage);

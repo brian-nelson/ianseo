@@ -1,10 +1,11 @@
 <?php
-$swe_module_version = "20210216";
+$swe_module_version = "20210405";
 
 if ($_SESSION['TourLocRule'] == 'SE') {
     // Config
     $swe_host = "https://resultat.bagskytte.se";
     // Language
+    $swelang_menutext = "* Exportera svenska resultat";
     $swelang_supportinformation = "Support information!";
     $swelang_supportinformationtext = "Detta är en IANSEO modul som supportas av Fredrik Larsson (fredrik@larre.nu) <br />
             för Svenska Bågskytteförbundets räkning.<br /><br />
@@ -33,11 +34,15 @@ if ($_SESSION['TourLocRule'] == 'SE') {
     $swelang_individ = "Individuella";
     $swelang_send = "Skicka";
     $swelang_noinformation_sent = "Ingen data att skicka.";
+    $swelang_notexported = "Ej exporterade";
+    $swelang_exported = "Exporterade";
+    $swelang_warnings = "Varningar";
 }
 elseif ($_SESSION['TourLocRule'] == 'NO') {
     // Config
     $swe_host = "https://resultat.bueskyting.no";
     // Language
+    $swelang_menutext = "* Exportere norske resultat";
     $swelang_supportinformation = "Support information!";
     $swelang_supportinformationtext = "Dette er en IANSEO modul som supporteres av Jon-Arne Storelv (jon-arne@bueskyting.no) <br />
             for Norges Bueskytterforbunds regning. <br /><br />
@@ -66,8 +71,51 @@ elseif ($_SESSION['TourLocRule'] == 'NO') {
     $swelang_individ = "Individuelle";
     $swelang_send = "Last opp";
     $swelang_noinformation_sent = "Ikke noe data å sende.";
-}	
 
+    $swelang_notexported = "Not exported";
+    $swelang_exported = "Exported";
+    $swelang_warnings = "Warnings";
+
+} 
+elseif ($_SESSION['TourLocRule'] == 'IS') {
+    // Config
+    $swe_host = "https://mot.bogfimi.is";
+    // Language
+    $swelang_menutext = "* Senda íslensk úrslit";
+    $swelang_supportinformation = "Support information!";
+    $swelang_supportinformationtext = "Þetta er ianseo viðbót sem hægt er að fá stuðning við á bogfimi@bogfimi.is <br />
+            fyrir hönd Bogfimisambands Íslands.<br /><br />
+            Ef þú hefur spurningar eða lendir í vandamálum með þessa viðbót hafðu samband við Bogfimisamband Íslands, <br />
+            IANSEO's support-team getur ekki aðstoðað þig með spurningar tengt þessari viðbót.";
+    $swelang_moduleversion = "Module version";
+    $swelang_sendto = "Senda til";
+    $swelang_moduleinformation = "
+            Viðbótin gerir þér kleift að senda úrslit beint í íslenska úrslita gagnagrunninn.<br />
+            Fylltu inn viðburðarnúmer og lykilorð og veldu svo prufa stillingar.<br />
+            Sem svar færðu nafn viðburðarins og hvort hann leyfir innsendingu úrslita.<br />
+            Veldu hvort senda á inn niðurstöður um undankeppni og/eða útsláttarkeppni og smelltu á senda hnappinn<br /><br />";
+    $swelang_field = "Field";
+    $swelang_description = "Lýsing";
+    $swelang_eventnumber = "Viðburðarnúmer";
+    $swelang_eventnumber_desc = "Númer viðburðar í íslenska úrslita gagnagrunninum";
+    $swelang_password = "Lykilorð";
+    $swelang_password_desc = "Lykilorð fyrir viðkomandi viðburð";
+    $swelang_qualification = "Undankeppni";
+    $swelang_qualification_desc = "Senda inn upplýsingar um undankeppni í úrslita gagnagrunn.";
+    $swelang_final = "Úrslit";
+    $swelang_final_desc = "Senda inn upplýsingar um útsláttarkeppni";
+    $swelang_sendresult = "Senda inn úrslit";
+    $swelang_testsettings = "Prufa stillingar";
+    $swelang_settings = "Stillingar";
+    $swelang_individ = "Einstaklinga";
+    $swelang_send = "Senda";
+    $swelang_noinformation_sent = "Engin gögn til þess að senda.";
+
+    $swelang_notexported = "Not exported";
+    $swelang_exported = "Exported";
+    $swelang_warnings = "Warnings";
+
+}	
 
 $swe_url_test = $swe_host . "/api/CompetitionStatus";
 $swe_url_result = $swe_host . "/api/CompetitionResults";

@@ -209,7 +209,6 @@ $lang['MenuLM_ExportScoreUSCAA']='Exportar Archivo de Datos de USCAA';
 $lang['MenuLM_Extended Table']='Tabla de Inserción Extendida';
 $lang['MenuLM_ExtraDataEdit']='Editar Datos Adicionales';
 $lang['MenuLM_Fees setup']='Configurar Tarifas de las Inscripciones';
-$lang['MenuLM_Field Crew']='Personal de Campo';
 $lang['MenuLM_Final Field of Play Layout']='Diseño del Campo de Tiro';
 $lang['MenuLM_Final report']='Informe Final';
 $lang['MenuLM_Final Rounds']='Serie Final';

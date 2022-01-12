@@ -11,6 +11,7 @@ $srcCountry = !empty($_REQUEST["country"]);
 $srcAthlete = !empty($_REQUEST["athlete"]);
 $srcNoPhoto = !empty($_REQUEST["nophoto"]);
 $srcNoPrint = !empty($_REQUEST["noprint"]);
+$srcAccPhoto = !empty($_REQUEST["noacc"]);
 
 $srcString = (empty($_REQUEST["search"]) ? '' : $_REQUEST["search"]);
 
@@ -59,6 +60,9 @@ if($srcNoPhoto) {
 }
 if($srcNoPrint) {
 	$Where .= " AND ((EnBadgePrinted+0 and PhEnId IS NULL) or PhToRetake=1) ";
+}
+if($srcAccPhoto) {
+	$Where .= " AND PhEnId IS NULL ";
 }
 
 if(!empty($_REQUEST['x_Sessions'])) {

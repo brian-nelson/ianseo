@@ -266,7 +266,6 @@ $lang['MenuLM_getBiographies']='Prendre les Biographies WA';
 $lang['MenuLM_GetScoreBarcode']='Prise des scores via barre-code';
 $lang['MenuLM_GetScoreBarcodeReport']='Imprimer les directives Code barre';
 $lang['MenuLM_GetScoreUSCAA']='Import du fichier de données USCAA';
-$lang['MenuLM_GuessWhoWon']='Vérifier qui gagne la mise IS';
 $lang['MenuLM_Header for Result Printouts']='En-tête pour l\'impression des résultats';
 $lang['MenuLM_HTT']='HTT';
 $lang['MenuLM_HTT Communication Setup']='Configuration de la communication HTT';

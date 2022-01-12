@@ -65,7 +65,6 @@ $lang['MenuLM_Delete']='Kustuta';
 $lang['MenuLM_Distances']='Distantsid*';
 $lang['MenuLM_Edit Competition Info']='Muuda võistluse algandmeid';
 $lang['MenuLM_Fees setup']='Osalustasude seadistus';
-$lang['MenuLM_Field Crew']='Kohtunikud';
 $lang['MenuLM_Final Field of Play Layout']='OR platsi plaan';
 $lang['MenuLM_Final report']='Final Report (Itaalia keeles)';
 $lang['MenuLM_Ianseo']='Ianseo';

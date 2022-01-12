@@ -12,9 +12,9 @@ require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(dirname(__FILE__)).'/lib.php');
 
 // default Divisions
-CreateDivision($TourId, 1, 'OL', 'Arco Olimpico');
-CreateDivision($TourId, 2, 'CO', 'Arco Compound');
-CreateDivision($TourId, 3, 'AN', 'Arco Nudo');
+CreateDivision($TourId, 1, 'OL', 'Arco Olimpico', 1, 'R', 'R');
+CreateDivision($TourId, 2, 'CO', 'Arco Compound', 1, 'C', 'C');
+CreateDivision($TourId, 3, 'AN', 'Arco Nudo', 1, 'B', 'B');
 
 
 // default Classes

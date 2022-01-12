@@ -1,4 +1,5 @@
 <?php
+$lang['API-AutoGroup']='Creazione di gruppi in blocco';
 $lang['API-ConfirmDeleteRow']='Sei sicuro di voler cancellare questa riga?';
 $lang['API-DeviceGrouping']='Raggruppamento dispositivi';
 $lang['API-Group']='Pattuglia';
@@ -16,8 +17,9 @@ $lang['Desc-Let-O']='Frecce in altre volée';
 $lang['Desc-Let-R']='Frecce in altre sessioni';
 $lang['Desc-Let-Y']='Volée pronta da importare';
 $lang['Desc-Let-Z']='Scoring in corso';
-$lang['DistanceNum']='Distanza $a';
+$lang['DistanceNum']='distanza $a';
 $lang['FlashCodeDistance']='Scansiona questo codice nell\'app per segnare $a';
+$lang['HitToWin']='Colpire per vincere';
 $lang['ISK-Anomalies']='Anomalie';
 $lang['ISK-AppList']='Lista delle APK scaricabili';
 $lang['ISK-AppQrCode']='Stampa il codice QR per l\'installazione';
@@ -130,4 +132,5 @@ $lang['TVCss3Divider']='Separatore';
 $lang['TVCss3Loser']='Modificatore per il perdente';
 $lang['WAToolbox-MissingParams']='Parametro mancante';
 $lang['WAToolbox-NoCompCode']='Codice competizione mancante';
+$lang['XToWin']='$a per vincere';
 ?>

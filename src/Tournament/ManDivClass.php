@@ -79,7 +79,7 @@ if (safe_num_rows($Rs)>0) {
 <tr id="NewDiv" class="Spacer"><td colspan="6"></td></tr>
 <?php if(!defined('dontEditClassDiv')) { ?>
 	<tr>
-	<td class="Center"><input type="text" name="New_DivId" id="New_DivId" size="3" maxlength="2"></td>
+	<td class="Center"><input type="text" name="New_DivId" id="New_DivId" size="5" maxlength="4"></td>
 	<td><input type="text" name="New_DivDescription" id="New_DivDescription" size="56" maxlength="32"></td>
 	<td class="Center"><select name="New_DivIsPara" id="New_DivIsPara">
 		<option value="0"><?php echo get_text('No'); ?></option>
@@ -159,7 +159,7 @@ echo '</tbody>';
 	if(!defined('dontEditClassDiv')) { ?>
 	<tr id="NewCl" class="Spacer"><td colspan="11"></td></tr>
 	<tr>
-	<td class="Bold Center"><input type="text" name="New_ClId" id="New_ClId" size="3" maxlength="2"></td>
+	<td class="Bold Center"><input type="text" name="New_ClId" id="New_ClId" size="7" maxlength="6"></td>
 	<td>
 	<select name="New_ClSex" id="New_ClSex">
 	<option value="0"><?php print get_text('ShortMale','Tournament');?></option>

@@ -51,7 +51,6 @@ $lang['SesOdfPeriod']='ODF periode code';
 $lang['SesOdfVenue']='ODF wedstrijdveld code';
 $lang['SessionName']='$a->categorie $a->type ronde';
 $lang['SourceCode']='Bron code';
-$lang['TestMode']='(P)roductie van (T)est mode';
 $lang['Timetable']='Tijdschema';
 $lang['TMMeeting']='Team Manager\'s meeting';
 $lang['TypCODE']='Document Code Suffix';

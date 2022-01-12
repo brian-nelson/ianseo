@@ -6,6 +6,7 @@ if(!defined('IN_IANSEO')) {
 
 require_once('Common/Lib/Fun_Phases.inc.php');
 require_once('Common/Lib/Obj_RankFactory.php');
+require_once('Common/Lib/ArrTargets.inc.php');
 
 $json_array = array();
 $json_array['distances']=array();
@@ -43,8 +44,10 @@ if(!empty($_GET['matchid'])) {
 	$Data=$rank->getData();
 
 	foreach($Data['sections'] as $kSec=>$vSec) {
-		$tmp=array('id' => $vSec['meta']['targetTypeId'], 'name' => get_text($vSec['meta']['targetType']));
-		if(!in_array($tmp, $json_array['targettypes'])) $json_array['targettypes'][]=$tmp;
+		$tmp=array('id' => $vSec['meta']['targetTypeId'], 'name' => get_text($vSec['meta']['targetType']), 'arrowstringvalues' => GetGoodLettersFromTgtId($vSec['meta']['targetTypeId']));
+		if(!in_array($tmp, $json_array['targettypes'])) {
+			$json_array['targettypes'][]=$tmp;
+		}
 		foreach($vSec['phases'] as $kPh=>$vPh) {
 			foreach($vPh['items'] as $kItem=>$vItem) {
 				if($vItem['matchNo']==$MatchNo) {
@@ -103,7 +106,7 @@ if(!empty($_GET['matchid'])) {
 			ORDER BY ElTargetNo ";
 		$q=safe_r_sql($Select);
 		while($r=safe_fetch($q)) {
-			$tmp=array('id' => $r->TarId, 'name' => get_text($r->TarDescr));
+			$tmp=array('id' => $r->TarId, 'name' => get_text($r->TarDescr), 'arrowstringvalues' => GetGoodLettersFromTgtId($r->TarId));
 			if(!in_array($tmp, $json_array['targettypes'])) $json_array['targettypes'][]=$tmp;
 
 			$tmp=array(
@@ -132,7 +135,7 @@ if(!empty($_GET['matchid'])) {
 		$SQL="(".implode(') UNION (', $sql).")";
 		$q=safe_r_sql($SQL);
 		while($r=safe_fetch($q)) {
-			$tmp=array('id' => $r->TarId, 'name' => get_text($r->TarDescr));
+			$tmp=array('id' => $r->TarId, 'name' => get_text($r->TarDescr), 'arrowstringvalues' => GetGoodLettersFromTgtId($r->TarId));
 			if(!in_array($tmp, $json_array['targettypes'])) $json_array['targettypes'][]=$tmp;
 		}
 

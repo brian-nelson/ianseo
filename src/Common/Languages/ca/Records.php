@@ -1,7 +1,7 @@
 <?php
 $lang['Africa']='Associacions Membres de WA Àfrica';
 $lang['Americas']='Associacions Membres de WA Amèrica';
-$lang['ArrowMatchName']='$a Fletxes Enfrontament';
+$lang['ArrowMatchName']='$a Fletxes Encontre';
 $lang['Asia']='Associacions Membres de WA Àsia';
 $lang['Assign']='Assignar';
 $lang['AssignPDF']='Escriu en PDF';

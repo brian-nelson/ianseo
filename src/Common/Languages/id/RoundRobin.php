@@ -1,0 +1,33 @@
+<?php
+$lang['Components']='Komponen';
+$lang['CopyFrom']='Salin dari...';
+$lang['GroupArchers']='Pemanah per Grup';
+$lang['GroupAssignment']='Penentuan Grup';
+$lang['GroupName']='Nama Grup';
+$lang['GroupNum']='Grup {$a}';
+$lang['Groups']='Grup';
+$lang['GroupShort']='Grp';
+$lang['Item']='Item';
+$lang['ItemName']='Nama Item';
+$lang['ItemNum']='Item {$a}';
+$lang['LevelName']='Nama Level';
+$lang['LevelNum']='Level {$a}';
+$lang['LevelsHelp']='Jumlah Level';
+$lang['LevelShort']='Lvl';
+$lang['QualifiedArchers']='Pemanah terpilih';
+$lang['RegularBrackets']='Braket Reguler';
+$lang['Rounds']='Ronde';
+$lang['Setup']='Setup';
+$lang['Source']='Tingkat Sumber+Grup';
+$lang['SourceRank']='Peringkat Sumber';
+$lang['TargetAssignment']='Penentuan Target';
+$lang['TieAllowed']='Tie diizinkan';
+$lang['TiebreakSystem']='Sistem Tie Break';
+$lang['TiebreakSystem-1']='Jumlah set yang dimenangkan';
+$lang['TiebreakSystem-2']='Jumlah set point';
+$lang['TiebreakSystem-3']='Jumlah point';
+$lang['TiebreakSystem-4']='Shoot off';
+$lang['TiebreakSystem-5']='Jumlah (set)point - Jumlah (set)point lawan';
+$lang['TiePoints']='Point untuk Tie';
+$lang['WinPoints']='Point untuk menang';
+?>

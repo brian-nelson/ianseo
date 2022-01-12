@@ -14,6 +14,7 @@ $lang['AUS']='Australien';
 $lang['AUT']='Österrike';
 $lang['Award-Anthem']='Mina damer och herrar, var goda och stå upp för nationalsången för';
 $lang['Award-MedalGiver']='Medaljerna presenteras av $a';
+$lang['Award-PlaqueGiver']='Presenter delas ut av $a';
 $lang['Award-PremiumGiver']='$a[0] kommer att presenteras av $a[1]';
 $lang['Award-PremiumGiving']='$a[0] nu presenteras av $a[1]';
 $lang['Award-representing']='från $a';

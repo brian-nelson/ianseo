@@ -198,7 +198,13 @@ function DoImportData($ALL=false) {
 					}
 				}
 				$startPos = (($isSO ? ($obj->arrows*$obj->ends) : 0) +1);
-				UpdateArrowString($r->FSMatchNo, $r->FSEvent, $IndTeam, $arrowString, $startPos, ($startPos+($isSO ? $obj->so : $obj->arrows*$obj->ends)-1), $CompId);
+
+				$Closest=0;
+				if($isSO) {
+					$Closest=intval($arrowString!=strtoupper($arrowString));
+					$arrowString=strtoupper($arrowString);
+				}
+				UpdateArrowString($r->FSMatchNo, $r->FSEvent, $IndTeam, $arrowString, $startPos, ($startPos+($isSO ? $obj->so : $obj->arrows*$obj->ends)-1), $CompId, $Closest);
 
 				$Update = "DELETE FROM IskData
 					WHERE IskDtTournament={$CompId} AND IskDtMatchNo={$r->FSMatchNo} AND IskDtEvent='{$r->FSEvent}' AND IskDtTeamInd={$IndTeam} AND IskDtType='" . ($IndTeam==0 ? 'I':'T') . "'

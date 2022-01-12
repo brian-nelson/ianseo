@@ -7,7 +7,7 @@ require_once('Common/Fun_Various.inc.php');
 require_once('Common/Fun_Sessions.inc.php');
 
 $session=(isset($_REQUEST['session']) ? $_REQUEST['session'] : null);
-$filter=(isset($_REQUEST['filter']) ? $_REQUEST['filter'] : null);
+$filter=((isset($_REQUEST['filter']) AND preg_match("/^[0-9A-Z%_]+$/i",$_REQUEST["filter"])) ? $_REQUEST['filter'] : null);
 $isEvent=(isset($_REQUEST['isEvent']) && $_REQUEST['isEvent']==1 ? $_REQUEST['isEvent'] : 0);
 $delSession=(isset($_REQUEST['delSession']) && $_REQUEST['delSession']==1 ? $_REQUEST['delSession'] : 0);
 
@@ -106,7 +106,7 @@ include('Common/Templates/head.php');
 			<td class="Center">
 				<?php print get_text('Session');?>: <?php print $comboSession;?>
 				&nbsp;&nbsp;
-				<?php print get_text('FilterOnDivCl','Tournament'); ?>: <input type="text" name="filter" id="filter" size="5" maxlength="4" value="<?php print (!is_null($filter) ? $filter : '');?>" />
+				<?php print get_text('FilterOnDivCl','Tournament'); ?>: <input type="text" name="filter" id="filter" size="12" maxlength="10" value="<?php print (!is_null($filter) ? $filter : '');?>" />
 				&nbsp;&nbsp;
 				<input type="checkbox" name="isEvent" id="isEvent" value="1" <?php print ($isEvent==1 ? 'checked="yes"' : '');?>/>&nbsp;<?php print get_text('Event');?>
 				&nbsp;&nbsp;

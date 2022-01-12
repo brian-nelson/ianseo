@@ -186,7 +186,7 @@ function insert_schedule_from_select(event, phase, schedule) {
 						$MyGrid[$Row][$Col].= '<td  nowrap class="' . ($AthPrinted==1 ? 'Bottom ' : '') . 'Top wRight Left Center">' . (useGrPostion2($StartPhase, $CurPhase) ? ($MyRow->GrPosition2 ? $MyRow->GrPosition2 : '&nbsp;') : $MyRow->GrPosition) . '</td>';
 					// data/ora
 						if ($AthPrinted==0) {
-							$Dt = (!is_null($MyRow->Dt) && $MyRow->Dt!='00-00-0000' ? $MyRow->Dt : '');
+							$Dt = (!is_null($MyRow->Dt) /*&& $MyRow->Dt!='00-00-0000'*/ ? $MyRow->Dt : '');
 							$Hr = (!is_null($MyRow->Hr) ? $MyRow->Hr : '');
 							$mLn = (!is_null($MyRow->MatchLen) ? $MyRow->MatchLen : '');
 							$MyGrid[$Row][$Col]
@@ -340,7 +340,7 @@ function insert_schedule_from_select(event, phase, schedule) {
 					$MyGrid[$Row][$Col].= '<td  nowrap class="' . ($AthPrinted==1 ? 'Bottom ' : '') . 'Top wRight Left Center">' . (useGrPostion2($StartPhase, $CurPhase) ? ($MyRow->GrPosition2 ? $MyRow->GrPosition2 : '&nbsp;') : $MyRow->GrPosition) . '</td>';
 					if ($AthPrinted==0) {
 				// data/ora
-						$Dt = (!is_null($MyRow->Dt) && $MyRow->Dt!='00-00-0000' ? $MyRow->Dt : '');
+						$Dt = (!is_null($MyRow->Dt) /*&& $MyRow->Dt!='00-00-0000'*/ ? $MyRow->Dt : '');
 						$Hr = (!is_null($MyRow->Hr) ? $MyRow->Hr : '');
 						$mLn = (!is_null($MyRow->MatchLen) ? $MyRow->MatchLen : '');
 						$MyGrid[$Row][$Col]

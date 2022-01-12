@@ -72,8 +72,8 @@ function CreateStandardDivisions($TourId, $Type, $SubRule=1) {
 	switch($Type) {
 		case '1':
 		case '3':
-			CreateDivision($TourId, $i++, 'R', 'Recurve');
-			CreateDivision($TourId, $i++, 'C', 'Compound');
+			CreateDivision($TourId, $i++, 'R', 'Recurve',1,'R','R');
+			CreateDivision($TourId, $i++, 'C', 'Compound',1,'C','C');
 			CreateDivision($TourId, $i++, 'CO', 'Compound Open',1,'C','C',1);
 			CreateDivision($TourId, $i++, 'C1', 'Compound W1',1,'W1','W1',1);
 			CreateDivision($TourId, $i++, 'RS', 'Recurve Standing',1,'R','R',1);
@@ -86,11 +86,11 @@ function CreateStandardDivisions($TourId, $Type, $SubRule=1) {
 			break;
 		case '6':
 		case '7':
-			CreateDivision($TourId, $i++, 'R', 'Recurve');
-			CreateDivision($TourId, $i++, 'C', 'Compound');
+			CreateDivision($TourId, $i++, 'R', 'Recurve',1,'R','R');
+			CreateDivision($TourId, $i++, 'C', 'Compound',1,'C','C');
 			if($SubRule==1) {
-				CreateDivision($TourId, $i++, 'NL', 'Nu Longbow');
-				CreateDivision($TourId, $i++, 'NR', 'Nu Recurve/Barebow');
+				CreateDivision($TourId, $i++, 'NL', 'Nu Longbow',1,'L','L');
+				CreateDivision($TourId, $i++, 'NR', 'Nu Recurve/Barebow',1,'B','B');
 				CreateDivision($TourId, $i++, 'BR', 'Brevet Recurve');
 				CreateDivision($TourId, $i++, 'BC', 'Brevet Compound');
 				CreateDivision($TourId, $i++, 'BN', 'Brevet Nu Longbow');
@@ -106,10 +106,10 @@ function CreateStandardDivisions($TourId, $Type, $SubRule=1) {
 		case '23':
 		case '24':
 		case '25':
-			CreateDivision($TourId, $i++, 'R', 'Recurve');
-			CreateDivision($TourId, $i++, 'C', 'Compound');
-			CreateDivision($TourId, $i++, 'NL', 'Nu Longbow');
-			CreateDivision($TourId, $i++, 'NR', 'Nu Recurve/Barebow');
+			CreateDivision($TourId, $i++, 'R', 'Recurve',1,'R','R');
+			CreateDivision($TourId, $i++, 'C', 'Compound',1,'C','C');
+			CreateDivision($TourId, $i++, 'NL', 'Nu Longbow',1,'L','L');
+			CreateDivision($TourId, $i++, 'NR', 'Nu Recurve/Barebow',1,'B','B');
 			CreateDivision($TourId, $i++, 'CO', 'Compound Open',1,'C','C',1);
 			CreateDivision($TourId, $i++, 'C1', 'Compound W1',1,'W1','W1',1);
 			CreateDivision($TourId, $i++, 'RS', 'Recurve Standing',1,'R','R',1);

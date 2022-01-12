@@ -104,8 +104,7 @@ include('Common/Templates/head.php');
     window.onload = disableButton;
     function disableButton() {
         document.getElementById("sendbutton").disabled = true;
-        console.log("Button disabled.");
-    }
+    };
     function test_settings() {
         var data = {"auth": {"competition": document.getElementById("s_competition_code").value, "password": document.getElementById("s_competition_password").value}};
         var xhr = new XMLHttpRequest();
@@ -127,13 +126,10 @@ include('Common/Templates/head.php');
         if (this.readyState == 4) {
             if (this.status == 200) {
                 var resp = JSON.parse(this.responseText);
-                console.log(resp['status']);
                 if (resp['status'] == 'Ready') {
                     document.getElementById("sendbutton").disabled = false;
-                    console.log("Button changed. aktivated");
                 } else {
                     document.getElementById("sendbutton").disabled = true;
-                    console.log("button changed. disabled");
                 }
                 document.getElementById("status_information").innerHTML = resp['message'];
             }
@@ -147,9 +143,9 @@ include('Common/Templates/head.php');
                     var xc;
                     document.getElementById("status_result").innerHTML = "";
                     for (xc in data['results']) {
-                        document.getElementById("status_result").innerHTML += data['results'][xc]['className'] + ' Exporterade: ' + data['results'][xc]['imported'] + ' Ej exporterade: ' + data['results'][xc]['failed'];
+                        document.getElementById("status_result").innerHTML += '<br />' + data['results'][xc]['className'] + '<br /><?= $swelang_exported ?>: ' + data['results'][xc]['imported'] + ' <?= $swelang_notexported ?>: ' + data['results'][xc]['failed'];
 			            if (data['results'][xc]['warningMessage'] != null) {
-                           document.getElementById("status_result").innerHTML += ' Varningar: (' + data['results'][xc]['warnings'] +')<br /><span class="swewarning"> ' + data['results'][xc]['warningMessage'] + '</span>';
+                           document.getElementById("status_result").innerHTML +=  '<br /><?= $swelang_warnings ?>: (' + data['results'][xc]['warnings'] +')<br /><span class="swewarning"> ' + data['results'][xc]['warningMessage'] + '</span>';
                         }
                         document.getElementById("status_result").innerHTML += '<br />';
                         console.log(data['results']);

@@ -12,6 +12,8 @@ $EvCode = $_REQUEST['Event'];
 $TeamEvent = (substr($EvCode,-2)=='|T');
 if($TeamEvent) {
     $EvCode = substr($EvCode,0,-2);
+} else {
+    $TeamEvent=0;
 }
 checkACL(array(($TeamEvent ? AclTeams:AclIndividuals), AclOutput), AclReadOnly, false);
 require_once('Common/Lib/CommonLib.php');

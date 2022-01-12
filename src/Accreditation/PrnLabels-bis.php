@@ -22,6 +22,7 @@ if($_POST) {
 	$RowIntMargin=$_REQUEST['sticker_InterRows'];
 	$PaperHeight=$_REQUEST['sticker_PageHeight'];
 	$PaperWidth=$_REQUEST['sticker_PageWidth'];
+	$EnCodeFilter=($_REQUEST['sticker_EnCodes'] ? preg_split('/[ ,]+/', $_REQUEST['sticker_EnCodes']) : '');
 
 	$pdf = new LabelPDF();
 
@@ -41,6 +42,7 @@ if($_POST) {
 			. "where"
 			. " EnTournament={$_SESSION['TourId']} "
 			. (isset($_REQUEST["Session"]) && is_numeric($_REQUEST["Session"]) ? " AND SUBSTRING(QuTargetNo,1,1) = " . StrSafe_DB($_REQUEST["Session"]) . " " : '')
+			. ($EnCodeFilter ? "and EnCode in ('".implode("','", $EnCodeFilter)."')" : "")
 			. " and PhPhoto>'' order by code";
 
 		$q=safe_r_sql($MySQL);
@@ -91,9 +93,11 @@ if($_POST) {
 		$MyQuery.= "INNER JOIN Countries AS c ON e.EnCountry=c.CoId AND e.EnTournament=c.CoTournament ";
 		$MyQuery.= "LEFT JOIN AccEntries AS ae ON e.EnId=ae.AEId AND e.EnTournament=ae.AETournament ";
 		$MyQuery.= "AND ae.AEOperation=(SELECT AOTId FROM AccOperationType WHERE AOTDescr=" . StrSafe_DB($OpDetails) . ") ";
-		$MyQuery.= "WHERE AtTournament = " . StrSafe_DB($_SESSION['TourId']) . " ";
-		if(isset($_REQUEST["Session"]) && is_numeric($_REQUEST["Session"]))
+		$MyQuery.= "WHERE AtTournament = " . StrSafe_DB($_SESSION['TourId']) . " "
+			. ($EnCodeFilter ? "and EnCode in ('".implode("','", $EnCodeFilter)."')" : "");
+		if(isset($_REQUEST["Session"]) && is_numeric($_REQUEST["Session"])) {
 			$MyQuery .= "AND SUBSTRING(AtTargetNo,1,1) = " . StrSafe_DB($_REQUEST["Session"]) . " ";
+		}
 			//$MyQuery .= "AND AtTargetNo IN ('145B','145D','146D','149D','151C','152A') ";
 		$MyQuery.= "ORDER BY AtTargetNo, CoCode, Name, CoName, FirstName ";
 
@@ -260,6 +264,11 @@ if($_POST) {
 		echo '<td class="Right" nobreak="nobreak">' . get_text('StickersInterCols','Tournament') . '</td>';
 		echo '<td class="Center"><input name="sticker_InterCols" size="3"/></td>';
 		echo '<td>'.get_text('StickersInterColsDescr','Tournament').'</td>';
+		echo '</tr>';
+
+		echo '<tr>';
+		echo '<td class="Right" nobreak="nobreak">' . get_text('StickersCodes','Tournament') . '<div>'.get_text('StickersCodesDescr','Tournament').'</div></td>';
+		echo '<td colspan="2" class="Left"><textarea name="sticker_EnCodes" style="width:100%;box-sizing: border-box;height:5em"></textarea></td>';
 		echo '</tr>';
 
 		echo '<tr><td colspan="3" class="Center"><input type="submit" value="' . get_text('CmdOk') . '"></td></tr>';

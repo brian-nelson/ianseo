@@ -11,6 +11,16 @@
     checkACL(AclIndividuals, AclReadWrite);
 
 	$Cols2Remove = (isset($_REQUEST['d_Tie']) && $_REQUEST['d_Tie']==1 ? 0 : 2);
+    $QrCodeScorecards = '';
+    if(module_exists("Barcodes")) {
+        $QrCodeScorecards .= "&Barcode=1";
+    }
+    foreach(AvailableApis() as $Api) {
+        if(!($tmp=getModuleParameter($Api, 'Mode')) || $tmp=='live' ) {
+            continue;
+        }
+        $QrCodeScorecards .= "&QRCode[]=$Api";
+    }
 
 	$Error=false;
 
@@ -316,7 +326,7 @@ if(!empty($_REQUEST['x_Session']) and $_REQUEST['x_Session']!=-1) {
 				    <a class="Link mr-5" href="javascript:ChangePhase(\'' . $NP . '\',' .$Sch .');">' . get_text('NextPhase') . '</a>
 				    <a class="Link mr-5" href="PrnIndividual.php?Event='.$MyRow->FinEvent.'&IncBrackets=1&ShowTargetNo=1" target="Griglie">' . get_text('Brackets') . '</a>';
 				if($_REQUEST['d_Phase']>0) {
-					echo '<a class="Link mr-5" href="PDFScoreMatch.php?Event='.$MyRow->FinEvent.'&Phase='.$NextPhase.'" target="Scores">' . get_text('NextMatchScores') . '</a>
+					echo '<a class="Link mr-5" href="PDFScoreMatch.php?Event='.$MyRow->FinEvent.'&Phase='.$NextPhase.$QrCodeScorecards.'" target="Scores">' . get_text('NextMatchScores') . '</a>
 					    <a class="Link mr-5" href="PrnName.php?Event='.$MyRow->FinEvent.'&Phase='.$NextPhase.'" target="Names">' . get_text('NextMatchNames') . '</a>';
 				}
 				print '</td>';

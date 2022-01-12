@@ -98,7 +98,6 @@ $lang['SetOrdinary']='Běžný závod';
 $lang['SetOrdinaryFinals']='Běžný závod a finále';
 $lang['SetUkJunNationals']='Národní dorostenecké mistrovství';
 $lang['SetUkNationals']='Národní mistrovství';
-$lang['Setup-F2F']='Tváří v tvář';
 $lang['Setup-NO']='Norský závod (Norges Bueskytterforbund pravidla)';
 $lang['Setup-PAR']='Paralympic závod (IPC pravidla)';
 $lang['Setup-Select']='Vyber správné lokální pravidlo';

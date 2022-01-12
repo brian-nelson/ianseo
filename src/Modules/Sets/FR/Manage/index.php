@@ -10,7 +10,7 @@ $JS_SCRIPT[] ='<script src="./index.js"></script>';
 $JS_SCRIPT[] ='<script src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>';
 include('Common/Templates/head.php');
 
-$q=safe_r_sql("select * from Events where EvTournament={$_SESSION['TourId']} and EvTeamEvent>0 order by EvProgr");
+$q=safe_r_sql("select * from Events where EvTournament={$_SESSION['TourId']} and EvTeamEvent>0 and EvNumQualified!=4 order by EvProgr");
 
 echo '<div align="center" style="margin-bottom: 1em"><select onchange="document.location=\'./?cat=\'+this.value" id="Category">';
 while($r=safe_fetch($q)) {
@@ -57,6 +57,7 @@ while($r=safe_fetch($q)) {
 ksort($tmp, SORT_NUMERIC);
 //debug_svela($tmp);
 
+$AllInOne=getModuleParameter('FFTA', 'D1AllInOne', 0);
 $MatchDay=0;
 $NumMatch=5;
 
@@ -93,28 +94,19 @@ for($i=1; $i<=$NumMatch; $i++) {
 				$Status[$phase][$matchno]= (object) array('Phase'=>$phase, 'MatchNo' => $matchno, 'Team' => '', 'Code' => '', 'Event'=>$Event, 'Target' => '', 'FsDate' => '', 'FsTime'=>'');
 			}
 		}
-		$q=safe_r_sql("(select right(FinEvent, 1) as Phase, FinMatchNo as MatchNo, '' as Team, '' as Code, FinEvent as Event, trim(leading '0' from FsLetter) as Target, if(FSScheduledDate=0, '', FSScheduledDate) as FsDate, date_format(FSScheduledTime, '%H:%i') as FsTime
+		$SQL=array();
+		if(!$AllInOne) {
+			$SQL[]="select right(FinEvent, 1) as Phase, FinMatchNo as MatchNo, '' as Team, '' as Code, FinEvent as Event, trim(leading '0' from FsLetter) as Target, if(FSScheduledDate=0, '', FSScheduledDate) as FsDate, date_format(FSScheduledTime, '%H:%i') as FsTime
 		    from Finals
             left join FinSchedule on FSTeamEvent=0 and FSMatchNo=FinMatchNo and FSEvent=FinEvent and FSTournament=FinTournament
-            where FinMatchNo in ($Matchno1, $Matchno2) and FinEvent like '{$Event}_' and FinTournament={$_SESSION['TourId']})
-            union 
-            (select 0 as Phase, TfMatchNo as MatchNo, TfTeam as Team, CoCode as Code, TfEvent as Event, trim(leading '0' from FsTarget) as Target, if(FSScheduledDate=0, '', FSScheduledDate) as FsDate, date_format(FSScheduledTime, '%H:%i') as FsTime
+            where FinMatchNo in ($Matchno1, $Matchno2) and FinEvent like '{$Event}_' and FinTournament={$_SESSION['TourId']}";
+		}
+		$SQL[]="select 0 as Phase, TfMatchNo as MatchNo, TfTeam as Team, CoCode as Code, TfEvent as Event, trim(leading '0' from FsTarget) as Target, if(FSScheduledDate=0, '', FSScheduledDate) as FsDate, date_format(FSScheduledTime, '%H:%i') as FsTime
 		    from TeamFinals
 		    inner join Countries on CoId=TfTeam and CoTournament=TfTournament
             left join FinSchedule on FSTeamEvent=1 and FSMatchNo=TfMatchNo and FSEvent=TfEvent and FSTournament=TfTournament
-            where TfMatchNo in ($Matchno1, $Matchno2) and TfEvent = '$Event' and TfTournament={$_SESSION['TourId']})
-            order by MatchNo, Event");
-//debug_svela("(select right(FinEvent, 1) as Phase, FinMatchNo as MatchNo, '' as Team, '' as Code, FinEvent as Event, trim(leading '0' from FsLetter) as Target, if(FSScheduledDate=0, '', FSScheduledDate) as FsDate, date_format(FSScheduledTime, '%H:%i') as FsTime
-//		    from Finals
-//            left join FinSchedule on FSTeamEvent=0 and FSMatchNo=FinMatchNo and FSEvent=FinEvent and FSTournament=FinTournament
-//            where FinMatchNo in ($Matchno1, $Matchno2) and FinEvent like '{$Event}_' and FinTournament={$_SESSION['TourId']})
-//            union
-//            (select 0 as Phase, TfMatchNo as MatchNo, TfTeam as Team, CoCode as Code, TfEvent as Event, trim(leading '0' from FsTarget) as Target, if(FSScheduledDate=0, '', FSScheduledDate) as FsDate, date_format(FSScheduledTime, '%H:%i') as FsTime
-//		    from TeamFinals
-//		    inner join Countries on CoId=TfTeam and CoTournament=TfTournament
-//            left join FinSchedule on FSTeamEvent=1 and FSMatchNo=TfMatchNo and FSEvent=TfEvent and FSTournament=TfTournament
-//            where TfMatchNo in ($Matchno1, $Matchno2) and TfEvent = '$Event' and TfTournament={$_SESSION['TourId']})
-//            order by MatchNo, Event");
+            where TfMatchNo in ($Matchno1, $Matchno2) and TfEvent = '$Event' and TfTournament={$_SESSION['TourId']}";
+		$q=safe_r_sql("(".implode(') UNION (', $SQL).") order by MatchNo, Event");
 		while($r=safe_fetch($q)) {
 		    $Status[$r->Phase][$r->MatchNo]=$r;
         }
@@ -127,19 +119,30 @@ for($i=1; $i<=$NumMatch; $i++) {
         if($Matchno1==128 and !empty($Status[0][128]->Code) and !empty($Status[0][129]->Code)) {
 	        $pos1=array_search($Status[0][128]->Code, $Winners);
 	        $pos2=array_search($Status[0][129]->Code, $Winners);
-	        switch($pos1.'-'.$pos2) {
-		        case '1-8':
-		        case '1-16':
+	        switch($AllInOne.'-'.$pos1.'-'.$pos2) {
+		        case '0-1-8':
+		        case '0-1-16':
+		        case '1-1-16':
 			        $MatchDay=1;
 		            break;
-		        case '1-3':
-		        case '1-11':
+		        case '0-1-3':
+		        case '0-1-11':
+		        case '1-1-11':
+		        case '1-1-5':
 			        $MatchDay=2;
 		            break;
-		        case '1-5':
-		        	$NumMatch=4;
-		        case '1-6':
+		        case '0-1-5':
+			        $NumMatch=4;
+		        case '0-1-6':
+		        case '1-1-4':
 			        $MatchDay=3;
+		            break;
+		        case '1-1-6':
+			        if($Event=='FCO') {
+			        	$MatchDay=1;
+			        } else {
+			        	$MatchDay=3;
+			        }
 		            break;
 	        }
         }
@@ -159,35 +162,37 @@ for($i=1; $i<=$NumMatch; $i++) {
 				<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this, true)" type="text" value="'.$Status[0][$Matchno1]->FsDate.'"></td>
 				<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this, true)" type="text" value="'.$Status[0][$Matchno1]->FsTime.'"></td>
 			</tr>';
-		echo '<tr match="ma-1">
-				<th>Ind 1</th>
-				<td><input match="tg-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[1][$Matchno1]->Target.'" size="3"></td>
-				<td><input match="tg-'.$Matchno2.'" onchange="updateMatch(this)" type="text" value="'.$Status[1][$Matchno2]->Target.'" size="3"></td>
-				<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[1][$Matchno1]->FsDate.'"></td>
-				<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[1][$Matchno1]->FsTime.'"></td>
-			</tr>';
-		echo '<tr match="ma-2">
-				<th>Ind 2</th>
-				<td><input match="tg-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[2][$Matchno1]->Target.'" size="3"></td>
-				<td><input match="tg-'.$Matchno2.'" onchange="updateMatch(this)" type="text" value="'.$Status[2][$Matchno2]->Target.'" size="3"></td>
-				<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[2][$Matchno1]->FsDate.'"></td>
-				<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[2][$Matchno1]->FsTime.'"></td>
-			</tr>';
-		echo '<tr match="ma-3">
-				<th>Ind 3</th>
-				<td><input match="tg-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[3][$Matchno1]->Target.'" size="3"></td>
-				<td><input match="tg-'.$Matchno2.'" onchange="updateMatch(this)" type="text" value="'.$Status[3][$Matchno2]->Target.'" size="3"></td>
-				<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[3][$Matchno1]->FsDate.'"></td>
-				<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[3][$Matchno1]->FsTime.'"></td>
-			</tr>';
-		if($NumMatch==5) {
-			echo '<tr match="ma-4">
-					<th>Ind 4</th>
-					<td><input match="tg-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[4][$Matchno1]->Target.'" size="3"></td>
-					<td><input match="tg-'.$Matchno2.'" onchange="updateMatch(this)" type="text" value="'.$Status[4][$Matchno2]->Target.'" size="3"></td>
-					<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[4][$Matchno1]->FsDate.'"></td>
-					<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[4][$Matchno1]->FsTime.'"></td>
+		if(!$AllInOne) {
+			echo '<tr match="ma-1">
+					<th>Ind 1</th>
+					<td><input match="tg-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[1][$Matchno1]->Target.'" size="3"></td>
+					<td><input match="tg-'.$Matchno2.'" onchange="updateMatch(this)" type="text" value="'.$Status[1][$Matchno2]->Target.'" size="3"></td>
+					<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[1][$Matchno1]->FsDate.'"></td>
+					<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[1][$Matchno1]->FsTime.'"></td>
 				</tr>';
+			echo '<tr match="ma-2">
+					<th>Ind 2</th>
+					<td><input match="tg-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[2][$Matchno1]->Target.'" size="3"></td>
+					<td><input match="tg-'.$Matchno2.'" onchange="updateMatch(this)" type="text" value="'.$Status[2][$Matchno2]->Target.'" size="3"></td>
+					<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[2][$Matchno1]->FsDate.'"></td>
+					<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[2][$Matchno1]->FsTime.'"></td>
+				</tr>';
+			echo '<tr match="ma-3">
+					<th>Ind 3</th>
+					<td><input match="tg-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[3][$Matchno1]->Target.'" size="3"></td>
+					<td><input match="tg-'.$Matchno2.'" onchange="updateMatch(this)" type="text" value="'.$Status[3][$Matchno2]->Target.'" size="3"></td>
+					<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[3][$Matchno1]->FsDate.'"></td>
+					<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[3][$Matchno1]->FsTime.'"></td>
+				</tr>';
+			if($NumMatch==5) {
+				echo '<tr match="ma-4">
+						<th>Ind 4</th>
+						<td><input match="tg-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[4][$Matchno1]->Target.'" size="3"></td>
+						<td><input match="tg-'.$Matchno2.'" onchange="updateMatch(this)" type="text" value="'.$Status[4][$Matchno2]->Target.'" size="3"></td>
+						<td><input match="da-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[4][$Matchno1]->FsDate.'"></td>
+						<td><input match="ti-'.$Matchno1.'" onchange="updateMatch(this)" type="text" value="'.$Status[4][$Matchno1]->FsTime.'"></td>
+					</tr>';
+			}
 		}
 		echo '</tbody>';
 		$UsedTeams[]=$Status[0][$Matchno1]->Team;

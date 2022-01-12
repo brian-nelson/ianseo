@@ -95,14 +95,15 @@ if(empty($CFG->IS)) {
 <tr>
 <th class="Title" width="5%"><?php print get_text('Status', 'Tournament');?></th>
 <th class="Title" width="10%"><?php print get_text('Event');?></th>
-<th class="Title" width="10%"><?php print get_text('Target');?></th>
+<th class="Title" width="5%"><?php print get_text('Target');?></th>
 <th class="Title" width="25%">&nbsp;</th>
 <th class="Title" width="10%"><?php print get_text('TotalShort', 'Tournament');?></th>
 <th class="Title" width="15%"><?php print get_text('SetPoints', 'Tournament');?></th>
+<th class="Title" width="5%"><?php print get_text('Target');?></th>
 <th class="Title" width="25%">&nbsp;</th>
 </tr>
 <tbody id="tbody">
-<tr id="RowDiv" class="Divider"><td colspan="7"><input type="hidden" id="lu" value="0"></tr>
+<tr id="RowDiv" class="Divider"><td colspan="8"><input type="hidden" id="lu" value="0"></tr>
 </tbody>
 </table>
 

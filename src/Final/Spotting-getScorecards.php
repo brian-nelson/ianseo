@@ -327,6 +327,8 @@ if($Arrows) {
 		$target->drawSVGArrowsGroups('SvgEndR_SO_'.$i, $tmpR);
 	}
 
+	$target->DrawSVGSighter(end($tmpR) ?? end($tmpL) ?? array());
+
 	$JSON['targetSize']=$target->Diameter;
 	$JSON['targetZoom']=round(sqrt($target->TargetRadius)/7, 1);
 	$JSON['target']=$target->OutputStringSVG();

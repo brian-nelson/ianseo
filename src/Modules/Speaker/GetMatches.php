@@ -98,8 +98,9 @@ if (safe_num_rows($rs)>0) {
 		$id=0;	// id fittizio
 		while ($myRow=safe_fetch($rs)) {
 			$target=$myRow->target1;
+            $target2='';
 			if ($myRow->target2!=$myRow->target1)
-				$target.=' - ' . $myRow->target2;
+				$target2 = $myRow->target2;
 
 			$score1=$myRow->score1;
 			$score2=$myRow->score2;
@@ -186,7 +187,7 @@ if (safe_num_rows($rs)>0) {
 			if (isset($_REQUEST['r_' . $id]) && preg_match('/^[0-1]{1}$/',$_REQUEST['r_' . $id]) && $myRow->lastUpdate<$serverDate) {
 				$r=$_REQUEST['r_' . $id];
 			}
-			if(!empty($target)) {
+			if($target or $target2) {
 				$JSON['rows'][]=array(
 					'id'	=> $id,
 					'f'		=> $finished,
@@ -194,7 +195,8 @@ if (safe_num_rows($rs)>0) {
 					'ev'	=> $myRow->event,
 					'ph'	=> get_text(namePhase($myRow->firstPhase,$myRow->phase). '_Phase'),
 					'evn'	=> $myRow->eventName,
-					't'		=> $target,
+					't'	    => $target,
+                    't2'	=> $target2,
 					'n1'	=> $myRow->name1 . ' (#' . $myRow->rank1 . ')',
 					'cn1'	=> $myRow->countryName1,
 					'ar1'	=> strlen(str_replace(' ','',$myRow->arrowString1)),

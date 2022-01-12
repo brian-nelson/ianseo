@@ -6,14 +6,7 @@
 
 	$rs=null;
 
-	$query
-		= "SELECT * "
-		. "FROM "
-			. "AccColors "
-		. "WHERE "
-			. "AcTournament=" . StrSafe_DB($_SESSION['TourId']) . " "
-		. "ORDER BY AcDivClass ASC ";
-	$rs=safe_r_sql($query);
+	$rs=safe_r_sql("SELECT * FROM AccColors WHERE AcTournament=" . StrSafe_DB($_SESSION['TourId']) . " ORDER BY AcDivClass ASC ");
 
 	$k=0;
 
@@ -28,7 +21,7 @@
 
 	include('Common/Templates/head.php');
 ?>
-<div align="center">
+<div>
 	<table class="Tabella">
 		<tbody id="tbody">
 			<tr><th class="Title" colspan="9"><?php print get_text('ManColors','Tournament'); ?></th></tr>
@@ -44,7 +37,7 @@
 				<th>&nbsp;</th>
 			</tr>
 			<tr>
-				<td class="Center"><input type="hidden" name="d_rowId" id="d_rowId" value="-1"><input type="text" name="d_Classes" id="d_Classes" value="" /></td>
+				<td class="Center"><input type="hidden" name="d_rowId" id="d_rowId" value="-1"><input type="text" size="12" maxlength="10" name="d_Classes" id="d_Classes" value="" /></td>
 				<td class="Center">
 					<input type="text" name="d_Color" id="d_Color" value="" />
 					<input type="text" id="Square" size="1" value="" readonly="readonly"/>

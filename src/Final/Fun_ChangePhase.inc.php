@@ -187,7 +187,7 @@ function move2NextPhase($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, $NoR
 	$Select = "SELECT 
 			f.FinEvent AS Event, f.FinMatchNo, f2.FinMatchNo OppMatchNo,
 			f.FinIrmType AS IrmType, f2.FinIrmType AS OppIrmType, 
-			GrPhase, f.FinAthlete AS Athlete, f2.FinAthlete AS OppAthlete,
+			GrPhase, f.FinAthlete AS Athlete, f2.FinAthlete AS OppAthlete, f.FinCoach AS Coach, f2.FinCoach AS OppCoach,
 			IF(EvMatchMode=0,f.FinScore,f.FinSetScore) AS Score, f.FinTie as Tie, IF(EvMatchMode=0,f2.FinScore,f2.FinSetScore) as OppScore, f2.FinTie as OppTie,
 			IF(GrPhase>2, FLOOR(f.FinMatchNo/2),FLOOR(f.FinMatchNo/2)-2) AS NextMatchNo, EvElimType
 		FROM Finals AS f
@@ -246,6 +246,7 @@ function move2NextPhase($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, $NoR
 			$WinLose=-1;
 
 			$AthProp = '0';
+            $CoachProp = '0';
 			$WhereProp = '0';
 			if (intval($MyRow->Score)>intval($MyRow->OppScore) or $MyRow->Tie==2 or (intval($MyRow->Score)==intval($MyRow->OppScore) and intval($MyRow->Tie)>intval($MyRow->OppTie))) {
 				$WinLose=$MyRow->FinMatchNo;
@@ -255,26 +256,31 @@ function move2NextPhase($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, $NoR
 					if($ShowMatchWinner) {
 						$MyUpQuery = "UPDATE Finals SET
 							FinAthlete =" . StrSafe_DB($MyRow->Athlete) . ",
+							FinCoach =" . StrSafe_DB($MyRow->Coach) . ",
 							FinDateTime=" . StrSafe_DB($AthPropTs) . "
 							WHERE FinEvent=" . StrSafe_DB($MyRow->Event) . " AND FinMatchNo=" . StrSafe_DB($ShowMatchWinner) . " AND FinTournament=" . StrSafe_DB($TourId) . " ";
 						safe_w_sql($MyUpQuery);
 						$MyUpQuery = "UPDATE Finals SET
 							FinAthlete =" . StrSafe_DB($MyRow->OppAthlete) . ",
+							FinCoach =" . StrSafe_DB($MyRow->OppCoach) . ",
 							FinDateTime=" . StrSafe_DB($AthPropTs) . "
 							WHERE FinEvent=" . StrSafe_DB($MyRow->Event) . " AND FinMatchNo=" . StrSafe_DB($ShowMatchLoser) . " AND FinTournament=" . StrSafe_DB($TourId) . " ";
 						safe_w_sql($MyUpQuery);
 					} else {
 						$MyUpQuery = "UPDATE Finals SET
 							FinAthlete =" . StrSafe_DB($MyRow->Athlete) . ",
+							FinCoach =" . StrSafe_DB($MyRow->Coach) . ",
 							FinDateTime=" . StrSafe_DB($AthPropTs) . "
 							WHERE FinEvent=" . StrSafe_DB($MyRow->Event) . " AND FinMatchNo=" . StrSafe_DB($MyRow->NextMatchNo) . " AND FinTournament=" . StrSafe_DB($TourId) . " ";
 						$RsUp=safe_w_sql($MyUpQuery);
 
 						$AthProp=$MyRow->Athlete;
+                        $CoachProp=$MyRow->Coach;
 						$WhereProp=$MyRow->OppAthlete;
 						if($MyRow->GrPhase==2) {
 							$MyUpQuery = "UPDATE Finals SET
 								FinAthlete =" . StrSafe_DB($MyRow->OppAthlete) . ",
+								FinCoach =" . StrSafe_DB($MyRow->OppCoach) . ",
 								FinDateTime=" . StrSafe_DB($AthPropTs) . "
 								WHERE FinEvent=" . StrSafe_DB($MyRow->Event) . " AND FinMatchNo=" . StrSafe_DB(($MyRow->NextMatchNo+2)) . " AND FinTournament=" . StrSafe_DB($TourId) . " ";
 							$RsUp=safe_w_sql($MyUpQuery);
@@ -289,26 +295,31 @@ function move2NextPhase($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, $NoR
 					if($ShowMatchWinner) {
 						$MyUpQuery = "UPDATE Finals SET
 							FinAthlete =" . StrSafe_DB($MyRow->OppAthlete) . ",
+							FinCoach =" . StrSafe_DB($MyRow->OppCoach) . ",
 							FinDateTime=" . StrSafe_DB($AthPropTs) . "
 							WHERE FinEvent=" . StrSafe_DB($MyRow->Event) . " AND FinMatchNo=" . StrSafe_DB($ShowMatchWinner) . " AND FinTournament=" . StrSafe_DB($TourId) . " ";
 						safe_w_sql($MyUpQuery);
 						$MyUpQuery = "UPDATE Finals SET
 							FinAthlete =" . StrSafe_DB($MyRow->Athlete) . ",
+							FinCoach =" . StrSafe_DB($MyRow->Coach) . ",
 							FinDateTime=" . StrSafe_DB($AthPropTs) . "
 							WHERE FinEvent=" . StrSafe_DB($MyRow->Event) . " AND FinMatchNo=" . StrSafe_DB($ShowMatchLoser) . " AND FinTournament=" . StrSafe_DB($TourId) . " ";
 						safe_w_sql($MyUpQuery);
 					} else {
 						$MyUpQuery = "UPDATE Finals SET ";
 						$MyUpQuery.= "FinAthlete =" . StrSafe_DB($MyRow->OppAthlete) . ", ";
+                        $MyUpQuery.= "FinCoach =" . StrSafe_DB($MyRow->OppCoach) . ", ";
 						$MyUpQuery.= "FinDateTime=" . StrSafe_DB($AthPropTs) . " ";
 						$MyUpQuery.= "WHERE FinEvent=" . StrSafe_DB($MyRow->Event) . " AND FinMatchNo=" . StrSafe_DB($MyRow->NextMatchNo) . " AND FinTournament=" . StrSafe_DB($TourId) . " ";
 						$RsUp=safe_w_sql($MyUpQuery);
 
 						$AthProp=$MyRow->OppAthlete;
+                        $CoachProp=$MyRow->OppCoach;
 						$WhereProp=$MyRow->Athlete;
 						if($MyRow->GrPhase==2) {
 							$MyUpQuery = "UPDATE Finals SET ";
 							$MyUpQuery.= "FinAthlete =" . StrSafe_DB($MyRow->Athlete) . ", ";
+                            $MyUpQuery.= "FinCoach =" . StrSafe_DB($MyRow->Coach) . ", ";
 							$MyUpQuery.= "FinDateTime=" . StrSafe_DB($AthPropTs) . " ";
 							$MyUpQuery.= "WHERE FinEvent=" . StrSafe_DB($MyRow->Event) . " AND FinMatchNo=" . StrSafe_DB(($MyRow->NextMatchNo+2)) . " AND FinTournament=" . StrSafe_DB($TourId) . " ";
 							$RsUp=safe_w_sql($MyUpQuery);
@@ -321,14 +332,14 @@ function move2NextPhase($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, $NoR
 					if ($MyRow->GrPhase>=2) {
 						$action='reload';
 						$MyUpQuery = "UPDATE Finals SET ";
-						$MyUpQuery.= "FinAthlete ='0', ";
+						$MyUpQuery.= "FinAthlete ='0', FinCoach ='0', ";
 						$MyUpQuery.= "FinDateTime=" . StrSafe_DB($AthPropTs) . " ";
 						$MyUpQuery.= "WHERE FinEvent=" . StrSafe_DB($MyRow->Event) . " AND FinMatchNo=" . StrSafe_DB($MyRow->NextMatchNo) . " AND FinTournament=" . StrSafe_DB($TourId) . " ";
 						$RsUp=safe_w_sql($MyUpQuery);
 
 						if($MyRow->GrPhase==2) {
 							$MyUpQuery = "UPDATE Finals SET ";
-							$MyUpQuery.= "FinAthlete ='0', ";
+							$MyUpQuery.= "FinAthlete ='0', FinCoach ='0', ";
 							$MyUpQuery.= "FinDateTime=" . StrSafe_DB($AthPropTs) . " ";
 							$MyUpQuery.= "WHERE FinEvent=" . StrSafe_DB($MyRow->Event) . " AND FinMatchNo=" . StrSafe_DB(($MyRow->NextMatchNo+2)) . " AND FinTournament=" . StrSafe_DB($TourId) . " ";
 							$RsUp=safe_w_sql($MyUpQuery);
@@ -349,6 +360,7 @@ function move2NextPhase($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, $NoR
 				$Update
 					= "UPDATE Finals SET "
 					. "FinAthlete=" . StrSafe_DB($AthProp) . ", "
+                    . "FinCoach=" . StrSafe_DB($CoachProp) . ", "
 					. "FinDateTime=" . StrSafe_DB($AthPropTs) . " "
 					. ($AthProp==0 ? ', FinWinLose=0 ' : '')
 					. "WHERE FinAthlete IN (" . $OldId . ") "
@@ -577,7 +589,7 @@ function move2NextPhaseTeam($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, 
 
 	$Select = "SELECT
 			tf.TfEvent AS Event, tf.TfMatchNo, tf2.TfMatchNo OppMatchNo,
-			GrPhase, tf.TfTeam AS Team,tf.TfSubTeam AS SubTeam, tf2.TfTeam AS OppTeam,tf2.TfSubTeam AS OppSubTeam,
+			GrPhase, tf.TfTeam AS Team,tf.TfSubTeam AS SubTeam, tf.TfCoach as Coach, tf2.TfTeam AS OppTeam,tf2.TfSubTeam AS OppSubTeam, tf2.TfCoach as OppCoach, 
 			IF(EvMatchMode=0,tf.TfScore,tf.TfSetScore) AS Score, tf.TfTie as Tie, IF(EvMatchMode=0,tf2.TfScore,tf2.TfSetScore) as OppScore, tf2.TfTie as OppTie,
 			IF(GrPhase>2, FLOOR(tf.TfMatchNo/2),FLOOR(tf.TfMatchNo/2)-2) AS NextMatchNo
 		FROM TeamFinals AS tf
@@ -615,6 +627,7 @@ function move2NextPhaseTeam($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, 
 
 			$AthProp = '0';
 			$AthSubProp = '0';
+            $CoachProp = '0';
 			$WhereProp = '0';
 			$WhereSubProp = '0';
 
@@ -627,12 +640,14 @@ function move2NextPhaseTeam($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, 
 					$MyUpQuery = "UPDATE TeamFinals SET
 						TfTeam =" . StrSafe_DB($MyRow->Team) . ",
 						TfSubTeam =" . StrSafe_DB($MyRow->SubTeam) . ",
+						TfCoach =" . StrSafe_DB($MyRow->Coach) . ",
 						TfDateTime=" . StrSafe_DB($AthPropTs) . "
 						WHERE TfEvent=" . StrSafe_DB($MyRow->Event) . " AND TfMatchNo=" . StrSafe_DB($MyRow->NextMatchNo) . " AND TfTournament=" . StrSafe_DB($TourId) . " ";
 					safe_w_sql($MyUpQuery);
 
 					$AthProp=$MyRow->Team;
 					$AthSubProp=$MyRow->SubTeam;
+                    $CoachProp=$MyRow->Coach;
 					$WhereProp=$MyRow->OppTeam;
 					$WhereSubProp=$MyRow->OppSubTeam;
 
@@ -640,6 +655,7 @@ function move2NextPhaseTeam($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, 
 						$MyUpQuery = "UPDATE TeamFinals SET ";
 						$MyUpQuery.= "TfTeam =" . StrSafe_DB($MyRow->OppTeam) . ", ";
 						$MyUpQuery.= "TfSubTeam =" . StrSafe_DB($MyRow->OppSubTeam) . ", ";
+                        $MyUpQuery.= "TfCoach =" . StrSafe_DB($MyRow->OppCoach) . ", ";
 						$MyUpQuery.= "TfDateTime=" . StrSafe_DB($AthPropTs) . " ";
 						$MyUpQuery.= "WHERE TfEvent=" . StrSafe_DB($MyRow->Event) . " AND TfMatchNo=" . StrSafe_DB(($MyRow->NextMatchNo+2)) . " AND TfTournament=" . StrSafe_DB($TourId) . " ";
 						$RsUp=safe_w_sql($MyUpQuery);
@@ -651,12 +667,14 @@ function move2NextPhaseTeam($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, 
 					$MyUpQuery = "UPDATE TeamFinals SET ";
 					$MyUpQuery.= "TfTeam =" . StrSafe_DB($MyRow->OppTeam) . ", ";
 					$MyUpQuery.= "TfSubTeam =" . StrSafe_DB($MyRow->OppSubTeam) . ", ";
+                    $MyUpQuery.= "TfCoach =" . StrSafe_DB($MyRow->OppCoach) . ", ";
 					$MyUpQuery.= "TfDateTime=" . StrSafe_DB($AthPropTs) . " ";
 					$MyUpQuery.= "WHERE TfEvent=" . StrSafe_DB($MyRow->Event) . " AND TfMatchNo=" . StrSafe_DB($MyRow->NextMatchNo) . " AND TfTournament=" . StrSafe_DB($TourId) . " ";
 					$RsUp=safe_w_sql($MyUpQuery);
 
 					$AthProp=$MyRow->OppTeam;
 					$AthSubProp=$MyRow->OppSubTeam;
+                    $CoachProp=$MyRow->OppCoach;
 					$WhereProp=$MyRow->Team;
 					$WhereSubProp=$MyRow->SubTeam;
 					if($MyRow->GrPhase==2)
@@ -664,6 +682,7 @@ function move2NextPhaseTeam($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, 
 						$MyUpQuery = "UPDATE TeamFinals SET ";
 						$MyUpQuery.= "TfTeam =" . StrSafe_DB($MyRow->Team) . ", ";
 						$MyUpQuery.= "TfSubTeam =" . StrSafe_DB($MyRow->SubTeam) . ", ";
+                        $MyUpQuery.= "TfCoach =" . StrSafe_DB($MyRow->Coach) . ", ";
 						$MyUpQuery.= "TfDateTime=" . StrSafe_DB($AthPropTs) . " ";
 						$MyUpQuery.= "WHERE TfEvent=" . StrSafe_DB($MyRow->Event) . " AND TfMatchNo=" . StrSafe_DB(($MyRow->NextMatchNo+2)) . " AND TfTournament=" . StrSafe_DB($TourId) . " ";
 						$RsUp=safe_w_sql($MyUpQuery);
@@ -672,17 +691,19 @@ function move2NextPhaseTeam($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, 
 			} else {
 				if ($MyRow->GrPhase>=2) {
 					$MyUpQuery = "UPDATE TeamFinals SET ";
-					$MyUpQuery.= "TfTeam ='0', ";
-					$MyUpQuery.= "TfSubTeam ='0', ";
+					$MyUpQuery.= "TfTeam = 0, ";
+					$MyUpQuery.= "TfSubTeam =0, ";
+                    $MyUpQuery.= "TfCoach = 0, ";
 					$MyUpQuery.= "TfDateTime=" . StrSafe_DB($AthPropTs) . " ";
 					$MyUpQuery.= "WHERE TfEvent=" . StrSafe_DB($MyRow->Event) . " AND TfMatchNo=" . StrSafe_DB($MyRow->NextMatchNo) . " AND TfTournament=" . StrSafe_DB($TourId) . " ";
 					$RsUp=safe_w_sql($MyUpQuery);
 
 					if($MyRow->GrPhase==2) {
 						$MyUpQuery = "UPDATE TeamFinals SET ";
-						$MyUpQuery.= "TfWinLose ='0', ";
-						$MyUpQuery.= "TfTeam ='0', ";
-						$MyUpQuery.= "TfSubTeam ='0', ";
+						$MyUpQuery.= "TfWinLose = 0, ";
+						$MyUpQuery.= "TfTeam = 0, ";
+						$MyUpQuery.= "TfSubTeam = 0 , ";
+                        $MyUpQuery.= "TfCoach = 0, ";
 						$MyUpQuery.= "TfDateTime=" . StrSafe_DB($AthPropTs) . " ";
 						$MyUpQuery.= "WHERE TfEvent=" . StrSafe_DB($MyRow->Event) . " AND TfMatchNo=" . StrSafe_DB(($MyRow->NextMatchNo+2)) . " AND TfTournament=" . StrSafe_DB($TourId) . " ";
 						$RsUp=safe_w_sql($MyUpQuery);
@@ -700,6 +721,7 @@ function move2NextPhaseTeam($Phase=NULL, $Event=NULL, $MatchNo=NULL, $TourId=0, 
 				= "UPDATE TeamFinals SET "
 				. "TfTeam=" . StrSafe_DB($AthProp) . ", "
 				. "TfSubTeam=" . StrSafe_DB($AthSubProp) . ", "
+                . "TfCoach=" . StrSafe_DB($CoachProp) . ", "
 				. "TfDateTime=" . StrSafe_DB($AthPropTs) . " "
 				. ($AthProp==0 ? ', TfWinLose=0 ' : '')
 				. "WHERE TfTeam IN (" . $OldId . ") "

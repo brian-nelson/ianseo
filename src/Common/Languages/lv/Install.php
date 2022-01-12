@@ -137,7 +137,6 @@ $lang['Setup-ARLEF']='LEF noteikumi';
 $lang['Setup-CA']='Kanādas sacensību noteikumi';
 $lang['Setup-CH']='Šveices sacensībau noteikumi';
 $lang['Setup-Default']='Starptautiskas sacensības (WA noteikumi)';
-$lang['Setup-F2F']='Face2Face';
 $lang['Setup-NFAA']='NFAA sacensībau noteikumi';
 $lang['Setup-NL']='Dāņu sacensību noteikumi';
 $lang['Setup-NO']='Norvēģu sacensības';

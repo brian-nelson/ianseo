@@ -37,11 +37,13 @@
 .Confirmed th {background-color: #00C000!important;}
 
 [id^="SvgEndL_"] circle {
-    fill: url(#gradLeft);
+    /*fill: url(#gradLeft);*/
+    fill: url(#gradArrow);
 }
 
 [id^="SvgEndR_"] circle {
-    fill: url(#gradRight);
+    /*fill: url(#gradRight);*/
+    fill: url(#gradArrow);
 }
 
 .ActiveArrow {background-color: #ff7870;}

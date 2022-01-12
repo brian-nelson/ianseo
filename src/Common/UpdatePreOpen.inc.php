@@ -1,5 +1,4 @@
 <?php
-include_once('F2FGrid.inc.php');
 include_once('UpdateFunctions.inc.php');
 
 function UpdatePreOpen($TournamentID) {
@@ -45,12 +44,6 @@ function UpdatePreOpen($TournamentID) {
 	if($version<'2012-01-11 10:20:00') {
 		Update3DIta_20120111($TournamentID);
 		to_save_version($TournamentID,'2012-01-11 10:20:00');
-	}
-
-	if($version<'2012-01-24 15:16:00') {
-		$q=insertIntoGridForF2F_21($TournamentID);
-		$rs2=safe_w_sql($q,false,array(1062));
-		to_save_version($TournamentID,'2012-01-24 15:16:00');
 	}
 
 	if($version<'2012-05-18 07:10:00') {
@@ -157,6 +150,11 @@ function UpdatePreOpen($TournamentID) {
     if($version<'2020-05-19 15:25:01') {
 	    updateTbDecoded_20200519($TournamentID);
         to_save_version($TournamentID, '2020-05-19 15:25:00');
+    }
+
+    if($version<'2021-05-15 18:13:01') {
+	    updateContacts_20210515($TournamentID);
+        to_save_version($TournamentID, '2021-05-15 18:13:01');
     }
 
     to_save_version($TournamentID, $DbVersion);

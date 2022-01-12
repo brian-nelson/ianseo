@@ -1,5 +1,5 @@
 <?php
-$lang['API-ConfirmDeleteRow']='Ste si istý že chcete vymazať tento riadok';
+$lang['API-ConfirmDeleteRow']='Ste si istý že chcete vymazať tento riadok?';
 $lang['API-TargetGrouping']='Spájanie Terčovníc';
 $lang['API-Targets']='Terčovnice';
 $lang['AutoImport']='Automatický import';

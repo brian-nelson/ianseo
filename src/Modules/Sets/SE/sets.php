@@ -11,9 +11,17 @@ foreach($AllowedTypes as $val) {
 	$SetType['SE']['types']["$val"]=$TourTypes[$val];
 }
 
+// Subrules for tourtype 11 (3D)
 $SetType['SE']['rules']["11"]=array(
 		'Set1Dist1Arrow',
 		'Set1Dist2Arrow',
+        'Set1Dist2ArrowPayPlay'
+);
+
+// Subrules for tourtype 10 (Field 24 targets)
+$SetType['SE']['rules']["10"]=array(
+    'Field24Normal',
+    'Field24PayPlay'
 );
 
 /*

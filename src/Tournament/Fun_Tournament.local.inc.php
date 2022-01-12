@@ -25,6 +25,7 @@ require_once('Common/Fun_Phases.inc.php');
 		'd_ToCommitee' 		=> array('Func' => 'StrNotEmpty', 'Error' => false),
 		'd_ToComDescr' 		=> array('Func' => 'StrNotEmpty', 'Error' => false),
 		'd_ToWhere' 		=> array('Func' => 'StrNotEmpty', 'Error' => false),
+		'd_ToCountry' 		=> array('Func' => 'StrNotEmpty', 'Error' => false),
 		'd_ToTimeZone'		=> array('Func' => 'GoodTimezone', 'Error' => false),
 		'x_ToWhenFrom' 		=> array('Func' => 'GoodDate', 'Error' => false, 'Value' => (isset($_REQUEST['xx_ToWhenFromYear']) ? $_REQUEST['xx_ToWhenFromYear'] : '0000') . '-' . (isset($_REQUEST['xx_ToWhenFromMonth']) ? $_REQUEST['xx_ToWhenFromMonth'] : '00') . '-' . (isset($_REQUEST['xx_ToWhenFromDay']) ?  $_REQUEST['xx_ToWhenFromDay'] : '00')),
 		'x_ToWhenTo'		=> array('Func' => 'GoodDate', 'Error' => false, 'Value' => (isset($_REQUEST['xx_ToWhenToYear']) ? $_REQUEST['xx_ToWhenToYear'] : '0000') . '-' . (isset($_REQUEST['xx_ToWhenToMonth']) ? $_REQUEST['xx_ToWhenToMonth'] : '00') . '-' . (isset($_REQUEST['xx_ToWhenToDay']) ? $_REQUEST['xx_ToWhenToDay'] : '00')),
@@ -187,30 +188,17 @@ require_once('Common/Fun_Phases.inc.php');
 
 		$Arr_List = explode(',',$StrList);
 
-		if (debug)
-		{
-			print '<pre>';
-			print_r($Arr_List);
-			print '</pre>';
-		}
 	// paddo a due le eventuali classi con una lettera
 		//foreach ($Arr_List as $Key => $Value)
 		for ($i=0;$i<count($Arr_List);++$i)
-			if (strlen(trim($Arr_List[$i]))<=2 && trim($Arr_List[$i])!='')
+			if (strlen(trim($Arr_List[$i]))<=6 && trim($Arr_List[$i])!='')
 				$Arr_List[$i]=$Arr_List[$i];
 			else	// se l'elemento non va bene, lo tolgo
 				array_splice($Arr_List,$i,1);
 
-		if (debug)
-		{
-			print '<pre>';
-			print_r($Arr_List);
-			print '</pre>';
-		}
 
 	// rigenero la lista
 		$StrList = implode(',',$Arr_List);
-		if (debug) print $StrList . '<br>';
 		return $StrList;
 	}
 
@@ -526,7 +514,7 @@ require_once('Common/Fun_Phases.inc.php');
 		$MyQuery = "SELECT EvCode, EvFinalFirstPhase, EvEventName, EvFinalPrintHead,EvMatchMode,EvMatchArrowsNo  ";
 		$MyQuery.= "FROM Events ";
 		$MyQuery.= "WHERE EvTournament = " . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent=0 ";
-		if (!is_null($Event) && preg_match("/^[0-9A-Z]{1,4}$/i",$Event))
+		if (!is_null($Event) && preg_match("/^[0-9A-Z]+$/i",$Event))
 			$MyQuery.= "AND EvCode LIKE '" . $Event . "' ";
 		$MyQuery.= "ORDER BY  EvProgr ASC, EvCode ";
 		$RsEv=safe_r_sql($MyQuery);
@@ -613,8 +601,6 @@ require_once('Common/Fun_Phases.inc.php');
 				$MyQuery .= "WHERE FinTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND FinEvent=" . StrSafe_DB($MyRowEv->EvCode) . " ";
 				$MyQuery .= "GROUP BY FinAthlete, CONCAT_WS(' ', EnFirstName, EnName), CoCode, CoName ";
 				$MyQuery .= "ORDER BY FinEvent, LastPhase ASC " . $Tmp . ", IndRank ASC";
-				///*Debug*/echo $MyQuery. "<br>&nbsp;<br>";
-				//print '<br><br>'.$MyQuery.'<br><br>';
 				$Rs=safe_r_sql($MyQuery);
 				$MyPos=0;
 //				$MyRank=0;
@@ -944,7 +930,7 @@ require_once('Common/Fun_Phases.inc.php');
 		$MyQuery = "SELECT EvCode, EvFinalFirstPhase, EvEventName, EvFinalPrintHead,EvMatchMode,EvMatchArrowsNo,EvMixedTeam ";
 		$MyQuery.= "FROM Events ";
 		$MyQuery.= "WHERE EvTournament = " . StrSafe_DB($_SESSION['TourId']) . " AND EvTeamEvent=1 ";
-		if (!is_null($Event) && preg_match("/^[0-9A-Z]{1,4}$/i",$Event))
+		if (!is_null($Event) && preg_match("/^[0-9A-Z]+$/i",$Event))
 			$MyQuery.= "AND EvCode LIKE '" . $Event . "' ";
 		$MyQuery.= "ORDER BY  EvProgr ASC, EvCode ";
 		$RsEv=safe_r_sql($MyQuery);

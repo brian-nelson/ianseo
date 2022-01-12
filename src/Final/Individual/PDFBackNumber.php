@@ -18,7 +18,7 @@
         . ' LEFT JOIN Entries ON FinAthlete=EnId AND FinTournament=EnTournament'
         . ' LEFT JOIN Countries on EnCountry=CoId AND EnTournament=CoTournament'
         . ' WHERE EvTournament=' . StrSafe_DB($_SESSION['TourId']) . ' AND EvTeamEvent=0 AND IF(EvFinalFirstPhase=48, GrPosition2, if(GrPosition>EvNumQualified, 0, GrPosition))>0 ';
-	if (isset($_REQUEST['Event']) && preg_match("/^[0-9A-Z]{1,4}$/i",$_REQUEST["Event"]))
+	if (isset($_REQUEST['Event']) && preg_match("/^[0-9A-Z]+$/i",$_REQUEST["Event"]))
 		$MyQuery.= "AND EvCode LIKE '" . $_REQUEST['Event'] . "' ";
 	if (isset($_REQUEST['noByes']))
 		$MyQuery.= "AND FinAthlete != 0 ";

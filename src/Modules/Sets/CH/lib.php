@@ -193,6 +193,7 @@ function CreateStandardEvents($TourId, $TourType, $SubRule, $Outdoor=true) {
 	}
 	/* End of edit by Ramon */
 
+	/* Team Events for Indoor 18m */
 	if($TourType===6) {
 		//$i=1;
 		foreach($ChDivisions as $cD => $D) {
@@ -204,7 +205,7 @@ function CreateStandardEvents($TourId, $TourType, $SubRule, $Outdoor=true) {
 		}
 	}
 	
-	/* Ramon Keller 11.05.2017: Team Events for Indoor 25m */
+	/* Team Events for Indoor 25m */
 	if($TourType===7) {
 		//$i=1;
 		foreach($ChDivisions as $cD => $D) {
@@ -213,8 +214,134 @@ function CreateStandardEvents($TourId, $TourType, $SubRule, $Outdoor=true) {
 			CreateEvent($TourId, $i++, 1, 0, 0, $Target, 4, 6, 3, 4, 6, 3, $cD.'JT', $D . ' Team Jeunes', ($cD=='C' ? 0 : 1), 240, 0, 0, 0, '', '', 80, 25);
 		}
 	}
-	/* End of edit by Ramon */
-	
+
+	/* Individual & Team Events for Field */
+	if($TourType===9){
+		// IMPORTANT:
+		// Event configurations for FIELD are only required in order to have a calculation base for
+		// the SwissArchery 'SAA Diploma' custom module.
+		// SwissArchery currently does not execute any eliminations or finals in FIELD.
+
+		// Individual Events
+		$SettingsInd=array(
+			'EvFinalFirstPhase' => '0',
+			'EvFinalTargetType'=>TGT_FIELD,
+			'EvElimEnds'=>12,
+			'EvElimArrows'=>3,
+			'EvElimSO'=>1,
+			'EvFinEnds'=>4,
+			'EvFinArrows'=>3,
+			'EvFinSO'=>1,
+			'EvElimType'=>2,
+			'EvElim1'=>16,
+			'EvE1Ends'=>12,
+			'EvE1Arrows'=>3,
+			'EvE1SO'=>1,
+			'EvElim2'=>8,
+			'EvE2Ends'=>8,
+			'EvE2Arrows'=>3,
+			'EvE2SO'=>1,
+			'EvFinalAthTarget'=>0,
+			'EvMatchArrowsNo'=>0
+		);
+		$SettingsTeam=array(
+			'EvTeamEvent' => '1',
+			'EvFinalFirstPhase' => '0',
+			'EvFinalTargetType'=>TGT_FIELD,
+			'EvElimEnds'=>8,
+			'EvElimArrows'=>3,
+			'EvElimSO'=>3,
+			'EvFinEnds'=>4,
+			'EvFinArrows'=>3,
+			'EvFinSO'=>3,
+			'EvFinalAthTarget'=>15,
+			'EvMatchArrowsNo'=>FINAL_FROM_2,
+		);
+
+		// Loop through all official divisions and classes and create their events
+		foreach ($ChDivisions as $cD => $D) {
+			foreach ( $ChClasses as $cC => $C ) {
+				CreateEventNew( $TourId, $cD . $cC, "$D $C", $i ++, $SettingsInd );
+
+			}
+		}
+
+		foreach ($ChDivisions as $cD => $D) {
+			// Team Events
+			switch($cD){
+				case 'R':
+				case 'C':
+				case 'BB':
+				case 'BH':
+					CreateEventNew($TourId, $cD.'JT', "$D Team Jeunes", $i++, $SettingsTeam); // U11 - U15
+					CreateEventNew($TourId, $cD.'CT', "$D Team Cadets", $i++, $SettingsTeam); // U18
+					CreateEventNew($TourId, $cD, "$D Team", $i++, $SettingsTeam); // U21 - Master
+					break;
+				case 'LB':
+					CreateEventNew($TourId, $cD.'JT', "$D Team Jeunes", $i++, $SettingsTeam); // U11 - U15
+					CreateEventNew($TourId, $cD.'T', "$D Team", $i++, $SettingsTeam); // U18 - Master
+					break;
+				default:
+					break;
+			}
+
+		}
+	}
+
+	/* Individual & Team Events for 3D */
+	if($TourType===11) {
+		// IMPORTANT:
+		// Event configurations for 3D are only required in order to have a calculation base for
+		// the SwissArchery 'SAA Diploma' custom module.
+		// SwissArchery currently does not execute any eliminations or finals in FIELD.
+
+		// Individual Events
+		$SettingsInd = array(
+			'EvFinalFirstPhase' => '0',
+			'EvFinalTargetType' => TGT_3D,
+			'EvElimEnds' => 12,
+			'EvElimArrows' => 1,
+			'EvElimSO' => 1,
+			'EvFinEnds' => 4,
+			'EvFinArrows' => 1,
+			'EvFinSO' => 1,
+			'EvElimType' => 2,
+			'EvElim1' => 16,
+			'EvE1Ends' => 12,
+			'EvE1Arrows' => 1,
+			'EvE1SO' => 1,
+			'EvElim2' => 8,
+			'EvE2Ends' => 8,
+			'EvE2Arrows' => 1,
+			'EvE2SO' => 1,
+			'EvFinalAthTarget' => MATCH_NO_SEP,
+			'EvMatchArrowsNo' => FINAL_FROM_2
+		);
+		$SettingsTeam = array(
+			'EvTeamEvent' => '1',
+			'EvFinalFirstPhase' => '0',
+			'EvFinalTargetType' => TGT_3D,
+			'EvElimEnds' => 8,
+			'EvElimArrows' => 3,
+			'EvElimSO' => 3,
+			'EvFinEnds' => 4,
+			'EvFinArrows' => 3,
+			'EvFinSO' => 3,
+			'EvFinalAthTarget' => MATCH_NO_SEP,
+			'EvMatchArrowsNo' => FINAL_FROM_2,
+		);
+
+		foreach ($ChDivisions as $cD => $D){
+			foreach ($ChClasses as $cC => $C) {
+				CreateEventNew($TourId, $cD.$cC, "$D $C", $i++, $SettingsInd);
+			}
+		}
+
+		foreach ($ChDivisions as $cD => $D) {
+			CreateEventNew($TourId, $cD.'JT', "$D Team Jeunes", $i++, $SettingsTeam); // U11 - U15
+			CreateEventNew($TourId, $cD.'T', "$D Team", $i++, $SettingsTeam); // U18 - Master
+		}
+	}
 }
 
 function InsertStandardEvents($TourId, $TourType, $SubRule, $Outdoor=true) {
@@ -258,6 +385,44 @@ function InsertStandardEvents($TourId, $TourType, $SubRule, $Outdoor=true) {
 				
 			}
 			
+		}
+	} else if($TourType===9){
+		// Field
+		foreach($ChDivisions as $cD => $D){
+			foreach($ChClasses as $cC => $C){
+				InsertClassEvent($TourId, 0, 1, $cD.$cC, $cD, $cC);
+
+				if(in_array($cC, array('JE','MI','PI'))){
+					// JE,MI,PI of all Divisions
+					InsertClassEvent($TourId, 1, 3, $cD.'JT', $cD, $cC);
+				} else if(in_array($cD, array('R','C','BB','BH'))){
+					// All R|C|BB|BH except JE,MI,PI
+					if(in_array($cC, array('JD','JH','D','H','VD','VH'))){
+						// All Except Cadets
+						InsertClassEvent($TourId, 1, 3, $cD.'T', $cD, $cC);
+					} else {
+						// Cadets
+						InsertClassEvent($TourId, 1, 3, $cD.'CT', $cD, $cC);
+					}
+				} else if($cD === 'LB'){
+					// All LB except JE,MI,PI
+					InsertClassEvent($TourId, 1, 3, $cD, $cD, $cC);
+				}
+			}
+		}
+	} else if($TourType===11){
+		// 3D
+		foreach ($ChDivisions as $cD => $D){
+			foreach ($ChClasses as $cC => $C){
+				InsertClassEvent($TourId, 0, 1, $cD.$cC, $cD, $cC);
+
+				if(in_array($cC, array('JE','MI','PI'))){
+					// JE,MI,PI of all Divisions
+					InsertClassEvent($TourId, 1, 3, $cD.'JT', $cD, $cC);
+				} else if(in_array($cC, array('CD','CH','JD','JH','D','H','VD','VH'))){
+					InsertClassEvent($TourId, 1, 3, $cD.'T', $cD, $cC);
+				}
+			}
 		}
 	}
 	

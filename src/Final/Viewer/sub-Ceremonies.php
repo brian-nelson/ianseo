@@ -90,11 +90,18 @@ if(count($data)>0) {
             $Special2 = get_text_eval(getModuleParameter('Awards', 'Aw-Special-2'), getModuleParameter('Awards', 'Aw-Awarder-2-' . $v));
             continue;
         }
-        list($Name, $Title) = @explode(',', getModuleParameter('Awards', 'Aw-Awarder-1-' . $v), 2);
+        $Name = '';
+        $Title = '';
+        if(getModuleParameter('Awards', 'Aw-Awarder-1-' . $v)) {
+            list($Name, $Title) = @explode(',', getModuleParameter('Awards', 'Aw-Awarder-1-' . $v), 2);
+        }
         $Ceremonies[0] .= '<div class="ceremoniesDiv">' . get_text_eval(getModuleParameter('Awards', 'Aw-Award-1-' . $k), $Title) . '</div>';
         $Ceremonies[0] .= '<div class="ceremoniesHighLight">' . $Name . '</div>';
         if ($SecondLang) {
-            list(, $Title) = @explode(',', getModuleParameter('Awards', 'Aw-Awarder-2-' . $v), 2);
+            $Title = '';
+            if(getModuleParameter('Awards', 'Aw-Awarder-2-' . $v)) {
+                list(, $Title) = @explode(',', getModuleParameter('Awards', 'Aw-Awarder-2-' . $v), 2);
+            }
             $Ceremonies[1] .= '<div class="ceremoniesDiv">' . get_text_eval(getModuleParameter('Awards', 'Aw-Award-2-' . $k), $Title) . '</div>';
             $Ceremonies[1] .= '<div class="ceremoniesHighLight">&nbsp;</div>';
         }

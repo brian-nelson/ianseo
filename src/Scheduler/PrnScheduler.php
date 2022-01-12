@@ -17,7 +17,7 @@ if(!empty($_REQUEST["FinalSchedule"]) OR !empty($_REQUEST["DailySchedule"])) {
 	if(isset($_REQUEST['Finalists'])) {
 		$Gets[]='teamcomponents';
 	}
-    if(isset($_REQUEST['FromDayDay'])) {
+    if(isset($_REQUEST['FromDayDay']) and !empty($_REQUEST['FromDayDay'])) {
         $Gets[]='FromDayDay='.$_REQUEST['FromDayDay'];
     }
 	header('Location: OrisSchedule.php?'.implode('&', $Gets));

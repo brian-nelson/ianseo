@@ -5,7 +5,7 @@
 	require_once('Common/Fun_FormatText.inc.php');
 	require_once('Qualification/Fun_Qualification.local.inc.php');
 
-	if(isset($_REQUEST['Event']) && preg_match("/^[A-Z0-9]{1,4}_[0,1]_[1,2,3]$/i", $_REQUEST['Event']))
+	if(isset($_REQUEST['Event']) && preg_match("/^[A-Z0-9]+_[0,1]_[1,2,3]$/i", $_REQUEST['Event']))
 	{
 		list($tmpEvent,$tmpTeam,$tmpEventType) = explode('_', $_REQUEST['Event']);
 		$MyQuery = "UPDATE Events "

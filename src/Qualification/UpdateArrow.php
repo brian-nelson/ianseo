@@ -39,6 +39,8 @@
 	$Xnine=0;
 	$CurEndScore=0;
 
+	$Updated=0;
+
 // Vars per rank e teams
 	$Evento = '';
 	$Category='';
@@ -93,6 +95,7 @@
 				if ($Value2Write=='') {
                     $Errore = 1;
                 } else {
+					$MustUpdateZeroValue=($Value2Write=='A' and $ArrowString[$_REQUEST['Index']]!=$Value2Write);
 					$ArrowString[$_REQUEST['Index']]=$Value2Write;
 					$CurEndScore=ValutaArrowString(substr($ArrowString, intval($_REQUEST['Index']/$MyRow->DiArrows)*$MyRow->DiArrows, $MyRow->DiArrows));
 
@@ -115,7 +118,7 @@
                         $OldXNine=$MyRow->OldXnine;
                         $OldHits=$MyRow->OldHits;
 
-                        if($OldValue != $CurScore OR $OldGold != $CurGold OR $OldXNine != $CurXNine OR $OldHits != strlen(rtrim($ArrowString))) {
+                        if($MustUpdateZeroValue or $OldValue != $CurScore OR $OldGold != $CurGold OR $OldXNine != $CurXNine OR $OldHits != strlen(rtrim($ArrowString))) {
 					// Aggiorno i totali della distanza
                             $Update
                                 = "UPDATE Qualifications SET "
@@ -132,104 +135,107 @@
                                 . "QuTimestamp=" . StrSafe_DB(date('Y-m-d H:i:s')) . " "
                                 . "WHERE QuId=" . StrSafe_DB($_REQUEST['Id']) . " ";
                             $RsUp=safe_w_sql($Update);
+                            $Updated=safe_w_affected_rows();
 
-	                        runJack("QualArrUpdate", $_SESSION['TourId'], array("Dist"=>$_REQUEST['Dist'] ,"Index"=>$_REQUEST['Index'] ,"Id"=>$_REQUEST['Id'] ,"Point"=>$_REQUEST['Point'] ,"TourId"=>$_SESSION['TourId']));
+                            if(!$MustUpdateZeroValue) {
+		                        runJack("QualArrUpdate", $_SESSION['TourId'], array("Dist"=>$_REQUEST['Dist'] ,"Index"=>$_REQUEST['Index'] ,"Id"=>$_REQUEST['Id'] ,"Point"=>$_REQUEST['Point'] ,"TourId"=>$_SESSION['TourId']));
 
-	                        if($PageOutput!='JSON' or !$BlockApi) {
-                                if (safe_w_affected_rows() == 1 && $OldValue != $CurScore) {
+		                        if($PageOutput!='JSON' or !$BlockApi) {
+	                                if (safe_w_affected_rows() == 1 && $OldValue != $CurScore) {
 
-                                    $q = "SELECT DISTINCT EvCode,EvTeamEvent
-                                        FROM Events
-                                        INNER JOIN EventClass ON EvCode=EcCode AND if(EvTeamEvent=0, EcTeamEvent=0, EcTeamEvent>0) AND EcTournament={$_SESSION['TourId']}
-                                        INNER JOIN Entries ON EcDivision=EnDivision AND EcClass=EnClass and if(EcSubClass='', true, EcSubClass=EnSubClass) AND EnId={$_REQUEST['Id']}
-                                        WHERE (EvTeamEvent='0' AND EnIndFEvent='1') OR (EvTeamEvent='1' AND EnTeamFEvent+EnTeamMixEvent>0) AND EvTournament={$_SESSION['TourId']}
-                                    ";
-                                    //print $q;exit;
-                                    $Rs = safe_r_sql($q);
+	                                    $q = "SELECT DISTINCT EvCode,EvTeamEvent
+	                                        FROM Events
+	                                        INNER JOIN EventClass ON EvCode=EcCode AND if(EvTeamEvent=0, EcTeamEvent=0, EcTeamEvent>0) AND EcTournament={$_SESSION['TourId']}
+	                                        INNER JOIN Entries ON EcDivision=EnDivision AND EcClass=EnClass and if(EcSubClass='', true, EcSubClass=EnSubClass) AND EnId={$_REQUEST['Id']}
+	                                        WHERE (EvTeamEvent='0' AND EnIndFEvent='1') OR (EvTeamEvent='1' AND EnTeamFEvent+EnTeamMixEvent>0) AND EvTournament={$_SESSION['TourId']}
+	                                    ";
+	                                    //print $q;exit;
+	                                    $Rs = safe_r_sql($q);
 
-                                    if (safe_num_rows($Rs) > 0) {
-                                        while ($row = safe_fetch($Rs)) {
-                                            ResetShootoff($row->EvCode, $row->EvTeamEvent, 0);
-                                        }
-                                    }
-                                }
+	                                    if (safe_num_rows($Rs) > 0) {
+	                                        while ($row = safe_fetch($Rs)) {
+	                                            ResetShootoff($row->EvCode, $row->EvTeamEvent, 0);
+	                                        }
+	                                    }
+	                                }
 
-                                if (!isset($_REQUEST["NoRecalc"])) {
-                                    // Calcolo la rank della distanza per l'evento
-                                    $Evento = '*#*#';
+	                                if (!isset($_REQUEST["NoRecalc"])) {
+	                                    // Calcolo la rank della distanza per l'evento
+	                                    $Evento = '*#*#';
 
-                                    $Select
-                                        = "SELECT CONCAT(EnDivision,EnClass) AS MyEvent, EnCountry as MyTeam,EnDivision,EnClass "
-                                        . "FROM Entries "
-                                        . "WHERE EnId=" . StrSafe_DB($_REQUEST['Id']) . " AND EnTournament=" . StrSafe_DB($_SESSION['TourId']) . " ";
-                                    $Rs = safe_r_sql($Select);
+	                                    $Select
+	                                        = "SELECT CONCAT(EnDivision,EnClass) AS MyEvent, EnCountry as MyTeam,EnDivision,EnClass "
+	                                        . "FROM Entries "
+	                                        . "WHERE EnId=" . StrSafe_DB($_REQUEST['Id']) . " AND EnTournament=" . StrSafe_DB($_SESSION['TourId']) . " ";
+	                                    $Rs = safe_r_sql($Select);
 
-                                    if (safe_num_rows($Rs) == 1) {
-                                        $rr = safe_fetch($Rs);
-                                        $Evento = $rr->MyEvent;
-                                        $Category = $rr->MyEvent;
-                                        $Societa = $rr->MyTeam;
-                                        $Div = $rr->EnDivision;
-                                        $Cl = $rr->EnClass;
+	                                    if (safe_num_rows($Rs) == 1) {
+	                                        $rr = safe_fetch($Rs);
+	                                        $Evento = $rr->MyEvent;
+	                                        $Category = $rr->MyEvent;
+	                                        $Societa = $rr->MyTeam;
+	                                        $Div = $rr->EnDivision;
+	                                        $Cl = $rr->EnClass;
 
-                                        if (CalcQualRank($_REQUEST['Dist'], $Evento))
-                                            $Errore = 1;
-                                    } else
-                                        $Errore = 1;
+	                                        if (CalcQualRank($_REQUEST['Dist'], $Evento))
+	                                            $Errore = 1;
+	                                    } else
+	                                        $Errore = 1;
 
-
-                                    if ($Errore == 0) {
-                                        if (debug) print $Evento . '<br>';
-                                        // se non ho errori calcolo la rank globale per l'evento
-                                        if (CalcQualRank(0, $Evento))
-                                            $Errore = 1;
-                                    }
-
-                                    // eventi di cui calcolare le rank assolute
-                                    $events4abs = array();
-                                    $q = "SELECT distinct IndEvent FROM Individuals WHERE IndTournament={$_SESSION['TourId']} AND IndId=" . StrSafe_DB($_REQUEST['Id']);
-                                    $r = safe_r_sql($q);
-
-                                    if ($r) {
-                                        while ($tmp = safe_fetch($r)) {
-                                            $events4abs[] = $tmp->IndEvent;
-                                        }
-                                    } else {
-                                        $Errore = 1;
-                                    }
-
-                                    // nuovo by simo
-                                    // rank abs di distanza
-                                    if ($Errore == 0 and $events4abs) {
-                                        if (!Obj_RankFactory::create('Abs', array('events' => $events4abs, 'dist' => $_REQUEST['Dist']))->calculate()) {
-                                            $Errore = 1;
-                                        }
-                                    }
-
-                                    // nuovo by simo
-                                    // rank abs totale
-                                    if ($Errore == 0 and $events4abs) {
-                                        if (!Obj_RankFactory::create('Abs', array('events' => $events4abs, 'dist' => 0))->calculate()) {
-                                            $Errore = 1;
-                                        }
-                                    }
-
-                                    if($MakeTeams) {
 
 	                                    if ($Errore == 0) {
-	                                        // se non ho errori calcolo le squadre
-	                                        if (MakeTeams($Societa, $Category))
+	                                        if (debug) print $Evento . '<br>';
+	                                        // se non ho errori calcolo la rank globale per l'evento
+	                                        if (CalcQualRank(0, $Evento))
 	                                            $Errore = 1;
 	                                    }
 
-	                                    if ($Errore == 0) {
-	                                        // se non ho errori calcolo le squadre assolute
-	                                        if (MakeTeamsAbs($Societa, $Div, $Cl))
-	                                            $Errore = 1;
-	                                    }
-                                    }
+	                                    // eventi di cui calcolare le rank assolute
+	                                    $events4abs = array();
+	                                    $q = "SELECT distinct IndEvent FROM Individuals WHERE IndTournament={$_SESSION['TourId']} AND IndId=" . StrSafe_DB($_REQUEST['Id']);
+	                                    $r = safe_r_sql($q);
 
-                                }
+	                                    if ($r) {
+	                                        while ($tmp = safe_fetch($r)) {
+	                                            $events4abs[] = $tmp->IndEvent;
+	                                        }
+	                                    } else {
+	                                        $Errore = 1;
+	                                    }
+
+	                                    // nuovo by simo
+	                                    // rank abs di distanza
+	                                    if ($Errore == 0 and $events4abs) {
+	                                        if (!Obj_RankFactory::create('Abs', array('events' => $events4abs, 'dist' => $_REQUEST['Dist']))->calculate()) {
+	                                            $Errore = 1;
+	                                        }
+	                                    }
+
+	                                    // nuovo by simo
+	                                    // rank abs totale
+	                                    if ($Errore == 0 and $events4abs) {
+	                                        if (!Obj_RankFactory::create('Abs', array('events' => $events4abs, 'dist' => 0))->calculate()) {
+	                                            $Errore = 1;
+	                                        }
+	                                    }
+
+	                                    if($MakeTeams) {
+
+		                                    if ($Errore == 0) {
+		                                        // se non ho errori calcolo le squadre
+		                                        if (MakeTeams($Societa, $Category))
+		                                            $Errore = 1;
+		                                    }
+
+		                                    if ($Errore == 0) {
+		                                        // se non ho errori calcolo le squadre assolute
+		                                        if (MakeTeamsAbs($Societa, $Div, $Cl))
+		                                            $Errore = 1;
+		                                    }
+	                                    }
+
+	                                }
+	                            }
                             }
 						}
                         // tiro fuori lo score totale
@@ -273,6 +279,7 @@
 			print '<gold>' . $Gold . '</gold>';
 			print '<xnine>' . $Xnine . '</xnine>';
 			print '<xvalue>' . $ScoreForX . '</xvalue>';
+			print '<updated>' . $Updated . '</updated>';
 			print '</response>';
 			break;
 		case 'JSON':
@@ -290,6 +297,7 @@
 			$JsonResult['gold']       = $Gold ;
 			$JsonResult['xnine']      = $Xnine;
 			$JsonResult['xvalue']     = $ScoreForX;
+			$JsonResult['updated']     = $Updated;
 			break;
 	}
 

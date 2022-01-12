@@ -20,12 +20,14 @@
  * 		tournament => #																					[calculate/read]
  * )
  */
-
-class Obj_Rank_FinalTeam_3_SetFRChampsD1DNAP extends Obj_Rank
+require_once('Common/Rank/Obj_Rank_FinalTeam.php');
+class Obj_Rank_FinalTeam_3_SetFRChampsD1DNAP extends Obj_Rank_FinalTeam
 {
 	var $Competitions=array();
 	var $Bonus=array();
 	var $Winners=array();
+	var $AllInOne=0;
+	var $UseParent=false;
 
 	/**
 	 * safeFilterR()
@@ -35,6 +37,10 @@ class Obj_Rank_FinalTeam_3_SetFRChampsD1DNAP extends Obj_Rank
 	 */
 	protected function safeFilterR($Field = 'TeDaEvent', $ind=false)
 	{
+		if($this->UseParent) {
+			return parent::safeFilterR();
+		}
+
 		$filter = '';
 
 		if (array_key_exists('eventsR', $this->opts)) {
@@ -56,15 +62,20 @@ class Obj_Rank_FinalTeam_3_SetFRChampsD1DNAP extends Obj_Rank
 
 	public function __construct($opts)
 	{
+		$this->UseParent=(isset($opts) and !empty($opts['eventsR']) and strlen(is_array($opts['eventsR']) ? $opts['eventsR'][0] : $opts['eventsR'])==4);
 		parent::__construct($opts);
-		$this->Bonus=getModuleParameter('FFTA', 'D1Bonus', array(), $this->tournament);
-		$this->Winners=getModuleParameter('FFTA', 'D1Winners', array(), $this->tournament);
-		if($comps=getModuleParameter('FFTA', 'ConnectedCompetitions', array(), $this->tournament)) {
-			$SQL=safe_r_sql("select ToId, if(length(ToWhere)>20, ToCode, ToWhere) as City from Tournament where ToCode in (".implode(',', StrSafe_DB($comps)).")");
-			while($r=safe_fetch($SQL)) {
-				$this->Competitions[$r->ToId]=$r->City;
-			}
-		};
+
+		if(!$this->UseParent) {
+			$this->Bonus=getModuleParameter('FFTA', 'D1Bonus', array(), $this->tournament);
+			$this->Winners=getModuleParameter('FFTA', 'D1Winners', array(), $this->tournament);
+			if($comps=getModuleParameter('FFTA', 'ConnectedCompetitions', array(), $this->tournament)) {
+				$SQL=safe_r_sql("select ToId, if(length(ToWhere)>20, ToCode, ToWhere) as City from Tournament where ToCode in (".implode(',', StrSafe_DB($comps)).")");
+				while($r=safe_fetch($SQL)) {
+					$this->Competitions[$r->ToId]=$r->City;
+				}
+			};
+			$this->AllInOne=getModuleParameter('FFTA', 'D1AllInOne', 0);
+		}
 	}
 
 	public function calculate()
@@ -82,6 +93,10 @@ class Obj_Rank_FinalTeam_3_SetFRChampsD1DNAP extends Obj_Rank
 	 */
 	public function read()
 	{
+		if($this->UseParent) {
+			parent::read();
+			return;
+		}
 		$filter = $this->safeFilterR();
 
 		$this->data['meta']['title'] = get_text('TeamFinEvent', 'Tournament');
@@ -189,62 +204,64 @@ class Obj_Rank_FinalTeam_3_SetFRChampsD1DNAP extends Obj_Rank
 		}
 
 		// get the individual matches
-		$Events = $this->safeFilterR('left(f1.FinEvent,3)');
-		$SQL = "select 
-       			truncate((f1.FinMatchNo-128)/16,0) as Game,
-       			f1.FinMatchNo as MatchNo,
-       			concat('I',right(f1.FinEvent,1)) as MatchType,
-       			left(f1.FinEvent,3) as TeamEvent,
-       			f1.FinEvent,
-				f1.FinTournament,
-                c1.CoCode as Team1,
-                c2.CoCode as Team2,
-                0 as SubTeam1,
-                0 as SubTeam2,
-                concat(e1.EnName, ' ', e1.EnFirstName) as TeamName1,
-                concat(e2.EnName, ' ', e2.EnFirstName) as TeamName2,
-                if(EvMatchMode=0, f1.FinScore, f1.FinSetScore) as Score1,
-                if(EvMatchMode=0, f2.FinScore, f2.FinSetScore) as Score2,
-                f1.FinWinLose as Winner1,
-                f2.FinWinLose as Winner2
-			from Finals f1
-			left join Entries e1 on e1.EnId=f1.FinAthlete and e1.EnTournament=f1.FinTournament
-			left join Countries c1 on c1.CoId=e1.EnCountry and c1.CoTournament=f1.FinTournament
-			inner join Finals f2 on f2.FinEvent=f1.FinEvent and f2.FinTournament=f1.FinTournament and f2.FinMatchNo=f1.FinMatchNo+1
-			left join Entries e2 on e2.EnId=f2.FinAthlete and e2.EnTournament=f2.FinTournament
-			left join Countries c2 on c2.CoId=e2.EnCountry and c2.CoTournament=f2.FinTournament
-			inner join Events on EvCode=f1.FinEvent and EvTeamEvent=0 and EvTournament=f1.FinTournament
-			inner join Tournament on ToId=f1.FinTournament
-			where f1.FinTournament in (" . implode(',', $Comps) . ") and f1.FinMatchNo%2=0 and (f1.FinAthlete!=0 or f2.FinAthlete!=0) $Events
-			order by EvProgr, ToWhenFrom, ToCode, f1.FinMatchno";
-		$q = safe_r_sql($SQL);
-		while ($r = safe_fetch($q)) {
-			if(!isset($MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo])) {
-				continue;
-			}
-			$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score1']+=$r->Winner1;
-			$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score2']+=$r->Winner2;
-
-			// sets the matchpoints
-			if($MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score1'] + $MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score2']>=5) {
-				if($MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score1']>$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score2']) {
-					$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['matchpoints1']=3;
-				} elseif($MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score1']<$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score2']) {
-					$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['matchpoints2']=3;
-				} else {
-					$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['matchpoints1']=1;
-					$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['matchpoints2']=1;
+		if(!$this->AllInOne) {
+			$Events = $this->safeFilterR('left(f1.FinEvent,3)');
+			$SQL = "select 
+	                truncate((f1.FinMatchNo-128)/16,0) as Game,
+	                f1.FinMatchNo as MatchNo,
+	                concat('I',right(f1.FinEvent,1)) as MatchType,
+	                left(f1.FinEvent,3) as TeamEvent,
+	                f1.FinEvent,
+					f1.FinTournament,
+	                c1.CoCode as Team1,
+	                c2.CoCode as Team2,
+	                0 as SubTeam1,
+	                0 as SubTeam2,
+	                concat(e1.EnName, ' ', e1.EnFirstName) as TeamName1,
+	                concat(e2.EnName, ' ', e2.EnFirstName) as TeamName2,
+	                if(EvMatchMode=0, f1.FinScore, f1.FinSetScore) as Score1,
+	                if(EvMatchMode=0, f2.FinScore, f2.FinSetScore) as Score2,
+	                f1.FinWinLose as Winner1,
+	                f2.FinWinLose as Winner2
+				from Finals f1
+				left join Entries e1 on e1.EnId=f1.FinAthlete and e1.EnTournament=f1.FinTournament
+				left join Countries c1 on c1.CoId=e1.EnCountry and c1.CoTournament=f1.FinTournament
+				inner join Finals f2 on f2.FinEvent=f1.FinEvent and f2.FinTournament=f1.FinTournament and f2.FinMatchNo=f1.FinMatchNo+1
+				left join Entries e2 on e2.EnId=f2.FinAthlete and e2.EnTournament=f2.FinTournament
+				left join Countries c2 on c2.CoId=e2.EnCountry and c2.CoTournament=f2.FinTournament
+				inner join Events on EvCode=f1.FinEvent and EvTeamEvent=0 and EvTournament=f1.FinTournament
+				inner join Tournament on ToId=f1.FinTournament
+				where f1.FinTournament in (" . implode(',', $Comps) . ") and f1.FinMatchNo%2=0 and (f1.FinAthlete!=0 or f2.FinAthlete!=0) $Events
+				order by EvProgr, ToWhenFrom, ToCode, f1.FinMatchno";
+			$q = safe_r_sql($SQL);
+			while ($r = safe_fetch($q)) {
+				if(!isset($MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo])) {
+					continue;
 				}
-			}
+				$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score1']+=$r->Winner1;
+				$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score2']+=$r->Winner2;
 
-			$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['details'][$r->MatchType]=array(
-				'Name1' => $r->TeamName1,
-				'Name2' => $r->TeamName2,
-				'score1' => $r->Score1,
-				'score2' => $r->Score2,
-				'points1' => $r->Winner1,
-				'points2' => $r->Winner2,
-			);
+				// sets the matchpoints
+				if($MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score1'] + $MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score2']>=5) {
+					if($MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score1']>$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score2']) {
+						$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['matchpoints1']=3;
+					} elseif($MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score1']<$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['score2']) {
+						$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['matchpoints2']=3;
+					} else {
+						$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['matchpoints1']=1;
+						$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['matchpoints2']=1;
+					}
+				}
+
+				$MatchDetails[$r->TeamEvent][$r->FinTournament][$r->Game+1][$r->MatchNo]['details'][$r->MatchType]=array(
+					'Name1' => $r->TeamName1,
+					'Name2' => $r->TeamName2,
+					'score1' => $r->Score1,
+					'score2' => $r->Score2,
+					'points1' => $r->Winner1,
+					'points2' => $r->Winner2,
+				);
+			}
 		}
 
 		//debug_svela($MatchDetails);
@@ -346,7 +363,7 @@ class Obj_Rank_FinalTeam_3_SetFRChampsD1DNAP extends Obj_Rank
 					$OldQual = 0;
 				}
 
-				if (!$rnk or $OldPoints > $myRow->MainPoints+$myRow->BonusPoints or $OldDiff > $myRow->WinPoints - $myRow->LoosePoints or $OldWins > $myRow->WinPoints or $OldQual > $myRow->Qualification) {
+				if (!$rnk or $OldPoints > $myRow->MainPoints+$myRow->BonusPoints or $OldDiff > $myRow->WinPoints - $myRow->LoosePoints or (!$this->AllInOne and $OldWins > $myRow->WinPoints) or $OldQual > $myRow->Qualification) {
 					$rnk = $i;
 				} else {
 					// check the direct match between old team and this team

@@ -1,7 +1,8 @@
 <?php
-$version='2017-03-18 20:53:00';
+require_once('Common/Fun_Modules.php');
+$version='2021-05-03 23:12:00';
 
-$AllowedTypes=array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 34, 35);
+$AllowedTypes=array(1,2,3,4,5,6,7,8,9,10,11,12,13,34,35,37);
 
 $SetType['NZ']['descr']=get_text('Setup-NZ', 'Install');
 $SetType['NZ']['types']=array();
@@ -16,3 +17,4 @@ foreach($AllowedTypes as $val) {
 		);
 }
 
+?>

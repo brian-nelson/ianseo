@@ -189,7 +189,10 @@ switch($TourType) {
 			CreateDistanceNew($TourId, $TourType, '%5', array(array('12m-1',12), array('12m-2',12)));
 			CreateDistanceNew($TourId, $TourType, '%4', array(array('18m-1',18), array('18m-2',18)));
 			CreateDistanceNew($TourId, $TourType, '%3', array(array('18m-1',18), array('18m-2',18)));
-			CreateDistanceNew($TourId, $TourType, '%2', array(array('18m-1',18), array('18m-2',18)));
+			CreateDistanceNew($TourId, $TourType, '_2', array(array('18m-1',18), array('18m-2',18)));
+            CreateDistanceNew($TourId, $TourType, 'LB2', array(array('18m-1',18), array('18m-2',18)));
+            CreateDistanceNew($TourId, $TourType, 'IN2', array(array('18m-1',18), array('18m-2',18)));
+            CreateDistanceNew($TourId, $TourType, 'PU2', array(array('12m-1',12), array('12m-2',18)));
 			CreateDistanceNew($TourId, $TourType, '%1', array(array('18m-1',18), array('18m-2',18)));
 		} else {
 			// Champs
@@ -202,7 +205,10 @@ switch($TourType) {
 		CreateDistanceNew($TourId, $TourType, '%5', array(array('16m-1',16), array('16m-2',16)));
 		CreateDistanceNew($TourId, $TourType, '%4', array(array('25m-1',25), array('25m-2',25)));
 		CreateDistanceNew($TourId, $TourType, '%3', array(array('25m-1',25), array('25m-2',25)));
-		CreateDistanceNew($TourId, $TourType, '%2', array(array('25m-1',25), array('25m-2',25)));
+        CreateDistanceNew($TourId, $TourType, '_2', array(array('25m-1',25), array('25m-2',25)));
+        CreateDistanceNew($TourId, $TourType, 'LB2', array(array('25m-1',25), array('25m-2',25)));
+        CreateDistanceNew($TourId, $TourType, 'IN2', array(array('25m-1',25), array('25m-2',25)));
+        CreateDistanceNew($TourId, $TourType, 'PU2', array(array('16m-1',16), array('16m-2',16)));
 		CreateDistanceNew($TourId, $TourType, '%1', array(array('25m-1',25), array('25m-2',25)));
 		break;
 	case 8:
@@ -211,7 +217,10 @@ switch($TourType) {
 		CreateDistanceNew($TourId, $TourType, '%5', array(array('16m-1',16), array('16m-2',16), array('12m-1',12), array('12m-2',12)));
 		CreateDistanceNew($TourId, $TourType, '%4', array(array('25m-1',25), array('25m-2',25), array('18m-1',18), array('18m-2',18)));
 		CreateDistanceNew($TourId, $TourType, '%3', array(array('25m-1',25), array('25m-2',25), array('18m-1',18), array('18m-2',18)));
-		CreateDistanceNew($TourId, $TourType, '%2', array(array('25m-1',25), array('25m-2',25), array('18m-1',18), array('18m-2',18)));
+		CreateDistanceNew($TourId, $TourType, '_2', array(array('25m-1',25), array('25m-2',25), array('18m-1',18), array('18m-2',18)));
+        CreateDistanceNew($TourId, $TourType, 'LB2', array(array('25m-1',25), array('25m-2',25), array('18m-1',18), array('18m-2',18)));
+        CreateDistanceNew($TourId, $TourType, 'IN2', array(array('25m-1',25), array('25m-2',25), array('18m-1',18), array('18m-2',18)));
+        CreateDistanceNew($TourId, $TourType, 'PU2', array(array('16m-1',16), array('16m-2',16), array('12m-1',12), array('12m-2',12)));
 		CreateDistanceNew($TourId, $TourType, '%1', array(array('25m-1',25), array('25m-2',25), array('18m-1',18), array('18m-2',18)));
 		break;
 	case 18:
@@ -232,13 +241,16 @@ switch($TourType) {
 		break;
 	case 22:
 		if($SubRule<3) {
-			// ordinary tournaments
-			CreateDistanceNew($TourId, $TourType, 'F6', array(array('12m',12)));
-			CreateDistanceNew($TourId, $TourType, '%5', array(array('12m',12)));
-			CreateDistanceNew($TourId, $TourType, '%4', array(array('18m',18)));
-			CreateDistanceNew($TourId, $TourType, '%3', array(array('18m',18)));
-			CreateDistanceNew($TourId, $TourType, '%2', array(array('18m',18)));
-			CreateDistanceNew($TourId, $TourType, '%1', array(array('18m',18)));
+            // ordinary tournaments
+            CreateDistanceNew($TourId, $TourType, 'F6', array(array('12m-1',12)));
+            CreateDistanceNew($TourId, $TourType, '%5', array(array('12m-1',12)));
+            CreateDistanceNew($TourId, $TourType, '%4', array(array('18m-1',18)));
+            CreateDistanceNew($TourId, $TourType, '%3', array(array('18m-1',18)));
+            CreateDistanceNew($TourId, $TourType, '_2', array(array('18m-1',18)));
+            CreateDistanceNew($TourId, $TourType, 'LB2', array(array('18m-1',18)));
+            CreateDistanceNew($TourId, $TourType, 'IN2', array(array('18m-1',18)));
+            CreateDistanceNew($TourId, $TourType, 'PU2', array(array('12m-1',12)));
+            CreateDistanceNew($TourId, $TourType, '%1', array(array('18m-1',18)));
 		} else {
 			// Champs
 			CreateDistanceNew($TourId, $TourType, '%', array(array('18m',18)));
@@ -313,31 +325,36 @@ switch($TourType) {
 			// Champs
 			CreateTargetFace($TourId, $i++, '~Standard 40', 'REG-(^R[KDH]|^B[KDH])', '1', 1, 40, 1, 40);
 			CreateTargetFace($TourId, $i++, '~Standard 40 CO', 'REG-^C[KDH]', '1', 4, 40, 4, 40);
-			CreateTargetFace($TourId, $i++, '~Standard 60', 'REG-^IN|^LB|^[^C]R', '1', 1, 60, 1, 60);
+			CreateTargetFace($TourId, $i++, '~Standard 60', 'REG-^IN|^LB|^[^C]R|^VI|^PU', '1', 1, 60, 1, 60);
 			CreateTargetFace($TourId, $i++, '~Standard 60 CO', 'REG-^CR', '1', 4, 60, 4, 60);
 //			// optional target faces
-			CreateTargetFace($TourId, $i++, 'Vegas', 'REG-^R[KDH]', '',  2, 40, 2, 40);
+			CreateTargetFace($TourId, $i++, 'Vegas', 'REG-(^R[KDH]|^B[HD]$)', '',  2, 40, 2, 40);
+            CreateTargetFace($TourId, $i++, 'Trippel 60', 'REG-(^IN[HD]$|^LB[HD]$)', '',  2, 60, 2, 60);
 		} else {
 			CreateTargetFace($TourId, $i++, '~Standard 60', '%', '1', 1, 60, 1, 60); // most of the "small" class use big targets!
-			CreateTargetFace($TourId, $i++, '~Standard 40', 'REG-^(R2|B1)', '1', 1, 40, 1, 40);
-			CreateTargetFace($TourId, $i++, '~Standard C1-C2', 'REG-C[12]', '1', 4, 40, 4, 40);
-			CreateTargetFace($TourId, $i++, '~Standard C3-C5', 'REG-C[345]', '1', 4, 60, 4, 60);
-			CreateTargetFace($TourId, $i++, '~Standard R1', 'REG-R1', '1',  2, 40, 2, 40);
+			CreateTargetFace($TourId, $i++, '~Standard 40', 'REG-^(R2|B2)', '1', 1, 40, 1, 40);
+			CreateTargetFace($TourId, $i++, '~Trippel 40 CO', 'REG-C[12]', '1', 4, 40, 4, 40);
+			CreateTargetFace($TourId, $i++, '~Trippel 60 CO', 'REG-C[345]', '1', 4, 60, 4, 60);
+            CreateTargetFace($TourId, $i++, '~Trippel 60', 'REG-^(LB1|IN1)', '1',  2, 60, 2, 60);
+			CreateTargetFace($TourId, $i++, '~Trippel 40', 'REG-^(R1|B1)', '1',  2, 40, 2, 40);
 		}
 		break;
 	case 7:
 		CreateTargetFace($TourId, $i++, '~Standard 80', '%', '1', 1, 80, 1, 80); // most of the "small" class use big targets!
 		CreateTargetFace($TourId, $i++, '~Standard 60', 'REG-^(R2|B1)', '1', 1, 60, 1, 60);
-		CreateTargetFace($TourId, $i++, '~Standard C1-C2', 'REG-C[12]', '1', 4, 60, 4, 60);
-		CreateTargetFace($TourId, $i++, '~Standard C3-C5', 'REG-C[345]', '1', 4, 80, 4, 80);
-		CreateTargetFace($TourId, $i++, '~Standard R1', 'REG-R1', '1',  2, 60, 2, 60);
+		CreateTargetFace($TourId, $i++, '~Trippel 60 CO', 'REG-C[12]', '1', 4, 60, 4, 60);
+		CreateTargetFace($TourId, $i++, '~80 6-10', 'REG-C[345]', '1', 4, 80, 4, 80);
+		CreateTargetFace($TourId, $i++, '~Trippel 60', 'REG-R1', '1',  2, 60, 2, 60);
 		break;
 	case 8:
-		CreateTargetFace($TourId, $i++, '~Standard 80', '%', '1', 1, 80, 1, 80, 1, 60, 1, 60); // most of the "small" class use big targets!
-		CreateTargetFace($TourId, $i++, '~Standard 60', 'REG-^(R2|B1)', '1', 1, 60, 1, 60, 1, 40, 1, 40);
-		CreateTargetFace($TourId, $i++, '~Standard C1-C2', 'REG-C[12]', '1', 4, 60, 4, 60, 4, 40, 4, 40);
-		CreateTargetFace($TourId, $i++, '~Standard C3-C5', 'REG-C[345]', '1', 4, 80, 4, 80, 4, 60, 4, 60);
-		CreateTargetFace($TourId, $i++, '~Standard R1', 'REG-R1', '1',  2, 60, 2, 60,  2, 40, 2, 40);
+		CreateTargetFace($TourId, $i++, '~Standard 80/60', '%', '1', 1, 80, 1, 80, 1, 60, 1, 60); // most of the "small" class use big targets!
+		CreateTargetFace($TourId, $i++, '~Standard 60/40', 'REG-R2', '1', 1, 60, 1, 60, 1, 40, 1, 40);
+        CreateTargetFace($TourId, $i++, '~Standard 60/Trippel 40', 'REG-^(B1)', '1', 1, 60, 1, 60, 2, 40, 3, 40);
+        CreateTargetFace($TourId, $i++, '~Standard 80/40', 'REG-^(B2)', '1', 1, 80, 1, 68, 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~Trippel 60/40 CO', 'REG-C[12]', '1', 4, 60, 4, 60, 4, 40, 4, 40);
+		CreateTargetFace($TourId, $i++, '~80 6-10/Trippel 60 CO', 'REG-C[345]', '1', 4, 80, 4, 80, 4, 60, 4, 60);
+		CreateTargetFace($TourId, $i++, '~Standard 80/Trippel 60', 'REG-^(LB1|IN1)', '1',  1, 80, 1, 80,  2, 60, 2, 60);
+        CreateTargetFace($TourId, $i++, '~Trippel 60/40', 'REG-^R1', '1',  2, 60, 2, 60,  2, 40, 2, 40);
 		break;
 }
 

@@ -53,7 +53,6 @@ $lang['SesOdfPeriod']='Kod Masa ODF';
 $lang['SesOdfVenue']='Kod Venue ODF';
 $lang['SessionName']='$a->Kategori $a->Jenis Pusingan';
 $lang['SourceCode']='Kod Sumber';
-$lang['TestMode']='Mod (P)engeluaran atau (P)ercubaan';
 $lang['Timetable']='Jadual Waktu';
 $lang['TMMeeting']='Mesyuarat Pengurus Pasukan';
 $lang['TypCODE']='Akhiran Kod Dokumen';

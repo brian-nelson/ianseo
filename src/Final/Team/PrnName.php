@@ -40,8 +40,8 @@ if(!empty($_REQUEST['TestCountries'])) {
 	;
 	$TeamLeaf=true;
 } else {
-	$MyQuery = 'SELECT EvCode, EvEventName, EvFinalFirstPhase, concat(TeCoId,\'-\',TeSubTeam,\'-\',TeEvent) as EnId, GrPhase, TfTarget, GrMatchNo, 
-	    CoCode, CoName Athlete, TeRank AS `Rank`, group_concat(concat(upper(EnFirstname), " ", EnName) separator "|") CoName, 
+	$MyQuery = 'SELECT distinct EvCode, EvEventName, EvFinalFirstPhase, concat(TeCoId,\'-\',TeSubTeam,\'-\',TeEvent) as EnId, GrPhase, TfTarget,  
+	    CoCode, CoName Athlete, TeRank AS `Rank`, group_concat(concat(upper(EnFirstname), " ", EnName) order by TfcOrder separator "|") CoName, 
 		NULLIF(s16.FSTarget,\'\') s16, NULLIF(s8.FSTarget,\'\') s8, NULLIF(s4.FSTarget,\'\') s4, NULLIF(s2.FSTarget,\'\') s2, NULLIF(sb.FSTarget,\'\') sBr, NULLIF(sg.FSTarget,\'\') sGo 
         FROM Events
 		INNER JOIN TeamFinals ON EvCode=TfEvent AND EvTournament=TfTournament 
@@ -78,8 +78,8 @@ if (safe_num_rows($Rs)>0) {
 
 		if(!empty($_REQUEST['TestCountries'])) {
 			$pdf->setPrintHeader(false);
-			$pdf->setPrintFooter(false);
 		}
+		$pdf->setPrintFooter(false);
 		$pdf->init($Rs);
 
 		$pdf->TargetAssignment = !empty($_REQUEST['TargetAssign']);

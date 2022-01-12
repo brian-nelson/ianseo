@@ -40,7 +40,7 @@
  * @return void
  *
  */
-	function GetSetupFile($TourId, $ToType=0, $Lang='', $SubRule='1', $subRuleName)
+	function GetSetupFile($TourId, $ToType=0, $Lang='', $SubRule='1', $subRuleName='')
 	{
 		static $ciclo=0;
 		$typeName='';

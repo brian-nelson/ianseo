@@ -146,7 +146,6 @@ $lang['Setup-CA']='Kanadiske stevner';
 $lang['Setup-CH']='Sveitsiske stevner';
 $lang['Setup-Default']='Internasjonalt stevne (WA regler)';
 $lang['Setup-DK']='Danske regler';
-$lang['Setup-F2F']='Face2Face';
 $lang['Setup-FR']='Fransk stevne';
 $lang['Setup-IT']='Italiensk stevne (FitARCO regler)';
 $lang['Setup-NFAA']='NFAA stevner';

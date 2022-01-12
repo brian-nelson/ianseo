@@ -1217,34 +1217,98 @@ function UpdateTournament($Gara) {
 
 	if($Gara['Tournament']['ToDbVersion']<'2020-11-01 15:13:01') {
 		// update records to the correct things...
-		foreach($Gara['RecTournament'] as $k => &$r) {
-			switch($r['RtRecType'].'-'.$r['RtRecCode']) {
-				case 'WR-WA': $r['RtRecCode']='WR'; unset($r['RtRecType']); break;
-				case 'OR-WA': $r['RtRecCode']='OR'; unset($r['RtRecType']); break;
-				case 'CR-EMAU': $r['RtRecCode']='WAE-CR'; unset($r['RtRecType']); break;
-				case 'CR-WAE': $r['RtRecCode']='WAE-CR'; unset($r['RtRecType']); break;
-				case 'CR-WAAM': $r['RtRecCode']='WAAM-CR'; unset($r['RtRecType']); break;
-				case 'CR-WAAS': $r['RtRecCode']='WAAS-CR'; unset($r['RtRecType']); break;
-				case 'GR-WAE-CG': $r['RtRecCode']='WAE-CG-GR'; unset($r['RtRecType']); break;
-				case 'GR-WAAM-CG': $r['RtRecCode']='WAAM-CG-GR'; unset($r['RtRecType']); break;
-				case 'GR-WAAS-CG': $r['RtRecCode']='WAAS-CG-GR'; unset($r['RtRecType']); break;
-				case 'GR-FISU': $r['RtRecCode']='FISU-GR'; unset($r['RtRecType']); break;
-			}
-		}
-		foreach($Gara['TourRecords'] as $k => &$r) {
-			switch($r['TrRecType'].'-'.$r['TrRecCode']) {
-				case 'WR-WA': $r['TrRecCode']='WR'; unset($r['TrRecType']); break;
-				case 'OR-WA': $r['TrRecCode']='OR'; unset($r['TrRecType']); break;
-				case 'CR-EMAU': $r['TrRecCode']='WAE-CR'; unset($r['TrRecType']); break;
-				case 'CR-WAE': $r['TrRecCode']='WAE-CR'; unset($r['TrRecType']); break;
-				case 'CR-WAAM': $r['TrRecCode']='WAAM-CR'; unset($r['TrRecType']); break;
-				case 'CR-WAAS': $r['TrRecCode']='WAAS-CR'; unset($r['TrRecType']); break;
-				case 'GR-WAE-CG': $r['TrRecCode']='WAE-CG-GR'; unset($r['TrRecType']); break;
-				case 'GR-WAAM-CG': $r['TrRecCode']='WAAM-CG-GR'; unset($r['TrRecType']); break;
-				case 'GR-WAAS-CG': $r['TrRecCode']='WAAS-CG-GR'; unset($r['TrRecType']); break;
-				case 'GR-FISU': $r['TrRecCode']='FISU-GR'; unset($r['TrRecType']); break;
-			}
-		}
+        if(isset($Gara['RecTournament'])) {
+            foreach ($Gara['RecTournament'] as $k => &$r) {
+                switch ($r['RtRecType'] . '-' . $r['RtRecCode']) {
+                    case 'WR-WA':
+                        $r['RtRecCode'] = 'WR';
+                        unset($r['RtRecType']);
+                        break;
+                    case 'OR-WA':
+                        $r['RtRecCode'] = 'OR';
+                        unset($r['RtRecType']);
+                        break;
+                    case 'CR-EMAU':
+                        $r['RtRecCode'] = 'WAE-CR';
+                        unset($r['RtRecType']);
+                        break;
+                    case 'CR-WAE':
+                        $r['RtRecCode'] = 'WAE-CR';
+                        unset($r['RtRecType']);
+                        break;
+                    case 'CR-WAAM':
+                        $r['RtRecCode'] = 'WAAM-CR';
+                        unset($r['RtRecType']);
+                        break;
+                    case 'CR-WAAS':
+                        $r['RtRecCode'] = 'WAAS-CR';
+                        unset($r['RtRecType']);
+                        break;
+                    case 'GR-WAE-CG':
+                        $r['RtRecCode'] = 'WAE-CG-GR';
+                        unset($r['RtRecType']);
+                        break;
+                    case 'GR-WAAM-CG':
+                        $r['RtRecCode'] = 'WAAM-CG-GR';
+                        unset($r['RtRecType']);
+                        break;
+                    case 'GR-WAAS-CG':
+                        $r['RtRecCode'] = 'WAAS-CG-GR';
+                        unset($r['RtRecType']);
+                        break;
+                    case 'GR-FISU':
+                        $r['RtRecCode'] = 'FISU-GR';
+                        unset($r['RtRecType']);
+                        break;
+                }
+            }
+        }
+        if(isset($Gara['TourRecords'])) {
+            foreach ($Gara['TourRecords'] as $k => &$r) {
+                switch ($r['TrRecType'] . '-' . $r['TrRecCode']) {
+                    case 'WR-WA':
+                        $r['TrRecCode'] = 'WR';
+                        unset($r['TrRecType']);
+                        break;
+                    case 'OR-WA':
+                        $r['TrRecCode'] = 'OR';
+                        unset($r['TrRecType']);
+                        break;
+                    case 'CR-EMAU':
+                        $r['TrRecCode'] = 'WAE-CR';
+                        unset($r['TrRecType']);
+                        break;
+                    case 'CR-WAE':
+                        $r['TrRecCode'] = 'WAE-CR';
+                        unset($r['TrRecType']);
+                        break;
+                    case 'CR-WAAM':
+                        $r['TrRecCode'] = 'WAAM-CR';
+                        unset($r['TrRecType']);
+                        break;
+                    case 'CR-WAAS':
+                        $r['TrRecCode'] = 'WAAS-CR';
+                        unset($r['TrRecType']);
+                        break;
+                    case 'GR-WAE-CG':
+                        $r['TrRecCode'] = 'WAE-CG-GR';
+                        unset($r['TrRecType']);
+                        break;
+                    case 'GR-WAAM-CG':
+                        $r['TrRecCode'] = 'WAAM-CG-GR';
+                        unset($r['TrRecType']);
+                        break;
+                    case 'GR-WAAS-CG':
+                        $r['TrRecCode'] = 'WAAS-CG-GR';
+                        unset($r['TrRecType']);
+                        break;
+                    case 'GR-FISU':
+                        $r['TrRecCode'] = 'FISU-GR';
+                        unset($r['TrRecType']);
+                        break;
+                }
+            }
+        }
 	}
 
 	if($Gara['Tournament']['ToDbVersion']<'2021-01-14 17:13:01') {
@@ -1254,6 +1318,17 @@ function UpdateTournament($Gara) {
 			$r['EmKey']=$key++;
 		}
 	}
+
+    if($Gara['Tournament']['ToDbVersion']<'2021-12-25 16:00:05') {
+        unset($Gara['F2FEntries']);
+        unset($Gara['F2FFinal']);
+        unset($Gara['F2FGrid']);
+        unset($Gara['GuessWho']);
+        unset($Gara['GuessWhoData']);
+        unset($Gara['PrintOutsRules']);
+        unset($Gara['FinTraining']);
+        unset($Gara['FinTrainingEvent']);
+    }
 
 	/*
 
@@ -1273,4 +1348,33 @@ function UpdateDivsClass(&$Gara, $TfId='1', $Divs=array(), $Class=array()) {
 		if(empty($Gara['Entries'][$key]['EnTargetFace'])) $Gara['Entries'][$key]['EnTargetFace'] = $TfId;
 	}
 }
-?>
+
+function GetNewUuidOnce() {
+	global $CFG;
+	// not blocking CURL!
+	$post=array(
+		'id' => GetParameter('UUID'),
+		'version' => ProgramVersion,
+		'release' => ProgramRelease,
+		'build' => ProgramBuild,
+		'gpl' => GetParameter('AcceptGPL'),
+	);
+	$ch = curl_init();
+	curl_setopt($ch,CURLOPT_URL, $CFG->IanseoServer.'Ianseo/uuidInit.php?'.http_build_query($post));
+	curl_setopt($ch,CURLOPT_CONNECTTIMEOUT, 2);
+	curl_setopt($ch,CURLOPT_TIMEOUT, 2);
+//        curl_setopt($ch,CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch,CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+//        curl_setopt($ch,CURLOPT_POSTFIELDS, $post);
+	$result = curl_exec($ch);
+	$opts=curl_getinfo($ch);
+	if(curl_errno($ch)==0 and $opts['http_code']==200) {
+		// we have the result hopefully
+		if($JSON=json_decode($result) and $JSON->error==0) {
+			SetParameter('UUID2', $JSON->uuid);
+            DelParameter('UUID');
+		}
+	}
+	curl_close($ch);
+}

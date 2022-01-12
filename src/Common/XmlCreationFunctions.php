@@ -390,7 +390,7 @@ function XmlCreateQualIndividual($EventRequested='') {
 	$ListHeader = NULL;
 
 	$options=array('dist'=>0);
-	if(isset($_REQUEST["Event"]) && preg_match("/^[0-9A-Z]{1,4}$/i",$_REQUEST["Event"]))
+	if(isset($_REQUEST["Event"]) && preg_match("/^[0-9A-Z]+$/i",$_REQUEST["Event"]))
 		$options['events'] = $_REQUEST["Event"];
 	if($EventRequested) $options['events']=$EventRequested;
 	if(isset($_REQUEST["MaxNum"]) && is_numeric($_REQUEST["MaxNum"]))

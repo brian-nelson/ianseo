@@ -87,13 +87,7 @@ function CheckAccreditationCode($EnCode, $Options=array(), $OnlyTour=false) {
 
 	$WAbib=preg_split("/['-]/", $EnCode);
 
-	$tmp=stripslashes($EnCode);
-
-	if (is_numeric($tmp)) {
-		$bib=ltrim($tmp,'0');
-	} else {
-		$bib = $tmp;
-	}
+    $bib=stripslashes($EnCode);
 
 	$ret=array();
 	foreach($Options as $TourId => $Sessions) {

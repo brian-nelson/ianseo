@@ -35,7 +35,8 @@ $URL=$CFG->IanseoServer.'Upload-Competition.php';
 if(empty($_SESSION['OnlineId']) or empty($_SESSION['OnlineAuth']) or empty($_SESSION['OnlineServices']) or !($_SESSION['OnlineServices']&1) or empty($_SESSION['OnlineEventCode'])) {
     // check if the credentials have been entered already
 	$return='Tournament/'.basename(__FILE__);
-	if($Credentials=getModuleParameter('SendToIanseo', 'Credentials', (object) array('OnlineId' => '', 'OnlineAuth' => '')) AND !empty($Credentials->OnlineId)) {
+    $Credentials=getModuleParameter('SendToIanseo', 'Credentials', (object)array('OnlineId' => 0, 'OnlineAuth' => ''));
+    if($Credentials and $Credentials->OnlineId>0) {
 		require_once('Common/Lib/CommonLib.php');
 		if($ErrorMessage=CheckCredentials($Credentials->OnlineId, $Credentials->OnlineAuth, $return)) {
 			safe_error($ErrorMessage);

@@ -1,4 +1,5 @@
 <?php
+$lang['API-AutoGroup']='Bulk Groups Creation';
 $lang['API-ConfirmDeleteRow']='Are you sure you want to delete this row?';
 $lang['API-DeviceGrouping']='Device Grouping';
 $lang['API-Group']='Group';
@@ -18,6 +19,7 @@ $lang['Desc-Let-Y']='End ready for import';
 $lang['Desc-Let-Z']='Scoring in progress';
 $lang['DistanceNum']='distance $a';
 $lang['FlashCodeDistance']='Scan this code in the App to score $a';
+$lang['HitToWin']='Hit to win';
 $lang['ISK-Anomalies']='Anomalies';
 $lang['ISK-AppList']='APK list';
 $lang['ISK-AppQrCode']='Print QR Installation Codes';
@@ -130,4 +132,5 @@ $lang['TVCss3Divider']='Divider';
 $lang['TVCss3Loser']='Loser modification';
 $lang['WAToolbox-MissingParams']='Missing Parameter';
 $lang['WAToolbox-NoCompCode']='Missing Competition Code';
+$lang['XToWin']='$a to win';
 ?>

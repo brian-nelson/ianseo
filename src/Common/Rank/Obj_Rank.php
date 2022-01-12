@@ -62,7 +62,7 @@
 		{
 			$this->opts=$opts;
 
-			if (array_key_exists('tournament',$this->opts)) {
+			if (is_array($this->opts) and array_key_exists('tournament',$this->opts)) {
 				$this->tournament=$this->opts['tournament'];
 			} else {
 				$this->tournament=$_SESSION['TourId'];

@@ -34,6 +34,11 @@ if(SelectLanguage()=='tlh'){
 if(empty($JS_SCRIPT)) {
     $JS_SCRIPT=array();
 }
+if(!empty($IncludeJquery)) {
+	$JS_SCRIPT[]= '<script src="'.$CFG->ROOT_DIR.'Common/js/jquery-3.2.1.min.js"></script>';
+	$JS_SCRIPT[]= '<script src="'.$CFG->ROOT_DIR.'Common/js/jquery-confirm.min.js"></script>';
+	$JS_SCRIPT[]= '<link href="'.$CFG->ROOT_DIR.'Common/css/jquery-confirm.min.css" rel="stylesheet" type="text/css">';
+}
 $JS_SCRIPT = array_merge($local_JS, $JS_SCRIPT);
 
 foreach($JS_SCRIPT as $script) {

@@ -214,8 +214,8 @@ foreach($rankData['sections'] as $Event => $section) {
 					$tmpSetPoint1.='-';
 					$tmpSetPoint2.='-';
 				}
-				$tmpSetPoint1.='T'.$Obj1->FinTiebreakDecoded;
-				$tmpSetPoint2.='T'.$Obj2->FinTiebreakDecoded;
+				$tmpSetPoint1.='T. '.$Obj1->FinTiebreakDecoded;
+				$tmpSetPoint2.='T. '.$Obj2->FinTiebreakDecoded;
 			}
 
 			if($tmpSetPoint1) {

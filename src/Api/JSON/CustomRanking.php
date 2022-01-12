@@ -44,7 +44,7 @@ switch($RankType) {
 				$TotInd = array();
 				$MaxInd = array();
 				$ExistingNOC = array();
-				$EvQualifiedNo = $QualifiedNo;
+				$EvQualifiedNo = $QualifiedNo[$ev];
 				foreach($ath as $keyAth=>$result) {
 					$validScore=array();
 					$maxScore=array();
@@ -69,21 +69,46 @@ switch($RankType) {
 				reset($MaxInd);
 			
 				//Calculate CutScore
-				$CheckQualifiedNumber = $QualifiedNo;
+                $tmpTot=array();
+                $tmpMax=array();
+                foreach ($TotInd as $k=>$v) {
+                    if(in_array(25,$ath[$k])) {
+                        $tmpTot =array($k=>$v) + $tmpTot;
+                        $qualifiedIds[] = $k;
+                        $tmp = array_count_values($ath[$k]);
+                        $QualifiedNo[$ev] += ($tmp[25]-1);
+                    } else {
+                        $tmpTot = $tmpTot + array($k=>$v);
+                    }
+                }
+                foreach ($MaxInd as $k=>$v) {
+                    if(in_array(25,$ath[$k])) {
+                        $tmpMax =array($k=>$v) + $tmpMax;
+                    } else {
+                        $tmpMax = $tmpMax + array($k=>$v);
+                    }
+                }
+				$CheckQualifiedNumber = $QualifiedNo[$ev];
 				$nocList=array();
 				for($i=1; $i<$CheckQualifiedNumber;$i++) {
-					if(!array_key_exists($AthInd[key($TotInd)][1], $nocList)) {
-						$nocList[$AthInd[key($TotInd)][1]] = 1;
+					if(!array_key_exists($AthInd[key($tmpTot)][1], $nocList)) {
+						$nocList[$AthInd[key($tmpTot)][1]] = 1;
 					} else {
-						$nocList[$AthInd[key($TotInd)][1]]++;
+						$nocList[$AthInd[key($tmpTot)][1]]++;
 					}
-					if(($nocList[$AthInd[key($TotInd)][1]]>$MaxByNoc) || ($AthInd[key($TotInd)][1]==$HostCountry && $CheckQualifiedNumber == $QualifiedNo)) {
-						$CheckQualifiedNumber++;
-					}
-					//			echo $AthInd[key($TotInd)][1] . "." . $CheckQualifiedNumber . "." . current($TotInd) . "<br>";
-					next($TotInd);
+                    if(in_array(25,$ath[key($tmpTot)])) {
+                        $CheckQualifiedNumber++;
+                    }
+                    if($AthInd[key($tmpTot)][1]==$HostCountry and $nocList[$AthInd[key($tmpTot)][1]] == $MaxByNoc) {
+                        $CheckQualifiedNumber++;
+                    }
+                    if(($nocList[$AthInd[key($tmpTot)][1]]>$MaxByNoc)) {
+                        $CheckQualifiedNumber++;
+                        $overMaxNoc[] = key($tmpTot);
+                    }
+					next($tmpTot);
 				}
-				$CutScore=current($TotInd);
+				$CutScore=current($tmpTot);
 				if($runningEvent != count($competitions)-1) {
 					$CutScore -= (count($competitions)-$runningEvent-1) * $Bonus[1];
 					if($CutScore < 0 ) {
@@ -93,26 +118,29 @@ switch($RankType) {
 				reset($TotInd);
 			
 				//Calculate SureScore[HL]
-				$CheckQualifiedNumber = $QualifiedNo;
+				$CheckQualifiedNumber = $QualifiedNo[$ev];
 				$nocList=array();
 				for($i=1; $i<$CheckQualifiedNumber;$i++) {
-					if(!array_key_exists($AthInd[key($MaxInd)][1], $nocList)) {
-						$nocList[$AthInd[key($MaxInd)][1]] = 1;
+					if(!array_key_exists($AthInd[key($tmpMax)][1], $nocList)) {
+						$nocList[$AthInd[key($tmpMax)][1]] = 1;
 					} else {
-						$nocList[$AthInd[key($MaxInd)][1]]++;
+						$nocList[$AthInd[key($tmpMax)][1]]++;
 					}
-					if(($nocList[$AthInd[key($MaxInd)][1]]>$MaxByNoc) || ($AthInd[key($MaxInd)][1]==$HostCountry && $CheckQualifiedNumber == $QualifiedNo)) {
-						$CheckQualifiedNumber++;
-					}
-					next($MaxInd);
+                    if(in_array(25,$ath[key($tmpMax)])) {
+                        $CheckQualifiedNumber++;
+                    }
+                    if(($nocList[$AthInd[key($tmpMax)][1]]>$MaxByNoc) || ($AthInd[key($tmpMax)][1]==$HostCountry && $nocList[$AthInd[key($tmpMax)][1]]==$MaxByNoc)) {
+                        $CheckQualifiedNumber++;
+                    }
+					next($tmpMax);
 				}
-				$SureScoreH=current($MaxInd);
-				next($MaxInd);
-				while((array_key_exists($AthInd[key($MaxInd)][1], $nocList) && $nocList[$AthInd[key($MaxInd)][1]]>$MaxByNoc)) {
-					next($MaxInd);
+				$SureScoreH=current($tmpMax);
+				next($tmpMax);
+				while((array_key_exists($AthInd[key($tmpMax)][1], $nocList) && $nocList[$AthInd[key($tmpMax)][1]]>$MaxByNoc)) {
+					next($tmpMax);
 				}
-				$SureScoreL=current($MaxInd);
-				reset($MaxInd);
+				$SureScoreL=current($tmpMax);
+				reset($tmpMax);
 				$SureScoreH += (count($competitions)-$runningEvent-1) * $Bonus[1];
 				
 				$actRank = 0;
@@ -186,7 +214,7 @@ switch($RankType) {
                         $tmpRow["Status"] = "6";
                         $tmpRow["StatusText"] = "Stage winner";
                         $EvQualifiedNo++;
-                    } elseif($ExistingNOC[$AthInd[$waid][1]]>$MaxByNoc AND !in_array($waid,$pendingIds)) {
+                    } elseif(($ExistingNOC[$AthInd[$waid][1]]>$MaxByNoc AND (!in_array($waid,$pendingIds))) OR in_array($waid,$overMaxNoc)) {
 						$tmpRow["Status"] = "3";
 						$tmpRow["StatusText"] = "Third+ athlete";
 						if($ExistingNOC[$AthInd[$waid][1]]==$MaxByNoc+1)
@@ -222,7 +250,7 @@ switch($RankType) {
 							}
 						}
 					}
-					if(!$isAnEventWinner and ($CanDoBetter<$QualifiedNo-$actRank OR in_array($waid,$qualifiedIds))) {
+					if(!$isAnEventWinner and ($CanDoBetter<$QualifiedNo[$ev]-$actRank OR in_array($waid,$qualifiedIds))) {
 						$tmpRow["Status"] = "0";
 						$tmpRow["StatusText"] = "Qualified";
 					}

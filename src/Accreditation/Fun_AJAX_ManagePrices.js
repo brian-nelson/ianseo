@@ -112,7 +112,7 @@ function AddPrice_Response()
 			
 			var TD_Price = document.createElement('TD');
 			TD_Price.className='Right';
-			TD_Price.innerHTML=NewPrice + '&nbsp;&euro';
+			TD_Price.innerHTML=NewPrice + '&nbsp;'+ Currency;
 				
 			var TD_Delete = document.createElement('TD');
 			TD_Delete.className='Center';

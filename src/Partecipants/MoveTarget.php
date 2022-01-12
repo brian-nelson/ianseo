@@ -8,7 +8,7 @@ require_once('Common/Fun_Sessions.inc.php');
 
 $startSession=(isset($_REQUEST['startSession']) ? $_REQUEST['startSession'] : null);
 $endSession=(isset($_REQUEST['endSession']) ? $_REQUEST['endSession'] : null);
-$filter=(isset($_REQUEST['filter']) ? $_REQUEST['filter'] : null);
+$filter=((isset($_REQUEST['filter']) AND preg_match("/^[0-9A-Z%_]+$/i",$_REQUEST["filter"])) ? $_REQUEST['filter'] : null);
 $sourceFrom=(isset($_REQUEST['sourceFrom']) ? $_REQUEST['sourceFrom'] : null);
 $sourceTo=(isset($_REQUEST['sourceTo']) ? $_REQUEST['sourceTo'] : null);
 $destFrom=(isset($_REQUEST['destFrom']) ? $_REQUEST['destFrom'] : null);
@@ -101,7 +101,7 @@ include('Common/Templates/head.php');
 			<td class="Center">
 				<?php print get_text('Session');?>: <?php print $comboStartSession;?>
 				&nbsp;&nbsp;
-				<?php print get_text('FilterOnDivCl','Tournament'); ?>: <input <?php print (in_array('filter',$errors) ? ' class="error"' : '');?>type="text" name="filter" id="filter" size="5" maxlength="4" value="<?php print (!is_null($filter) ? $filter : '');?>" />
+				<?php print get_text('FilterOnDivCl','Tournament'); ?>: <input <?php print (in_array('filter',$errors) ? ' class="error"' : '');?>type="text" name="filter" id="filter" size="12" maxlength="10" value="<?php print (!is_null($filter) ? $filter : '');?>" />
 				&nbsp;
 				<?php print get_text('From','Tournament'); ?>: <input <?php print (in_array('sourceFrom',$errors) ? ' class="error"' : '');?> type="text" name="sourceFrom" id="sourceFrom" size="5" maxlength="4" value="<?php print (!is_null($sourceFrom) ? $sourceFrom : '');?>" />
 				&nbsp;

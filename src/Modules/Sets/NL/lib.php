@@ -19,8 +19,8 @@ function CreateStandardDivisions($TourId, $Type=3, $SubRule=1) {
             CreateDivision($TourId, $i++, 'B', 'Barebow');
         }
         if ($Type == '6' OR $Type == '7') {
-            CreateDivision($TourId, $i++, 'LB', 'Longbow');
-            CreateDivision($TourId, $i++, 'IB', 'Instinctive Bow');
+            CreateDivision($TourId, $i++, 'LB', 'Longbow', 1, 'L', 'L');
+            CreateDivision($TourId, $i++, 'IB', 'Instinctive Bow', 1, 'I', 'I');
         }
     } else {
         CreateDivision($TourId, $i++, 'T', 'Traditioneel');

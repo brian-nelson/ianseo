@@ -31,6 +31,7 @@ $lang['CacheSendNone']='Ingen cached elementer til afsendelse';
 $lang['CacheSendOK']='Cache afsendt med succes. __TEXT__ elementer er afsendt';
 $lang['CacheToQr']='Dan QR fra Cache';
 $lang['CalculateNow']='Beregn nu';
+$lang['CalculateNowDone']='Hold genopbygget. Hold kvalifikation rangering genberegnet.';
 $lang['Cancel']='Afbryd';
 $lang['CantConfirmQr']='Kunne ikke udføre kald for at bekræfte QR-kode. Prøv igen. Fejl __TEXT__';
 $lang['CantGetAthlete']='Kunne ikke hente skytte information. Prøv venligst igen. Fejl __TEXT__';

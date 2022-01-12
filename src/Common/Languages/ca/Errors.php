@@ -1,4 +1,5 @@
 <?php
+$lang['AllFieldsMandatory']='Tots els camps són obligatoris';
 $lang['AllMailsRedirect']='Tots els missatges s\'enviaran a';
 $lang['Anomalies']='Anomalies';
 $lang['ClassFromToError']='De i A han de ser valors numèrics';
@@ -24,6 +25,7 @@ $lang['ErrNoStartDate']='Falta data inici';
 $lang['ErrRedCard']='El comitè té targeta vermella i no pot demanar competicions que s\'allotgen a ianseo. Contacteu per a més explicacions a codes@ianseo.net .';
 $lang['ErrUnknownNation']='Nació desconeguda';
 $lang['ErrYellowCard']='El comitè té targeta groga perquè no han pujat resultats de competició. Contacteu per a més explicacions a codes@ianseo.net .';
+$lang['InvalidEmail']='Correu electrònic no vàlid: comproveu el correu electrònic abans de desar-lo';
 $lang['LockedProcedure']='Aquest procediment està BLOQUEJAT';
 $lang['MailingAlreadyExists']='Ja existeix un correu electrònic amb el mateix títol ({$a}), canvieu el títol o seleccioneu el correu electrònic que voleu modificar al selector.';
 $lang['MailingDeleteText']='Confirmeu que voleu suprimir definitivament aquest correu electrònic!';
@@ -37,6 +39,7 @@ $lang['NoDNSRecord']='El nom del servidor no és correcte o no està en línia: 
 $lang['NoMailingTemplate']='No hi ha cap plantilla de correu electrònic seleccionada/disponible!';
 $lang['NoMailRecipients']='Ningú a qui enviar el correu! Reviseu les opcions de filtre.';
 $lang['NoPrivilege']='Privilegis insuficients: no teniu autorització per operar en aquesta pàgina!';
+$lang['NoSameOrders']='El valor del nou ordre no es pot duplicar.';
 $lang['NoSmtpServerSet']='Si us plau, configureu el servidor SMTP abans d\'enviar correus electrònics!';
 $lang['SpecialFilterDiscrepancy']='S\'ha establert un filtre especial però no està actiu!';
 $lang['TargetNumberMismatch']='El Nombre de Diana només pot tenir la forma [TargetNumber][TargetLetter], per exemple: 129C';

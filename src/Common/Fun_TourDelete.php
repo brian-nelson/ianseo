@@ -28,18 +28,11 @@ function tour_delete($TourId) {
 	"EventClass" => "EcTournament",
 	"Events" => "EvTournament",
 	"Individuals" => "IndTournament",
-	"F2FGrid"=>"F2FTournament",
-	"F2FEntries" => "F2FTournament",
-	"F2FFinal" => "F2FTournament",
 	"FinalReportA" => "FraTournament",
 	"Finals" => "FinTournament",
 	"FinSchedule" => "FSTournament",
-	"FinTraining" => 'FtTournament',
-	"FinTrainingEvent" => 'FteTournament',
 	"Flags" => 'FlTournament',
 	"GateLog" => "GLTournament",
-	"GuessWho" => 'GwTournament',
-	"GuessWhoData" => 'GwdTournament',
     "HeartBeat"=>"HbTournament",
 	"HhtData" => "HdTournament",
 	"HhtEvents" => "HeTournament",
@@ -50,7 +43,6 @@ function tour_delete($TourId) {
 	"IskDevices" => "IskDvTournament",
 	'ModulesParameters' => 'MpTournament',
 	'OnLineIds' => 'OliTournament', // This table gets deleted and recreated everytime so no need to import/export it but needs to be deleted for housekeeping!
-	'PrintOutsRules' => 'PorTournament',
 	'Rankings' => 'RankTournament',
 	'RecBroken' => 'RecBroTournament',
 	'RecTournament' => 'RtTournament',
@@ -140,18 +132,10 @@ function tour_import($filename, $isString=false) {
 		'EventClass' => 'Ec',
 		'Events' => 'Ev',
 		'Individuals' => 'Ind',
-		"F2FGrid"=>'F2F',
-		"F2FEntries" => "F2F",
-		"F2FFinal" => "F2F",
-		//"F2FScore" => "F2F",
-		//"F2FTarget" => "F2F",
-		//"F2FTargetElim" => "F2F",
 		'FinalReportA' => 'Fra',
 		'Finals' => 'Fin',
 		'FinOdfTiming' => 'FinOdf',
 		'FinSchedule' => 'FS',
-		'FinTraining' => 'Ft',
-		'FinTrainingEvent' => 'Fte',
 		'FinWarmup' => 'Fw',
 		//'Flags' => 'Fl',
         'GateLog' => 'GL',
@@ -204,6 +188,7 @@ function tour_import($filename, $isString=false) {
 		'TeamFinals' => 'TfTeam',
 		'TeamFinComponent' => 'TfcCoId',
 		'Teams' => 'TeCoId',
+		'TournamentInvolved' => 'TiCountry',
 		);
 
 	// Tabelle che hanno il codice Entries
@@ -213,9 +198,7 @@ function tour_import($filename, $isString=false) {
 		'ElabQualifications' => 'EqId',
 		'Eliminations' => 'ElId',
 		'ExtraData' => 'EdId',
-		"F2FEntries" => "F2FEnId",
-		"F2FFinal" => "F2FEnId",
-		'Finals' => 'FinAthlete',
+		'Finals' => array('FinAthlete','FinCoach'),
         'GateLog' => 'GLEntry',
 		'HhtData' => 'HdEnId',
 		'Individuals' => 'IndId',
@@ -223,10 +206,16 @@ function tour_import($filename, $isString=false) {
 		'Photos' => 'PhEnId',
 		'Qualifications' => 'QuId',
 		'RecBroken' => 'RecBroAthlete',
+        'TeamFinals' => 'TfCoach',
 		'TeamComponent' => 'TcId',
 		'TeamFinComponent' => 'TfcId',
 		'Vegas' => 'VeId',
 		);
+
+    // Tabelle che hanno il codice Entries
+    $tab_to_tourinvolved=array(
+        'FinSchedule' => array('FsLJudge','FsTJudge'),
+    );
 
 	// Tabelle che dipendono SOLO da Tournament
 	$tabs_only_tour=array(
@@ -248,15 +237,8 @@ function tour_import($filename, $isString=false) {
 		'Emails',
 		'EventClass',
 		'Events',
-		'F2FGrid',
-		//"F2FScore",
-		//"F2FTarget",
-		//"F2FTargetElim",
 		'FinalReportA',
 		'FinOdfTiming',
-		'FinSchedule',
-		'FinTraining',
-		'FinTrainingEvent',
 		'FinWarmup',
 		//'Flags',
         'HeartBeat',
@@ -277,7 +259,7 @@ function tour_import($filename, $isString=false) {
 		'TargetFaces',
 		'TeamDavis',
 		'TournamentDistances',
-		'TournamentInvolved',
+        //'TournamentInvolved',
 		'TourRecords' ,
 		'TVContents',
 		'TVParams',
@@ -397,6 +379,42 @@ function tour_import($filename, $isString=false) {
 		}
 	}
 
+    // inserisce le TournamentInvolved e mantieni l'array per il cambio TiId
+    $TiEntries=array();
+    if(array_key_exists('TournamentInvolved',$Gara) && is_array($Gara['TournamentInvolved']) && count($Gara['TournamentInvolved'])>0)
+    {
+        foreach($Gara['TournamentInvolved'] as $record) {
+            if(isset($record['TiId'])) {
+                $query = array();
+                foreach ($record as $key => $val) {
+                    if ($key != 'TiId') {
+                        $query[] = "$key = " . strsafe_db($val);
+                    }
+                }
+                safe_w_sql("insert into TournamentInvolved set " . implode(', ', $query));
+                $TiEntries[$record['TiId']] = safe_w_last_id();
+            }
+        }
+    }
+    // aggiorna le rimanenti tabelle con le Entries corrette
+    if(count($TiEntries)) {
+        foreach ($tab_to_tourinvolved as $tab => $field) {
+            if (array_key_exists($tab, $Gara)) {
+                foreach ($Gara[$tab] as $key => $record) {
+                    if (is_array($field)) {
+                        foreach ($field as $ff) {
+                            if (array_key_exists($ff, $record) && $record[$ff])
+                                $Gara[$tab][$key][$ff] = $TiEntries[$record[$ff]];
+                        }
+                    } else {
+                        if (array_key_exists($field, $record) and $record[$field] and array_key_exists($record[$field], $Entries))
+                            $Gara[$tab][$key][$field] = $TiEntries[$record[$field]];
+                    }
+                }
+            }
+        }
+    }
+
 	// inserisce le Entries e mantieni l'array per il cambio Entry
 	$Entries=array();
 	if(array_key_exists('Entries',$Gara) && is_array($Gara['Entries']) && count($Gara['Entries'])>0)
@@ -416,15 +434,24 @@ function tour_import($filename, $isString=false) {
 	foreach($tab_to_entry as $tab=>$field) {
 		if(array_key_exists($tab, $Gara))
 		{
-			foreach($Gara[$tab] as $key=>$record) {
-				if(array_key_exists($record[$field], $Entries) && $record[$field]) $Gara[$tab][$key][$field]=$Entries[$record[$field]];
-			}
+            foreach($Gara[$tab] as $key=>$record) {
+                if(is_array($field)) {
+                    foreach($field as $ff) {
+                        if(array_key_exists($ff,$record) && $record[$ff])
+                            $Gara[$tab][$key][$ff]=$Entries[$record[$ff]];
+                    }
+                } else {
+                    if(array_key_exists($field,$record) AND $record[$field] AND array_key_exists($record[$field],$Entries))
+                        $Gara[$tab][$key][$field]=$Entries[$record[$field]];
+                }
+            }
 		}
 	}
 
 	// inserisce le tabelle restanti
 	unset($tab_to_country['Entries']);
-	$final_tabs = array_unique(array_merge(array_keys($tab_to_country), array_keys($tab_to_entry)));
+    unset($tab_to_country['TournamentInvolved']);
+    $final_tabs = array_unique(array_merge(array_keys($tab_to_country), array_keys($tab_to_entry), array_keys($tab_to_tourinvolved)));
 	foreach($final_tabs as $tab) {
 		if(array_key_exists($tab, $Gara))
 		{

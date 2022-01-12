@@ -62,7 +62,7 @@ require_once('Common/Lib/CommonLib.php');
 			global $CFG;
 
 		// torneo passato
-			$tournament = (array_key_exists('tournament',$opts) ? $opts['tournament'] : $_SESSION['TourId']);
+			$tournament = ((is_array($opts) and array_key_exists('tournament',$opts)) ? $opts['tournament'] : $_SESSION['TourId']);
 
 		// tipo, localizzazione e sottotipo
 			$q=safe_r_sql("select ToType, ToLocRule, ToTypeSubRule from Tournament where ToId={$tournament}");

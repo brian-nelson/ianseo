@@ -16,6 +16,7 @@ foreach($AllowedTypes as $val) {
 		'SetOneClass',
 		'SetAllClass',
 		'SetKidClass',
+		'SetWAPools-All',
 		);
 		
 		// 'SetUkNationals' Heitir National Championships, 'SetUkJunNationals' heitir Junior National Championships

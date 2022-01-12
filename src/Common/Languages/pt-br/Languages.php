@@ -1,5 +1,7 @@
 <?php
 $lang['Aggiorna']='Atualizar';
+$lang['CA-B']='Barebow';
+$lang['CA-C']='Composto';
 $lang['CA-Cl-CM']='Cadete Masculino';
 $lang['CA-Cl-CW']='Cadete Feminino';
 $lang['CA-Cl-JM']='Juvenil Masculino';
@@ -9,6 +11,7 @@ $lang['CA-Cl-MM']='Masculino Master';
 $lang['CA-Cl-MW']='Feminino Master';
 $lang['CA-Cl-W']='Feminino';
 $lang['CA-O']='Abrir';
+$lang['CA-R']='Recurvo';
 $lang['CmdSearch']='Procurar Módulos';
 $lang['Create']='Criar';
 $lang['CreateDescr']='Você deve criar o arquivo traduzido';

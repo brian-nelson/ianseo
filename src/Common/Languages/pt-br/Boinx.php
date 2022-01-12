@@ -2,6 +2,9 @@
 $lang['Activate']='Ativar';
 $lang['BoinxLayer']='Camada do Boinx (layer)';
 $lang['BoinxSchedule']='Agendador de camadas do Boinx';
+$lang['CssLeftPresentation']='Painel de Apresentação - Esquerdo';
+$lang['CssPresentation']='Painel de Apresentação - Comum';
+$lang['CssRightPresentation']='Painel de Apresentação - Direito';
 $lang['CssVegasSOTarget']='Alvo';
 $lang['CssWindSpeed']='Painel de Velocidade do Vento';
 $lang['DirNotWriteable']='O Diretório está protegido contra escrita';

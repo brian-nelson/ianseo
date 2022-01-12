@@ -194,7 +194,7 @@ function DiAddSubRow(obj) {
 
 	cella.innerHTML+='<br/><input size="5"  type="text" name="'+cella.firstElementChild.name.replace(/\[[^\]]+\]$/, '[]')+'" value="" onchange="DiUpdate(this)">';
 	var cella=row.cells[7];
-	cella.innerHTML+='<br/><input size="3"  type="text" name="'+cella.firstElementChild.name.replace(/\[[^\]]+\]$/, '[]')+'" value="" onchange="DiUpdate(this)">';
+	cella.innerHTML+='<br/><input size="3" max="999" min="0" type="number" name="'+cella.firstElementChild.name.replace(/\[[^\]]+\]$/, '[]')+'" value="" onchange="DiUpdate(this)">';
 	var cella=row.cells[8];
 	cella.innerHTML+='<br/><input size="50"  type="text" name="'+cella.firstElementChild.name.replace(/\[[^\]]+\]$/, '[]')+'" value="" onchange="DiUpdate(this)">';
 }

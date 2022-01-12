@@ -26,15 +26,24 @@
 		"O" => array("P" => "O", "N" => "1", 'W' =>110),
 		"P" => array("P" => "X", "N" => "0", 'W' => 0),
 		"Q" => array("P" => "X", "N" => "15", 'W' => 250),
-//		"R" => array("P" => "16", "N" => "16", 'W' => 260),
-//		"S" => array("P" => "17", "N" => "17", 'W' => 270),
-//		"T" => array("P" => "18", "N" => "18", 'W' => 280),
-//		"U" => array("P" => "19", "N" => "19", 'W' => 290),
+		//"R" => array("P" => "13", "N" => "13", 'W' => 260),
+		//"S" => array("P" => "14", "N" => "14", 'W' => 270),
+		//"T" => array("P" => "16", "N" => "16", 'W' => 280),
+		//"U" => array("P" => "17", "N" => "17", 'W' => 290),
 		"V" => array("P" => "20", "N" => "20", 'W' => 290),
-//		"W" => array("P" => "21", "N" => "17", 'W' => 300),
+		//"W" => array("P" => "18", "N" => "18", 'W' => 300),
 		"X" => array("P" => "X", "N" => "11", 'W' => 205),
 		"Y" => array("P" => "X", "N" => "6", 'W' => 160),
 		"Z" => array("P" => "X", "N" => "5", 'W' => 160),
+		"1" => array("P" => "13", "N" => "13", 'W' => 160),
+		"2" => array("P" => "14", "N" => "14", 'W' => 160),
+		"3" => array("P" => "16", "N" => "16", 'W' => 160),
+		"4" => array("P" => "17", "N" => "17", 'W' => 160),
+		"5" => array("P" => "18", "N" => "18", 'W' => 160),
+		"6" => array("P" => "21", "N" => "21", 'W' => 160),
+		//"7" => array("P" => "X", "N" => "5", 'W' => 160),
+		//"8" => array("P" => "X", "N" => "5", 'W' => 160),
+		//"9" => array("P" => "X", "N" => "5", 'W' => 160),
 	);
 
 	$GLOBALS['LetterPoint']=$LetterPoint;
@@ -607,6 +616,45 @@ function GetMaxScores($EventCode, $MatchNo=0, $TeamEvent=0, $TourId=-1){
 				}
 			}
 		}
+		foreach(range('1','9') as $key) {
+			if($MyRow->{$key.'_size'}) {
+			    $targetRings[$MyRow->{$key.'_size'}] = array(
+			        "size"=>$MyRow->{$key.'_size'},
+                    "fillColor"=>$MyRow->{$key.'_color'},
+                    "lineColor"=>'000000',
+                    "letter"=>$key,
+			        "value"=>$LetterPoint[$key]['N'],
+			        "print"=>$LetterPoint[$key]['P'],
+                    "radius"=>0
+                );
+
+				if($size < $MyRow->{$key.'_size'}) {
+                    $size = $MyRow->{$key . '_size'};
+                }
+                /*
+				// fills the accepted arrows array
+				$ret['Arrows'][$key]=array(
+				    $MyRow->{$key.'_size'},
+                    $MyRow->{$key.'_color'},
+                    ($MyRow->{$key.'_color'}=='000000' && $oldcolor=='000000')?'FFFFFF':'000000'
+                );
+				$oldcolor=$MyRow->{$key.'_color'};
+*/
+				// check the maxpoint
+				if($LetterPoint[$key]['N']>$ret['MaxPoint']) {
+				    $ret['MaxPoint']=$LetterPoint[$key]['N'];
+                }
+
+				// check the minpoint
+				if($LetterPoint[$key]['N'] and $LetterPoint[$key]['N']<$ret['MinPoint']) {
+				    $ret['MinPoint']=$LetterPoint[$key]['N'];
+                }
+
+				if(isset($GLOBALS['CurrentTarget'])) {
+					$GLOBALS['CurrentTarget'][$key] = $LetterPoint[$key];
+				}
+			}
+		}
 		$ret['MaxEnd']=$ret['MaxPoint']*$MyRow->CalcArrows;
 		$ret['MaxMatch']=$ret['MaxEnd']*$MyRow->CalcEnds;
 		$ret['MaxSetPoints']=($MyRow->EvMatchMode ? $MyRow->CalcEnds+2 : 0);
@@ -656,6 +704,12 @@ function GetTarget($TourId, $TrgName='') {
 			$ret[] = $LetterPoint[$key]['P'];
 		}
 	}
+	foreach(range('9','1') as $key) {
+		if($MyRow->{$key.'_size'}) {
+			// fills the accepted arrows array
+			$ret[] = $LetterPoint[$key]['P'];
+		}
+	}
 	$ret[] = $LetterPoint['A']['P'];
 
 	return $ret;
@@ -675,6 +729,13 @@ function GetTargetColors($TourId, $TrgName='') {
 
 	$X='';
 	foreach(range('Z','A') as $key) {
+		if($MyRow->{$key.'_size'}) {
+			// fills the accepted arrows array
+			if($LetterPoint[$key]['P']=='X') $X=array($key=>$MyRow->{$key.'_color'});
+			else $ret[$key] = $MyRow->{$key.'_color'};
+		}
+	}
+	foreach(range('9','1') as $key) {
 		if($MyRow->{$key.'_size'}) {
 			// fills the accepted arrows array
 			if($LetterPoint[$key]['P']=='X') $X=array($key=>$MyRow->{$key.'_color'});
@@ -730,6 +791,11 @@ function GetTargetColors($TourId, $TrgName='') {
 				if ($row->{$letter . '_size'}!=0)
 					$ret[]=$letter;
 			}
+			foreach (range('1','9') as $letter)
+			{
+				if ($row->{$letter . '_size'}!=0)
+					$ret[]=$letter;
+			}
 		}
 
 		//print_r($ret);
@@ -752,6 +818,9 @@ function GetTargetColors($TourId, $TrgName='') {
 			foreach (range('B','Z') as $letter) {
 				if ($row->{$letter . '_size'}!=0) $ret[]=$letter;
 			}
+			foreach (range('1','9') as $letter) {
+				if ($row->{$letter . '_size'}!=0) $ret[]=(string) $letter;
+			}
 		}
 
 		//print_r($ret);
@@ -766,6 +835,11 @@ function GetTargetColors($TourId, $TrgName='') {
 
 		$ret=array();
 
+		foreach(range('9','1') as $key) {
+			if($MyRow->{$key.'_size'}) {
+				$ret[]=array("value"=>$LetterPoint[$key]['N'], "display"=>$LetterPoint[$key]['P'], "color"=>$MyRow->{$key.'_color'}, "diameter"=> strval($MyRow->{$key.'_size'} * $size /10));
+			}
+		}
 		foreach(range('Z','B') as $key) {
 			if($MyRow->{$key.'_size'}) {
 				$ret[]=array("value"=>$LetterPoint[$key]['N'], "display"=>$LetterPoint[$key]['P'], "color"=>$MyRow->{$key.'_color'}, "diameter"=> strval($MyRow->{$key.'_size'} * $size /10));

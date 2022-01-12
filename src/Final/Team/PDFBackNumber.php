@@ -16,7 +16,7 @@
         . ' INNER JOIN TeamFinComponent ON CoId=TfcCoId AND TfSubTeam=TfcSubTeam AND CoTournament=TfcTournament AND EvCode=TfcEvent '
         . ' INNER JOIN Entries ON TfcId=EnId AND TfcTournament=EnTournament '
         . ' WHERE EvTournament=' . StrSafe_DB($_SESSION['TourId']) . ' AND EvTeamEvent=1 ';
-	if (isset($_REQUEST['Event']) && preg_match("/^[0-9A-Z]{1,4}$/i",$_REQUEST["Event"]))
+	if (isset($_REQUEST['Event']) && preg_match("/^[0-9A-Z]+$/i",$_REQUEST["Event"]))
 		$MyQuery.= "AND EvCode LIKE '" . $_REQUEST['Event'] . "' ";
 	$MyQuery .= ' ORDER BY EvCode, TfMatchNo';
 	//*DEBUG*/echo $MyQuery;exit();

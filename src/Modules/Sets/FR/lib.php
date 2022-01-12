@@ -14,10 +14,10 @@ if(empty($SubRule)) $SubRule='1';
 
 function CreateStandardDivisions($TourId, $Type='FR') {
 	$i=1;
-	if($Type!='3D') CreateDivision($TourId, $i++, 'CL', 'Arc Classique');
-	CreateDivision($TourId, $i++, 'CO', 'Arc Poulies');
+	if($Type!='3D') CreateDivision($TourId, $i++, 'CL', 'Arc Classique', 1, 'R', 'R');
+	CreateDivision($TourId, $i++, 'CO', 'Arc Poulies', 1, 'C', 'C');
 	if($Type=='FIELD') {
-		CreateDivision($TourId, $i++, 'BB', 'Arc Nu');
+		CreateDivision($TourId, $i++, 'BB', 'Arc Nu', 1, 'B', 'B');
 	} elseif($Type=='3D') {
 		CreateDivision($TourId, $i++, 'BB', 'Arc Nu');
 		CreateDivision($TourId, $i++, 'AD', 'Arc Droit');

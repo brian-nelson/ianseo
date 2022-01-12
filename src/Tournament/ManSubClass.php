@@ -34,33 +34,20 @@ include('Common/Templates/head.php');
 <tr><th class="Title" colspan="4"><?php print get_text('ManSubClasses','Tournament');?></th></tr>
 <tr><th class="Title" colspan="4"><?php print get_text('SubClasses','Tournament');?></th></tr>
 <?php
-	$Select
-		= "SELECT * "
-		. "FROM `SubClass` "
-		. "WHERE ScTournament=" . StrSafe_DB($_SESSION['TourId']) . " "
-		. "ORDER BY ScViewOrder ASC ";
-	$Rs=safe_r_sql($Select);
+	$Rs=safe_r_sql("SELECT * FROM `SubClass` WHERE ScTournament=" . StrSafe_DB($_SESSION['TourId']) . " ORDER BY ScViewOrder ASC ");
 
-	if (safe_num_rows($Rs)>0)
-	{
+	echo '<tr><th width="5%">' . get_text('SubClass','Tournament') . '</th><th width="30%">'. get_text('Descr','Tournament') . '</th><th width="10%">' . get_text('Progr') . '</th><th width="15%">&nbsp;</th></tr>';
+    echo '<tbody id="tbody_subclass">';
+    while ($MyRow=safe_fetch($Rs)) {
+        echo '<tr id="SubClass_' . $MyRow->ScId .'">'.
+                '<td class="Bold Center">'. $MyRow->ScId . '</td>'.
+                '<td><input type="text" name="d_ScDescription_' . $MyRow->ScId .'" id="d_ScDescription_' . $MyRow->ScId . '" size="56" maxlength="32" value="'.$MyRow->ScDescription .'" onBlur="UpdateField(\'SC\',\'d_ScDescription_'. $MyRow->ScId . '\')"></td>'.
+                '<td class="Center"><input type="text" name="d_ScViewOrder_'. $MyRow->ScId . '" id="d_ScViewOrder_' .$MyRow->ScId . '" size="3" maxlength="3" value="'. $MyRow->ScViewOrder . '" onBlur="UpdateField(\'SC\',\'d_ScViewOrder_'. $MyRow->ScId.'\')"></td>'.
+                '<td class="Center"><img src="'.$CFG->ROOT_DIR.'Common/Images/drop.png" border="0" alt="#" title="#" onclick="DeleteRow(\'SC\',\''.$MyRow->ScId.'\')"></td>'.
+            '</tr>';
+    }
+    echo '</tbody>';
 ?>
-<tr><th width="5%"><?php print get_text('SubClass','Tournament');?></th><th width="30%"><?php print get_text('Descr','Tournament');?></th><th width="10%"><?php print get_text('Progr');?></th><th width="15%">&nbsp;</th></tr>
-<tbody id="tbody_subclass">
-<?php
-		while ($MyRow=safe_fetch($Rs))
-		{
-?>
-<tr id="SubClass_<?php print $MyRow->ScId;?>">
-<td class="Bold Center"><?php print $MyRow->ScId;?></td>
-<td><input type="text" name="d_ScDescription_<?php print $MyRow->ScId;?>" id="d_ScDescription_<?php print $MyRow->ScId;?>" size="56" maxlength="32" value="<?php print ManageHTML($MyRow->ScDescription);?>" onBlur="UpdateField('SC','d_ScDescription_<?php print $MyRow->ScId;?>')"></td>
-<td class="Center"><input type="text" name="d_ScViewOrder_<?php print $MyRow->ScId;?>" id="d_ScViewOrder_<?php print $MyRow->ScId;?>" size="3" maxlength="3" value="<?php print ManageHTML($MyRow->ScViewOrder);?>" onBlur="UpdateField('SC','d_ScViewOrder_<?php print $MyRow->ScId;?>')"></td>
-<td class="Center"><img src="<?php echo $CFG->ROOT_DIR ?>Common/Images/drop.png" border="0" alt="#" title="#" onclick="DeleteRow('SC','<?php print $MyRow->ScId;?>')"></td>
-</tr>
-<?php
-		}
-	}
-?>
-</tbody>
 <tr id="NewSubCl" class="Spacer"><td colspan="4"></td></tr>
 <tr>
 <td class="Center"><input type="text" name="New_ScId" id="New_ScId" size="3" maxlength="2"></td>

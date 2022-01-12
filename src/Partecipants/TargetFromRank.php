@@ -8,7 +8,7 @@
 
 $startSession=(isset($_REQUEST['startSession']) ? $_REQUEST['startSession'] : null);
 $endSession=(isset($_REQUEST['endSession']) ? $_REQUEST['endSession'] : null);
-$filter=(isset($_REQUEST['filter']) ? $_REQUEST['filter'] : null);
+$filter=((isset($_REQUEST['filter']) AND preg_match("/^[0-9A-Z%_]+$/i",$_REQUEST["filter"])) ? $_REQUEST['filter'] : null);
 $isEvent=(isset($_REQUEST['isEvent']) && $_REQUEST['isEvent']==1 ? $_REQUEST['isEvent'] : 0);
 $sourceRankFrom=(isset($_REQUEST['sourceRankFrom']) ? $_REQUEST['sourceRankFrom'] : 1);
 $sourceRankTo=(isset($_REQUEST['sourceRankTo']) ? $_REQUEST['sourceRankTo'] : 99999);
@@ -231,7 +231,7 @@ include('Common/Templates/head.php');
 			<td class="Center">
 				<?php print get_text('Session');?>: <?php print $comboStartSession;?>
 				&nbsp;&nbsp;
-				<?php print get_text('FilterOnDivCl','Tournament'); ?>: <input type="text" name="filter" id="filter" size="5" maxlength="4" value="<?php print (!is_null($filter) ? $filter : '');?>" />
+				<?php print get_text('FilterOnDivCl','Tournament'); ?>: <input type="text" name="filter" id="filter" size="12" maxlength="10" value="<?php print (!is_null($filter) ? $filter : '');?>" />
 				&nbsp;&nbsp;
 				<input type="checkbox" name="isEvent" id="isEvent" value="1" <?php print ($isEvent==1 ? 'checked="yes"' : '');?>/>&nbsp;<?php print get_text('Event');?>
 				&nbsp;&nbsp;

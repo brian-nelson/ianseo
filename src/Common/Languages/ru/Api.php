@@ -1,4 +1,5 @@
 <?php
+$lang['API-AutoGroup']='Массовое создание групп';
 $lang['API-ConfirmDeleteRow']='Вы уверены, что хотите стереть этот ряд?';
 $lang['API-DeviceGrouping']='Группировка устройств';
 $lang['API-Group']='Группа';
@@ -91,6 +92,7 @@ $lang['IskDeviceAssigned']='Устройство (а)';
 $lang['IskScoringDevice']='Устройство $a не авторизовано для работы в этой смене/соревновании!';
 $lang['IskSpuriousDevice']='Устройство $a[0] отправляет странные результаты для $a[1] щита';
 $lang['IskSpuriousScore-Distance']='Устройство $a[0] считает $a[1] дистанцию';
+$lang['IskSpuriousScore-Empty']='Устр-во $a[0] считает индекс $a[1]';
 $lang['IskSpuriousScore-End']='Устройство $a[0] считает $a[1] серию';
 $lang['IskSpuriousScore-Match']='Устройство $a[0] работает для матча $a[1]';
 $lang['IskTargetTitle']='Мишень(щит) $a';
@@ -118,4 +120,5 @@ $lang['TVCss3Divider']='Делитель';
 $lang['TVCss3Loser']='изменение проигравшего';
 $lang['WAToolbox-MissingParams']='Отсутствующий параметр';
 $lang['WAToolbox-NoCompCode']='Код отсутсвующего соревнования';
+$lang['XToWin']='$a для победы';
 ?>

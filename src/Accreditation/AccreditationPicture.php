@@ -7,8 +7,8 @@ require_once('Common/Fun_Modules.php');
 CheckTourSession(true);
 
 $param = array("source"=>0, "minW"=>400, "minH" => 400);
-if(file_exists($CFG->DOCUMENT_PATH."Modules/IanseoTeam/Accreditation/includeAccreditationPicture.php")) {
-	require_once(dirname(dirname(__FILE__)) . '/Modules/IanseoTeam/Accreditation/includeAccreditationPicture.php');
+if(file_exists($CFG->DOCUMENT_PATH."Modules/Accreditation/includeAccreditationPicture.php")) {
+	require_once(dirname(dirname(__FILE__)) . '/Modules/Accreditation/includeAccreditationPicture.php');
 }
 
 // loads how many accreditation types there are
@@ -26,7 +26,7 @@ $JS_SCRIPT[] = phpVars2js($param);
 if($param["source"]==0) {
 	$JS_SCRIPT[] = '<script type="text/javascript" src="./TakePicture.js"></script>';
 } else {
-	$JS_SCRIPT[] = '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Modules/IanseoTeam/Accreditation/TakePicture.js"></script>';
+	$JS_SCRIPT[] = '<script type="text/javascript" src="'.$CFG->ROOT_DIR.'Modules/Accreditation/TakePicture.js"></script>';
 }
 $JS_SCRIPT[]='<style>.Reverse td {background-color:#ddd; color:black;}</style>';
 
@@ -54,8 +54,8 @@ if($param["source"]==0) {
 }
 echo '<input type="checkbox" id="showMenu" ' . (isset($_REQUEST["showMenu"]) ? 'checked' : '') .
 	' onClick="document.location=\'' . $_SERVER["PHP_SELF"]. (isset($_REQUEST["showMenu"]) ? '' : '?showMenu') . '\';">'.get_text('ShowIanseoMenu', 'Tournament');
-if(file_exists($CFG->DOCUMENT_PATH."Modules/IanseoTeam/IanseoFeatures/AccreditationPictureParameters.php") and empty($_SESSION['ShortMenu']['ACCR'])) {
-	echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="'.$CFG->ROOT_DIR.'Modules/IanseoTeam/IanseoFeatures/AccreditationPictureParameters.php">'.get_text('AdvancedParams', 'Tournament'). '</a>';
+if(file_exists($CFG->DOCUMENT_PATH."Modules/Accreditation/AccreditationPictureParameters.php") and empty($_SESSION['ShortMenu']['ACCR'])) {
+	echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="'.$CFG->ROOT_DIR.'Modules/Accreditation/AccreditationPictureParameters.php">'.get_text('AdvancedParams', 'Tournament'). '</a>';
 }
 ?>
 </td>
@@ -82,7 +82,8 @@ $q=safe_r_sql("select distinct SesOrder from Session where SesTournament in ($To
 while($r=safe_fetch($q)) {
 	echo '<input type="checkbox" class="x_Sessions" id="x_Sessions['.$r->SesOrder.']" onChange="searchAthletes();">'.get_text('Session').' '.$r->SesOrder.'&nbsp;&nbsp;&nbsp;';
 }
-echo '<input type="checkbox" class="x_NoPrint" id="x_NoPrint" onChange="searchAthletes();">No Printout';
+echo '<input type="checkbox" class="x_NoPrint" id="x_NoPrint" onChange="searchAthletes();">'.get_text('OnlyPhoto', 'Tournament').'
+    <input type="checkbox" id="x_noAcc" name="x_noAcc" value="1" checked onChange="searchAthletes();">'.get_text('OnlyWithoutAcc','Tournament');
 
 ?>
 </td>

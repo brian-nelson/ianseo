@@ -41,7 +41,6 @@ $lang['SesOdfPeriod']=' ';
 $lang['SesOdfVenue']=' ';
 $lang['SessionName']='$a->Category $a->RoundType';
 $lang['SourceCode']='';
-$lang['TestMode']='()  () ';
 $lang['TypCODE']=' ';
 $lang['TypEVENT']='';
 $lang['TypNAME']='';

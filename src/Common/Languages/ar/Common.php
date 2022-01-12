@@ -66,7 +66,6 @@ $lang['M']='رجال';
 $lang['MedalBronze']='الميدالية البرونزية';
 $lang['MenuLM_Accreditation']='الاعتماد';
 $lang['MenuLM_Close']='غلق';
-$lang['MenuLM_Field Crew']='فريق تجهيز الملعب';
 $lang['MenuLM_Final report']='التقرير النهائي';
 $lang['MenuLM_HTT']='HTT';
 $lang['MenuLM_Individual Finals']='نهائيات الفردي';

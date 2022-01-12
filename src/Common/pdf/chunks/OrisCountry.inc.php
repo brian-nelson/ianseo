@@ -14,8 +14,17 @@ $pdf->Bookmark($PdfData->IndexName, 0);
 
 $ONLINE=isset($PdfData->HTML);
 
-$ACCREDITATION = (!empty($_REQUEST['SinglePage']) and empty($_REQUEST['Athletes']));
+$PrintMissing=false;
+$PrintToTake=false;
+$PrintContacts=false;
+$PrintDoB=false;
 $SinglePage=!empty($_REQUEST['SinglePage']);
+if($SinglePage) {
+	$PrintDoB=(!empty($_REQUEST['dob']));
+	$PrintMissing=(!empty($_REQUEST['missing']));
+	$PrintToTake=(!empty($_REQUEST['retake']));
+	$PrintContacts=(!empty($_REQUEST['contacts']));
+}
 
 $lstPictures = array();
 $lstDoB = array();
@@ -55,17 +64,14 @@ foreach($PdfData->Data['Items'] as $Rows) {
 
 		$first=false;
 
-		if($ACCREDITATION) {
-			if(empty($MyRow->DOB)) {
-				$lstDoB[] = array('','',$MyRow->Athlete,str_repeat('_',5),str_repeat('_',25),$Tgt.'  #',$MyRow->EventName);
-			}
-			if($MyRow->HasPhoto==0) {
-				if($MyRow->HasAccreditation) {
-					$lstRetakes[] = array('', '', $tmp[2], $tmp[3], $tmp[4], $tmp[5], $tmp[6]);
-				} else {
-					$lstPictures[] = array('', '', $tmp[2], $tmp[3], $tmp[4], $tmp[5], $tmp[6]);
-				}
-			}
+		if($PrintDoB and empty($MyRow->DOB)) {
+			$lstDoB[] = array('','',$MyRow->Athlete,str_repeat('_',5),str_repeat('_',25),$Tgt.'  #',$MyRow->EventName);
+		}
+		if($PrintMissing and $MyRow->HasPhoto==0) {
+			$lstPictures[] = array('', '', $tmp[2], $tmp[3], $tmp[4], $tmp[5], $tmp[6]);
+		}
+		if($PrintToTake and ($MyRow->PhToRetake or ($MyRow->HasAccreditation and !$MyRow->PhEnId))) {
+			$lstRetakes[] = array('', '', $tmp[2], $tmp[3], $tmp[4], $tmp[5], $tmp[6]);
 		}
 
 // 		if(!$ONLINE or !$MyRow->IsAthlete) continue;
@@ -109,7 +115,7 @@ foreach($PdfData->Data['Items'] as $Rows) {
 			}
 		}
 
-		if($ACCREDITATION) {
+		if($PrintContacts) {
 			if(!$pdf->SamePage(6, 4)) {
 				$pdf->sety(50);
 			} else {

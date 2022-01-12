@@ -88,11 +88,12 @@
 			IFNULL(p1.CoCode,'') as p1Code, IFNULL(p1.CoName,'') as p1Name,
 			IFNULL(p2.CoCode,'') as p2Code, IFNULL(p2.CoName,'') as p2Name,
 		    c.CoMaCode, c.CoCaCode,
-			EnId is null as CanDelete
+			not (EnId is not null or TiId is not null) as CanDelete
 		FROM Countries as c
 		LEFT JOIN Countries AS p1 ON c.CoParent1=p1.CoId AND c.CoTournament=p1.CoTournament
 		LEFT JOIN Countries AS p2 ON c.CoParent2=p2.CoId AND c.CoTournament=p2.CoTournament
 		left join Entries on EnCountry=c.CoId and EnTournament={$_SESSION['TourId']}
+		left join TournamentInvolved on TiCountry=c.CoId and TiTournament={$_SESSION['TourId']}
 		WHERE
 			{$filter}
 		ORDER BY

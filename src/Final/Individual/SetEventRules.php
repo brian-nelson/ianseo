@@ -34,7 +34,7 @@ if (safe_num_rows($RsEv)==1 and $RowEv=safe_fetch($RsEv)) {
         . "WHERE DivTournament = " . StrSafe_DB($_SESSION['TourId']) . " AND DivAthlete=1 "
         . "ORDER BY DivViewOrder ASC ";
     $RsSel = safe_r_sql($Select);
-    $ComboDiv = '<select name="New_EcDivision" id="New_EcDivision" multiple="multiple" size="'.min(15,safe_num_rows($RsSel)+2).'">';
+    $ComboDiv = '<select name="New_EcDivision" class="w-90" id="New_EcDivision" multiple="multiple" size="'.min(15,safe_num_rows($RsSel)+2).'">';
     if (safe_num_rows($RsSel)>0) {
         while ($Row=safe_fetch($RsSel))
             $ComboDiv.= '<option value="' . $Row->DivId . '">' . $Row->DivId . ' - ' . $Row->DivDescription . '</option>';
@@ -47,7 +47,7 @@ if (safe_num_rows($RsEv)==1 and $RowEv=safe_fetch($RsEv)) {
         . "WHERE ClTournament = " . StrSafe_DB($_SESSION['TourId']) . " AND ClAthlete=1 "
         . "ORDER BY ClViewOrder ASC ";
     $RsSel = safe_r_sql($Select);
-    $ComboCl = '<select name="New_EcClass" id="New_EcClass" multiple="multiple" size="'.min(15,safe_num_rows($RsSel)+2).'">';
+    $ComboCl = '<select name="New_EcClass" class="w-90" id="New_EcClass" multiple="multiple" size="'.min(15,safe_num_rows($RsSel)+2).'">';
     if (safe_num_rows($RsSel)>0) {
         while ($Row=safe_fetch($RsSel))
             $ComboCl.= '<option value="' . $Row->ClId . '">' . $Row->ClId . ' - ' . $Row->ClDescription . '</option>';
@@ -61,7 +61,7 @@ if (safe_num_rows($RsEv)==1 and $RowEv=safe_fetch($RsEv)) {
         . "WHERE ScTournament = " . StrSafe_DB($_SESSION['TourId'])
         . "ORDER BY ScViewOrder ASC ";
     $RsSel = safe_r_sql($Select);
-    $ComboSubCl = '<select name="New_EcSubClass" id="New_EcSubClass" multiple="multiple" disabled="disabled" size="'.min(15,safe_num_rows($RsSel)+2).'">';
+    $ComboSubCl = '<select name="New_EcSubClass" class="w-90" id="New_EcSubClass" multiple="multiple" disabled="disabled" size="'.min(15,safe_num_rows($RsSel)+2).'">';
     if (safe_num_rows($RsSel)>0) {
         while ($Row=safe_fetch($RsSel))
             $ComboSubCl.= '<option value="' . $Row->ScId . '">' . $Row->ScId  . ' - ' . $Row->ScDescription . '</option>';
@@ -70,10 +70,10 @@ if (safe_num_rows($RsEv)==1 and $RowEv=safe_fetch($RsEv)) {
 
     echo '<tr><td class="Title" colspan="4">'.get_text($RowEv->EvEventName,'','',true).'</td></tr>';
     echo '<tr>';
-    echo '<th width="30%">'.get_text('Division').'</th>';
-    echo '<th width="30%">'.get_text('Class').'</th>';
-    echo '<th width="30%">'.get_text('SubClass','Tournament').'</th>';
-    echo '<th width="10%">&nbsp;</th>';
+    echo '<th class="w-30">'.get_text('Division').'</th>';
+    echo '<th class="w-30">'.get_text('Class').'</th>';
+    echo '<th class="w-30">'.get_text('SubClass','Tournament').'</th>';
+    echo '<th class="w-10">&nbsp;</th>';
     echo '</tr>';
 
     $Select = "SELECT * FROM EventClass 
@@ -103,13 +103,13 @@ if (safe_num_rows($RsEv)==1 and $RowEv=safe_fetch($RsEv)) {
     echo '<table class="Tabella">';
     echo '<tr><td colspan="4" class="Center">'.get_text('PressCtrl2SelectAll').'</td></tr>';
     echo '<tr id="NewRow">';
-    echo '<td style="width:30%;" class="Center" valign="top">'.$ComboDiv.'<br/><br/>
+    echo '<td style="width:30%;" class="Center Top">'.$ComboDiv.'<br/><br/>
         <a class="Link" href="javascript:SelectAllOpt(\'New_EcDivision\');">'.get_text('SelectAll').'</a></td>';
-    echo '<td style="width:30%;" class="Center" valign="top">'.$ComboCl.'<br/><br/>
+    echo '<td style="width:30%;" class="Center Top">'.$ComboCl.'<br/><br/>
         <a class="Link" href="javascript:SelectAllOpt(\'New_EcClass\');">'.get_text('SelectAll').'</a></td>';
-    echo '<td style="width:30%;" class="Center" valign="top">'.$ComboSubCl.'<br/><br/>
+    echo '<td style="width:30%;" class="Center Top">'.$ComboSubCl.'<br/><br/>
         <input type="checkbox" id="enableSubClass" onclick="enableSubclass(this)">'.get_text('UseSubClasses','Tournament').'</td>';
-    echo '<td style="width:10%;" class="Center" valign="top">
+    echo '<td style="width:10%;" class="Center Top">
         <input type="button" name="Command" id="Command" value="'.get_text('CmdSave').'" onclick="AddEventRule(\''.$RowEv->EvCode.'\');"></td>';
     echo '</tr>';
     echo '</table>';
@@ -130,8 +130,8 @@ if (safe_num_rows($RsEv)==1 and $RowEv=safe_fetch($RsEv)) {
     echo '</tr>';
 
     echo '<tr>';
-    echo '<td class="Center"><input type="number" value="'.$RowEv->EvNumQualified.'" id="fld=num&team=0&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
-    echo '<td class="Center"><input type="number" value="'.$RowEv->EvFirstQualified.'" id="fld=first&team=0&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
+    echo '<td class="Center"><input type="number" min="0" max="9999" value="'.$RowEv->EvNumQualified.'" id="fld=num&team=0&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
+    echo '<td class="Center"><input type="number" min="0" max="9999" value="'.$RowEv->EvFirstQualified.'" id="fld=first&team=0&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
     echo '<td class="Center"><select onchange="UpdateData(this)" id="fld=medal&team=0&event='.$_REQUEST['EvCode'].'">
             <option value="1" '.($RowEv->EvMedals ? ' selected="selected"' : '').'>'.get_text('Yes').'</option>
             <option value="0" '.($RowEv->EvMedals ? '' : ' selected="selected"').'>'.get_text('No').'</option>
@@ -143,9 +143,9 @@ if (safe_num_rows($RsEv)==1 and $RowEv=safe_fetch($RsEv)) {
         echo '<option value="'.$r->EvCode.'" '.($RowEv->EvCodeParent==$r->EvCode ? ' selected="selected"' : '').'>'.$r->EvCode.' - '.$r->EvEventName.'</option>';
     }
     echo '</select></td>';
-	echo '<td class="Center"><input type="number" value="'.$RowEv->EvWinnerFinalRank.'" id="fld=final&team=0&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
-	echo '<td class="Center"><input type="text" value="'.$RowEv->EvWaCategory.'" id="fld=wacat&team=0&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
-	echo '<td class="Center"><input type="text" value="'.$RowEv->EvRecCategory.'" id="fld=reccat&team=0&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
+	echo '<td class="Center"><input min="0" max="9999" type="number" value="'.$RowEv->EvWinnerFinalRank.'" id="fld=final&team=0&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
+	echo '<td class="Center"><input size="12" maxlength="10" type="text" value="'.$RowEv->EvWaCategory.'" id="fld=wacat&team=0&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
+	echo '<td class="Center"><input size="12" maxlength="10" type="text" value="'.$RowEv->EvRecCategory.'" id="fld=reccat&team=0&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
 	echo '<td class="Center"><input type="text" value="'.$RowEv->EvOdfCode.'" id="fld=odfcode&team=0&event='.$_REQUEST['EvCode'].'" onchange="UpdateData(this)"></td>';
     echo '</tr>';
     echo '</tbody>';

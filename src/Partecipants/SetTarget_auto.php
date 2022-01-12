@@ -18,7 +18,7 @@
 
 	if(!empty($_REQUEST["Erase"]) && isset($_REQUEST["Session"]) && $_REQUEST["Session"]>=1 && $_REQUEST['Session']<=$MaxSession) {
 		$Where="EnTournament=" . StrSafe_DB($_SESSION['TourId']) . " AND QuSession=" . StrSafe_DB($_REQUEST['Session'])
-			. (isset($_REQUEST["Event"]) && strlen($_REQUEST["Event"])>0 ? " AND CONCAT(TRIM(EnDivision),TRIM(EnClass)) LIKE " . StrSafe_DB($_REQUEST['Event']) : "");
+			. ((isset($_REQUEST["Event"]) and preg_match("/^[0-9A-Z%_]+$/i",$_REQUEST["Event"])) ? " AND CONCAT(TRIM(EnDivision),TRIM(EnClass)) LIKE " . StrSafe_DB($_REQUEST['Event']) : "");
 		safe_w_sql("update Entries inner join Qualifications on EnId=QuId
 			set EnTimestamp='".date('Y-m-d H:i:s')."'
 			where QuTargetNo!='' and $Where");
@@ -79,10 +79,10 @@ echo '<tr>';
 		echo '<select name="Session" id="Session">';
 		echo '<option value="-1">---</option>';
 		foreach ($sessions as $s)
-			echo '<option value="' . $s->SesOrder . '"' . (isset($_REQUEST['Session']) && $_REQUEST['Session']==$s->SesOrder ? ' selected' : '') . '>' . $s->Descr . '</option>';
+			echo '<option value="' . $s->SesOrder . '"' . (isset($_REQUEST['Session']) AND $_REQUEST['Session']==$s->SesOrder ? ' selected' : '') . '>' . $s->Descr . '</option>';
 		print '</select>';
 	echo '</td>';
-	echo '<td class="Center"><input type="text" maxlength="4" size="5" name="Event" id="Event" value="' . (isset($_REQUEST['Event']) ? $_REQUEST['Event'] : '') . '"></td>';
+	echo '<td class="Center"><input type="text" maxlength="10" size="12" name="Event" id="Event" value="' . (isset($_REQUEST['Event']) ? $_REQUEST['Event'] : '') . '"></td>';
 	echo '<td class="Center"><select name="FieldSeed" id="FieldSeed">
 				<option value="">==></option>
 				<option value="0"'.((isset($_REQUEST['FieldSeed']) and $_REQUEST['FieldSeed']==0) ? ' selected="selected"' : '').'>'.get_text('DrawNormal', 'Tournament').'</option>
@@ -130,10 +130,10 @@ echo '</tr>';
 				}
 			}
 		} else {
-			$StartLetter='A';
-			for($i=0;$i<$MySes[0]->SesAth4Target;$i++) {
-				$TgtArray[] = $StartLetter++;
-			}
+            $q = safe_r_SQL("SELECT DISTINCT AtLetter FROM `AvailableTarget` WHERE `AtTournament` = {$_SESSION['TourId']} AND `AtSession` = {$MySes[0]->SesOrder} ORDER BY AtLetter ");
+			while($r=safe_fetch($q)) {
+                $TgtArray[] = $r->AtLetter;
+            }
 		}
 	}
 	$ArcPerButt=(empty($TgtArray) ? 0 : count($TgtArray));
@@ -281,7 +281,8 @@ if(isset($_REQUEST["Event"]) && isset($_REQUEST["Session"]) && isset($_REQUEST["
 
 	$NotAssigned=array();
 
-	$LastLetter=chr(ord('A')+$ArcPerButt-1);
+	//$LastLetter=chr(ord('A')+$ArcPerButt-1);
+    $LastLetter=$TgtArray[count($TgtArray)-1];
 
 	$firstLine=array('AB' . ($ArcPerButt>4?'CD':''), 'CD');
 	$LeftSide=array('AC' . ($ArcPerButt>4?'E':''), 'BD');

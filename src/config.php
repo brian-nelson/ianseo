@@ -1,7 +1,6 @@
 <?php
 
 if(!defined('INSTALL')) define('INSTALL', false);
-$newversion='2021-03-07 19:15:00';
 
 // mod to force rebuild of release online: change this line to something else if only git submodules are involved
 // 2018-03-02
@@ -54,12 +53,13 @@ require_once($CFG->DOCUMENT_PATH . 'Common/Lib/Fun_Modules.php');
 @include_once('Common/DebugOverrides.php');
 
 // Check if the DB is up to date
-if(in_array($CFG->DOCUMENT_PATH . 'Common'.DIRECTORY_SEPARATOR.'config.inc.php', get_included_files())) {
-	$version = GetParameter('DBUpdate');
-	if($version < $newversion) {
-		require_once('Common/UpdateDb.inc.php');
-	}
-}
+// HAS BEEN MOVED FOR PERFORMANCE!
+// if(in_array($CFG->DOCUMENT_PATH . 'Common'.DIRECTORY_SEPARATOR.'config.inc.php', get_included_files())) {
+// 	$version = GetParameter('DBUpdate');
+// 	if($version < $newversion) {
+// 		require_once('Common/UpdateDb.inc.php');
+// 	}
+// }
 
 define_session_flags(); // restores some of the Session flags
 
@@ -112,7 +112,6 @@ if($ERROR_REPORT) {
 	error_reporting(0);
 	ini_set('display_errors','off');
 }
-
 
 $_SESSION['debug'] = $ERROR_REPORT;
 $CFG->TRACE_QUERRIES = ($CFG->TRACE_QUERRIES and $_SESSION['debug']);

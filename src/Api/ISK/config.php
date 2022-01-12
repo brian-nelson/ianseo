@@ -201,7 +201,7 @@ function checkDeviceApp($chkCompetition) {
 		$AppVersion=(empty($_REQUEST['t']) || $_REQUEST['t']!='p' ? 0 : 1);
 		if($AppVersion) $iskAppPro=true;
 		$iskCode="0001";
-		$q=safe_r_sql("SELECT IskDvCode FROM IskDevices ORDER BY IskDvCode DESC");
+		$q=safe_r_sql("SELECT IskDvCode FROM IskDevices where length(IskDvCode)=4 ORDER BY IskDvCode DESC");
 		if($r=safe_fetch($q)) {
 			$iskCode = str_pad(base_convert(base_convert($r->IskDvCode,36,10)+1,10,36),4,'0',STR_PAD_LEFT);
 		}
@@ -219,7 +219,12 @@ function checkDeviceApp($chkCompetition) {
 	} else {
 		$Version='';
 		$AppVersion='';
+		$NewCode='';
 		$DEVICE=safe_fetch($q);
+		if(strlen($DEVICE->IskDvCode)!=4) {
+			$DEVICE->IskDvCode=str_pad($DEVICE->IskDvCode,4,'0',STR_PAD_LEFT);
+			$NewCode=", IskDvCode='{$DEVICE->IskDvCode}'";
+		}
 		$iskAppPro=$DEVICE->IskDvAppVersion;
 		if($DeviceId) {
 			if(!empty($_REQUEST['version'])) {
@@ -231,7 +236,7 @@ function checkDeviceApp($chkCompetition) {
 			}
 		}
 		safe_w_SQL("UPDATE IskDevices SET
-			IskDvIpAddress='" . $_SERVER["REMOTE_ADDR"] . "', IskDvLastSeen='".date('Y-m-d H:i:s')."' $AppVersion $Version
+			IskDvIpAddress='" . $_SERVER["REMOTE_ADDR"] . "', IskDvLastSeen='".date('Y-m-d H:i:s')."' $AppVersion $Version $NewCode
 			WHERE IskDvDevice='{$DeviceId}'");
 		if($iskModePro && $chkCompetition && $DEVICE->IskDvTournament != $CompId) {
 			SendResetIsk($DEVICE->IskDvCode, $DEVICE->IskDvVersion, $DEVICE->IskDvAppVersion);
@@ -483,8 +488,13 @@ function importMatches ($Event, $MatchNo, $IndTeam, $end, $arr4End, $end4Match, 
 			}
 		}
 		$startPos = (($isSO ? ($arr4End*$end4Match) : 0) +1);
+
 		// manage the closest to center
-		$Closest= ($isSO and $arrowString!=strtoupper($arrowString));
+		$Closest=0;
+		if($isSO) {
+			$Closest=intval($arrowString!=strtoupper($arrowString));
+			$arrowString=strtoupper($arrowString);
+		}
 		UpdateArrowString($MatchNo, $Event, $IndTeam, $arrowString, $startPos, ($startPos+($isSO ? $arr4So : $arr4End*$end4Match)-1), $CompId, $Closest);
 
 		$Update = "DELETE FROM IskData

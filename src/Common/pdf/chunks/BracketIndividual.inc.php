@@ -196,7 +196,7 @@ foreach($rankData['sections'] as $Event => $section) {
 			}
 
 			// Target Numbers
-			if($ShowTargetNo && ($Match['target'] or $Match['oppTarget'])) {
+			if($ShowTargetNo && ($Match['target'] or $Match['oppTarget']) and !($Match['score'] or $Match['setScore']) and !($Match['oppScore'] or $Match['oppSetScore']) and !$Match['tie'] and !$Match['oppTie']) {
 				if($FirstPhase) {
 					// Target numbers in front of the row
 					$pdf->SetXY($LineXstart-7, $OrgY);

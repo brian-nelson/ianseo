@@ -2,6 +2,8 @@
 	require_once(dirname(dirname(__FILE__)) . '/config.php');
 	require_once('Common/Fun_Sessions.inc.php');
 
+$IncludeJquery=true;
+
 	CheckTourSession(true);
     checkACL(AclParticipants, AclReadOnly);
 
@@ -80,6 +82,7 @@
 				<br/><a href="PrnSession.php?Session=<?php print $s->SesOrder;?>&Filled=1" class="Link" target="PrintOut"><?php print get_text('StartlistSessionNoEmpty','Tournament');?></a>
 				<br/><a href="PrnSession.php?Session=<?php print $s->SesOrder;?>&Empty=1" class="Link" target="PrintOut"><?php print get_text('StartlistSessionEmptyPlaces','Tournament');?></a>
 				<br/><a href="PrnSession.php?Session=<?php print $s->SesOrder;?>&tf=1" class="Link" target="PrintOut">+ <?php print get_text('TargetType');?></a>
+                <br/><a href="OrisStartList.php?Session=<?php print $s->SesOrder;?>" class="Link" target="ORISPrintOut"><?php print get_text('StdORIS','Tournament');?></a>
 			</td>
 		<?php }?>
 	</tr>
@@ -102,6 +105,7 @@
 					<?php print $s->Descr;?>
 				</a>
 				<br/><a href="PrnCountry.php?Session=<?php print $s->SesOrder;?>&tf=1" class="Link" target="PrintOut">+ <?php print get_text('TargetType');?></a>
+                <br/><a href="OrisCountry.php?Session=<?php print $s->SesOrder;?>" class="Link" target="ORISPrintOut"><?php print get_text('StdORIS','Tournament');?></a>
 			</td>
 		<?php }?>
 	</tr>
@@ -122,6 +126,7 @@
 					<?php print $s->Descr;?>
 				</a>
 				<br/><a href="PrnAlphabetical.php?Session=<?php print $s->SesOrder;?>&tf=1" class="Link" target="PrintOut">+ <?php print get_text('TargetType');?></a>
+                <br/><a href="OrisAlphabetical.php?Session=<?php print $s->SesOrder;?>" class="Link" target="ORISPrintOut"><?php print get_text('StdORIS','Tournament');?></a>
 			</td>
 		<?php }?>
 	</tr>
@@ -143,6 +148,7 @@
 					<?php print $s->Descr;?>
 				</a>
 				<br/><a href="PrnCategory.php?Session=<?php print $s->SesOrder;?>&tf=1" class="Link" target="PrintOut">+ <?php print get_text('TargetType');?></a>
+                <br/><a href="OrisTeamList.php?Session=<?php print $s->SesOrder;?>" class="Link" target="ORISPrintOut"><?php print get_text('StdORIS','Tournament');?></a>
 			</td>
 		<?php }?>
 	</tr>
@@ -183,16 +189,27 @@
 			<?php }?>
 		</td>
 		<td class="Center" width="20%">
-			<a href="OrisCountry.php" class="Link" target="ORISPrintOut">
-				<img src="../Common/Images/pdfOris.gif" alt="<?php print get_text('StartlistCountry','Tournament');?>" border="0"><br>
-				<?php print get_text('StartlistCountry','Tournament');?>
-			</a>
-			<br/><a href="OrisCountry.php?SinglePage=1" class="Link" target="ORISPrintOut">
-				<?php print get_text('StartlistEachCountry','Tournament');?>
-			</a>
-			<br/><a href="OrisCountry.php?Athletes=1" class="Link" target="ORISPrintOut">
-				<?php print get_text('StartlistCountryOnlyAthletes','Tournament');?>
-			</a>
+            <div>
+                <a href="OrisCountry.php" class="Link" target="ORISPrintOut">
+                    <img src="../Common/Images/pdfOris.gif" alt="<?php print get_text('StartlistCountry','Tournament');?>" border="0"><br>
+                    <?php print get_text('StartlistCountry','Tournament');?>
+                </a>
+            </div>
+            <div>
+                <a href="OrisCountry.php?Athletes=1" class="Link" target="ORISPrintOut">
+                    <?php print get_text('StartlistCountryOnlyAthletes','Tournament');?>
+                </a>
+            </div>
+
+            <div style="margin-top:0.5em;"><b><?php print get_text('StartlistEachCountry','Tournament');?></b></div>
+			<div style="display: flex;align-items: flex-end">
+                <div style="margin:0 0.5em"><?= get_text('DOB', 'Tournament') ?><br><input type="checkbox" id="CoDoB" checked="checked"></div>
+                <div style="margin:0 0.5em"><?= get_text('Contacts', 'Tournament') ?><br><input type="checkbox" id="CoContacts" checked="checked"></div>
+                <div style="margin:0 0.5em"><?= get_text('MissingPhoto', 'Tournament') ?><br><input type="checkbox" id="CoMissing" checked="checked"></div>
+                <div style="margin:0 0.5em"><?= get_text('PhotoRetake', 'Tournament') ?><br><input type="checkbox" id="CoPictures" checked="checked"></div>
+                <div style="margin:0 0.5em"><input type="button" onclick="printCountries()" value="<?= get_text('Print', 'Tournament') ?>"></div>
+            </div>
+
 		</td>
 		<td class="Center" width="20%">
 			<a href="OrisListCountry.php" class="Link" target="ORISPrintOut">

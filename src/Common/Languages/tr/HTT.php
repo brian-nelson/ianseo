@@ -8,7 +8,7 @@ $lang['Broadcast']='Tüm HTT\'ye gönder';
 $lang['CmdImport']='İçe aktar';
 $lang['CmdReplace']='Üstüne yaz';
 $lang['CmdTruncateHTTData']='Geçici tabloyu kes';
-$lang['Country']='Ülke';
+$lang['Country']='Kulüp';
 $lang['DateTime']='Tarih/Saat';
 $lang['Distance']='Mesafe';
 $lang['Download']='Veri topla';
@@ -65,4 +65,5 @@ $lang['SetupTerminals']='HTT ayarı';
 $lang['Target']='Hedef';
 $lang['Terminal']='HTT';
 $lang['TotaleScore']='Toplam';
+$lang['Volee']='Seri';
 ?>

@@ -8,7 +8,7 @@
 
 	$startSession=(isset($_REQUEST['startSession']) ? $_REQUEST['startSession'] : null);
 	$endSession=(isset($_REQUEST['endSession']) ? $_REQUEST['endSession'] : null);
-	$filter=(isset($_REQUEST['filter']) ? $_REQUEST['filter'] : null);
+	$filter=((isset($_REQUEST['filter']) AND preg_match("/^[0-9A-Z%_]+$/i",$_REQUEST["filter"])) ? $_REQUEST['filter'] : null);
 
 // sessioni
 	$sessions=GetSessions('Q');
@@ -77,7 +77,7 @@
 			<td class="Center">
 				<?php print get_text('Session');?>: <?php print $comboStartSession;?>
 				&nbsp;&nbsp;
-				<?php print get_text('FilterOnDivCl','Tournament'); ?>: <input type="text" name="filter" id="filter" size="5" maxlength="4" value="<?php print (!is_null($filter) ? $filter : '');?>" />
+				<?php print get_text('FilterOnDivCl','Tournament'); ?>: <input type="text" name="filter" id="filter" size="12" maxlength="10" value="<?php print (!is_null($filter) ? $filter : '');?>" />
 			</td>
 		</tr>
 		<tr class="Divider"><td></td></tr>

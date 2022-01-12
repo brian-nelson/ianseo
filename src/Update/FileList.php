@@ -75,9 +75,12 @@ class FileList
 	        			&& !($DistFolder=="/TV" && $file=="Photos") // Pictures are "personal" so don't touch!
 	        			&& !($DistFolder=="/Install" && $file=="dbdumps") // Dumps of the DB... better leave them safe!
 	        			&& !($DistFolder=="/Modules" && $file=="Custom") // Custom directory in Modules is "private" too
+                        && !($DistFolder=="/Common/Languages" && is_dir($DistFile)) // Languages will get recreated by the update process
 	        			) {
 
-	        			if(!is_writable($Folder . "/" . $file)) $this->Updatable=false;
+	        			if(!is_link($Folder) and !is_link($Folder . "/" . $file) and !is_writable($Folder . "/" . $file)) {
+                            $this->Updatable=false;
+                        }
 
 	        			$tmp=array(
 							's' => filesize($Folder . "/" . $file),
@@ -107,14 +110,13 @@ class FileList
 		return count($this->Files);
 	}
 
-	function Serialize()
-	{
-		$ret = new stdClass();
+	function Serialize() {
+        $ret = new stdClass();
 
 		$ret->ProgVersion = ProgramVersion;
 		$ret->ProgRelease = ProgramRelease;
 		$ret->ProgBuild = ProgramBuild;
-		$ret->UUID = GetParameter('UUID', false, uniqid('Ianseo-', true));
+		$ret->UUID = GetParameter('UUID2');
 		$ret->DbVersion = GetParameter('DBUpdate');
 		$ret->AcceptGPL = GetParameter('AcceptGPL');
 		$ret->Files = $this->Files;

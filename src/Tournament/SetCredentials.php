@@ -22,17 +22,17 @@ if(!empty($_REQUEST['ForgetPwd'])) {
             $return=$_REQUEST['return'];
         }
         require_once('Common/Lib/CommonLib.php');
-	    $ErrorMessage=CheckCredentials($_REQUEST['OnlineId'], $_REQUEST['OnlineAuth'], $return,!empty($_REQUEST['LicenseVoucher']) ? $_REQUEST['LicenseVoucher'] : '');
+	    $ErrorMessage=CheckCredentials(intval($_REQUEST['OnlineId']), $_REQUEST['OnlineAuth'], $return,!empty($_REQUEST['LicenseVoucher']) ? $_REQUEST['LicenseVoucher'] : '');
 	    if(!$ErrorMessage) {
             // save the credentials into ModuleParameters
             if(empty($_REQUEST["RememberPwd"])) {
-                setModuleParameter('SendToIanseo', 'Credentials', (object)array('OnlineId' => '', 'OnlineAuth' => ''));
+                setModuleParameter('SendToIanseo', 'Credentials', (object)array('OnlineId' => 0, 'OnlineAuth' => ''));
             } else {
-                setModuleParameter('SendToIanseo', 'Credentials', (object)array('OnlineId' => $_REQUEST['OnlineId'], 'OnlineAuth' => $_REQUEST['OnlineAuth']));
+                setModuleParameter('SendToIanseo', 'Credentials', (object)array('OnlineId' => intval($_REQUEST['OnlineId']), 'OnlineAuth' => $_REQUEST['OnlineAuth']));
             }
             cd_redirect($CFG->ROOT_DIR . $return);
 	    } else {
-            setModuleParameter('SendToIanseo', 'Credentials', (object)array('OnlineId' => '', 'OnlineAuth' => ''));
+            setModuleParameter('SendToIanseo', 'Credentials', (object)array('OnlineId' => 0, 'OnlineAuth' => ''));
         }
     } else {
 	    $ErrorMessage=get_text('LockedProcedure', 'Errors');
@@ -40,7 +40,7 @@ if(!empty($_REQUEST['ForgetPwd'])) {
 }
 
 
-$Credentials=getModuleParameter('SendToIanseo', 'Credentials', (object) array('OnlineId' => '', 'OnlineAuth' => ''));
+$Credentials=getModuleParameter('SendToIanseo', 'Credentials', (object) array('OnlineId' => 0, 'OnlineAuth' => ''));
 
 $onlineId=(empty($_SESSION['OnlineId']) ? $Credentials->OnlineId : $_SESSION['OnlineId']);
 $onlineAuth=(empty($_SESSION['OnlineAuth']) ? $Credentials->OnlineAuth : $_SESSION['OnlineAuth']);

@@ -110,7 +110,6 @@ $lang['Setup-ARLEF']='LEF Bogensportregeln';
 $lang['Setup-CA']='Kanadisches Turnier Reglement';
 $lang['Setup-CH']='SwissArchery Turnier Reglement';
 $lang['Setup-Default']='World Archery Turnier Reglement (FITA)';
-$lang['Setup-F2F']='Face2Face';
 $lang['Setup-NL']='Niederländisches Turnier Reglement';
 $lang['Setup-NO']='Norwegisches Turnier (Norges Bueskytterforbund Reglement)';
 $lang['Setup-PAR']='Paralympisches Turnier (IPC Reglement)';

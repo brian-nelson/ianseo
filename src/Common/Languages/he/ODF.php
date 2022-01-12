@@ -18,7 +18,6 @@ $lang['IntSCHED']='לוח זמנים';
 $lang['SendNewMessage']='שלח הודעה חדשה';
 $lang['SendOldMessage']='שלח שוב הודעה קודמת';
 $lang['SourceCode']='קוד מקור';
-$lang['TestMode']='P = הפקה ; T = מצב בדיקה';
 $lang['Timetable']='לוח זמנים';
 $lang['TMMeeting']='פגישת מנהלי קבוצות';
 $lang['TypCODE']='סיומת קוד מסמך';

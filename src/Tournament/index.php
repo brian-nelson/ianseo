@@ -12,259 +12,264 @@ checkACL(AclCompetition, AclReadWrite);
 
 $SetTypes=GetExistingTournamentTypes();
 
-	if (!isset($_REQUEST['New']) && !CheckTourSession(true)) {
-		print get_text('CrackError');
-		exit;
-	}
-	$NumErr=0;
-	if (isset($_REQUEST['Command'])) {
-	    if($_REQUEST['Command']=='AssignLookupEntry') {
-            if (!IsBlocked(BIT_BLOCK_TOURDATA) AND !IsBlocked(BIT_BLOCK_PARTICIPANT) ) {
-                $q = safe_w_SQL("UPDATE Entries 
-                    INNER JOIN Tournament on EnTournament=ToId 
-                    SET EnIocCode=ToIocCode
-                    where ToId=".StrSafe_DB($_SESSION['TourId'])." AND ToIocCode!=EnIocCode");
+if (!isset($_REQUEST['New']) && !CheckTourSession(true)) {
+    print get_text('CrackError');
+    exit;
+}
+$NumErr=0;
+if (isset($_REQUEST['Command'])) {
+    if($_REQUEST['Command']=='AssignLookupEntry') {
+        if (!IsBlocked(BIT_BLOCK_TOURDATA) AND !IsBlocked(BIT_BLOCK_PARTICIPANT) ) {
+            $q = safe_w_SQL("UPDATE Entries 
+                INNER JOIN Tournament on EnTournament=ToId 
+                SET EnIocCode=ToIocCode
+                where ToId=".StrSafe_DB($_SESSION['TourId'])." AND ToIocCode!=EnIocCode");
+        }
+    }
+    // DEVE essere stata selezionata una regola localizzata!!!
+    if ($_REQUEST['Command']=='SAVE') { // /*and (!isset($_REQUEST['New']) or !empty($_REQUEST['d_Rule']))*/)
+        if (!IsBlocked(BIT_BLOCK_TOURDATA)) {
+            $ToCode=preg_replace('/[^0-9a-z._-]+/sim', '_', $_REQUEST['d_ToCode']);
+            $TheString=preg_replace('/ +/', '', $_REQUEST['d_ToTimeZone']);
+            $sign=($TheString[0]=='-' ? '-' : '+');
+            $tmp=explode(':', $TheString);
+            if(empty($tmp[1])) $tmp[1]=0;
+            $_REQUEST['d_ToTimeZone']=$sign.sprintf('%02.0f', abs(intval($tmp[0]))).':'.sprintf('%02.0f', abs(intval($tmp[1])));
+
+            $NumErr = VerificaDati($Arr_Values2Check_Index);
+
+        /*
+            Se ho l'errore su una data, lo forzo anche nell'altra
+        */
+            if ($Arr_Values2Check_Index['x_ToWhenFrom']['Error']) {
+                $Arr_Values2Check_Index['x_ToWhenTo']['Error']=true;
+            } elseif ($Arr_Values2Check_Index['x_ToWhenTo']['Error']) {
+                $Arr_Values2Check_Index['x_ToWhenFrom']['Error']=true;
+            }
+
+            if ($NumErr==0) {
+            /*
+                Verifico qui se la data finale è maggiore o uguale a quella iniziale.
+                Se non è così forzo l'errore in $Arr_Values2Check_Index['x_ToWhenFrom'] e in $Arr_Values2Check_Index['x_ToWhenTo'].
+            */
+                if ($_REQUEST['xx_ToWhenToYear'] . $_REQUEST['xx_ToWhenToMonth'] . $_REQUEST['xx_ToWhenToDay'] <
+                    $_REQUEST['xx_ToWhenFromYear'] . $_REQUEST['xx_ToWhenFromMonth'] . $_REQUEST['xx_ToWhenFromDay']) {
+                    $Arr_Values2Check_Index['x_ToWhenFrom']['Error']=true;
+                    $Arr_Values2Check_Index['x_ToWhenTo']['Error']=true;
+                } else {
+                    $RowId=0;
+                    if(empty($_REQUEST['d_ToIocCode'])) $_REQUEST['d_ToIocCode']='';
+                    $ToTypeSubRule = (empty($_REQUEST['d_SubRule']) || empty($SetTypes[$_REQUEST['d_Rule']]['rules'][$_REQUEST['d_ToType']][$_REQUEST['d_SubRule']-1]) ? '' : $SetTypes[$_REQUEST['d_Rule']]['rules'][$_REQUEST['d_ToType']][$_REQUEST['d_SubRule']-1]);
+                    $DoChanges=isset($_REQUEST['TourReset']);
+
+                    // check rules of the tournament
+                    // suppressed after Master World Champs Lausanne 2018
+                    //if(!$DoChanges and !isset($_REQUEST['New'])) {
+                    //	$t=safe_r_sql("select ToType, ToLocRule, ToTypeSubRule from Tournament where ToId={$_SESSION['TourId']}");
+                    //	$u=safe_fetch($t);
+                    //	$DoChanges=($u->ToType!=$_REQUEST['d_ToType'] or $u->ToLocRule!=$_REQUEST['d_Rule'] or $u->ToTypeSubRule!=$ToTypeSubRule);
+                    //}
+
+
+                    if(!empty($_SESSION['TourCode']) and $_SESSION['TourCode']!=$ToCode) {
+                        // Renaming of the competition... remove all media to force a redraw on subsequent open!
+                        require_once('Common/CheckPictures.php');
+                        RemoveMedia($_SESSION['TourCode']); // deletes old name things
+                        RemoveMedia($ToCode); // delete new name things that might have been left behind at a certains time
+                    }
+                    $Insert = "INSERT INTO Tournament (
+                        " . (!isset($_REQUEST['New']) ? 'ToId,' : '') . "
+                        ToType,
+                        ToCode,
+                        ToName,
+                        ToNameShort,
+                        ToIocCode,
+                        ToCommitee,
+                        ToComDescr,
+                        ToWhere,
+                        ToTimeZone,
+                        ToWhenFrom,
+                        ToWhenTo,
+                        ToCurrency,
+                        ToPrintLang,
+                        ToPrintChars,
+                        ToPrintPaper,
+                        ToUseHHT,
+                        ToDbVersion,
+                        ToTypeSubRule,
+                        ToLocRule,
+                        ToIsORIS,
+                        ToVenue,
+                        ToCountry
+                        ) 
+                        VALUES("
+                        . (!isset($_REQUEST['New']) ? StrSafe_DB($_SESSION['TourId']) . "," : '')
+                        . StrSafe_DB($_REQUEST['d_ToType']) . ","
+                        . StrSafe_DB($ToCode) . ","
+                        . StrSafe_DB(stripslashes($_REQUEST['d_ToName'])) . ","
+                        . StrSafe_DB(stripslashes($_REQUEST['d_ToNameShort'])) . ","
+                        . StrSafe_DB(stripslashes($_REQUEST['d_ToIocCode'])) . ","
+                        . StrSafe_DB($_REQUEST['d_ToCommitee']) . ","
+                        . StrSafe_DB(stripslashes($_REQUEST['d_ToComDescr'])) . ","
+                        . StrSafe_DB(stripslashes($_REQUEST['d_ToWhere'])) . ","
+                        . StrSafe_DB(stripslashes($_REQUEST['d_ToTimeZone'])) . ","
+                        . StrSafe_DB(sprintf("%04d-%02d-%02d", intval($_REQUEST['xx_ToWhenFromYear']), intval($_REQUEST['xx_ToWhenFromMonth']), intval($_REQUEST['xx_ToWhenFromDay']))) . ","
+                        . StrSafe_DB(sprintf("%04d-%02d-%02d", intval($_REQUEST['xx_ToWhenToYear']), intval($_REQUEST['xx_ToWhenToMonth']), intval($_REQUEST['xx_ToWhenToDay']))) . ","
+                        . StrSafe_DB($_REQUEST['xx_ToCurrency']) . ","
+                        . StrSafe_DB($_REQUEST['xx_ToPrintLang']) . ","
+                        . StrSafe_DB($_REQUEST['xx_ToPrintChars']) . ","
+                        . StrSafe_DB(intval($_REQUEST['xx_ToPaperSize'])) . ","
+                        . StrSafe_DB(intval($_REQUEST['xx_ToUseHHT'])) . ","
+                        . StrSafe_DB(GetParameter('DBUpdate')) . ","
+                        . StrSafe_DB($ToTypeSubRule) . ","
+                        . StrSafe_DB($_REQUEST['d_Rule']) . ","
+                        . StrSafe_DB(!empty($_REQUEST['d_ORIS'])) . ","
+                        . StrSafe_DB(trim($_REQUEST['d_ToVenue'])) . ","
+                        . StrSafe_DB(trim($_REQUEST['d_ToCountry'])) . "
+                        ) 
+                        ON DUPLICATE KEY UPDATE 
+                        ToType = " . StrSafe_DB($_REQUEST['d_ToType']) . ",
+                        ToCode = " . StrSafe_DB($ToCode) . ",
+                        ToName = " . StrSafe_DB(stripslashes($_REQUEST['d_ToName'])) . ",
+                        ToNameShort = " . StrSafe_DB(stripslashes($_REQUEST['d_ToNameShort'])) . ",
+                        ToIocCode = " . StrSafe_DB(stripslashes($_REQUEST['d_ToIocCode'])) . ",
+                        ToCommitee = " . StrSafe_DB($_REQUEST['d_ToCommitee']) . ",
+                        ToComDescr = " . StrSafe_DB(stripslashes($_REQUEST['d_ToComDescr'])) . ",
+                        ToWhere = " . StrSafe_DB(stripslashes($_REQUEST['d_ToWhere'])) . ",
+                        ToTimeZone = " . StrSafe_DB(stripslashes($_REQUEST['d_ToTimeZone'])) . ",
+                        ToWhenFrom = " . StrSafe_DB(sprintf("%04d-%02d-%02d", intval($_REQUEST['xx_ToWhenFromYear']), intval($_REQUEST['xx_ToWhenFromMonth']), intval($_REQUEST['xx_ToWhenFromDay']))) . ",
+                        ToWhenTo = " . StrSafe_DB(sprintf("%04d-%02d-%02d", intval($_REQUEST['xx_ToWhenToYear']), intval($_REQUEST['xx_ToWhenToMonth']), intval($_REQUEST['xx_ToWhenToDay']))) . " " . ",
+                        ToCurrency = " . StrSafe_DB($_REQUEST['xx_ToCurrency']) . " " . ",
+                        ToPrintLang = " . StrSafe_DB($_REQUEST['xx_ToPrintLang']) . " " . ",
+                        ToPrintChars = " . StrSafe_DB($_REQUEST['xx_ToPrintChars']) . " " . ",
+                        ToPrintPaper = " . intval($_REQUEST['xx_ToPaperSize']) . ",
+                        ToUseHHT = " . intval($_REQUEST['xx_ToUseHHT']) . ", 
+                        ToDbVersion = " .  StrSafe_DB(GetParameter('DBUpdate')) . ", 
+                        ToTypeSubRule = " .  StrSafe_DB($ToTypeSubRule) . ", 
+                        ToLocRule=" . StrSafe_DB($_REQUEST['d_Rule']) . ", 
+                        ToIsORIS=" . StrSafe_DB(!empty($_REQUEST['d_ORIS'])) . ", 
+                        ToVenue=" . StrSafe_DB(trim($_REQUEST['d_ToVenue'])) . ", 
+                        ToCountry=" . StrSafe_DB(trim($_REQUEST['d_ToCountry'])) . "";
+                    $Rs=safe_w_sql($Insert);
+                    $RowId = safe_w_last_id();
+                    set_qual_session_flags();
+                    $_SESSION['ISORIS']=!empty($_REQUEST['d_ORIS']);
+
+
+                    //print $Insert;exit;
+                    if (isset($_REQUEST['New'])) {
+                        // 	Recupero l'ultimo id inserito
+                        if($RowId) {
+                            $_SESSION['TourId']=$RowId;
+                        } else {
+                            print get_text('UnexpectedError');
+                            exit;
+                        }
+                    }
+
+                    if(isset($_REQUEST['New']) or $DoChanges) {
+                        // Eseguo il/i file(s) di setup della gara
+                        GetSetupFile($_SESSION['TourId'], $_REQUEST['d_ToType'], $_REQUEST['d_Rule'], empty($_REQUEST['d_SubRule']) ? '1' : $_REQUEST['d_SubRule'], $ToTypeSubRule);
+
+                        // calcolo il numero massimo di persone in ogni team
+                        calcMaxTeamPerson(array(), true, $_SESSION['TourId']);
+
+                        unset($_REQUEST['New']);
+                    }
+
+                    // sets any options configured in this page
+                    if(!empty($_REQUEST['Options'])) {
+                        foreach($_REQUEST['Options'] as $Option => $Value) {
+                            switch($Option) {
+                            }
+                            Set_Tournament_Option($Option, $Value);
+                        }
+                    }
+
+                    Set_Tournament_Option('TargetsToHHt', !empty($_REQUEST['TargetsToHHt']));
+
+                    if(!empty($_REQUEST['Module'])) {
+                        $UseAPI=0;
+                        foreach($_REQUEST['Module'] as $Module => $Parameters) {
+                            foreach($Parameters as $Parameter => $Value) {
+                                switch(true) {
+                                    case ($Module=='ISK' and $Parameter=='ServerUrl'):
+                                        // both ServerUrl and Mode must be set to save the module
+                                        if($Value) {
+                                            if(substr($Value,0,4)!='http') {
+                                                $Value='http://'.$Value;
+                                            }
+                                            if($off=@strpos($Value, '/', 9)) {
+                                                $Value=substr($Value, 0, $off);
+                                            }
+                                        }
+                                        break;
+                                    case ($Module=='ISK' and $Parameter=='ServerUrlPin' and $Value):
+                                        if(intval($Value)!=0) {
+                                            $Value = str_pad(substr(intval($Value),0,4),4,"0",STR_PAD_LEFT);
+                                        } else {
+                                            $Value='';
+                                        }
+                                        break;
+                                    case ($Module=='ISK' and $Parameter=='Mode' and $Value):
+                                        setModuleParameter('ISK', 'StopAutoImport', '0');
+                                        setModuleParameter('ISK', 'StopPartialImport', '0');
+                                        if($Value=='pro') {
+                                            // MUST have a licence to work
+                                            if(!isset($_REQUEST['Module']['ISK']['LicenseNumber']) or trim($_REQUEST['Module']['ISK']['LicenseNumber'])=='') {
+                                                unset($_REQUEST['Module']['ISK']['LicenseNumber']);
+                                                $Value='lite';
+                                                delModuleParameter('ISK', 'LicenseNumber');
+                                            }
+                                        }
+                                        $UseAPI = ($Value=='pro' ? 2 : ($Value=='live' ? 3 : 1));
+                                        if($Value=='pro' or $Value=='live') {
+                                            $tmp=array();
+                                            foreach(range(0,25) as $n) $tmp[$n]=1;
+                                            setModuleParameter('ISK', 'StopAutoImport', $tmp);
+                                            setModuleParameter('ISK', 'StopPartialImport', $tmp);
+                                        }
+                                        break;
+                                    case ($Module=='ISK' and $Parameter=='LicenseNumber'):
+                                        // MUST have a licence to work
+                                        if(isset($_REQUEST['Module']['ISK']['Mode']) and $_REQUEST['Module']['ISK']['Mode']=='pro' and !trim($Value)) {
+                                            $_REQUEST['Module']['ISK']['Mode']='lite';
+                                            setModuleParameter('ISK', 'mode', 'lite');
+                                            delModuleParameter('ISK', 'LicenseNumber');
+                                            continue 2;
+                                        }
+                                        break;
+                                }
+                                setModuleParameter($Module, $Parameter, $Value);
+                            }
+                        }
+                        Set_Tournament_Option('UseApi', $UseAPI);
+                    }
+
+                    header('Location: '.$CFG->ROOT_DIR.'Common/TourOn.php?ToId=' . $_SESSION['TourId'] . '&BackTo='.$CFG->ROOT_DIR.'Tournament/index.php');
+                    exit;
+                }
             }
         }
-		// DEVE essere stata selezionata una regola localizzata!!!
-		if ($_REQUEST['Command']=='SAVE') { // /*and (!isset($_REQUEST['New']) or !empty($_REQUEST['d_Rule']))*/)
-			if (!IsBlocked(BIT_BLOCK_TOURDATA)) {
-                $ToCode=preg_replace('/[^0-9a-z._-]+/sim', '_', $_REQUEST['d_ToCode']);
-
-				$TheString=preg_replace('/ +/', '', $_REQUEST['d_ToTimeZone']);
-				$sign=($TheString[0]=='-' ? '-' : '+');
-				$tmp=explode(':', $TheString);
-				if(empty($tmp[1])) $tmp[1]=0;
-				$_REQUEST['d_ToTimeZone']=$sign.sprintf('%02.0f', abs(intval($tmp[0]))).':'.sprintf('%02.0f', abs(intval($tmp[1])));
-
-
-				$NumErr = VerificaDati($Arr_Values2Check_Index);
-
-			/*
-				Se ho l'errore su una data, lo forzo anche nell'altra
-			*/
-				if ($Arr_Values2Check_Index['x_ToWhenFrom']['Error']) {
-					$Arr_Values2Check_Index['x_ToWhenTo']['Error']=true;
-				} elseif ($Arr_Values2Check_Index['x_ToWhenTo']['Error']) {
-					$Arr_Values2Check_Index['x_ToWhenFrom']['Error']=true;
-				}
-
-				if ($NumErr==0) {
-				/*
-					Verifico qui se la data finale è maggiore o uguale a quella iniziale.
-					Se non è così forzo l'errore in $Arr_Values2Check_Index['x_ToWhenFrom'] e in $Arr_Values2Check_Index['x_ToWhenTo'].
-				*/
-					if ($_REQUEST['xx_ToWhenToYear'] . $_REQUEST['xx_ToWhenToMonth'] . $_REQUEST['xx_ToWhenToDay'] <
-						$_REQUEST['xx_ToWhenFromYear'] . $_REQUEST['xx_ToWhenFromMonth'] . $_REQUEST['xx_ToWhenFromDay']) {
-						$Arr_Values2Check_Index['x_ToWhenFrom']['Error']=true;
-						$Arr_Values2Check_Index['x_ToWhenTo']['Error']=true;
-					} else {
-						$RowId=0;
-						if(empty($_REQUEST['d_ToIocCode'])) $_REQUEST['d_ToIocCode']='';
-						$ToTypeSubRule = (empty($_REQUEST['d_SubRule']) || empty($SetTypes[$_REQUEST['d_Rule']]['rules'][$_REQUEST['d_ToType']][$_REQUEST['d_SubRule']-1]) ? '' : $SetTypes[$_REQUEST['d_Rule']]['rules'][$_REQUEST['d_ToType']][$_REQUEST['d_SubRule']-1]);
-						$DoChanges=isset($_REQUEST['TourReset']);
-
-						// check rules of the tournament
-                        // suppressed after Master World Champs Lausanne 2018
-						//if(!$DoChanges and !isset($_REQUEST['New'])) {
-						//	$t=safe_r_sql("select ToType, ToLocRule, ToTypeSubRule from Tournament where ToId={$_SESSION['TourId']}");
-						//	$u=safe_fetch($t);
-						//	$DoChanges=($u->ToType!=$_REQUEST['d_ToType'] or $u->ToLocRule!=$_REQUEST['d_Rule'] or $u->ToTypeSubRule!=$ToTypeSubRule);
-						//}
-
-
-						if(!empty($_SESSION['TourCode']) and $_SESSION['TourCode']!=$ToCode) {
-							// Renaming of the competition... remove all media to force a redraw on subsequent open!
-							require_once('Common/CheckPictures.php');
-							RemoveMedia($_SESSION['TourCode']); // deletes old name things
-							RemoveMedia($ToCode); // delete new name things that might have been left behind at a certains time
-						}
-						$Insert
-							= "INSERT INTO Tournament ("
-							. (!isset($_REQUEST['New']) ? 'ToId,' : '')
-							. "ToType,"
-							. "ToCode,"
-							. "ToName,"
-							. "ToNameShort,"
-							. "ToIocCode,"
-							. "ToCommitee,"
-							. "ToComDescr,"
-							. "ToWhere,"
-							. "ToTimeZone,"
-							. "ToWhenFrom,"
-							. "ToWhenTo,"
-							. "ToCurrency,"
-							. "ToPrintLang,"
-							. "ToPrintChars,"
-							. "ToPrintPaper,"
-							. "ToUseHHT,"
-							. "ToDbVersion,"
-							. "ToTypeSubRule,"
-							. "ToLocRule,"
-							. "ToIsORIS"
-							. ") "
-							. "VALUES("
-							. (!isset($_REQUEST['New']) ? StrSafe_DB($_SESSION['TourId']) . "," : '')
-							. StrSafe_DB($_REQUEST['d_ToType']) . ","
-							. StrSafe_DB($ToCode) . ","
-							. StrSafe_DB(stripslashes($_REQUEST['d_ToName'])) . ","
-							. StrSafe_DB(stripslashes($_REQUEST['d_ToNameShort'])) . ","
-							. StrSafe_DB(stripslashes($_REQUEST['d_ToIocCode'])) . ","
-							. StrSafe_DB($_REQUEST['d_ToCommitee']) . ","
-							. StrSafe_DB(stripslashes($_REQUEST['d_ToComDescr'])) . ","
-							. StrSafe_DB(stripslashes($_REQUEST['d_ToWhere'])) . ","
-							. StrSafe_DB(stripslashes($_REQUEST['d_ToTimeZone'])) . ","
-							. StrSafe_DB(sprintf("%04d-%02d-%02d", intval($_REQUEST['xx_ToWhenFromYear']), intval($_REQUEST['xx_ToWhenFromMonth']), intval($_REQUEST['xx_ToWhenFromDay']))) . ","
-							. StrSafe_DB(sprintf("%04d-%02d-%02d", intval($_REQUEST['xx_ToWhenToYear']), intval($_REQUEST['xx_ToWhenToMonth']), intval($_REQUEST['xx_ToWhenToDay']))) . ","
-							. StrSafe_DB($_REQUEST['xx_ToCurrency']) . ","
-							. StrSafe_DB($_REQUEST['xx_ToPrintLang']) . ","
-							. StrSafe_DB($_REQUEST['xx_ToPrintChars']) . ","
-							. StrSafe_DB(intval($_REQUEST['xx_ToPaperSize'])) . ","
-							. StrSafe_DB(intval($_REQUEST['xx_ToUseHHT'])) . ","
-							. StrSafe_DB(GetParameter('DBUpdate')) . ","
-							. StrSafe_DB($ToTypeSubRule) . ","
-							. StrSafe_DB($_REQUEST['d_Rule']) . ","
-							. StrSafe_DB(!empty($_REQUEST['d_ORIS'])) . ""
-							. ") "
-							. "ON DUPLICATE KEY UPDATE "
-							. "ToType = " . StrSafe_DB($_REQUEST['d_ToType']) . ","
-							. "ToCode = " . StrSafe_DB($ToCode) . ","
-							. "ToName = " . StrSafe_DB(stripslashes($_REQUEST['d_ToName'])) . ","
-							. "ToNameShort = " . StrSafe_DB(stripslashes($_REQUEST['d_ToNameShort'])) . ","
-							. "ToIocCode = " . StrSafe_DB(stripslashes($_REQUEST['d_ToIocCode'])) . ","
-							. "ToCommitee = " . StrSafe_DB($_REQUEST['d_ToCommitee']) . ","
-							. "ToComDescr = " . StrSafe_DB(stripslashes($_REQUEST['d_ToComDescr'])) . ","
-							. "ToWhere = " . StrSafe_DB(stripslashes($_REQUEST['d_ToWhere'])) . ","
-							. "ToTimeZone = " . StrSafe_DB(stripslashes($_REQUEST['d_ToTimeZone'])) . ","
-							. "ToWhenFrom = " . StrSafe_DB(sprintf("%04d-%02d-%02d", intval($_REQUEST['xx_ToWhenFromYear']), intval($_REQUEST['xx_ToWhenFromMonth']), intval($_REQUEST['xx_ToWhenFromDay']))) . ","
-							. "ToWhenTo = " . StrSafe_DB(sprintf("%04d-%02d-%02d", intval($_REQUEST['xx_ToWhenToYear']), intval($_REQUEST['xx_ToWhenToMonth']), intval($_REQUEST['xx_ToWhenToDay']))) . " " . ","
-							. "ToCurrency = " . StrSafe_DB($_REQUEST['xx_ToCurrency']) . " " . ","
-							. "ToPrintLang = " . StrSafe_DB($_REQUEST['xx_ToPrintLang']) . " " . ","
-							. "ToPrintChars = " . StrSafe_DB($_REQUEST['xx_ToPrintChars']) . " " . ","
-							. "ToPrintPaper = " . intval($_REQUEST['xx_ToPaperSize']) . ","
-							. "ToUseHHT = " . intval($_REQUEST['xx_ToUseHHT']) . ", "
-							. "ToDbVersion = " .  StrSafe_DB(GetParameter('DBUpdate')) . ", "
-							. "ToTypeSubRule = " .  StrSafe_DB($ToTypeSubRule) . ", "
-							. "ToLocRule=" . StrSafe_DB($_REQUEST['d_Rule']) . ", "
-							. "ToIsORIS=" . StrSafe_DB(!empty($_REQUEST['d_ORIS'])) . "";
-						$Rs=safe_w_sql($Insert);
-						$RowId = safe_w_last_id();
-						set_qual_session_flags();
-						$_SESSION['ISORIS']=!empty($_REQUEST['d_ORIS']);
-
-
-						//print $Insert;exit;
-						if (isset($_REQUEST['New'])) {
-							// 	Recupero l'ultimo id inserito
-							if($RowId) {
-								$_SESSION['TourId']=$RowId;
-							} else {
-								print get_text('UnexpectedError');
-								exit;
-							}
-						}
-
-						if(isset($_REQUEST['New']) or $DoChanges) {
-							// Eseguo il/i file(s) di setup della gara
-							GetSetupFile($_SESSION['TourId'], $_REQUEST['d_ToType'], $_REQUEST['d_Rule'], empty($_REQUEST['d_SubRule']) ? '1' : $_REQUEST['d_SubRule'], $ToTypeSubRule);
-
-							// calcolo il numero massimo di persone in ogni team
-							calcMaxTeamPerson(array(), true, $_SESSION['TourId']);
-
-							unset($_REQUEST['New']);
-						}
-
-						// sets any options configured in this page
-						if(!empty($_REQUEST['Options'])) {
-							foreach($_REQUEST['Options'] as $Option => $Value) {
-								switch($Option) {
-								}
-								Set_Tournament_Option($Option, $Value);
-							}
-						}
-
-						Set_Tournament_Option('TargetsToHHt', !empty($_REQUEST['TargetsToHHt']));
-
-						if(!empty($_REQUEST['Module'])) {
-							$UseAPI=0;
-							foreach($_REQUEST['Module'] as $Module => $Parameters) {
-								foreach($Parameters as $Parameter => $Value) {
-									switch(true) {
-										case ($Module=='ISK' and $Parameter=='ServerUrl'):
-											// both ServerUrl and Mode must be set to save the module
-											if($Value) {
-												if(substr($Value,0,4)!='http') {
-													$Value='http://'.$Value;
-												}
-												if($off=@strpos($Value, '/', 9)) {
-													$Value=substr($Value, 0, $off);
-												}
-											}
-											break;
-                                        case ($Module=='ISK' and $Parameter=='ServerUrlPin' and $Value):
-                                            if(intval($Value)!=0) {
-                                                $Value = str_pad(substr(intval($Value),0,4),4,"0",STR_PAD_LEFT);
-                                            } else {
-                                                $Value='';
-                                            }
-                                            break;
-										case ($Module=='ISK' and $Parameter=='Mode' and $Value):
-											setModuleParameter('ISK', 'StopAutoImport', '0');
-											setModuleParameter('ISK', 'StopPartialImport', '0');
-											if($Value=='pro') {
-											    // MUST have a licence to work
-                                                if(!isset($_REQUEST['Module']['ISK']['LicenseNumber']) or trim($_REQUEST['Module']['ISK']['LicenseNumber'])=='') {
-                                                    unset($_REQUEST['Module']['ISK']['LicenseNumber']);
-                                                    $Value='lite';
-                                                    delModuleParameter('ISK', 'LicenseNumber');
-                                                }
-                                            }
-											$UseAPI = ($Value=='pro' ? 2 : ($Value=='live' ? 3 : 1));
-											if($Value=='pro' or $Value=='live') {
-												$tmp=array();
-												foreach(range(0,25) as $n) $tmp[$n]=1;
-												setModuleParameter('ISK', 'StopAutoImport', $tmp);
-												setModuleParameter('ISK', 'StopPartialImport', $tmp);
-											}
-											break;
-										case ($Module=='ISK' and $Parameter=='LicenseNumber'):
-                                            // MUST have a licence to work
-                                            if(isset($_REQUEST['Module']['ISK']['Mode']) and $_REQUEST['Module']['ISK']['Mode']=='pro' and !trim($Value)) {
-                                                $_REQUEST['Module']['ISK']['Mode']='lite';
-												setModuleParameter('ISK', 'mode', 'lite');
-                                                delModuleParameter('ISK', 'LicenseNumber');
-                                                continue 2;
-                                            }
-											break;
-									}
-									setModuleParameter($Module, $Parameter, $Value);
-								}
-							}
-							Set_Tournament_Option('UseApi', $UseAPI);
-						}
-
-						header('Location: '.$CFG->ROOT_DIR.'Common/TourOn.php?ToId=' . $_SESSION['TourId'] . '&BackTo='.$CFG->ROOT_DIR.'Tournament/index.php');
-						exit;
-					}
-				}
-			}
-			else
-			{
-				$Arr_Values2Check_Index = array
-				(
-					'd_ToCode' 			=> array('Func' => 'StrNotEmpty', 'Error' => true),
-					'd_ToName' 			=> array('Func' => 'StrNotEmpty', 'Error' => true),
-					'd_ToCommitee' 		=> array('Func' => 'StrNotEmpty', 'Error' => true),
-					'd_ToComDescr' 		=> array('Func' => 'StrNotEmpty', 'Error' => true),
-					'd_ToWhere' 		=> array('Func' => 'StrNotEmpty', 'Error' => true),
-					'x_ToWhenFrom' 		=> array('Func' => 'GoodDate', 'Error' => true, 'Value' => (isset($_REQUEST['xx_ToWhenFromYear']) ?  $_REQUEST['xx_ToWhenFromYear'] : '0000') . '-' . (isset($_REQUEST['xx_ToWhenFromMonth']) ? $_REQUEST['xx_ToWhenFromMonth'] : '00') . '-' . (isset($_REQUEST['xx_ToWhenFromDay']) ? $_REQUEST['xx_ToWhenFromDay'] : '00')),
-					'x_ToWhenTo'		=> array('Func' => 'GoodDate', 'Error' => true, 'Value' => (isset($_REQUEST['xx_ToWhenToYear']) ?  $_REQUEST['xx_ToWhenToYear'] : '0000') . '-' . (isset($_REQUEST['xx_ToWhenToMonth']) ? $_REQUEST['xx_ToWhenToMonth'] : '00') . '-' . (isset($_REQUEST['xx_ToWhenToDay']) ? $_REQUEST['xx_ToWhenToDay'] : '00')),
-					'd_ToType' 			=> array('Func' => 'StrNotEmpty', 'Error' => true),
-					'd_Rule' 			=> array('Func' => 'StrNotEmpty', 'Error' => true)
-				);
-			}
-		}
-	}
+        else
+        {
+            $Arr_Values2Check_Index = array
+            (
+                'd_ToCode' 			=> array('Func' => 'StrNotEmpty', 'Error' => true),
+                'd_ToName' 			=> array('Func' => 'StrNotEmpty', 'Error' => true),
+                'd_ToCommitee' 		=> array('Func' => 'StrNotEmpty', 'Error' => true),
+                'd_ToComDescr' 		=> array('Func' => 'StrNotEmpty', 'Error' => true),
+                'd_ToWhere' 		=> array('Func' => 'StrNotEmpty', 'Error' => true),
+                'x_ToWhenFrom' 		=> array('Func' => 'GoodDate', 'Error' => true, 'Value' => (isset($_REQUEST['xx_ToWhenFromYear']) ?  $_REQUEST['xx_ToWhenFromYear'] : '0000') . '-' . (isset($_REQUEST['xx_ToWhenFromMonth']) ? $_REQUEST['xx_ToWhenFromMonth'] : '00') . '-' . (isset($_REQUEST['xx_ToWhenFromDay']) ? $_REQUEST['xx_ToWhenFromDay'] : '00')),
+                'x_ToWhenTo'		=> array('Func' => 'GoodDate', 'Error' => true, 'Value' => (isset($_REQUEST['xx_ToWhenToYear']) ?  $_REQUEST['xx_ToWhenToYear'] : '0000') . '-' . (isset($_REQUEST['xx_ToWhenToMonth']) ? $_REQUEST['xx_ToWhenToMonth'] : '00') . '-' . (isset($_REQUEST['xx_ToWhenToDay']) ? $_REQUEST['xx_ToWhenToDay'] : '00')),
+                'd_ToTimeZone' 			=> array('Func' => 'StrNotEmpty', 'Error' => true),
+                'd_ToType' 			=> array('Func' => 'StrNotEmpty', 'Error' => true),
+                'd_ToCountry' 		=> array('Func' => 'StrNotEmpty', 'Error' => true),
+                'd_Rule' 			=> array('Func' => 'StrNotEmpty', 'Error' => true)
+            );
+        }
+    }
+}
 
 //	$JS_SCRIPT = array(
 //		'<script type="text/javascript" src="../Common/ext-2.2/adapter/ext/ext-base.js"></script>',
@@ -343,13 +348,19 @@ $SetTypes=GetExistingTournamentTypes();
 	$Rs=NULL;
 	$MyRow=NULL;
 	if (!isset($_REQUEST['New'])) {
-		$Select
-			= "SELECT ToTimeZone,ToOptions,ToIocCode,ToCollation,ToId,ToType,ToCode,ToName,ToNameShort,ToCommitee,ToComDescr,ToWhere,DATE_FORMAT(ToWhenFrom,'" . get_text('DateFmtDB') . "') AS DtFrom,DATE_FORMAT(ToWhenTo,'" . get_text('DateFmtDB') . "') AS DtTo, "
-			. "DATE_FORMAT(ToWhenFrom,'%d') AS DtFromDay,DATE_FORMAT(ToWhenFrom,'%m') AS DtFromMonth,DATE_FORMAT(ToWhenFrom,'%Y') AS DtFromYear, "
-			. "DATE_FORMAT(ToWhenTo,'%d') AS DtToDay,DATE_FORMAT(ToWhenTo,'%m') AS DtToMonth,DATE_FORMAT(ToWhenTo,'%Y') AS DtToYear, "
-			. "ToTypeName AS TtName,ToNumDist AS TtNumDist,ToLocRule,ToPrintPaper,ToPrintChars,ToPrintLang,ToCurrency, ToTypeSubRule, ToUseHHT "
-			. "FROM Tournament "
-			. "WHERE ToId=" . StrSafe_DB($_SESSION['TourId']) . " ";
+		$Select = "SELECT *, 
+		        DATE_FORMAT(ToWhenFrom,'" . get_text('DateFmtDB') . "') AS DtFrom,
+		        DATE_FORMAT(ToWhenTo,'" . get_text('DateFmtDB') . "') AS DtTo, 
+			    DATE_FORMAT(ToWhenFrom,'%d') AS DtFromDay,
+			    DATE_FORMAT(ToWhenFrom,'%m') AS DtFromMonth,
+			    DATE_FORMAT(ToWhenFrom,'%Y') AS DtFromYear, 
+			    DATE_FORMAT(ToWhenTo,'%d') AS DtToDay,
+			    DATE_FORMAT(ToWhenTo,'%m') AS DtToMonth,
+			    DATE_FORMAT(ToWhenTo,'%Y') AS DtToYear, 
+			    ToTypeName AS TtName,
+			    ToNumDist AS TtNumDist
+			FROM Tournament
+			WHERE ToId=" . StrSafe_DB($_SESSION['TourId']) . " ";
 		$Rs=safe_r_sql($Select);
 		//print $Select;exit;
 	}
@@ -532,6 +543,31 @@ if (!isset($_REQUEST['New'])) {
 ?>
 </textarea>
 </td>
+</tr>
+
+<tr>
+<th class="TitleLeft" width="15%"><?php print get_text('CompVenue','Tournament');?></th>
+<td>
+<input type="text" name="d_ToVenue" class="TextInput" value="<?php
+if (!$MyRow) {
+	print (array_key_exists('d_ToVenue',$_REQUEST) ? $_REQUEST['d_ToVenue'] : '');
+} else {
+	print $MyRow->ToVenue;
+}
+?>">
+
+</td>
+</tr>
+
+<tr>
+    <th class="TitleLeft" width="15%"><?php echo get_text('Natl-Nation','Tournament'); ?></th>
+    <td><select name="d_ToCountry" <?php print ($Arr_Values2Check_Index['d_ToCountry']['Error'] ? ' class="error"' : '');?>><option value="">--</option>
+            <?php
+                foreach(get_Countries() as $k => $v) {
+                    echo '<option value="'.$k.'"'.(($MyRow and $k==$MyRow->ToCountry) ? ' selected':'').'>'.$k . ' - ' .$v.'</option>';
+                }
+            ?>
+        </select></td>
 </tr>
 
 <tr>

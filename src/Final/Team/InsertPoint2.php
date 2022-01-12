@@ -10,6 +10,16 @@ if (!CheckTourSession() || !isset($_REQUEST['d_Phase'])) PrintCrackError();
 checkACL(AclTeams, AclReadOnly);
 
 $Cols2Remove = (isset($_REQUEST['d_Tie']) && $_REQUEST['d_Tie']==1 ? 0 : 3);
+$QrCodeScorecards = '';
+if(module_exists("Barcodes")) {
+    $QrCodeScorecards .= "&Barcode=1";
+}
+foreach(AvailableApis() as $Api) {
+    if(!($tmp=getModuleParameter($Api, 'Mode')) || $tmp=='live' ) {
+        continue;
+    }
+    $QrCodeScorecards .= "&QRCode[]=$Api";
+}
 
 $Error=false;
 
@@ -264,7 +274,7 @@ if (safe_num_rows($Rs)>0) {
                 . '<a class="Link mr-5" href="javascript:ChangePhase(\'' . $NP . '\',' . $Sch. ');">' . get_text('NextPhase') . '</a>'
                 . '<a class="Link mr-5" href="PrnTeam.php?Event='.$MyRow->TfEvent.'&IncBrackets=1&ShowTargetNo=1" target="Griglie">' . get_text('Brackets') . '</a>';
             if($_REQUEST['d_Phase']>0) {
-                print '<a class="Link mr-5" href="PDFScoreMatch.php?Event='.$MyRow->TfEvent.'&Phase='.$NextPhase.'" target="Scores">' . get_text('NextMatchScores') . '</a>'
+                print '<a class="Link mr-5" href="PDFScoreMatch.php?Event='.$MyRow->TfEvent.'&Phase='.$NextPhase.$QrCodeScorecards.'" target="Scores">' . get_text('NextMatchScores') . '</a>'
                     . '<a class="Link mr-5" href="PrnName.php?Event='.$MyRow->TfEvent.'&Phase='.$NextPhase.'" target="Names">' . get_text('NextMatchNames') . '</a>'
                     ;
             }
@@ -340,11 +350,12 @@ if (safe_num_rows($Rs)>0) {
             print '<td id="Tie_' . $MyRow->TfEvent . '_' . $MyRow->GrMatchNo . '">';
             $TieBreak = str_pad($MyRow->TfTiebreak,$obj->so,' ',STR_PAD_RIGHT);
             for($pSo=0; $pSo<3; $pSo++ ) {
+            	echo '<div class="NoWrap">';
                 for ($i = 0; $i < $obj->so; ++$i) {
                     $ArrI = $i+($pSo*$obj->so);
                     print '<input type="text" name="TieArrows[' . $MyRow->TfEvent . '][' . $MyRow->GrMatchNo . '][]" size="2" maxlength="3" value="' . (!empty($TieBreak[$ArrI]) ? DecodeFromLetter($TieBreak[$ArrI]):'') . '">&nbsp;';
                 }
-                print '<br>';
+                print '</div>';
             }
 
             print '</td>';

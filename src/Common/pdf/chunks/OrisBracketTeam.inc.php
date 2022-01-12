@@ -152,8 +152,8 @@ foreach($PdfData->rankData['sections'] as $Event => $section) {
 					$tmpSetPoint1.='-';
 					$tmpSetPoint2.='-';
 				}
-				$tmpSetPoint1.='T';
-				$tmpSetPoint2.='T';
+				$tmpSetPoint1.='T.';
+				$tmpSetPoint2.='T.';
 
 				if(strlen(trim($Obj1->TfTieBreak)) > 0) {
 					$tmpSetPoint1.=str_replace('*','+',$Obj1->TfTieBreakDecoded);
@@ -380,5 +380,3 @@ foreach($PdfData->Events as $Event => $Pages) {
 }
 
 $pdf->Records=array();
-
-

@@ -63,15 +63,23 @@ switch($SubRule) {
 // Default Target
 switch($TourType) {
 	case 9:
-		CreateTargetFace($TourId, 1, get_text('FieldPegYellow', 'Install'), 'REG-^BC', '1', 6, 0);
-		CreateTargetFace($TourId, 2, get_text('FieldPegBlue', 'Install'), 'REG-^(B[^C]|[CR]C)', '1', 6, 0);
-		CreateTargetFace($TourId, 3, get_text('FieldPegRed', 'Install'), 'REG-^[CR][^C]', '1', 6, 0);
+		if($SubRule == 1 OR $SubRule == 3) {
+			CreateTargetFace($TourId, 1, get_text('FieldPegYellow', 'Install'), 'REG-^BU18', '1', 6, 0);
+			CreateTargetFace($TourId, 2, get_text('FieldPegBlue', 'Install'), 'REG-^([RC]U18.)|(B[0-79a-zA-Z]+)$', '1', 6, 0);
+		} else {
+			CreateTargetFace($TourId, 2, get_text('FieldPegBlue', 'Install'), 'REG-^(B[0-79a-zA-Z]+)$', '1', 6, 0);
+		}
+		CreateTargetFace($TourId, 3, get_text('FieldPegRed', 'Install'), 'REG-^[CR][0-79a-zA-Z]+$', '1', 6, 0);
 		break;
 	case 10:
 	case 12:
-		CreateTargetFace($TourId, 1, get_text('FieldPegYellow', 'Install'), 'REG-^BC', '1', 6, 0, 6, 0);
-		CreateTargetFace($TourId, 2, get_text('FieldPegBlue', 'Install'), 'REG-^(B[^C]|[CR]C)', '1', 6, 0, 6, 0);
-		CreateTargetFace($TourId, 3, get_text('FieldPegRed', 'Install'), 'REG-^[CR][^C]', '1', 6, 0, 6, 0);
+		if($SubRule == 1 OR $SubRule == 3) {
+			CreateTargetFace($TourId, 1, get_text('FieldPegYellow', 'Install'), 'REG-^BU18', '1', 6, 0, 6, 0);
+			CreateTargetFace($TourId, 2, get_text('FieldPegBlue', 'Install'), 'REG-^([RC]U18.)|(B[0-79a-zA-Z]+)$', '1', 6, 0, 6, 0);
+		} else {
+			CreateTargetFace($TourId, 2, get_text('FieldPegBlue', 'Install'), 'REG-^(B[0-79a-zA-Z]+)$', '1', 6, 0, 6, 0);
+		}
+		CreateTargetFace($TourId, 3, get_text('FieldPegRed', 'Install'), 'REG-^[CR][0-79a-zA-Z]+$', '1', 6, 0, 6, 0);
 		break;
 }
 

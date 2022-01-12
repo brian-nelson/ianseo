@@ -20,6 +20,7 @@ switch($TourType) {
 case 3:	// Outdoor - Utandyra fjarlægðir - COMPLETE
 
 	//Sveigbogi
+	CreateDistanceNew($TourId, $TourType, 'RK_', array(array('20m-1',20), array('20m-2',20)));
 	CreateDistanceNew($TourId, $TourType, 'RN_', array(array('40m-1',40), array('40m-2',40)));
 	CreateDistanceNew($TourId, $TourType, 'RC_', array(array('60m-1',60), array('60m-2',60)));
 	CreateDistanceNew($TourId, $TourType, 'RJ_', array(array('70m-1',70), array('70m-2',70)));
@@ -29,8 +30,10 @@ case 3:	// Outdoor - Utandyra fjarlægðir - COMPLETE
 	CreateDistanceNew($TourId, $TourType, 'R6_', array(array('60m-1',60), array('60m-2',60)));
 	CreateDistanceNew($TourId, $TourType, 'R7_', array(array('60m-1',60), array('60m-2',60)));
 	CreateDistanceNew($TourId, $TourType, 'R_', array(array('70m-1',70), array('70m-2',70)));
+	CreateDistanceNew($TourId, $TourType, 'RA_', array(array('40m-1',40), array('40m-2',40)));
 	
 	//Trissubogi
+	CreateDistanceNew($TourId, $TourType, 'CK_', array(array('20m-1',20), array('20m-2',20)));
 	CreateDistanceNew($TourId, $TourType, 'CN_', array(array('30m-1',30), array('30m-2',30)));
 	CreateDistanceNew($TourId, $TourType, 'CC_', array(array('50m-1',50), array('50m-2',50)));
 	CreateDistanceNew($TourId, $TourType, 'CJ_', array(array('50m-1',50), array('50m-2',50)));
@@ -40,23 +43,26 @@ case 3:	// Outdoor - Utandyra fjarlægðir - COMPLETE
 	CreateDistanceNew($TourId, $TourType, 'C6_', array(array('50m-1',50), array('50m-2',50)));
 	CreateDistanceNew($TourId, $TourType, 'C7_', array(array('50m-1',50), array('50m-2',50)));
 	CreateDistanceNew($TourId, $TourType, 'C_', array(array('50m-1',50), array('50m-2',50)));
+	CreateDistanceNew($TourId, $TourType, 'CA_', array(array('30m-1',30), array('30m-2',30)));
 	
 	//Berbogi
+	CreateDistanceNew($TourId, $TourType, 'BK_', array(array('20m-1',20), array('20m-2',20)));
 	CreateDistanceNew($TourId, $TourType, 'BN_', array(array('30m-1',30), array('30m-2',30)));
 	CreateDistanceNew($TourId, $TourType, 'BC_', array(array('40m-1',40), array('40m-2',40)));
 	CreateDistanceNew($TourId, $TourType, 'BJ_', array(array('50m-1',50), array('50m-2',50)));
-	CreateDistanceNew($TourId, $TourType, 'B3_', array(array('18m-1',18), array('18m-2',18)));
-	CreateDistanceNew($TourId, $TourType, 'B4_', array(array('18m-1',18), array('18m-2',18)));
-	CreateDistanceNew($TourId, $TourType, 'B5_', array(array('18m-1',18), array('18m-2',18)));
-	CreateDistanceNew($TourId, $TourType, 'B6_', array(array('18m-1',18), array('18m-2',18)));
-	CreateDistanceNew($TourId, $TourType, 'B7_', array(array('18m-1',18), array('18m-2',18)));
-	CreateDistanceNew($TourId, $TourType, 'B_', array(array('18m-1',18), array('18m-2',18)));
+	CreateDistanceNew($TourId, $TourType, 'B3_', array(array('50m-1',50), array('50m-2',50)));
+	CreateDistanceNew($TourId, $TourType, 'B4_', array(array('50m-1',50), array('50m-2',50)));
+	CreateDistanceNew($TourId, $TourType, 'B5_', array(array('50m-1',50), array('50m-2',50)));
+	CreateDistanceNew($TourId, $TourType, 'B6_', array(array('50m-1',50), array('50m-2',50)));
+	CreateDistanceNew($TourId, $TourType, 'B7_', array(array('50m-1',50), array('50m-2',50)));
+	CreateDistanceNew($TourId, $TourType, 'B_', array(array('50m-1',50), array('50m-2',50)));
+	CreateDistanceNew($TourId, $TourType, 'BA_', array(array('30m-1',30), array('30m-2',30)));
 	
 	
     break;
 case 6:    // Indoor - Innandyra 18m fjarlægðir
 
-	CreateDistanceNew($TourId, $TourType, '_K_', array(array('12m-1',12), array('12m-2',12)));
+	CreateDistanceNew($TourId, $TourType, '_K_', array(array('6m-1',6), array('6m-2',6)));
 	CreateDistanceNew($TourId, $TourType, '_N_', array(array('12m-1',12), array('12m-2',12)));
 	CreateDistanceNew($TourId, $TourType, '_C_', array(array('18m-1',18), array('18m-2',18)));
 	CreateDistanceNew($TourId, $TourType, '_J_', array(array('18m-1',18), array('18m-2',18)));
@@ -68,6 +74,7 @@ case 6:    // Indoor - Innandyra 18m fjarlægðir
 	CreateDistanceNew($TourId, $TourType, '_M', array(array('18m-1',18), array('18m-2',18)));
 	CreateDistanceNew($TourId, $TourType, '_W', array(array('18m-1',18), array('18m-2',18)));
 	CreateDistanceNew($TourId, $TourType, '_U', array(array('18m-1',18), array('18m-2',18)));
+	CreateDistanceNew($TourId, $TourType, '_A_', array(array('12m-1',12), array('12m-2',12)));
 	
     break;
 }
@@ -85,51 +92,61 @@ CreateFinals($TourId);
 $i=1;
 switch($TourType) {
 	case 6: // Indoor - Innandyra skífur
-        if ($SubRule==1) {
+        if ($SubRule==1) { //Allir flokkar
 		// Optional Recurve - valmöguleika skífur fyrir sveigboga
-        CreateTargetFace($TourId, $i++, '~40cm (6-10)', 'RM', '', 2, 40, 2, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (6-10)', 'RW', '', 2, 40, 2, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (6-10)', 'RM_', '', 2, 40, 2, 40);
+        CreateTargetFace($TourId, $i++, '~40cm (6-10)', 'R_', '', 2, 40, 2, 40);
         CreateTargetFace($TourId, $i++, '~40cm (6-10)', 'RJ_', '', 2, 40, 2, 40);
 		CreateTargetFace($TourId, $i++, '~60cm (6-10)', 'RC_', '', 2, 60, 2, 60);
 		CreateTargetFace($TourId, $i++, '~60cm (6-10)', 'RN_', '', 2, 60, 2, 60);
 		// Recurve - Sveigboga skífur standard undankeppni
-		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'RM', '1', 1, 40, 1, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'RW', '1', 1, 40, 1, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'RM_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'R_', '1', 1, 40, 1, 40);
         CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'RJ_', '1', 1, 40, 1, 40);
 		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'RC_', '1', 1, 60, 1, 60);
 		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'RN_', '1', 1, 60, 1, 60);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'RK_', '1', 1, 60, 1, 60);
+        CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'R3_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'R4_', '1', 1, 40, 1, 40);
+        CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'R5_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'R6_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'R7_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'RA_', '1', 1, 40, 1, 40);		
 		
 		// optional Compound - valmöguleika skífur fyrir trissuboga
-        CreateTargetFace($TourId, $i++, '~40cm (6-10 small-ten)', 'CM', '', 4, 40, 4, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (6-10 small-ten)', 'CW', '', 4, 40, 4, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (6-10 small-ten)', 'CM_', '', 4, 40, 4, 40);
+        CreateTargetFace($TourId, $i++, '~40cm (6-10 small-ten)', 'C_', '', 4, 40, 4, 40);
 		CreateTargetFace($TourId, $i++, '~40cm (6-10 small-ten)', 'CJ_', '', 4, 40, 4, 40);
 		CreateTargetFace($TourId, $i++, '~60cm (6-10 small-ten)', 'CC_', '', 4, 60, 4, 60);
 		CreateTargetFace($TourId, $i++, '~60cm (6-10 small-ten)', 'CN_', '', 4, 60, 4, 60);
 		// Compound - Trissuboga skífur standard undankeppni
-		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'CM', '1', 3, 40, 3, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'CW', '1', 3, 40, 3, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'CM_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C_', '1', 3, 40, 3, 40);
 		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'CJ_', '1', 3, 40, 3, 40);
 		CreateTargetFace($TourId, $i++, '~60cm (1-10 small-ten)', 'CC_', '1', 3, 60, 3, 60);
 		CreateTargetFace($TourId, $i++, '~60cm (1-10 small-ten)', 'CN_', '1', 3, 60, 3, 60);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10 small-ten)', 'CK_', '1', 3, 60, 3, 60);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C3_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C4_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C5_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C6_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C7_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'CA_', '1', 3, 40, 3, 40);
 		
-		// Barebow - Berboga skífur standard undankeppni
-        CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'BM', '1', 1, 40, 1, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'BW', '1', 1, 40, 1, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'BM_', '1', 1, 40, 1, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'BJ_', '1', 1, 40, 1, 40);
-		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'BC_', '1', 1, 60, 1, 60);
-		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'BN_', '1', 1, 60, 1, 60);	
         // optional Barebow - valmöguleika skífur fyrir berboga
-		CreateTargetFace($TourId, $i++, '~40cm (6-10)', 'BM', '', 2, 40, 2, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (6-10)', 'BW', '', 2, 40, 2, 40);
-		CreateTargetFace($TourId, $i++, '~40cm (6-10)', 'BM_', '', 2, 40, 2, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (6-10)', 'B_', '', 2, 40, 2, 40);
 		CreateTargetFace($TourId, $i++, '~40cm (6-10)', 'BJ_', '', 2, 40, 2, 40);
 		CreateTargetFace($TourId, $i++, '~60cm (6-10)', 'BC_', '', 2, 60, 2, 60);
 		CreateTargetFace($TourId, $i++, '~60cm (6-10)', 'BN_', '', 2, 60, 2, 60);
+		// Barebow - Berboga skífur standard undankeppni
+        CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'BJ_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'BC_', '1', 1, 60, 1, 60);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'BN_', '1', 1, 60, 1, 60);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'BK_', '1', 1, 60, 1, 60);
+        CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B3_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B4_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B5_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B6_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B7_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'BA_', '1', 1, 40, 1, 40);
+		
 		}
 		if ($SubRule==2) {
 		// Optional Recurve - valmöguleika skífur fyrir sveigboga
@@ -159,9 +176,9 @@ switch($TourType) {
 		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C%', '1', 3, 40, 3, 40);
 		
 		// optional Barebow - valmöguleika skífur fyrir berboga
-        CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B%', '', 1, 40, 1, 40);
+        CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B%', '1', 1, 40, 1, 40);
         // Barebow - Berboga skífur standard undankeppni
-		CreateTargetFace($TourId, $i++, '~40cm (6-10)', 'B%', '1', 2, 40, 2, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (6-10)', 'B%', '', 2, 40, 2, 40);
 		}
 		if ($SubRule==4) {
 		// Youth Series
@@ -221,6 +238,49 @@ switch($TourType) {
 		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B7_', '1', 1, 40, 1, 40);	
 		
 		}
+        if ($SubRule==6) { //Allir flokkar Unisex
+
+		// Recurve - Sveigboga skífur standard undankeppni
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'R_', '1', 1, 40, 1, 40);
+        CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'RJ_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'RC_', '1', 1, 60, 1, 60);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'RN_', '1', 1, 60, 1, 60);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'RK_', '1', 1, 60, 1, 60);
+        CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'R3_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'R4_', '1', 1, 40, 1, 40);
+        CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'R5_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'R6_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'R7_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'RA_', '1', 1, 40, 1, 40);		
+		
+		// Compound - Trissuboga skífur standard undankeppni
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'CJ_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10 small-ten)', 'CC_', '1', 3, 60, 3, 60);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10 small-ten)', 'CN_', '1', 3, 60, 3, 60);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10 small-ten)', 'CK_', '1', 3, 60, 3, 60);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C3_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C4_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C5_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C6_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'C7_', '1', 3, 40, 3, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10 small-ten)', 'CA_', '1', 3, 40, 3, 40);
+		
+		// Barebow - Berboga skífur standard undankeppni
+        CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'BJ_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'BC_', '1', 1, 60, 1, 60);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'BN_', '1', 1, 60, 1, 60);
+		CreateTargetFace($TourId, $i++, '~60cm (1-10)', 'BK_', '1', 1, 60, 1, 60);
+        CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B3_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B4_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B5_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B6_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'B7_', '1', 1, 40, 1, 40);
+		CreateTargetFace($TourId, $i++, '~40cm (1-10)', 'BA_', '1', 1, 40, 1, 40);
+		
+		}
+
 		
         break;
     case 3: // Outdoor - Utandyra skífur - COMPLETE

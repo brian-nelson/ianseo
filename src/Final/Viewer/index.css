@@ -2,6 +2,8 @@ body {padding:0 !important;}
 
 #OverAllMenu {display:none;}
 
+[onclick] {cursor: pointer}
+
 #ToggleMenu {
     position:absolute;
     overflow:hidden;
@@ -17,39 +19,61 @@ body {padding:0 !important;}
 #OppLeft,
 #OppRight {
     font-size:1.5vw;
+    white-space: nowrap;
     font-weight:bold;
-    flex: 0 0 40vw;
-}
-#OppLeft {
-    padding-left:10vw;
-}
-#OppRight {
-    padding-right:10vw;
 }
 #Event {
-    flex: 0 0 20vw;
+    font-size: 1vw;
+    white-space: nowrap;
 }
+#OppLeftContainer {
+    flex: 0 0 44vw;
+}
+#OppRightContainer {
+    flex: 0 0 44vw;
+}
+#EventContainer {
+    flex: 0 0 10vw;
+}
+
+#CoachLeft,
+#CoachRight,
+.judges,
+.records {
+    padding-left: 2.5vw;
+}
+.oldrecord {
+    padding-left: 2.75vw;
+    font-size: 0.9rem;
+}
+
+#CoachL,
+#CoachR,
+.judge {
+    font-weight:bold;
+}
+
 
 #ScoreLeft,
 #ScoreRight {
     vertical-align: bottom;
     padding-bottom: 5px;
+    font-size:2.5vw;
 }
+
+#ScoreLeft.reduced,
+#ScoreRight.reduced {
+    vertical-align: bottom;
+    padding-bottom: 5px;
+    font-size:1.75vw;
+}
+
 
 #ScoreLeft div,
 #ScoreRight div {
-    font-size:1.75vw;
     border-radius: 0.5em;
-    margin-left:0.5em;
+    margin-left:0.25em;
     min-width:2em;
-}
-
-#ScoreLeft div.total,
-#ScoreRight div.total {
-    font-size:1.75vw;
-    border-radius: 0.5em;
-    margin-left:0.5em;
-    width:3em;
 }
 
 #TgtLeft,
@@ -62,7 +86,7 @@ body {padding:0 !important;}
 }
 
 .btnViewMenu {
-    font-size: 1vw;
+    font-size: 1.1vw;
     padding: 0.5em;
 }
 
@@ -128,4 +152,12 @@ hr.spacer {
 .ceremoniesHighLight {
     text-align: center;
     font-weight: bold;
+}
+
+.arrowDist {
+    font-size: 80%;
+}
+
+.hidden {
+    display: none;
 }

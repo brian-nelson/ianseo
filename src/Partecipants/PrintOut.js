@@ -10,3 +10,20 @@ function CheckOrisTeam(obj) {
 		obj.href+=href;
 	}
 }
+
+function printCountries() {
+	var href='OrisCountry.php?SinglePage=1';
+	if($('#CoDoB:checked').length>0) {
+		href+='&dob=1';
+	}
+	if($('#CoContacts:checked').length>0) {
+		href+='&contacts=1';
+	}
+	if($('#CoMissing:checked').length>0) {
+		href+='&missing=1';
+	}
+	if($('#CoPictures:checked').length>0) {
+		href+='&retake=1';
+	}
+	window.open(href);
+}

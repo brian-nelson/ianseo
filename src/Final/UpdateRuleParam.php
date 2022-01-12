@@ -61,10 +61,12 @@ switch($_REQUEST['fld']) {
 		break;
 	case 'parent':
 		// check the parent code really exists
-		$q=safe_r_sql("select * from Events where EvTeamEvent=$Team and EvCode=" . StrSafe_DB($_REQUEST['val']) . " and EvTournament={$_SESSION['TourId']}");
-		if(!safe_num_rows($q)) {
-			JsonOut($JSON);
-		}
+        if(!empty($_REQUEST['val'])) {
+            $q = safe_r_sql("select * from Events where EvTeamEvent=$Team and EvCode=" . StrSafe_DB($_REQUEST['val']) . " and EvTournament={$_SESSION['TourId']}");
+            if (!safe_num_rows($q)) {
+                JsonOut($JSON);
+            }
+        }
 		$SQL="update Events set EvCodeParent=" . StrSafe_DB($_REQUEST['val']) . $Where;
 		$RedoBrackets=true;
 		break;

@@ -19,9 +19,9 @@ if(!empty($_REQUEST['Day'])) {
 		$DaysToPrint[]=date('Y-m-d', $_SESSION['ToWhenFromUTS'] + $k*86400);
 	}
 } else {
-	foreach(range(0,  intval(($_SESSION['ToWhenToUTS']-$_SESSION['ToWhenFromUTS'])/86400)) as $n) {
-		$DaysToPrint[]=date('Y-m-d', $_SESSION['ToWhenFromUTS'] + $n*86400);
-	}
+	//foreach(range(0,  intval(($_SESSION['ToWhenToUTS']-$_SESSION['ToWhenFromUTS'])/86400)) as $n) {
+	//	$DaysToPrint[]=date('Y-m-d', $_SESSION['ToWhenFromUTS'] + $n*86400);
+	//}
 }
 
 
@@ -51,6 +51,5 @@ $Scheduler->SplitLocations=true;
 $Scheduler->DaysToPrint=$DaysToPrint;
 $Scheduler->LocationsToPrint=$LocationsToPrint;
 
-$pdf=$Scheduler->FOP();
-$pdf->Output();
+$Scheduler->FOP();
 

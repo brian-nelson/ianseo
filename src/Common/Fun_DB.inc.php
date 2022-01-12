@@ -68,6 +68,11 @@ function SetParameter($ParId, $ParValue, $encoded=false) {
 	safe_w_SQL($Query);
 }
 
+function DelParameter($ParId) {
+	$Query = "delete from Parameters where ParId="  .StrSafe_DB($ParId);
+	safe_w_SQL($Query);
+}
+
 function safe_w_con($error=false) {
 	global $ERROR_REPORT, $CFG, $Collations;
 	if($ERROR_REPORT) $GLOBALS['safe_SQL']['w_connect']++;
@@ -380,11 +385,12 @@ function GetAccBoothEnWhere($EnId, $Division=false, $Limit=false) {
 	return '';
 }
 
-function checkGPL() {
+function checkGPL($Force=false) {
 	if(isset($_REQUEST['acceptGPL'])) {
 		SetParameter('AcceptGPL', date('Y-m-d H:i:s'));
+        return;
 	}
-	if(GetParameter('AcceptGPL')<date('Y-m-d H:i:s', strtotime('-1 month'))) {
+	if($Force or GetParameter('AcceptGPL')<date('Y-m-d H:i:s', strtotime('-1 month'))) {
 		AcceptGPL();
 	}
 }

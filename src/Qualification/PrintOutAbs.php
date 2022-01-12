@@ -10,11 +10,11 @@
 		'<script type="text/javascript">
 		function changevisibility(box, who, optdiv) {
 			if(box.checked) {
-				if(who!=undefined) document.getElementById(who).style.display=\'block\';
-				if(optdiv!=undefined) document.getElementById(optdiv).style.display=\'none\';
+				if(who !== undefined) document.getElementById(who).style.display=\'block\';
+				if(optdiv !== undefined) document.getElementById(optdiv).style.display=\'none\';
 			} else {
-				if(who!=undefined) document.getElementById(who).style.display=\'none\';
-				if(optdiv!=undefined) document.getElementById(optdiv).style.display=\'block\';
+				if(who !== undefined) document.getElementById(who).style.display=\'none\';
+				if(optdiv !== undefined) document.getElementById(optdiv).style.display=\'block\';
 			}
 		}
 		</script>');

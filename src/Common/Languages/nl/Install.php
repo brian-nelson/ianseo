@@ -177,7 +177,6 @@ $lang['Setup-CA']='Canadese regels';
 $lang['Setup-CH']='Zwitserseregels';
 $lang['Setup-Default']='Standaard toernooi (WA regels)';
 $lang['Setup-DK']='Deense wedstrijdreglementen';
-$lang['Setup-F2F']='Face2Face';
 $lang['Setup-FR']='Franse wedstrijdreglementen';
 $lang['Setup-IT']='Italiaanse wedstrijdreglementen - FITARCO';
 $lang['Setup-NFAA']='NFAA wedstrijdreglement';

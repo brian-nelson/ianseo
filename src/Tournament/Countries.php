@@ -154,19 +154,16 @@ echo '<th class="Title">'.get_text('Image', 'Tournament').'</th>';
 echo '<th class="Title">'.get_text('CmdDelete', 'Tournament').'</th>';
 echo '</tr>';
 
-$q=safe_r_sql("select distinct "
-	. " CoCode, "
-	. " CoName, "
-	. " fl.* "
-	. "from"
-	. " Countries"
-	. " INNER JOIN Entries on CoId in (EnCountry, EnCountry2, EnCountry3)"
-	. " left join (select distinct FlCode, (FlJPG IS NOT NULL) as isFlJPG, (FlSVG IS NOT NULL) as isFlSVG, FlTournament from Flags where FlTournament in (-1, {$_SESSION['TourId']}) order by FlCode, FlTournament desc) fl on FlCode=CoCode "
-	. "where"
-	. " CoTournament = {$_SESSION['TourId']}"
-	. ($edit?" and CoCode='$edit' ":" and CoCode>'' ")
-	. "order by"
-	. " isFlSVG, isFlJPG, CoCode, FlTournament desc");
+$q=safe_r_sql("select distinct CoCode, CoName, fl.*
+	from Countries
+	left JOIN Entries on CoId in (EnCountry, EnCountry2, EnCountry3)
+	left JOIN TournamentInvolved on TiCountry=CoId and TiTournament=CoTournament
+	left join (select distinct FlCode, (FlJPG IS NOT NULL) as isFlJPG, (FlSVG IS NOT NULL) as isFlSVG, FlTournament from Flags where FlTournament in (-1, {$_SESSION['TourId']}) order by FlCode, FlTournament desc) fl on FlCode=CoCode
+	where
+		CoTournament = {$_SESSION['TourId']}
+		and coalesce(EnId, TiId) is not null
+		" . ($edit?" and CoCode='$edit' ":" and CoCode>'' ") . "
+		order by isFlSVG, isFlJPG, CoCode, FlTournament desc");
 
 $OldCode='';
 while($r=safe_fetch($q)) {

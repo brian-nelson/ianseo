@@ -349,6 +349,13 @@
 		if (count($this->opts['eventsC'])>0) {
 			foreach ($this->opts['eventsC'] as $c) {
 				list($event,$phase)=explode('@',$c);
+				if(getModuleParameter('FFTA', 'D1AllInOne', 0) and strlen($event)==4) {
+					require_once('Common/Rank/Obj_Rank_FinalTeam.php');
+					require_once('Common/Rank/Obj_Rank_FinalTeam_calc.php');
+					$tmp=new Obj_Rank_FinalTeam_calc($this->opts);
+					return $tmp->calculate();
+				}
+
 				$x=true;
 				switch ($phase) {
 					case -3:
@@ -365,11 +372,12 @@
 						 * EACH group of matches (game) assigns 2 points to the winner, tie is resolved through the winner of the team match
 						 *
 						 * in 2020 change of points: After 5 matches the winning team gets 3 poiints, in case of tie 1 point each
+						 * in 2021 another change: $AllInOne is set then onl team matches are done
 						 */
 						$TeamDavis=array();
 						$Bonus=getModuleParameter('FFTA', 'D1Bonus');
 						$YEAR = substr($_SESSION['TourRealWhenFrom'],0,4);
-						if($YEAR>=2020) {
+						if($YEAR>=2020 and !$this->AllInOne) {
 							$MatchWinner=3;
 						} else {
 							$MatchWinner=2;
@@ -379,63 +387,113 @@
 						if($this->FromIndividual) {
 							$event=substr($event,0,-1);
 						}
-						$SQL="select 
-       							c1.CoCode as Team1,
-       							c2.CoCode as Team2,
-       							tf1.TfSubTeam as SubTeam1,
-       							tf2.TfSubTeam as SubTeam2,
-       							tf1.TfWinLose*2 + sum(f1.FinWinLose) as WinPoints1,
-       							tf2.TfWinLose*2 + sum(f2.FinWinLose) as WinPoints2,
-       							tf1.TfWinLose as Winner1,
-       							tf2.TfWinLose as Winner2,
-       							t1.TeRank as Rank1,
-       							t2.TeRank as Rank2
-							from TeamFinals tf1
-							inner join Teams t1 on t1.TeTournament=tf1.TfTournament and t1.TeEvent=tf1.TfEvent and t1.TeCoId=tf1.TfTeam and t1.TeSubTeam=tf1.TfSubTeam and t1.TeFinEvent=1
-							inner join Countries c1 on c1.CoId=tf1.TfTeam and c1.CoTournament=tf1.TfTournament
-							inner join TeamFinals tf2 on tf2.TfEvent=tf1.TfEvent and tf2.TfTournament=tf1.TfTournament and tf2.TfMatchNo=tf1.TfMatchNo+1
-							inner join Teams t2 on t2.TeTournament=tf2.TfTournament and t2.TeEvent=tf2.TfEvent and t2.TeCoId=tf2.TfTeam and t2.TeSubTeam=tf2.TfSubTeam and t2.TeFinEvent=1
-							inner join Countries c2 on c2.CoId=tf2.TfTeam and c2.CoTournament=tf2.TfTournament
-							inner join Finals f1 on f1.FinEvent like concat(tf1.TfEvent,'%') and f1.FinTournament=tf1.TfTournament and f1.FinMatchNo=tf1.TfMatchNo
-							inner join Finals f2 on f2.FinEvent = f1.FinEvent and f2.FinTournament=tf2.TfTournament and f2.FinMatchNo=tf2.TfMatchNo
-							where tf1.TfTournament={$this->tournament} and tf1.TfEvent='$event' and tf1.TfMatchNo%2=0
-							group by tf1.TfMatchNo, tf2.TfMatchNo";
+						if($this->AllInOne) {
+							$SQL="select 
+	                                c1.CoCode as Team1,
+	                                c2.CoCode as Team2,
+	                                tf1.TfSubTeam as SubTeam1,
+	                                tf2.TfSubTeam as SubTeam2,
+	                                if(EvMatchMode, tf1.TfSetScore, tf1.TfScore) as WinPoints1,
+	                                if(EvMatchMode, tf2.TfSetScore, tf2.TfScore) as WinPoints2,
+	                                tf1.TfWinLose as Winner1,
+	                                tf2.TfWinLose as Winner2,
+	                                t1.TeRank as Rank1,
+	                                t2.TeRank as Rank2,
+       								EvMatchMode
+								from TeamFinals tf1
+								inner join Teams t1 on t1.TeTournament=tf1.TfTournament and t1.TeEvent=tf1.TfEvent and t1.TeCoId=tf1.TfTeam and t1.TeSubTeam=tf1.TfSubTeam and t1.TeFinEvent=1
+								inner join Countries c1 on c1.CoId=tf1.TfTeam and c1.CoTournament=tf1.TfTournament
+								inner join TeamFinals tf2 on tf2.TfEvent=tf1.TfEvent and tf2.TfTournament=tf1.TfTournament and tf2.TfMatchNo=tf1.TfMatchNo+1
+								inner join Teams t2 on t2.TeTournament=tf2.TfTournament and t2.TeEvent=tf2.TfEvent and t2.TeCoId=tf2.TfTeam and t2.TeSubTeam=tf2.TfSubTeam and t2.TeFinEvent=1
+								inner join Countries c2 on c2.CoId=tf2.TfTeam and c2.CoTournament=tf2.TfTournament
+							    inner join Events on EvTournament=tf1.TfTournament and EvTeamEvent=1 and EvCode=tf1.TfEvent
+								where tf1.TfTournament={$this->tournament} and tf1.TfEvent='$event' and tf1.TfMatchNo%2=0
+								group by tf1.TfMatchNo, tf2.TfMatchNo";
 
-						$q=safe_r_sql($SQL);
-						while($r=safe_fetch($q)) {
-							if(empty($TeamDavis["$r->Team1"][$r->SubTeam1])) {
-								$TeamDavis["$r->Team1"][$r->SubTeam1]=array('b'=>(isset($Bonus[$event][$r->Rank1]) ? intval($Bonus[$event][$r->Rank1]) : 0),'mp'=>0,'wp'=>0,'lp'=>0);
-							}
-							if(empty($TeamDavis["$r->Team2"][$r->SubTeam2])) {
-								$TeamDavis["$r->Team2"][$r->SubTeam2]=array('b'=>(isset($Bonus[$event][$r->Rank2]) ? intval($Bonus[$event][$r->Rank2]) : 0),'mp'=>0,'wp'=>0,'lp'=>0);
-							}
-							$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=0;
-							$TeamDavis["$r->Team1"][$r->SubTeam1]['wp']+=$r->WinPoints1;
-							$TeamDavis["$r->Team1"][$r->SubTeam1]['lp']+=$r->WinPoints2;
-							$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=0;
-							$TeamDavis["$r->Team2"][$r->SubTeam2]['wp']+=$r->WinPoints2;
-							$TeamDavis["$r->Team2"][$r->SubTeam2]['lp']+=$r->WinPoints1;
-							if($r->WinPoints1 + $r->WinPoints2 >= 5) {
-								if($r->WinPoints1 > $r->WinPoints2) {
+							$q=safe_r_sql($SQL);
+							while($r=safe_fetch($q)) {
+								if(empty($TeamDavis["$r->Team1"][$r->SubTeam1])) {
+									$TeamDavis["$r->Team1"][$r->SubTeam1]=array('b'=>(isset($Bonus[$event][$r->Rank1]) ? intval($Bonus[$event][$r->Rank1]) : 0),'mp'=>0,'wp'=>0,'lp'=>0);
+								}
+								if(empty($TeamDavis["$r->Team2"][$r->SubTeam2])) {
+									$TeamDavis["$r->Team2"][$r->SubTeam2]=array('b'=>(isset($Bonus[$event][$r->Rank2]) ? intval($Bonus[$event][$r->Rank2]) : 0),'mp'=>0,'wp'=>0,'lp'=>0);
+								}
+								$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=0;
+								$TeamDavis["$r->Team1"][$r->SubTeam1]['wp']+=$r->WinPoints1;
+								if($r->EvMatchMode) {
+									$TeamDavis["$r->Team1"][$r->SubTeam1]['lp']+=$r->WinPoints2;
+								}
+								$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=0;
+								$TeamDavis["$r->Team2"][$r->SubTeam2]['wp']+=$r->WinPoints2;
+								if($r->EvMatchMode) {
+									$TeamDavis["$r->Team2"][$r->SubTeam2]['lp']+=$r->WinPoints1;
+								}
+								if($r->Winner1) {
 									$TeamDavis["$r->Team1"][$r->SubTeam1]['mp'] += $MatchWinner;
-								} elseif($r->WinPoints1 < $r->WinPoints2) {
+								} elseif($r->Winner2) {
 									$TeamDavis["$r->Team2"][$r->SubTeam2]['mp'] += $MatchWinner;
-								} else {
-									if($YEAR>=2020) {
-										$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=1;
-										$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=1;
+								}
+							}
+						} else {
+							$SQL="select 
+	                                c1.CoCode as Team1,
+	                                c2.CoCode as Team2,
+	                                tf1.TfSubTeam as SubTeam1,
+	                                tf2.TfSubTeam as SubTeam2,
+	                                tf1.TfWinLose*2 + sum(f1.FinWinLose) as WinPoints1,
+	                                tf2.TfWinLose*2 + sum(f2.FinWinLose) as WinPoints2,
+	                                tf1.TfWinLose as Winner1,
+	                                tf2.TfWinLose as Winner2,
+	                                t1.TeRank as Rank1,
+	                                t2.TeRank as Rank2
+								from TeamFinals tf1
+								inner join Teams t1 on t1.TeTournament=tf1.TfTournament and t1.TeEvent=tf1.TfEvent and t1.TeCoId=tf1.TfTeam and t1.TeSubTeam=tf1.TfSubTeam and t1.TeFinEvent=1
+								inner join Countries c1 on c1.CoId=tf1.TfTeam and c1.CoTournament=tf1.TfTournament
+								inner join TeamFinals tf2 on tf2.TfEvent=tf1.TfEvent and tf2.TfTournament=tf1.TfTournament and tf2.TfMatchNo=tf1.TfMatchNo+1
+								inner join Teams t2 on t2.TeTournament=tf2.TfTournament and t2.TeEvent=tf2.TfEvent and t2.TeCoId=tf2.TfTeam and t2.TeSubTeam=tf2.TfSubTeam and t2.TeFinEvent=1
+								inner join Countries c2 on c2.CoId=tf2.TfTeam and c2.CoTournament=tf2.TfTournament
+								inner join Finals f1 on f1.FinEvent like concat(tf1.TfEvent,'%') and f1.FinTournament=tf1.TfTournament and f1.FinMatchNo=tf1.TfMatchNo
+								inner join Finals f2 on f2.FinEvent = f1.FinEvent and f2.FinTournament=tf2.TfTournament and f2.FinMatchNo=tf2.TfMatchNo
+								where tf1.TfTournament={$this->tournament} and tf1.TfEvent='$event' and tf1.TfMatchNo%2=0
+								group by tf1.TfMatchNo, tf2.TfMatchNo";
+
+							$q=safe_r_sql($SQL);
+							while($r=safe_fetch($q)) {
+								if(empty($TeamDavis["$r->Team1"][$r->SubTeam1])) {
+									$TeamDavis["$r->Team1"][$r->SubTeam1]=array('b'=>(isset($Bonus[$event][$r->Rank1]) ? intval($Bonus[$event][$r->Rank1]) : 0),'mp'=>0,'wp'=>0,'lp'=>0);
+								}
+								if(empty($TeamDavis["$r->Team2"][$r->SubTeam2])) {
+									$TeamDavis["$r->Team2"][$r->SubTeam2]=array('b'=>(isset($Bonus[$event][$r->Rank2]) ? intval($Bonus[$event][$r->Rank2]) : 0),'mp'=>0,'wp'=>0,'lp'=>0);
+								}
+								$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=0;
+								$TeamDavis["$r->Team1"][$r->SubTeam1]['wp']+=$r->WinPoints1;
+								$TeamDavis["$r->Team1"][$r->SubTeam1]['lp']+=$r->WinPoints2;
+								$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=0;
+								$TeamDavis["$r->Team2"][$r->SubTeam2]['wp']+=$r->WinPoints2;
+								$TeamDavis["$r->Team2"][$r->SubTeam2]['lp']+=$r->WinPoints1;
+								if($r->WinPoints1 + $r->WinPoints2 >= 5) {
+									if($r->WinPoints1 > $r->WinPoints2) {
+										$TeamDavis["$r->Team1"][$r->SubTeam1]['mp'] += $MatchWinner;
+									} elseif($r->WinPoints1 < $r->WinPoints2) {
+										$TeamDavis["$r->Team2"][$r->SubTeam2]['mp'] += $MatchWinner;
 									} else {
-										if($r->Winner1) {
-											$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=2;
-											$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=0;
-										} elseif($r->Winner2) {
-											$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=0;
-											$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=2;
+										if($YEAR>=2020) {
+											$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=1;
+											$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=1;
+										} else {
+											if($r->Winner1) {
+												$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=2;
+												$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=0;
+											} elseif($r->Winner2) {
+												$TeamDavis["$r->Team1"][$r->SubTeam1]['mp']+=0;
+												$TeamDavis["$r->Team2"][$r->SubTeam2]['mp']+=2;
+											}
 										}
 									}
 								}
 							}
 						}
+
 
 						$DateTime=date('Y-m-d H:i:s');
 

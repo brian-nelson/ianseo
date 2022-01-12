@@ -31,9 +31,6 @@ if(!empty($_REQUEST['SortByTarget'])) {
 		case 'E':
 			$SORT='ElTargetNo';
 			break;
-		case 'A':
-			$SORT='FirstName, Name';
-			break;
 		default:
 			$SORT='QuTargetNo, FirstName, Name';
 	}
@@ -457,6 +454,7 @@ while ($MyRow=safe_fetch($Rs)) {
 			case 'Ranking':
 				if(!isset($Text)) {
                     switch($Element->IceContent) {
+                        case '':
                         case 'Cardinal':  $Text=array($MyRow->Rank); break;
                         case 'Ordinal':  $Text=array(ordinal($MyRow->Rank)); break;
                     }
@@ -464,6 +462,7 @@ while ($MyRow=safe_fetch($Rs)) {
 			case 'FinalRanking':
                 if(!isset($Text)) {
                     switch($Element->IceContent) {
+                        case '':
                         case 'Cardinal':  $Text=array($MyRow->RankFinal); break;
                         case 'Ordinal':  $Text=array(ordinal($MyRow->RankFinal)); break;
                     }

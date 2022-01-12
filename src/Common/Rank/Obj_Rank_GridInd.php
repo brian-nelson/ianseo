@@ -58,6 +58,9 @@
 			if(!empty($this->opts['schedule'])) {
 				$ret[]="CONCAT(fs1.FSScheduledDate,' ',fs1.FSScheduledTime)=" . StrSafe_DB($this->opts['schedule']) . "";
 			}
+			if(!empty($this->opts['date'])) {
+				$ret[]="fs1.FSScheduledDate=" . StrSafe_DB($this->opts['date']) . "";
+			}
 			if($ret) return ' AND '.implode(' AND ', $ret);
 			return '';
 		}
@@ -129,7 +132,7 @@
 		 *  prima passata per costruire la struttura del vettore.
 		 *  Tiro fuori le qualifiche, le posizioni finali e le eliminatorie (se ci sono)
 		 */
-			$q="SELECT f1.*, f2.*, '' as LineJudge, '' as TargetJudge,
+			$q="SELECT f1.*, f2.*, coalesce(JudgeLine,'') as LineJudge, coalesce(JudgeTarget,'') as TargetJudge,
 					ifnull(concat(DV2.DvMajVersion, '.', DV2.DvMinVersion) ,concat(DV1.DvMajVersion, '.', DV1.DvMinVersion)) as DocVersion,
 					date_format(ifnull(DV2.DvPrintDateTime, DV1.DvPrintDateTime), '%e %b %Y %H:%i UTC') as DocVersionDate,
 					ifnull(DV2.DvNotes, DV1.DvNotes) as DocNotes FROM "
@@ -163,16 +166,16 @@
 					. " FinTournament Tournament,"
 					. " FinDateTime LastUpdated,"
 					. " FinMatchNo MatchNo,"
-					. " '' as Coach,"
-					. " EnCode Bib,"
-					. " ifnull(EdExtra,EnCode) LocalBib,"
-					. " EnId, EnNameOrder NameOrder, EnSex Gender, EnDob BirthDate, "
+                    . " IFNULL(concat(ucase(c.EnFirstName), ' ', c.EnName),'') as Coach,"
+					. " a.EnCode Bib,"
+					. " ifnull(EdExtra,a.EnCode) LocalBib,"
+					. " a.EnId EnId, a.EnNameOrder NameOrder, a.EnSex Gender, a.EnDob BirthDate, "
 					. " if(@BitPhase & EvMatchMultipleMatches!=0 or @BitPhase & EvFinalAthTarget!=0, fs1.FsLetter, fs1.FsTarget) as Target,"
 					. " TarId, TarDescr, EvDistance as Distance, EvTargetSize as TargetSize, "
-					. " concat(upper(EnFirstName), ' ', EnName) Athlete,"
-					. " EnFirstName FamilyName,"
-					. " upper(EnFirstName) FamilyNameUpper,"
-					. " EnName GivenName,"
+					. " concat(upper(a.EnFirstName), ' ', a.EnName) Athlete,"
+					. " a.EnFirstName FamilyName,"
+					. " upper(a.EnFirstName) FamilyNameUpper,"
+					. " a.EnName GivenName,"
 					. " CoId CountryId,"
 					. " CoCode CountryCode,"
 					. " CoMaCode MaCode,"
@@ -206,6 +209,7 @@
 					. " FinStatus Status, "
 					. " FinConfirmed Confirmed, "
 					. " FinRecordBitmap  as RecBitLevel, EvIsPara, "
+                    . " fs1.FsLJudge as jLine, fs1.FsTJudge as jTarget, "
 					. " FinLive LiveFlag, FinNotes Notes, FinShootFirst as ShootFirst, if(EvFinalFirstPhase%12=0, GrPosition2, GrPosition) as GridPosition "
 					. "FROM "
 					. " Finals "
@@ -217,10 +221,11 @@
 					. "LEFT JOIN Individuals ON FinAthlete=IndId AND FinEvent=IndEvent AND FinTournament=IndTournament "
 					. "left JOIN IrmTypes i2 ON i2.IrmId=IndIrmType "
 					. "left JOIN IrmTypes i3 ON i3.IrmId=IndIrmTypeFinal "
-					. "LEFT JOIN Entries ON FinAthlete=EnId AND FinTournament=EnTournament "
-					. "LEFT JOIN ExtraData ON EdId=EnId AND EdType='Z' "
-					. "LEFT JOIN Qualifications ON QuId=EnId "
-					. "LEFT JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament "
+					. "LEFT JOIN Entries a ON FinAthlete=a.EnId AND FinTournament=a.EnTournament "
+					. "LEFT JOIN ExtraData ON EdId=a.EnId AND EdType='Z' "
+					. "LEFT JOIN Qualifications ON QuId=a.EnId "
+					. "LEFT JOIN Countries ON a.EnCountry=CoId AND a.EnTournament=CoTournament "
+                    . "LEFT JOIN Entries c ON FinCoach=c.EnId and FinTournament=c.EnTournament "
 					. "LEFT JOIN FinSchedule fs1 ON fs1.FSEvent=FinEvent AND fs1.FSMatchNo=FinMatchNo AND fs1.FSTournament=FinTournament AND fs1.FSTeamEvent='0' "
 					. "LEFT JOIN FinSchedule fs2 ON fs2.FSEvent=FinEvent AND fs2.FSMatchNo=case FinMatchNo when 0 then 4 when 1 then 6 when 2 then 4 when 3 then 6 else FinMatchNo*2 end AND fs2.FSTournament=FinTournament AND fs2.FSTeamEvent='0' "
 					. (empty($this->opts['extended']) ? '' : "LEFT JOIN Reviews ON FinEvent=RevEvent AND FinMatchNo=RevMatchNo AND FinTournament=RevTournament AND RevTeamEvent=0 ")
@@ -236,18 +241,18 @@
 					. " FinTournament OppTournament,"
 					. " FinDateTime OppLastUpdated,"
 					. " FinMatchNo OppMatchNo,"
-					. " '' as OppCoach,"
-					. " EnCode OppBib,"
-					. " ifnull(EdExtra,EnCode) OppLocalBib,"
-					. " EnId OppEnId, EnNameOrder OppNameOrder, EnSex as OppGender, EnDob OppBirthDate,"
+                    . " IFNULL(concat(ucase(c.EnFirstName), ' ', c.EnName),'') as OppCoach,"
+					. " a.EnCode OppBib,"
+					. " ifnull(EdExtra,a.EnCode) OppLocalBib,"
+					. " a.EnId OppEnId, a.EnNameOrder OppNameOrder, a.EnSex as OppGender, a.EnDob OppBirthDate,"
 					. " @BitPhase:=if(GrPhase=0, 1, pow(2, ceil(log2(GrPhase))+1)),"
 					. " if(@BitPhase & EvMatchMultipleMatches!=0 or @BitPhase & EvFinalAthTarget!=0, fs1.FsLetter, fs1.FsTarget) as OppTarget,"
 					. " concat(fs2.FSScheduledDate,' ',fs2.FSScheduledTime) AS OppPreviousMatchTime, "
-					. " concat(upper(EnFirstName), ' ', EnName) OppAthlete,"
-					. " EnFirstName OppFamilyName,"
-					. " upper(EnFirstName) OppFamilyNameUpper,"
+					. " concat(upper(a.EnFirstName), ' ', a.EnName) OppAthlete,"
+					. " a.EnFirstName OppFamilyName,"
+					. " upper(a.EnFirstName) OppFamilyNameUpper,"
 					. " IF(EvFinalFirstPhase=48, GrPosition2, if(GrPosition>EvNumQualified, 0, GrPosition)) OppPosition,"
-					. " EnName OppGivenName,"
+					. " a.EnName OppGivenName,"
 					. " CoId OppCountryId,"
 					. " CoCode OppCountryCode,"
 					. " CoMaCode OppMaCode,"
@@ -288,10 +293,11 @@
 					. "LEFT JOIN Individuals ON FinAthlete=IndId AND FinEvent=IndEvent AND FinTournament=IndTournament "
 					. "left JOIN IrmTypes i2 ON i2.IrmId=IndIrmType "
 					. "left JOIN IrmTypes i3 ON i3.IrmId=IndIrmTypeFinal "
-					. "LEFT JOIN Entries ON FinAthlete=EnId AND FinTournament=EnTournament "
-					. "LEFT JOIN ExtraData ON EdId=EnId AND EdType='Z' "
-					. "LEFT JOIN Qualifications ON QuId=EnId "
-					. "LEFT JOIN Countries ON EnCountry=CoId AND EnTournament=CoTournament "
+					. "LEFT JOIN Entries a ON FinAthlete=a.EnId AND FinTournament=a.EnTournament "
+					. "LEFT JOIN ExtraData ON EdId=a.EnId AND EdType='Z' "
+					. "LEFT JOIN Qualifications ON QuId=a.EnId "
+					. "LEFT JOIN Countries ON a.EnCountry=CoId AND a.EnTournament=CoTournament "
+                    . "LEFT JOIN Entries c ON FinCoach=c.EnId and FinTournament=c.EnTournament "
 					. "LEFT JOIN FinSchedule fs1 ON fs1.FSEvent=FinEvent AND fs1.FSMatchNo=FinMatchNo AND fs1.FSTournament=FinTournament AND fs1.FSTeamEvent='0' "
 					. "LEFT JOIN FinSchedule fs2 ON fs2.FSEvent=FinEvent AND fs2.FSMatchNo=case FinMatchNo when 0 then 4 when 1 then 6 when 2 then 4 when 3 then 6 else FinMatchNo*2 end AND fs2.FSTournament=FinTournament AND fs2.FSTeamEvent='0' "
 					. (empty($this->opts['extended']) ? '' : "LEFT JOIN Reviews ON FinEvent=RevEvent AND FinMatchNo=RevMatchNo AND FinTournament=RevTournament AND RevTeamEvent=0 ")
@@ -299,8 +305,10 @@
 					. " AND FinTournament = " . $this->tournament . " " . $filter
 					. ") f2 on Tournament=OppTournament and Event=OppEvent and MatchNo=OppMatchNo-1
 					LEFT JOIN DocumentVersions DV1 on Tournament=DV1.DvTournament AND DV1.DvFile = 'B-IND' and DV1.DvEvent=''
-					LEFT JOIN DocumentVersions DV2 on Tournament=DV2.DvTournament AND DV2.DvFile = 'B-IND' and DV2.DvEvent=Event "
-				. " $ExtraFilter "
+					LEFT JOIN DocumentVersions DV2 on Tournament=DV2.DvTournament AND DV2.DvFile = 'B-IND' and DV2.DvEvent=Event 
+                LEFT JOIN (select TiId as JudgeLineId, concat(ucase(TiName), ' ', TiGivenName) as JudgeLine from TournamentInvolved where TiTournament={$this->tournament}) jLine on f1.jLine=JudgeLineId  
+                LEFT JOIN (select TiId as JudgeTargetId, concat(ucase(TiName), ' ', TiGivenName) as JudgeTarget from TournamentInvolved where TiTournament={$this->tournament}) jTarget on f1.jTarget=JudgeTargetId  "
+                . " $ExtraFilter "
 				. "ORDER BY ".($OrderByTarget ? 'Target, ' : '')."EvProgr ASC, Event, Phase DESC, MatchNo ASC ";
 
 			return $q;

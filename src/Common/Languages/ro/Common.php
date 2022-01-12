@@ -165,7 +165,6 @@ $lang['MenuLM_Export Tournament']='Exporta turneu';
 $lang['MenuLM_Export Tournament Photo']='Exporta turneu cu fotografii';
 $lang['MenuLM_Extended Table']='Tabel extins';
 $lang['MenuLM_Fees setup']='Organizare/evidenta taxe';
-$lang['MenuLM_Field Crew']='Echipa pe teren';
 $lang['MenuLM_Final Field of Play Layout']='Distributia/Repartizarea finala pe panouri/tinte';
 $lang['MenuLM_Final report']='Raport final/rezultate finale';
 $lang['MenuLM_Final Rounds']='Rundele finale';

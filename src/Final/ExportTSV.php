@@ -10,17 +10,19 @@ checkACL(array(AclIndividuals, AclTeams), AclReadOnly);
 
 $rank=null;
 $options['tournament'] = $_SESSION['TourId'];
+$options['extended']=true;
 //    $rank=Obj_RankFactory::create('GridTeam',$options);
 $rank=Obj_RankFactory::create('GridInd',$options);
 $rank->read();
 $Data=$rank->getData();
 
 $output = array();
-$output[] = array('Event', 'Phase', 'MatchId',
+$output[] = array('Event', 'Team', 'Phase', 'MatchId',
     'Ath1 WaID', 'Ath1 FamilyName','Ath1 GivenName','Ath1 Noc','Ath1 Country', 'Ath1 Winner',
     'Ath2 WaID', 'Ath2 FamilyName','Ath2 GivenName','Ath2 Noc','Ath2 Country', 'Ath2 Winner',
     'Ath1 Score', 'Ath1 Ends','Ath1 So','Ath1 Arrows','Ath1 So Arrows',
     'Ath2 Score', 'Ath2 Ends','Ath2 So','Ath2 Arrows','Ath2 So Arrows',
+    'Ath1 Arrows Position (#|X|Y|R|D)','Ath1 So Position (#|X|Y|R|D)','Ath2 Arrows Position (#|X|Y|R|D)','Ath2 So Position (#|X|Y|R|D)',
 );
 
 foreach ($Data['sections'] as $EvCode=>$Phases) {
@@ -28,8 +30,35 @@ foreach ($Data['sections'] as $EvCode=>$Phases) {
         foreach ($Phases['phases'] as $PhId => $Phase) {
             foreach ($Phase['items'] as $k => $v) {
                 if (!(empty($v['id']) OR empty($v['oppId']))) {
+                    $arrPos=array('','');
+                    if($v['arrowpositionAvailable']) {
+                        $tmp=array();
+                        foreach($v['arrowPosition'] as $kPos=>$vPos) {
+                            $tmp[]=$kPos.'|'.implode('|',$vPos);
+                        }
+                        $arrPos[0]=implode(',',$tmp);
+                        $tmp=array();
+                        foreach($v['tiePosition'] as $kPos=>$vPos) {
+                            $tmp[]=$kPos.'|'.implode('|',$vPos);
+                        }
+                        $arrPos[1]=implode(',',$tmp);
+                    }
+                    $oppArrPos=array('','');
+                    if($v['oppArrowpositionAvailable']) {
+                        $tmp=array();
+                        foreach($v['oppArrowPosition'] as $kPos=>$vPos) {
+                            $tmp[]=$kPos.'|'.implode('|',$vPos);
+                        }
+                        $oppArrPos[0]=implode(',',$tmp);
+                        $tmp=array();
+                        foreach($v['oppTiePosition'] as $kPos=>$vPos) {
+                            $tmp[]=$kPos.'|'.implode('|',$vPos);
+                        }
+                        $oppArrPos[1]=implode(',',$tmp);
+                    }
                     $output[] = array(
                         $EvCode,
+                        '0',
                         namePhase($Phases['meta']['firstPhase'], $PhId),
                         $v['matchNo'],
                         $v['bib'],
@@ -54,7 +83,7 @@ foreach ($Data['sections'] as $EvCode=>$Phases) {
                         $v['oppTiebreakDecoded'],
                         implode(',', DecodeFromString(rtrim($v['oppArrowstring']), false, true)),
                         implode(',', DecodeFromString(rtrim($v['oppTiebreak']), false, true)),
-
+                        $arrPos[0],$arrPos[1],$oppArrPos[0],$oppArrPos[1]
                     );
                 }
             }
@@ -71,8 +100,35 @@ foreach ($Data['sections'] as $EvCode=>$Phases) {
         foreach ($Phases['phases'] as $PhId => $Phase) {
             foreach ($Phase['items'] as $k => $v) {
                 if (!(empty($v['teamId']) OR empty($v['oppTeamId']))) {
+                    $arrPos=array('','');
+                    if($v['arrowpositionAvailable']) {
+                        $tmp=array();
+                        foreach($v['arrowPosition'] as $kPos=>$vPos) {
+                            $tmp[]=$kPos.'|'.implode('|',$vPos);
+                        }
+                        $arrPos[0]=implode(',',$tmp);
+                        $tmp=array();
+                        foreach($v['tiePosition'] as $kPos=>$vPos) {
+                            $tmp[]=$kPos.'|'.implode('|',$vPos);
+                        }
+                        $arrPos[1]=implode(',',$tmp);
+                    }
+                    $oppArrPos=array('','');
+                    if($v['oppArrowpositionAvailable']) {
+                        $tmp=array();
+                        foreach($v['oppArrowPosition'] as $kPos=>$vPos) {
+                            $tmp[]=$kPos.'|'.implode('|',$vPos);
+                        }
+                        $oppArrPos[0]=implode(',',$tmp);
+                        $tmp=array();
+                        foreach($v['oppTiePosition'] as $kPos=>$vPos) {
+                            $tmp[]=$kPos.'|'.implode('|',$vPos);
+                        }
+                        $oppArrPos[1]=implode(',',$tmp);
+                    }
                     $output[] = array(
-                        $EvCode . '-T',
+                        $EvCode,
+                        '1',
                         namePhase($Phases['meta']['firstPhase'], $PhId),
                         $v['matchNo'],
                         '',
@@ -97,7 +153,7 @@ foreach ($Data['sections'] as $EvCode=>$Phases) {
                         $v['oppTiebreakDecoded'],
                         implode(',', DecodeFromString(rtrim($v['oppArrowstring']), false, true)),
                         implode(',', DecodeFromString(rtrim($v['oppTiebreak']), false, true)),
-
+                        $arrPos[0],$arrPos[1],$oppArrPos[0],$oppArrPos[1]
                     );
                 }
             }
@@ -109,7 +165,6 @@ foreach ($Data['sections'] as $EvCode=>$Phases) {
 header('Cache-Control: no-store, no-cache, must-revalidate');
 header('Content-Disposition: attachment; filename=' . $_SESSION["TourCode"] . '_Matches.csv');
 header('Content-type: text/tab-separated-values; charset=' . PageEncode);
-
 foreach ($output as $row) {
     echo implode(';',$row) . "\r\n";
 }

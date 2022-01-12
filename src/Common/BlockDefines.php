@@ -177,10 +177,13 @@ function hasACL($feature, $level, $TourId=0) {
             } else if($level==AclNoAccess) {
                 return false;
             }
+
         } else {
             return true;
         }
     }
+    // as a security measure always return false if it arrives here!
+    return false;
 }
 
 function checkACL($feature, $level, $redirect=true, $TourId=0) {

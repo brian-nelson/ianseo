@@ -319,6 +319,9 @@ class OrisPDF extends IanseoPdf {
 			} elseif(strstr($data[$i],"§")) {
 				$Align='C';
 			}
+            if(strstr($data[$i],"~")) {
+                $this->SetFont('', 'B');
+            }
 			if(strstr($data[$i], "\n")) {
 				$CellData=explode("\n", $data[$i]);
 				$OrgX=$this->GetX();
@@ -336,8 +339,11 @@ class OrisPDF extends IanseoPdf {
 				$this->SetXY($this->GetX(), $OrgY);
 				//$maxCell = max($maxCell, $this->MultiCell($this->DataSize[min($i,count($this->DataSize)-1)],3.5,str_replace(array("#","§"),"",$data[$i]),0, $Align, 0, 0));
 			} else {
-				$this->Cell($this->DataSize[min($i,count($this->DataSize)-1)],3.5,str_replace(array("#","§"),"",$data[$i]),0,0, $Align);
+				$this->Cell($this->DataSize[min($i,count($this->DataSize)-1)],3.5,str_replace(array("#","§","~"),"",$data[$i]),0,0, $Align);
 			}
+            if(strstr($data[$i],"~")) {
+                $this->SetFont('', '');
+            }
 		}
 		$this->lastY += 3.5*$maxCell;
 	}
@@ -406,6 +412,9 @@ class OrisPDF extends IanseoPdf {
 		$this->Cell(0,0, $Phase['matchName'], '', '1','C');
 		$this->SetFont('','',10);
 		$this->Cell(0,0, date('D j M Y', strtotime($Data['scheduledKey'])).' '.$Meta['fields']['scheduledTime'].': '.$Data['scheduledTime'], '', '1','C');
+        if($Data['odfMatchName']!=0) {
+            $this->Cell(0,0, 'Match Number ' . $Data['odfMatchName'], '', '1','C');
+        }
 		$this->ln();
 
 		// line 1: targets
@@ -461,13 +470,14 @@ class OrisPDF extends IanseoPdf {
 	    $this->ln();
 
 	    //line 4: Coach?
-	    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['coach'].':');
-	    $this->Cell($HeadWidthData,0, $Data['coach']);
-	    $this->Cell(10,0, '');
-	    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['coach'].':');
-	    $this->Cell($HeadWidthData,0, $Data['oppCoach']);
-	    $this->ln();
-
+        if(!empty($Data['coach']) OR !empty($Data['oppCoach'])) {
+            $this->Cell($HeadWidthTitle, 0, $Meta['fields']['coach'] . ':');
+            $this->Cell($HeadWidthData, 0, $Data['coach']);
+            $this->Cell(10, 0, '');
+            $this->Cell($HeadWidthTitle, 0, $Meta['fields']['coach'] . ':');
+            $this->Cell($HeadWidthData, 0, $Data['oppCoach']);
+            $this->ln();
+        }
 	    // empty line
 	    $this->ln(2);
 
@@ -644,14 +654,15 @@ class OrisPDF extends IanseoPdf {
         $this->Cell($CellWidthShort*(1+$Arrows), $CellHeight, $Data['oppClosest'] ? $Meta['fields']['closest'] : '');
 
 	    //last line: Judges?
-	    $this->ln();
-	    $this->ln(2);
-	    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['lineJudge'].':');
-	    $this->Cell($HeadWidthData,0, $Data['lineJudge']);
-	    $this->Cell(10,0, '');
-	    $this->Cell($HeadWidthTitle, 0, $Meta['fields']['targetJudge'].':');
-	    $this->Cell($HeadWidthData,0, $Data['targetJudge']);
-
+        if(!empty($Data['lineJudge']) OR !empty($Data['targetJudge'])) {
+            $this->ln(8);
+            $this->Cell($CellWidthShort*(1+$Arrows)+$CellWidthLong+3,0,'');
+            $this->Cell($CellWidthLong, 0, $Meta['fields']['lineJudge'] . ':');
+            $this->Cell(0, 0, $Data['lineJudge'],0,1);
+            $this->Cell($CellWidthShort*(1+$Arrows)+$CellWidthLong+3,0,'');
+            $this->Cell($CellWidthLong, 0, $Meta['fields']['targetJudge'] . ':');
+            $this->Cell(0, 0, $Data['targetJudge'],0,1);
+        }
 	    return;
     }
 }

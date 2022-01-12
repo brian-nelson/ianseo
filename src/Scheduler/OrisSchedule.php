@@ -4,7 +4,7 @@ require_once('Common/pdf/OrisPDF.inc.php');
 require_once('Common/Lib/Obj_RankFactory.php');
 checkACL(AclCompetition, AclReadOnly);
 
-define("CellH",10);
+define("CellH",8);
 
 CheckTourSession(true);
 
@@ -14,48 +14,26 @@ $pdf = new OrisPDF('C58', 'DETAILED COMPETITION SCHEDULE');
 
 $pdf->SetTopMargin(OrisPDF::topStart);
 
-
-
-$Sql = "SELECT SesName, SesDtStart, SesDtEnd FROM Session WHERE SesTournament=".$_SESSION['TourId'] . " AND SesType != 'Q' ";
+$Date='';
 if(!empty($_REQUEST['FromDayDay'])) {
     if(strtolower(substr($_REQUEST['FromDayDay'], 0, 1))=='d') {
         $Date=date('Y-m-d', strtotime(sprintf('%+d days', substr($_REQUEST['FromDayDay'], 1) -1), $_SESSION['ToWhenFromUTS']));
     } else {
         $Date=CleanDate($_REQUEST['FromDayDay']);
     }
-    if($Date) {
-        $Sql .= " AND SesDtStart >= '{$Date} 00:00:00' AND SesDtStart <= '{$Date} 23:59:59'";
-    }
-}
-$Sql .= " ORDER BY SesDtStart, SesDtEnd";
-$q=safe_r_SQL($Sql);
-$Sessions = array();
-$whereCond=array();
-$cnt=1;
-while($r=safe_fetch($q)) {
-	$Sessions[] = array("Name"=>$r->SesName, "Start"=>$r->SesDtStart, "End"=>$r->SesDtEnd);
-	$whereCond[$cnt++] = "(CONCAT(FsScheduledDate, ' ', FsScheduledTime) >= '{$r->SesDtStart}' AND CONCAT(FsScheduledDate, ' ', FsScheduledTime) < '{$r->SesDtEnd}')";
 }
 
-$Sql = "SELECT CONCAT(FsEvent, '|', FsTeamEvent, '|', FsMatchNo) as SesKey, ";
-if($whereCond) {
-	$tmp=array();
-	foreach($whereCond as $kWhere=>$vWhere) {
-		$tmp[] = "IF({$vWhere},$kWhere,0)";
-	}
-	$Sql.='('.implode('+',$tmp).')';
-} else {
-	$Sql.=' 0 ';
-}
-$Sql .= " as SesNumber
+$Sql = "SELECT CONCAT(FsEvent, '|', FsTeamEvent, '|', FsMatchNo) as SesKey, 
+		coalesce(SesOrder, 0) SesNumber, coalesce(SesName, '') as SesName
 	FROM FinSchedule
-	WHERE FsTournament=".$_SESSION['TourId'] ." AND (FsMatchNo%2=0)".(empty($_REQUEST['OnlyMedals']) ? '' : ' and FsMatchno in (0,2) ').($whereCond ? " AND (" . implode(' OR ', $whereCond). ")" : '')."
+	left join Session on SesTournament=FsTournament and (CONCAT(FsScheduledDate, ' ', FsScheduledTime) >= SesDtStart AND CONCAT(FsScheduledDate, ' ', FsScheduledTime) < SesDtEnd)
+	WHERE FsTournament=".$_SESSION['TourId'] ." AND (FsMatchNo%2=0)".(empty($_REQUEST['OnlyMedals']) ? '' : ' and FsMatchno in (0,2) ').($Date ? " AND FsScheduledDate='$Date'" : '')." and FSScheduledDate>0
 	ORDER BY FsScheduledDate, FsScheduledTime, FsOdfMatchName";
 
 $q=safe_r_SQL($Sql);
 $SessionMatches = array();
 while($r=safe_fetch($q)) {
-	$SessionMatches[$r->SesNumber][] = $r->SesKey;
+	$SessionMatches[$r->SesNumber][] = $r;
 }
 $lastSes=0;
 $evInSession=0;
@@ -66,8 +44,8 @@ $pdf->SetFont('','');
 $FirstPage=true;
 foreach($SessionMatches as $vSes => $items) {
 	$NumItems=count($items);
-	foreach($items as $i => $kSes) {
-		list($eventCode,$isTeam,$matchNo) = explode('|',$kSes);
+	foreach($items as $i => $r) {
+		list($eventCode,$isTeam,$matchNo) = explode('|',$r->SesKey);
 		$opts=array('matchno'=>$matchNo, 'events'=>$eventCode);
 		$rank=Obj_RankFactory::create(($isTeam ? 'GridTeam':'GridInd'), $opts);
 		$rank->read();
@@ -154,7 +132,7 @@ foreach($SessionMatches as $vSes => $items) {
 
             $SessionText = '<b>'.(new DateTime($runningDay))->format('D j M') .'</b>' . $Continue . "<br>".
                 "<b>Session " . $sesInDay . "</b><br>".
-                (!empty($Sessions[$sesCnt]) ? $Sessions[$sesCnt]['Name'] : '');
+                $r->SesName;
             if($evInSession == 0) {
                 $pdf->MultiCell(25, CellH + $ExtraLineHeight, $SessionText, 'TLR', 'L', 0, 0, '', '', true, 0, true, true, 0);
             } else {
@@ -181,7 +159,7 @@ foreach($SessionMatches as $vSes => $items) {
                 $pdf->SetFontSize(8);
                 if (!empty($rankData["sections"][$eventCode]['athletes'][$item['teamId']][0])) {
                     foreach ($rankData["sections"][$eventCode]['athletes'][$item['teamId']][0] as $k => $Component) {
-                        $pdf->setxy($OrgX, 3 * $k + $OrgY + 8);
+                        $pdf->setxy($OrgX, 3 * $k + $OrgY + 6);
                         $pdf->Cell(34, 3, $Component['athlete'], '', 0, 'L', 0);
                     }
                 }
@@ -189,7 +167,7 @@ foreach($SessionMatches as $vSes => $items) {
                 $OrgX += 55;
                 if (!empty($rankData["sections"][$eventCode]['athletes'][$item['oppTeamId']][0])) {
                     foreach ($rankData["sections"][$eventCode]['athletes'][$item['oppTeamId']][0] as $k => $Component) {
-                        $pdf->setxy($OrgX, 3 * $k + $OrgY + 8);
+                        $pdf->setxy($OrgX, 3 * $k + $OrgY + 6);
                         $pdf->Cell(34, 3, $Component['athlete'], '', 0, 'L', 0);
                     }
                 }

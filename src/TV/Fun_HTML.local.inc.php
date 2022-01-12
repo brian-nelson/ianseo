@@ -55,12 +55,6 @@
 			$Arr_Pages['BLABS']= 'Bundesliga Rounds';
 		}
 
-		if ($tourType==21)
-		{
-			$Arr_Pages['F2FLST']=get_text('StartlistSession','Tournament') . ' F2F';
-			$Arr_Pages['F2FABS']='Elim Rank ' . 'F2F';
-		}
-
 	// se è un championships olandese indoor
 		if ($tourType==6 && in_array($tourSubRule,array('','SetChampionship')))
 		{
@@ -436,28 +430,8 @@ function genera_html_rot($TVsettings, $RULE) {
 			include('Rot_athl_sch.php');
 			break;
 
-		case 'F2FLST':
-			include('Rot_StartlistF2F.php');
-			$RotMatches=true;
-			break;
-
-		case 'F2FABS':
-			include('Rot_ElimF2F.php');
-			$RotMatches=true;
-			break;
-
 		case 'BLABS':
 			include('Rot_ElimBL.php');
-			$RotMatches=true;
-			break;
-
-		case 'NLCLST':
-			include('Rot_StartlistNLChamps.php');
-			$RotMatches=true;
-			break;
-
-		case 'NLCABS':
-			include('Rot_ElimNLChamps.php');
 			$RotMatches=true;
 			break;
 

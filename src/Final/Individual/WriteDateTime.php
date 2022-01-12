@@ -57,7 +57,9 @@
 				if (strlen(trim($vv))>0) {
 					$badDate=false;
 					if ($cc=='FSScheduledDate') {
-						if(!$Value or $Value=='-') {
+						if($Value==='0') {
+							// -- UN scheduling a match
+						} elseif(!$Value or $Value=='-') {
 							$Value='';
 						} elseif(strtolower(substr($Value, 0, 1))=='d') {
 							$Value=date('Y-m-d', strtotime(sprintf('%+d days', substr($Value, 1) -1), $_SESSION['ToWhenFromUTS']));
@@ -66,7 +68,9 @@
 						}
 						$vv=$Value;
 
-						$badDate=!($vv>=date('Y-m-d',$_SESSION['ToWhenFromUTS']) && $vv<=date('Y-m-d',$_SESSION['ToWhenToUTS']));
+						if($vv!=='0') {
+							$badDate=!($vv>=date('Y-m-d',$_SESSION['ToWhenFromUTS']) && $vv<=date('Y-m-d',$_SESSION['ToWhenToUTS']));
+						}
 						if(!$badDate) {
 							// check if there is still a warmup for that event at the original time...
 							$q=safe_r_SQL("select count(*) as Counted, FsScheduledDate, FsScheduledTime from FinSchedule
@@ -145,7 +149,7 @@
 						$vv=Convert24Time($vv);
 					}
 
-					if (($vv>0 && !$badDate) || ($vv==0 && $cc=='FSScheduledLen')) {
+					if (!$badDate || ($vv==0 && $cc=='FSScheduledLen')) {
 						// Scrivo per $mm
 						$Insert = "INSERT INTO FinSchedule (FSEvent,FSTeamEvent,FSMatchNo,FSTournament," . $cc . ") 
 							VALUES(

@@ -6,7 +6,7 @@ function CleanEvents($Events, $Field) {
 		$tmp=array();
 		foreach ($Events as $ev) {
 			@list($e, $p)=explode('@', $ev);
-			if(!in_array($e, $tmp) and preg_match('/^[0-9A-Z-]{1,4}$/i',$e)) $tmp[]="'$e'";
+			if(!in_array($e, $tmp) and preg_match('/^[0-9A-Z-]+$/i',$e)) $tmp[]="'$e'";
 		}
 		if ($tmp) {
 			sort($tmp);
@@ -20,7 +20,7 @@ function CleanEvents($Events, $Field) {
 	if(strpos($Events,'@')!==false) {
         @list($e, $p) = explode('@', $Events);
     }
-	if( preg_match('/^[0-9A-Z_%-]{1,4}$/i', $e)) {
+	if( preg_match('/^[0-9A-Z_%-]+$/i', $e)) {
 		if(strstr($e,'%') or strstr($e, '_')) {
 			$ret.= " AND $Field LIKE '" . $e . "' ";
 		} else {

@@ -2,7 +2,7 @@
 require_once(dirname(dirname(__FILE__)) . '/config.php');
 require_once('Common/Fun_Modules.php');
 
-if(file_exists($paramFile=dirname(dirname(__FILE__))."/Modules/IanseoTeam/Accreditation/includeAccreditationPicture.php")) {
+if(file_exists($paramFile=dirname(dirname(__FILE__))."/Modules/Accreditation/includeAccreditationPicture.php")) {
 	require_once($paramFile);
 }
 

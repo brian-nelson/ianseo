@@ -1,6 +1,10 @@
 <?php
 
 require_once(dirname(__FILE__).'/config.php');
+
+// check of the UpdateDB is moved here for performance
+require_once('Common/UpdateDb-check.php');
+
 require_once('Common/Fun_FormatText.inc.php');
 panicACL();
 checkGPL();

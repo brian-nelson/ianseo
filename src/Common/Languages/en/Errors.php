@@ -1,4 +1,5 @@
 <?php
+$lang['AllFieldsMandatory']='All fields are mandatory';
 $lang['AllMailsRedirect']='All messages will be send to';
 $lang['Anomalies']='Anomalies';
 $lang['ClassFromToError']='From and To must be numeric values';
@@ -24,6 +25,7 @@ $lang['ErrNoStartDate']='Missing Starting Date';
 $lang['ErrRedCard']='The committee undergone red card and cannot ask for competitions to be hosted on ianseo. Contact codes@ianseo.net for further explanations.';
 $lang['ErrUnknownNation']='Unknown Nation';
 $lang['ErrYellowCard']='The Committee undergone a Yellow Card because no competition results have been uploaded. Contact codes@ianseo.net for further explanations.';
+$lang['InvalidEmail']='Invalid Email: please double check the email before saving';
 $lang['LockedProcedure']='This Procedure is LOCKED';
 $lang['MailingAlreadyExists']='An Email with the same title ({$a}) already exists, please change title or select the email to amend from the selector.';
 $lang['MailingDeleteText']='Please confirm you want to permanently delete this mailing';

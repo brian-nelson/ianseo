@@ -162,7 +162,7 @@ foreach($Arrow as $MatchId => $SOs) {
                 $soEnds=ceil(max(strlen(trim($Match['tiebreak'])), strlen(trim($Match['oppTiebreak'])))/$obj->so);
                 $TotL=0;
                 $TotR=0;
-//				if($MatchId%2) {
+				if($MatchId%2) {
     				if($isSO) {
 						for($i=0;$i<$soEnds;$i++) {
 							$JSON['t'][]=array(
@@ -184,11 +184,7 @@ foreach($Arrow as $MatchId => $SOs) {
 							);
 						}
 					}
-					$JSON['t'][]=array(
-						'id' => 'EndSetR_SO',
-						'val' => $Match['oppSetScore'],
-					);
-//				} else {
+				} else {
 
 					if($isSO) {
 						for($i=0;$i<$soEnds;$i++) {
@@ -211,11 +207,15 @@ foreach($Arrow as $MatchId => $SOs) {
 								);
 						}
 					}
-					$JSON['t'][]=array(
-						'id' => 'EndSetL_SO',
-						'val' => $Match['setScore'],
-					);
-			//	}
+				}
+                $JSON['t'][]=array(
+                    'id' => 'EndSetR_SO',
+                    'val' => $Match['oppSetScore'],
+                );
+                $JSON['t'][]=array(
+                    'id' => 'EndSetL_SO',
+                    'val' => $Match['setScore'],
+                );
                 for($i=0;$i<$obj->ends;$i++) {
                     if($Section['meta']['matchMode']) {
                         $TotL+=($Match['setPointsByEnd'][$i] ? $Match['setPointsByEnd'][$i] : 0);

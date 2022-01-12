@@ -172,10 +172,8 @@ if(intval(PHP_VERSION) < 5) {
 
 function print_row($param, $min, $key, $test, $mandatory=false) {
 	echo '<tr>';
-	echo '<td align="right">'.$key.'</td>';
-	echo '<td align="center">'.$min.'</td>';
+	echo '<td class="Right">'.$key.'</td>';
+	echo '<td class="Center">'.$min.'</td>';
 	echo '<td style="background-color:'.($test?($mandatory?'#ffa0a0':'#ffd0a0'):'#a0ffa0').'"><b>'.$param.'</b></td>';
 	echo '</tr>';
 }
-
-?>

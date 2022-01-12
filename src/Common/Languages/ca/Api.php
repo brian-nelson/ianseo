@@ -1,4 +1,5 @@
 <?php
+$lang['API-AutoGroup']='Creació Massiva de Grups';
 $lang['API-ConfirmDeleteRow']='Esteu segur que voleu suprimir aquesta fila?';
 $lang['API-DeviceGrouping']='Agrupació de dispositius';
 $lang['API-Group']='Grup';
@@ -18,6 +19,7 @@ $lang['Desc-Let-Y']='Tanda llesta per a la importació';
 $lang['Desc-Let-Z']='Anotació en curs';
 $lang['DistanceNum']='distància $a';
 $lang['FlashCodeDistance']='Escaneja aquest codi a l\'aplicació per tantejar $a';
+$lang['HitToWin']='Encertar per guanyar';
 $lang['ISK-Anomalies']='Anomalies';
 $lang['ISK-AppList']='Llista APK';
 $lang['ISK-AppQrCode']='Imprimir codis d\'instal·lació QR';
@@ -103,7 +105,7 @@ $lang['IskSpuriousScore-Device']='Dispositiu $a[0] enviant puntuacions a la dian
 $lang['IskSpuriousScore-Distance']='Dispositiu $a[0] tantejant a la distancia $a[1]';
 $lang['IskSpuriousScore-Empty']='Dispositiu $a[0] tantejat al lloc $a[1]';
 $lang['IskSpuriousScore-End']='Dispositiu $a[0] tantejant a la tanda $a[1]';
-$lang['IskSpuriousScore-Match']='Dispositiu $a[0] tantejant a l\'enfrontament $a[1]';
+$lang['IskSpuriousScore-Match']='Dispositiu $a[0] tantejant a l\'encontre $a[1]';
 $lang['IskTargetTitle']='Diana $a';
 $lang['IskUnknownDevice']='Dispositiu desconegut a la diana $a';
 $lang['LockToEnds']='Restringir puntuació a les següents tandes (significa cap puntuació sense restriccions)';
@@ -130,4 +132,5 @@ $lang['TVCss3Divider']='Calibrador';
 $lang['TVCss3Loser']='Modificació perdedor';
 $lang['WAToolbox-MissingParams']='Falta paràmetre';
 $lang['WAToolbox-NoCompCode']='Falta codi competició';
+$lang['XToWin']='$a per guanyar';
 ?>

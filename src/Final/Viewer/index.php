@@ -36,31 +36,37 @@ include('Common/Templates/head-BS.php');
 <div class="card">
 	<div class="card-header text-center">
         <div class="d-flex justify-content-center align-items-center">
-            <div id="OppLeft">Opponent Left</div>
-            <div id="Event">Event<br/>>Phase</div>
-            <div id="OppRight">Opponent Right</div>
+            <div id="OppLeftContainer">
+                <div id="OppLeft">Opponent Left</div>
+            </div>
+            <div id="EventContainer">
+                <div id="Event">Event<br/>Phase</div>
+            </div>
+            <div id="OppRightContainer">
+                <div id="OppRight">Opponent Right</div>
+            </div>
         </div>
 	</div>
 	<div class="card-body p-0">
-		<table id="MainTable" width="100%">
-			<tr class="text-center" valign="top">
+		<table id="MainTable" class="w-100">
+			<tr class="text-center align-top" >
                 <td id="TgtLeft" class="w-45"><svg class="SVGTarget"></svg></td>
-                <td rowspan="2" class="w-10" valign="top" id="spotMenu">
+                <td rowspan="2" class="w-10" id="spotMenu">
                     <div class="btn-group-vertical btn-group mt-2" role="group">
                         <button type="button" class="btn btn-info btnViewMenu" id="btnPresentation" onclick="setView('Presentation')">[Presentation]</button>
                         <button type="button" class="btn btn-info btnViewMenu" id="btnBiography" onclick="setView('Biography')">[Biography]</button>
                         <button type="button" class="btn btn-info btnViewMenu" id="btnScorecard" onclick="setView('Scorecard')">[Scorecard]</button>
                         <button type="button" class="btn btn-info btnViewMenu" id="btnTarget" onclick="setView('Target')">[Target]</button>
                     </div>
-                    <div class="btn-group-vertical btn-group mt-2" role="group">
-                        <button type="button" class="btn btn-info btnViewMenu" style="display: none;" id="btnCeremony" onclick="setView('Ceremony')">[Ceremony]</button>
-<!--                        <button type="button" class="btn btn-warning" id="btnAuto" onclick="setView('Auto')">[Auto]</button>-->
+                    <div class="btn-group-vertical btn-group mt-2 hidden" id="btnCeremony" role="group">
+                        <button type="button" class="btn btn-info btnViewMenu" onclick="setView('Ceremony')">[Ceremony]</button>
+                    </div>
+                    <div class="btn-group-vertical btn-group mt-3" role="group">
+                        <button type="button" class="btn btn-info btnViewMenu" id="bntSelectMatch" onclick="selectMatch()">[Select Match]</button>
+                        <button type="button" class="btn btn-danger btnViewMenu" id="bntGoToLive" onclick="goToLive()">[Live Match]</button>
                     </div>
 
-                    <div class="btn-group-vertical btn-group mt-5" role="group">
-                        <button type="button" class="btn btn-info" id="bntSelectMatch" onclick="selectMatch()">[Select Match]</button>
-                        <button type="button" class="btn btn-danger" id="bntGoToLive" onclick="goToLive()">[Live Match]</button>
-                    </div>
+                    <div class="btn-group-vertical btn-group mt-3" role="group" id="EndSelector"></div>
 
                 </td>
 				<td id="TgtRight" class="w-45"><svg class="SVGTarget"></svg></td>

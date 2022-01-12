@@ -178,7 +178,6 @@ $lang['Setup-CA']='Undang-undang Pertandingan Canadian';
 $lang['Setup-CH']='Undang-undang Pertandingan Swiss';
 $lang['Setup-Default']='Undang-undang Pertandingan Memanah Dunia';
 $lang['Setup-DK']='Undang-undang Danish';
-$lang['Setup-F2F']='Face2Face';
 $lang['Setup-FR']='Undang-undang Perancis';
 $lang['Setup-IT']='FITARCO - Undang-undang Pertandingan Italian';
 $lang['Setup-Kyudo']='Pertandingan Kyudo';

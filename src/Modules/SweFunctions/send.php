@@ -89,7 +89,8 @@ function prepareIndQualification($data) {
                 'dist_6' => $ivalue['dist_6'],
                 'dist_7' => $ivalue['dist_7'],
                 'dist_8' => $ivalue['dist_8'],
-                'hits' => $ivalue['arrowsShot']
+                'hits' => $ivalue['arrowsShot'],
+                'id' => $ivalue['id']
             );
         }
 
@@ -124,10 +125,12 @@ function prepareIndFinals($data) {
             $currentFinals = array();
             foreach($ivalue['finals'] as $fkey => $fvalue) {
                 $currentFinals[$fkey] = array(
+                    'athleteId' => $ivalue['id'],
                     'score' => $fvalue['score'],
                     'setScore' => $fvalue['setScore'],
                     'tie' => $fvalue['tie'],
                     'tiebreak' => $fvalue['tiebreak'],
+                    'oppAthleteId' => $fvalue['oppAthlete'],
                     'oppAthlete' => $value['items'][$fvalue['oppAthlete']]['bib'],
                     'oppScore' => $fvalue['oppScore'],
                     'oppSetScore' => $fvalue['oppSetScore'],
@@ -137,6 +140,7 @@ function prepareIndFinals($data) {
             }
 
             $item[] = array(
+                'id' => $ivalue['id'],
                 'bib'=> $ivalue['bib'],
                 'familyname' => $ivalue['familyname'],
                 'givenname' => $ivalue['givenname'],

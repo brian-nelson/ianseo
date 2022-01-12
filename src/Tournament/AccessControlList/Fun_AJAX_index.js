@@ -73,3 +73,9 @@ function changeAll(id, level) {
         });
     }
 }
+
+function exportACL() {
+    if(confirm(AreYouSure)) {
+    	location.href='UpdateFeature.php?export=1';
+    }
+}

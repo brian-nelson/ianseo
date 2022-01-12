@@ -41,7 +41,7 @@
 						ORDER BY IskDtEndNo ASC";
 					$q=safe_r_SQL($SQL);
 					while($r=safe_fetch($q)) {
-						if($r->IskDtEndNo > $objParam->ends) {
+						if($IsSO=($r->IskDtEndNo > $objParam->ends)) {
 							// tie break
 							$fld = ($r->IskDtMatchNo == $vItem['matchNo'] ? 'tiebreak' : 'oppTiebreak');
 							$vItem[$fld]=str_repeat(' ', strlen($r->IskDtArrowstring));
@@ -54,6 +54,18 @@
 						}
 						for($i=0; $i<strlen($r->IskDtArrowstring); $i++) {
 							$vItem[$fld][$idx++] = $r->IskDtArrowstring[$i];
+						}
+					}
+					if(strlen(trim($vItem['tiebreak']))==strlen(trim($vItem['oppTiebreak'])) and strlen(trim($vItem['tiebreak']))>0) {
+						//we have a closest to center and a winner here!
+						if($vItem['oppTiebreak']!=strtoupper($vItem['oppTiebreak'])) {
+							$vItem['oppClosest']='1';
+							$vItem['oppWinner']='1';
+							$vItem['oppTiebreak']=strtoupper($vItem['oppTiebreak']);
+						} elseif($vItem['tiebreak']!=strtoupper($vItem['tiebreak'])) {
+							$vItem['closest']='1';
+							$vItem['winner']='1';
+							$vItem['tiebreak']=strtoupper($vItem['tiebreak']);
 						}
 					}
 				}
@@ -87,17 +99,23 @@
 
 				// check tiebreak
 				$SO=false;
-				if(!empty($vItem['tiebreak']) or !empty($vItem['oppTiebreak'])) {
-					if(!trim($vItem['tiebreak']) and ! trim($vItem['oppTiebreak'])) continue;
+				if(strlen(trim($vItem['tiebreak']))==strlen(trim($vItem['oppTiebreak'])) and strlen(trim($vItem['tiebreak']))>0) {
 					$SO=true;
+					// now we have a closest to centre but if the SO comes from the stored values of the device we need to hack the "*" into a closest!!
 					$pts0=ValutaArrowString($vItem['tiebreak']);
 					$pts1=ValutaArrowString($vItem['oppTiebreak']);
 
 					if($vSec['meta']['matchMode']) {
-						$endtot0 = ($pts0==$pts1 ? 0 : (($pts0>$pts1 or $vItem['tiebreak']!=strtoupper($vItem['tiebreak'])) ? 1 : 0));
-						$endtot1 = ($pts0==$pts1 ? 0 : (($pts0<$pts1 or $vItem['oppTiebreak']!=strtoupper($vItem['oppTiebreak'])) ? 1 : 0));
-						$Tot0+=$endtot0;
-						$Tot1+=$endtot1;
+						$endtot0=0;
+						$endtot1=0;
+						if($vItem['winner'] or $pts0>$pts1 or $vItem['closest']) {
+							$endtot0=1;
+							$Tot0+=1;
+						}
+						if($vItem['oppWinner'] or $pts0<$pts1 or $vItem['oppClosest']) {
+							$endtot1=1;
+							$Tot1+=1;
+						}
 					} else {
                         $endtot0 = '-';
                         $endtot1 = '-';
