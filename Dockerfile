@@ -20,7 +20,11 @@ RUN apt-get update && apt-get install -y \
     && yes '' | pecl install mcrypt-1.0.2 \
     && yes '' | pecl install imagick \
     && docker-php-ext-enable mcrypt imagick \
-    && apt-get clean all
+    && apt-get clean all \
+    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+    rm -rf /var/lib/apt/lists/* ; \
+    pecl update-channels ; \
+    rm -rf /tmp/pear ~/.pearrc
 # ianseo setup
 COPY src/ /opt/ianseo
 RUN chmod -R a+wX /opt/ianseo
